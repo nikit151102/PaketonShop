@@ -1,0 +1,23 @@
+#section-sales {
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f0f4f8, #ffffff);
+  border-radius: 16px;
+  margin: 2rem 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+#section-sales h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: start;
+  color: #2d3436;
+}
+
+app-popular-products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 20px;
+}

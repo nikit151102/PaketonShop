@@ -1,0 +1,119 @@
+<div class="cart-layout">
+
+    <!-- Левый блок: товары -->
+    <div style="    flex: 2; display: flex;
+    flex-direction: column;
+    gap: 20px;">
+        <div class="products">
+
+
+            <h2>Товары в корзине</h2>
+
+            <app-product [product]="p" *ngFor="let p of products" class="product">
+
+            </app-product>
+
+
+            <div class="cart-footer">
+                <button type="button" class="continue-btn">Продолжить покупки</button>
+                <button type="button" class="checkout-btn">Перейти к оформлению</button>
+            </div>
+        </div>
+
+        <div class="products">
+
+            <!-- Форма заказа -->
+            <!-- Форма заказа -->
+            <form class="order-form">
+                <h2>🛒 Оформление заказа</h2>
+
+                <section>
+                    <h3>👤 Ваши данные</h3>
+                    <div class="inputs-grid">
+                        <input placeholder="Фамилия" [(ngModel)]="formData.lastName" name="lastName">
+                        <input placeholder="Имя" [(ngModel)]="formData.firstName" name="firstName">
+                        <input placeholder="Отчество" [(ngModel)]="formData.middleName" name="middleName">
+                        <input placeholder="Телефон" [(ngModel)]="formData.phone" name="phone">
+                        <input placeholder="Email" [(ngModel)]="formData.email" name="email">
+                    </div>
+                </section>
+
+                <section>
+                    <h3>ℹ️ Дополнительная информация</h3>
+                    <textarea placeholder="Комментарий к заказу" [(ngModel)]="formData.info" name="info"></textarea>
+                    <label class="select-label">
+                        Нужна ли консультация?
+                        <select [(ngModel)]="formData.needConsult" name="needConsult">
+                            <option [ngValue]="false">Нет</option>
+                            <option [ngValue]="true">Да</option>
+                        </select>
+                    </label>
+                </section>
+
+                <section>
+                    <h3>🏷️ Тип покупателя</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" [(ngModel)]="formData.personType" value="fiz" name="personType"> Физ.
+                            лицо</label>
+                        <label><input type="radio" [(ngModel)]="formData.personType" value="jur" name="personType"> Юр.
+                            лицо</label>
+                    </div>
+
+                    <div *ngIf="formData.personType==='jur'" class="companies">
+                        <h4>Компании</h4>
+                        <div class="company-cards">
+                            <div class="company-card" *ngFor="let c of companies; let i = index">
+                                <div class="company-icon">🏢</div>
+                                <div class="company-info">
+                                    <div class="company-name">{{ c.name }}</div>
+                                    <div class="company-inn">ИНН: {{ c.inn }}</div>
+                                </div>
+                                <button type="button" class="remove-btn">✕</button>
+                            </div>
+
+                            <button type="button" class="add-btn" (click)="addCompany()">+ Добавить компанию</button>
+                        </div>
+
+
+                    </div>
+                </section>
+
+                <section>
+                    <h3>🚚 Способ доставки</h3>
+                    <div class="radio-group">
+                        <label><input type="radio" [(ngModel)]="formData.delivery" value="pickup" name="delivery">
+                            Самовывоз</label>
+                        <label><input type="radio" [(ngModel)]="formData.delivery" value="transport" name="delivery">
+                            Транспортная компания</label>
+                        <label><input type="radio" [(ngModel)]="formData.delivery" value="city" name="delivery">
+                            Доставка по городу</label>
+                    </div>
+
+                    <div class="delivery-info" *ngIf="formData.delivery==='pickup'">
+                        📍 Адрес самовывоза: ул. Примерная, д. 1
+                    </div>
+                    <div class="delivery-info" *ngIf="formData.delivery==='transport'">
+                        🏢 Укажите транспортную компанию при подтверждении заказа.
+                    </div>
+                    <div class="delivery-info" *ngIf="formData.delivery==='city'">
+                        💰 Стоимость доставки по городу рассчитывается индивидуально.
+                    </div>
+                </section>
+
+                <label class="agreement">
+                    <input type="checkbox" [(ngModel)]="formData.agreement" name="agreement">
+                    Согласие на обработку персональных данных
+                </label>
+
+                <button type="submit" class="submit-btn">✨ Отправить заказ</button>
+            </form>
+
+
+        </div>
+    </div>
+
+    <!-- Правый блок: итоги -->
+    <app-summary></app-summary>
+
+
+</div>

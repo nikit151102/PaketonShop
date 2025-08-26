@@ -1,0 +1,71 @@
+<div class="product-card">
+  <div class="product-main">
+    <!-- Изображение -->
+    <div class="product-image">
+      <img [src]="product.image" alt="{{ product.name }}">
+    </div>
+
+    <!-- Информация -->
+    <div class="product-details">
+      <h3 class="product-title">{{ product.name }}</h3>
+      <small class="sku">Артикул: {{ product.sku }}</small>
+
+      <!-- <p class="product-desc">{{ product.description }}</p> -->
+
+      <!-- Рейтинг -->
+      <div class="rating">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product.rating ?? 0)">★</span>
+        <small>({{ product.reviews }} отзывов)</small>
+      </div>
+
+      <!-- Наличие -->
+      <p class="availability" [class.in-stock]="product.available" [class.out-stock]="!product.available">
+        {{ product.available ? 'В наличии' : 'Под заказ' }}
+      </p>
+    </div>
+
+    <!-- Действия -->
+    <div class="product-actions">
+      <div class="qty-control">
+        <button (click)="decreaseQty(product)">−</button>
+        <input type="number" [(ngModel)]="product.qty" min="1">
+        <button (click)="increaseQty(product)">+</button>
+      </div>
+
+      <div class="price-info">
+        <div class="current-price">
+          {{ product.price }} ₽
+        </div>
+
+        <div class="total-price" *ngIf="product.qty > 1">
+          Всего: <span>{{ product.price * product.qty }} ₽</span>
+        </div>
+
+        <div class="discount" *ngIf="product.oldPrice && product.oldPrice > product.price">
+          <span class="old-price">{{ product.oldPrice }} ₽</span>
+          <span class="sale-badge">-{{ ((product.oldPrice - product.price)/product.oldPrice * 100) | number:'1.0-0'
+            }}%</span>
+        </div>
+      </div>
+
+
+      <div class="action-buttons">
+        <button class="wishlist-btn">♥</button>
+        <button class="remove-btn" (click)="removeProduct(product.id)">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Сопутствующие -->
+  <div class="related-products" *ngIf="product.related?.length">
+    <h4 (click)="toggleRelated(product)">С этим товаром покупают:</h4>
+    <div class="related-list">
+      <div class="related-item" *ngFor="let r of product.related">
+        <img [src]="r.image" alt="{{ r.name }}">
+        <p>{{ r.name }}</p>
+        <span>{{ r.price }} ₽</span>
+        <button>Добавить</button>
+      </div>
+    </div>
+  </div>
+</div>

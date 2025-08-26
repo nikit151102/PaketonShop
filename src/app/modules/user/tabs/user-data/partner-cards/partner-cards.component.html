@@ -1,0 +1,35 @@
+<div class="partner-cards">
+    <div class="partner-cards__fade partner-cards__fade--left"></div>
+    <div class="partner-cards__fade partner-cards__fade--right"></div>
+
+    <!-- стрелки -->
+    <button class="partner-cards__arrow partner-cards__arrow--left" (click)="scrollLeft()">
+        &#10094;
+    </button>
+    <button class="partner-cards__arrow partner-cards__arrow--right" (click)="scrollRight()">
+        &#10095;
+    </button>
+
+    <div class="partner-cards__wrapper" #scrollWrapper>
+        <div *ngFor="let partner of partners" class="partner-card">
+            <h3 class="partner-card__title">{{ partner.shortName }}</h3>
+
+            <div class="partner-card__body">
+                <p class="partner-card__info"><span>ИНН:</span> {{ partner.inn }}</p>
+                <p class="partner-card__info"><span>Телефон:</span> {{ partner.phoneNumber }}</p>
+                <p class="partner-card__info"><span>Сфера:</span> {{ partner.workDirection }}</p>
+            </div>
+
+            <div class="partner-card__footer">
+                <button class="partner-card__btn" (click)="openPartner(partner)">Подробнее</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="partner-cards__progress">
+        <div class="partner-cards__progress-bar" #progressBar></div>
+    </div>
+</div>
+
+<app-partner-detail *ngIf="selectedPartner" [partner]="selectedPartner" [closeCallback]="closePartner.bind(this)">
+</app-partner-detail>

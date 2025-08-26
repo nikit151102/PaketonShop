@@ -1,0 +1,149 @@
+.products-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding: 1rem;
+  background: #f7f9fb;
+  border-radius: 16px;
+
+  scrollbar-color: #ced6e0 transparent;
+  scrollbar-width: thin;
+}
+
+
+.products-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.products-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.products-container::-webkit-scrollbar-thumb {
+  background-color: #ced6e0;
+  border-radius: 8px;
+}
+
+.products-container::-webkit-scrollbar-thumb:hover {
+  background-color: #a4b0be;
+}
+
+
+.products-wrapper {
+  position: relative;
+}
+
+.scroll-left,
+.scroll-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.scroll-left {
+  left: 0.5rem;
+}
+
+.scroll-right {
+  right: 0.5rem;
+}
+
+
+.products-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  scroll-behavior: smooth;
+  min-width: 100%;
+}
+
+.product-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.product-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  text-align: center;
+  color: #2d3436;
+}
+
+.price {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.price .old {
+  text-decoration: line-through;
+  color: #b2bec3;
+  font-size: 0.9rem;
+}
+
+.price .new {
+  color: #e17055;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: #ff4757;
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.product-card button {
+  background-color: #0984e3;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.product-card button:hover {
+  background-color: #0652dd;
+}

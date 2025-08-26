@@ -1,0 +1,15 @@
+<div class="categories">
+  <div class="category-card" *ngFor="let category of categories">
+    <img [src]="category.image" alt="{{ category.name }}" />
+    <div class="category-info">
+      <h4>{{ category.name }}</h4>
+      <ng-container *ngIf="category.subcategories $$ category.subcategories.lenght > 0">
+        <div class="subcategories" >
+          <a *ngFor="let sub of category.subcategories" [routerLink]="['/catalog', sub.slug]" class="subcategory-chip">
+            {{ sub.name }}
+          </a>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

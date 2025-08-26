@@ -1,0 +1,171 @@
+<app-product-card></app-product-card>
+
+<div class="tabs">
+    <div class="tab-buttons">
+        <button [class.active]="activeTab==='description'" (click)="setTab('description')">Описание</button>
+        <button [class.active]="activeTab==='features'" (click)="setTab('features')">Характеристики</button>
+        <button [class.active]="activeTab==='reviews'" (click)="setTab('reviews')">Отзывы</button>
+    </div>
+
+
+    <div class="tab-content">
+        <div *ngIf="activeTab==='description'">
+            <p>Этот бумажный стакан объемом 150 мл предназначен для использования в автоматах для напитков, обеспечивая
+                удобство и гигиеничность при их подаче. Он выполнен из высококачественного картона с внутренним
+                покрытием, которое предотвращает протекание и обеспечивает долговечность, сохраняя напитки в идеальном
+                состоянии. Стакан имеет компактный размер, что делает его удобным для использования в автоматах,
+                предназначенных для подачи горячих и холодных напитков, таких как кофе, чай, соки и прочее. Он идеально
+                подходит для офисов, кафе, ресторанов, а также для других общественных мест, где используются автоматы
+                для напитков. При этом стакан остается экологически безопасным, так как произведен из перерабатываемых
+                материалов, что делает его подходящим для людей, заботящихся о природе и стремящихся сократить
+                использование пластика. К тому же, стакан не только функционален, но и комфортен в использовании,
+                благодаря своей удобной форме и легкости, что позволяет легко держать его в руке, а также предотвращает
+                проливание напитка. Он отлично подходит для кафе, офисов, торговых точек и любых мест с высокой
+                проходимостью людей, где необходимы одноразовые посуды для напитков.</p>
+        </div>
+        <div *ngIf="activeTab==='features'">
+  <div class="product-specs-column">
+  <h2>Характеристики</h2>
+  <ul>
+    <li>
+      <span class="icon">💧</span>
+      <span class="label">Объем:</span>
+      <span class="value">150 мл</span>
+    </li>
+    <li>
+      <span class="icon">📦</span>
+      <span class="label">Материал:</span>
+      <span class="value">Картон с защитным внутренним покрытием</span>
+    </li>
+    <li>
+      <span class="icon">⚖️</span>
+      <span class="label">Диаметр верхнего края:</span>
+      <span class="value">7,5 см</span>
+    </li>
+    <li>
+      <span class="icon">📏</span>
+      <span class="label">Высота:</span>
+      <span class="value">9,5 см</span>
+    </li>
+    <li>
+      <span class="icon">☕❄️</span>
+      <span class="label">Применение:</span>
+      <span class="value">Подходит для горячих и холодных напитков</span>
+    </li>
+    <li>
+      <span class="icon">🌱</span>
+      <span class="label">Экологичность:</span>
+      <span class="value">Перерабатываемый материал</span>
+    </li>
+    <li>
+      <span class="icon">🔥</span>
+      <span class="label">Температура использования:</span>
+      <span class="value">До 90°C</span>
+    </li>
+    <li>
+      <span class="icon">📦</span>
+      <span class="label">Упаковка:</span>
+      <span class="value">50 шт. в упаковке</span>
+    </li>
+  </ul>
+</div>
+
+        </div>
+
+        <div *ngIf="activeTab==='reviews'" class="reviews-grid">
+
+            <div class="review-card">
+                <div class="review-header">
+                    <img class="review-avatar" src="https://i.pravatar.cc/50?img=1" alt="User Avatar">
+                    <div>
+                        <h4 class="review-name">Мария К.</h4>
+                        <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+                <p class="review-text">
+                    Отличные стаканы! Очень удобно использовать в офисе, не протекают и держат тепло.
+                    Экологично и красиво. Рекомендую!
+                </p>
+                <div class="review-images">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                </div>
+
+                <!-- Ответ на отзыв -->
+                <div class="review-answer">
+                    <div class="answer-header">
+                        <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
+                        <span class="answer-name">Ответ бренда</span>
+                    </div>
+                    <p class="answer-text">
+                        Спасибо за отзыв, Мария! Нам приятно, что наши стаканы вам понравились.
+                    </p>
+                </div>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <img class="review-avatar" src="https://i.pravatar.cc/50?img=1" alt="User Avatar">
+                    <div>
+                        <h4 class="review-name">Мария К.</h4>
+                        <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+                <p class="review-text">
+                    Отличные стаканы! Очень удобно использовать в офисе, не протекают и держат тепло.
+                    Экологично и красиво. Рекомендую!
+                </p>
+                <div class="review-images">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                </div>
+
+                <!-- Ответ на отзыв -->
+                <div class="review-answer">
+                    <div class="answer-header">
+                        <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
+                        <span class="answer-name">Ответ бренда</span>
+                    </div>
+                    <p class="answer-text">
+                        Спасибо за отзыв, Мария! Нам приятно, что наши стаканы вам понравились.
+                    </p>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <img class="review-avatar" src="https://i.pravatar.cc/50?img=1" alt="User Avatar">
+                    <div>
+                        <h4 class="review-name">Мария К.</h4>
+                        <div class="review-rating">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+                <p class="review-text">
+                    Отличные стаканы! Очень удобно использовать в офисе, не протекают и держат тепло.
+                    Экологично и красиво. Рекомендую!
+                </p>
+                <div class="review-images">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                    <img src="https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13"
+                        alt="Review Image">
+                </div>
+
+                <!-- Ответ на отзыв -->
+                <div class="review-answer">
+                    <div class="answer-header">
+                        <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
+                        <span class="answer-name">Ответ бренда</span>
+                    </div>
+                    <p class="answer-text">
+                        Спасибо за отзыв, Мария! Нам приятно, что наши стаканы вам понравились.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

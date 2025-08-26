@@ -1,0 +1,12 @@
+<div class="carousel">
+  <div class="carousel__item" *ngFor="let slide of slides; let i = index" [class.active]="i === activeIndex">
+    <img [src]="slide.image" alt="banner" />
+    <div class="carousel__caption">
+      <h3>{{ slide.title }}</h3>
+      <p>{{ slide.subtitle }}</p>
+    </div>
+  </div>
+
+  <button class="carousel__prev" (click)="prevSlide()"><i class="fas fa-chevron-left"></i></button>
+  <button class="carousel__next" (click)="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+</div>

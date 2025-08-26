@@ -1,0 +1,72 @@
+<div class="product-card">
+
+  <!-- Галерея изображений -->
+  <app-product-gallery></app-product-gallery>
+
+  <!-- Информация о товаре -->
+  <div class="info">
+    <h1 class="title">Наименование товара</h1>
+    <p class="sku">Артикул: 12345</p>
+
+    <!-- Цена -->
+    <div class="price-wrapper" [class.discount]="isDiscount">
+      <span class="new-price">{{ 121 | number }} ₽</span>
+      <span *ngIf="oldPrice" class="old-price">{{ oldPrice | number }} ₽</span>
+    </div>
+
+    <!-- Варианты товара -->
+    <div class="variants">
+      <div class="variant-group">
+        <p>Цвет:</p>
+        <div class="variant-options">
+          <span *ngFor="let color of colors" 
+                [style.background]="color.value" 
+                [class.selected]="selectedColor===color.value"
+                (click)="selectColor(color.value)">
+          </span>
+        </div>
+      </div>
+
+      <div class="variant-group">
+        <p>Объем:</p>
+        <div class="variant-options">
+          <button *ngFor="let vol of volumes" 
+                  [class.selected]="selectedVolume===vol" 
+                  (click)="selectVolume(vol)">
+            {{ vol }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="actions">
+      <input type="number" [(ngModel)]="quantity" min="1" />
+      <button (click)="addToCart()">В корзину</button>
+    </div>
+
+    <!-- Наличие -->
+    <p class="stock" [class.low]="stock < 5">
+      В наличии: {{ stock }} шт.
+    </p>
+
+    <!-- Проверка наличия в магазинах -->
+    <button #storeCheckBtn class="store-check" (click)="openStores()">
+      Проверить наличие
+    </button>
+
+    <!-- Модалка -->
+    <div class="modal" *ngIf="showStores" [ngStyle]="{'top.px': modalTop, 'left.px': modalLeft}">
+      <h2>Наличие в магазинах</h2>
+      <ul>
+        <li *ngFor="let store of stores">
+          {{store.name}} — 
+          <span [class.in-stock]="store.inStock">
+            {{ store.inStock ? 'В наличии' : 'Нет в наличии' }}
+          </span>
+        </li>
+      </ul>
+      <button class="close-btn" (click)="showStores=false">Закрыть</button>
+    </div>
+  </div>
+</div>

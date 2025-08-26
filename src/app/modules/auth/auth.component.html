@@ -1,0 +1,43 @@
+<div class="popup-overlay" *ngIf="visible" (click)="closePopUp()">
+    <div class="popup" (click)="$event.stopPropagation()">
+        <div class="close-button" (click)="closePopUp()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 5L18 18M5.0002 18L18 5" stroke="#333334" stroke-opacity="0.3" stroke-width="1.4"
+                    stroke-linecap="round" />
+            </svg>
+        </div>
+
+        <form [formGroup]="authForm" autocomplete="off">
+            <div class="input-group">
+                <label for="email" class="text10opac05">Почта:</label>
+                <input #formField type="text" id="email" formControlName="email" placeholder="Введите почту"
+                    autocomplete="off"
+                    [ngClass]="{'invalid': authForm.get('email')?.invalid && (authForm.get('email')?.dirty && isError || authForm.get('email')?.touched && isError)}">
+                <div *ngIf="authForm.get('email')?.invalid && (authForm.get('email')?.dirty || authForm.get('email')?.touched)"
+                    class="error-message">
+                    <div *ngIf="authForm.get('email')?.errors?.['required']">почта обязательна для заполнения.</div>
+                </div>
+                <div *ngIf="authForm.get('email')?.errors?.['forbiddenWords']" class="error-message">
+                    Запрещённые слова: <span *ngFor="let word of authForm.get('email')?.errors?.['forbiddenWords']">{{
+                        word }},
+                    </span>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="password" class="text10opac05">Пароль:</label>
+                <input #formField type="text" id="password" formControlName="password" placeholder="Введите почту"
+                    autocomplete="off"
+                    [ngClass]="{'invalid': authForm.get('password')?.invalid && (authForm.get('password')?.dirty && isError || authForm.get('password')?.touched && isError)}">
+                <div *ngIf="authForm.get('password')?.invalid && (authForm.get('password')?.dirty || authForm.get('password')?.touched)"
+                    class="error-message">
+                    <div *ngIf="authForm.get('password')?.errors?.['required']">Пароль обязателен для заполнения.</div>
+                </div>
+                <div *ngIf="authForm.get('password')?.errors?.['forbiddenWords']" class="error-message">
+                    Запрещённые слова: <span *ngFor="let word of authForm.get('password')?.errors?.['forbiddenWords']">{{
+                        word }},
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

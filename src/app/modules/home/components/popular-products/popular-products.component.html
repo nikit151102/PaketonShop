@@ -1,0 +1,41 @@
+<div class="product-card" *ngFor="let product of popularProducts">
+  <!-- Верхний блок: бейдж и избранное -->
+  <div class="top-bar">
+    <div class="badge" [ngClass]="product.badgeType">{{ product.badge }}</div>
+    <div class="favorite" >
+      <span >❤</span>
+    </div>
+  </div>
+
+  <!-- Изображение -->
+  <div class="image-wrapper">
+    <img [src]="product.image" alt="{{ product.title }}" />
+  </div>
+
+  <!-- Название -->
+  <h4>{{ product.title }}</h4>
+
+  <!-- Цена -->
+  <div class="price-block">
+    <ng-container *ngIf="product.qty > 1; else singlePrice">
+      <div class="total-price">
+        <span class="per-item">За шт: {{ product.price }} <span class="rub">₽</span></span>
+        <span class="all">Итого: {{ product.price * product.qty }} <span class="rub">₽</span></span>
+      </div>
+    </ng-container>
+    <ng-template #singlePrice>
+      <div class="main-price">{{ product.price }} <span class="rub">₽</span></div>
+    </ng-template>
+    <span class="stock">В наличии: 244 шт.</span>
+  </div>
+
+  <!-- Количество -->
+  <div class="quantity">
+    <button (click)="decreaseQty(product)">−</button>
+    <input type="number" [(ngModel)]="product.qty" min="1" />
+    <button (click)="increaseQty(product)">+</button>
+  </div>
+
+  <!-- Добавить в корзину -->
+  <button class="add-cart">🛒 В корзину</button>
+</div>

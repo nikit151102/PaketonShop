@@ -1,0 +1,58 @@
+<div class="contacts-wrapper">
+
+  <h2 class="contacts-title">Свяжитесь с нами</h2>
+
+  <div class="contacts-grid">
+
+    <!-- Контакты -->
+    <div class="contact-card phone-card">
+      <div class="icon">📱</div>
+      <h3>Телефоны</h3>
+      <ul>
+        <li *ngFor="let phone of phones">
+          <a href="tel:{{phone | phoneLink}}">{{ phone }}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="contact-card whatsapp-card">
+      <div class="icon">💬</div>
+      <h3>WhatsApp</h3>
+      <a href="https://wa.me/{{ whatsapp | whatsappLink }}" target="_blank">{{ whatsapp }}</a>
+    </div>
+
+    <div class="contact-card email-card">
+      <div class="icon">✉️</div>
+      <h3>Email</h3>
+      <a href="mailto:{{ email }}">{{ email }}</a>
+    </div>
+
+    <div class="contact-card social-card">
+      <div class="icon">🌐</div>
+      <h3>Социальные сети</h3>
+      <div class="social-links">
+        <a [href]="vk" target="_blank">VK</a>
+        <a [href]="telegram" target="_blank">Telegram</a>
+      </div>
+    </div>
+
+    <div class="contact-card address-card">
+      <div class="icon">🏢</div>
+      <h3>Адрес</h3>
+      <p>{{ address }}</p>
+    </div>
+
+  </div>
+
+  <!-- Форма обратной связи -->
+  <div class="contact-form-card">
+    <h3>Отправьте нам сообщение</h3>
+    <form (submit)="onSubmit()">
+      <input type="text" placeholder="Ваше имя" [(ngModel)]="form.name" name="name" required>
+      <input type="email" placeholder="Email" [(ngModel)]="form.email" name="email" required>
+      <textarea placeholder="Сообщение" [(ngModel)]="form.message" name="message" rows="5" required></textarea>
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+
+</div>
