@@ -1,0 +1,23 @@
+<div class="questions-list">
+  <div class="question-card" *ngFor="let q of questions">
+    <div class="question-header">
+      <span class="date">{{ q.date | date:'dd.MM.yyyy' }}</span>
+    </div>
+
+    <div class="question-body">
+      <div class="product-info">
+        <img class="product-img" [src]="q.image" alt="{{ q.product }}">
+        <span class="product">{{ q.product }}</span>
+      </div>
+
+      <p class="question"><strong>Вопрос:</strong> {{ q.question }}</p>
+
+      <p class="answer" *ngIf="q.answer">
+        <strong>Ответ:</strong> {{ q.answer }}
+      </p>
+      <p class="answer" *ngIf="!q.answer">
+        <em>Ответ пока не предоставлен</em>
+      </p>
+    </div>
+  </div>
+</div>

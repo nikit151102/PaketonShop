@@ -1,0 +1,111 @@
+.profile-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    /* Форма профиля */
+    .profile-form {
+        background: #fff;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* Сетка заменена на flex */
+        .form-grid {
+            display: flex;
+            gap: 1.25rem;
+
+            .form-group {
+                flex: 1 1 200px; // минимум 240px ширина, дальше растягивается
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
+                padding: 5px;
+
+                label {
+                    font-size: 0.9rem;
+                    color: #374151;
+                    font-weight: 500;
+                }
+
+                input {
+                    padding: 0.6rem 0.8rem;
+                    border: 1px solid #d1d5db;
+                    border-radius: 10px;
+                    font-size: 0.95rem;
+                    transition: border 0.2s;
+
+                    &:focus {
+                        outline: none;
+                        border-color: #3b82f6;
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+                    }
+
+                    &:disabled {
+                        background: #f3f4f6;
+                        color: #6b7280;
+                    }
+                }
+            }
+        }
+
+        .avatar-upload {
+            .avatar-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                width: 100%;
+
+                .avatar {
+                    width: 110px;
+                    height: 110px;
+                    border-radius: 50%;
+                    border: 3px solid #f3f4f6;
+                    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+                }
+
+                .btn-upload {
+                    background: #e5e7eb;
+                    border: none;
+                    padding: 0.5rem 0.9rem;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 0.85rem;
+                    transition: background 0.2s;
+
+                    &:hover {
+                        background: #d1d5db;
+                    }
+                }
+            }
+        }
+
+        .form-actions {
+            margin-top: 1.5rem;
+            text-align: right;
+
+            .btn-primary {
+                background: #3b82f6;
+                border: none;
+                color: #fff;
+                font-size: 0.95rem;
+                font-weight: 500;
+                padding: 0.7rem 1.4rem;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: background 0.2s;
+
+                &:hover {
+                    background: #2563eb;
+                }
+            }
+        }
+    }
+}

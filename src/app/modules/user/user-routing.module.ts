@@ -15,6 +15,19 @@ const routes: Routes = [
         path: 'profile',
         loadChildren: () => import('./tabs/user-data/user-data.module').then(m => m.UserDataModule)
       },
+      {
+        path: 'orderHistory',
+        loadChildren: () => import('./tabs/order-history/order-history.module').then(m => m.OrderHistoryModule)
+      },
+      {
+        path: 'currentOrders',
+        loadChildren: () => import('./tabs/current-orders/current-orders.module').then(m => m.CurrentOrdersModule)
+      },
+      {
+        path: 'questions',
+        loadChildren: () => import('./tabs/questions/questions.module').then(m => m.QuestionsModule)
+      },
+
     ]
   }
 ];

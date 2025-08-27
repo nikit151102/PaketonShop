@@ -1,0 +1,37 @@
+<section class="current-orders">
+    <h3>Текущие заказы</h3>
+
+    <div class="orders-list">
+        <div class="order-card" *ngFor="let order of currentOrders">
+            <div class="order-header">
+                <span class="order-number">#{{ order.id }}</span>
+                <span class="order-date">{{ order.date | date:'dd.MM.yyyy' }}</span>
+            </div>
+
+            <div class="order-details">
+                <p><strong>Сумма:</strong> {{ order.amount | currency:'RUB':'symbol':'1.0-0' }}</p>
+                <p><strong>Товаров:</strong> {{ order.itemsCount }}</p>
+                <p>
+                    <strong>Статус:</strong>
+                    <span class="status" [ngClass]="order.status">{{ order.status }}</span>
+                </p>
+            </div>
+
+            <!-- Прогресс -->
+            <div class="order-progress">
+                <div class="steps">
+                    <div class="step" *ngFor="let step of ['Готовится', 'В пути', 'Доставлен']; let i = index"
+                        [class.active]="i <= getStep(order)">
+                        <div class="circle">{{ i + 1 }}</div>
+                        <span class="label">{{ step }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-actions">
+                <button class="btn track">Подробнее</button>
+                <button class="btn cancel" *ngIf="order.status === 'В обработке'">Отменить</button>
+            </div>
+        </div>
+    </div>
+</section>

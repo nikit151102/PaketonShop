@@ -1,24 +1,25 @@
-<nav class="vertical-menu">
+<nav class="menu">
   <ul>
-    <li class="active">
-      <!-- <span class="icon">🏠</span> -->
-      <span class="text">Профиль</span>
+    <li routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" [routerLink]="['profile']">
+      Профиль
     </li>
-    <li>
-      <!-- <span class="icon">📁</span> -->
-      <span class="text">Заказы</span>
+    <li routerLinkActive="active" [routerLink]="['currentOrders']">
+      Заказы
     </li>
-    <li>
-      <!-- <span class="icon">💬</span> -->
-      <span class="text">История заказов</span>
+    <li routerLinkActive="active" [routerLink]="['orderHistory']">
+      История заказов
     </li>
-    <li>
-      <!-- <span class="icon">⚙️</span> -->
-      <span class="text">Избранное</span>
+    <li routerLinkActive="active" [routerLink]="['favorites']">
+      Избранное
     </li>
-    <li>
-      <!-- <span class="icon">❓</span> -->
-      <span class="text">Мои отзывы и вопросы</span>
+    <li routerLinkActive="active" [routerLink]="['questions']">
+      Мои вопросы и ответы
+    </li>
+    <li routerLinkActive="active" [routerLink]="['settings']">
+      Настройки
+    </li>
+    <li (click)="logout()">
+      Выход
     </li>
   </ul>
 </nav>

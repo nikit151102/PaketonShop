@@ -1,0 +1,28 @@
+<section class="order-history">
+  <h3>История заказов</h3>
+
+  <div class="orders-list">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="order-header">
+        <span class="order-number">#{{ order.id }}</span>
+        <span class="order-date">{{ order.date | date:'dd.MM.yyyy' }}</span>
+      </div>
+
+      <div class="order-details">
+        <p><strong>Сумма:</strong> {{ order.amount | currency:'RUB':'symbol':'1.0-0' }}</p>
+        <p><strong>Товаров:</strong> {{ order.itemsCount }}</p>
+        <p>
+          <strong>Статус:</strong>
+          <span class="status" [ngClass]="order.status">{{ order.status }}</span>
+        </p>
+        <p><strong>Оплата:</strong> {{ order.payment }}</p>
+        <p><strong>Доставка:</strong> {{ order.delivery }}</p>
+      </div>
+
+      <div class="order-actions">
+        <button class="btn view">Просмотр</button>
+        <button class="btn repeat">Повторить заказ</button>
+      </div>
+    </div>
+  </div>
+</section>

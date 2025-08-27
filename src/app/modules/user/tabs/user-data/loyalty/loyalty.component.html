@@ -1,0 +1,60 @@
+<section class="loyalty">
+  <h3>Моя программа лояльности</h3>
+
+  <div class="loyalty-progress">
+    <div class="levels">
+      <div
+        class="level"
+        *ngFor="let lvl of loyaltyLevels; let i = index"
+        [class.active]="currentAmount >= lvl.min"
+      >
+        <div class="crown">👑</div>
+        <span class="label">{{ lvl.name }}</span>
+        <span class="range">{{ lvl.min | number }} ₽</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div
+        class="progress-fill"
+        [style.width.%]="progressPercent"
+      ></div>
+    </div>
+  </div>
+
+  <div class="loyalty-info">
+    <div class="info-card">
+      <div class="icon">💰</div>
+      <div class="text">
+        <p class="title">Ваши заказы за месяц</p>
+        <p class="value">{{ currentAmount | number }} ₽</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="icon">🎁</div>
+      <div class="text">
+        <p class="title">Текущий уровень</p>
+        <p class="value highlight">{{ currentLevel?.name }}</p>
+      </div>
+    </div>
+
+    <div class="info-card" *ngIf="nextLevel">
+      <div class="icon">⬆️</div>
+      <div class="text">
+        <p class="title">До следующего уровня</p>
+        <p class="value">
+          {{ nextLevel.min - currentAmount | number }} ₽
+        </p>
+      </div>
+    </div>
+
+    <div class="info-card vip" *ngIf="!nextLevel">
+      <div class="icon">🔥</div>
+      <div class="text">
+        <p class="title">Поздравляем!</p>
+        <p class="value">Вы достигли VIP уровня 🎉</p>
+      </div>
+    </div>
+  </div>
+</section>

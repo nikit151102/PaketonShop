@@ -1,148 +1,90 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Partner } from '../../../../../../models/partner.interface';
 import { CommonModule } from '@angular/common';
-import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 
 @Component({
   selector: 'app-partner-cards',
-  imports: [CommonModule, PartnerDetailComponent],
+  imports: [CommonModule],
   templateUrl: './partner-cards.component.html',
   styleUrl: './partner-cards.component.scss'
 })
-export class PartnerCardsComponent implements AfterViewInit {
-  @Input() partners: Partner[] = [
+export class PartnerCardsComponent {
+    companies = [
     {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
+      FullName: 'ООО "ТехноСервис"',
+      ShortName: 'ТехноСервис',
+      Inn: '7701234567',
+      Ogrn: '1157746123456',
+      Kpp: '770101001',
+      Address: 'г. Москва, ул. Ленина, д. 10',
+      LastName: 'Иванов',
+      FirstName: 'Иван',
+      MiddleName: 'Иванович',
+      KorAccount: '30101810400000000225',
+      CheckingAccount: '40702810900000001234',
+      WorkDirection: 'IT услуги',
+      PhoneNumber: '+7 (495) 123-45-67'
     },
     {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
+      FullName: 'АО "СтройГрупп"',
+      ShortName: 'СтройГрупп',
+      Inn: '7707654321',
+      Ogrn: '1167746123789',
+      Kpp: '770701001',
+      Address: 'г. Санкт-Петербург, пр. Невский, д. 25',
+      LastName: 'Петров',
+      FirstName: 'Петр',
+      MiddleName: 'Сергеевич',
+      KorAccount: '30101810400000000230',
+      CheckingAccount: '40702810900000005678',
+      WorkDirection: 'Строительство',
+      PhoneNumber: '+7 (812) 987-65-43'
     },
     {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
+      FullName: 'АО "СтройГрупп"',
+      ShortName: 'СтройГрупп',
+      Inn: '7707654321',
+      Ogrn: '1167746123789',
+      Kpp: '770701001',
+      Address: 'г. Санкт-Петербург, пр. Невский, д. 25',
+      LastName: 'Петров',
+      FirstName: 'Петр',
+      MiddleName: 'Сергеевич',
+      KorAccount: '30101810400000000230',
+      CheckingAccount: '40702810900000005678',
+      WorkDirection: 'Строительство',
+      PhoneNumber: '+7 (812) 987-65-43'
     },
     {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
+      FullName: 'АО "СтройГрупп"',
+      ShortName: 'СтройГрупп',
+      Inn: '7707654321',
+      Ogrn: '1167746123789',
+      Kpp: '770701001',
+      Address: 'г. Санкт-Петербург, пр. Невский, д. 25',
+      LastName: 'Петров',
+      FirstName: 'Петр',
+      MiddleName: 'Сергеевич',
+      KorAccount: '30101810400000000230',
+      CheckingAccount: '40702810900000005678',
+      WorkDirection: 'Строительство',
+      PhoneNumber: '+7 (812) 987-65-43'
     },
     {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
-    },
-    {
-      id: 1,
-      fullName: 'ООО Ромашка',
-      shortName: 'Ромашка',
-      inn: '1234567890',
-      ogrn: '1023456789012',
-      kpp: '123456789',
-      address: { id: 1, region: 'Москва', city: 'Москва', street: 'Ленина', house: '10', postIndex: '123456' },
-      partnerTypeId: 1,
-      lastName: 'Иванов',
-      firstName: 'Иван',
-      middleName: 'Иванович',
-      korAccount: '30101810400000000225',
-      workDirection: 'Торговля',
-      phoneNumber: '+7 (999) 123-45-67',
-      addressId: 1
-    },
+      FullName: 'АО "СтройГрупп"',
+      ShortName: 'СтройГрупп',
+      Inn: '7707654321',
+      Ogrn: '1167746123789',
+      Kpp: '770701001',
+      Address: 'г. Санкт-Петербург, пр. Невский, д. 25',
+      LastName: 'Петров',
+      FirstName: 'Петр',
+      MiddleName: 'Сергеевич',
+      KorAccount: '30101810400000000230',
+      CheckingAccount: '40702810900000005678',
+      WorkDirection: 'Строительство',
+      PhoneNumber: '+7 (812) 987-65-43'
+    }
   ];
-
-
-  @ViewChild('scrollWrapper') scrollWrapper!: ElementRef<HTMLDivElement>;
-  @ViewChild('progressBar') progressBar!: ElementRef<HTMLDivElement>;
-
-  ngAfterViewInit() {
-    const wrapper = this.scrollWrapper.nativeElement;
-    wrapper.addEventListener('scroll', () => {
-      const scrollPercent = (wrapper.scrollLeft / (wrapper.scrollWidth - wrapper.clientWidth)) * 100;
-      this.progressBar.nativeElement.style.width = scrollPercent + '%';
-    });
-  }
-
-  scrollLeft() {
-    this.scrollWrapper.nativeElement.scrollBy({ left: -300, behavior: 'smooth' });
-  }
-
-  scrollRight() {
-    this.scrollWrapper.nativeElement.scrollBy({ left: 300, behavior: 'smooth' });
-  }
-
-  selectedPartner: Partner | null = null;
-
-  openPartner(partner: Partner) {
-    this.selectedPartner = partner;
-  }
-
-  closePartner() {
-    this.selectedPartner = null;
-  }
 
 }

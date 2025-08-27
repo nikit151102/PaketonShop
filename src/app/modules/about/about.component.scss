@@ -1,0 +1,164 @@
+.about {
+  font-family: 'Inter', sans-serif;
+  color: #222;
+  line-height: 1.6;
+
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4rem 2rem;
+    background: #f9f9f9;
+    border-radius: 1rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+
+    .hero-content {
+      max-width: 600px;
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        span {
+          color: #4f46e5;
+        }
+        margin-bottom: 1rem;
+      }
+
+      p {
+        font-size: 1.1rem;
+        color: #555;
+      }
+    }
+
+    img {
+      width: 500px;
+      max-width: 100%;
+      border-radius: 1rem;
+      object-fit: cover;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 4rem 2rem;
+    gap: 2rem;
+    flex-wrap: wrap;
+    background: #fff;
+
+    .stat {
+      text-align: center;
+
+      h2 {
+        font-size: 2.5rem;
+        color: #4f46e5;
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+        color: #555;
+      }
+    }
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+    padding: 4rem 2rem;
+
+    .feature {
+      background: #f3f4f6;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+      }
+
+      h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #4f46e5;
+      }
+
+      p {
+        color: #555;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .about-company, .mission {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4f46e5;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+      color: #555;
+    }
+  }
+
+  .call-to-action {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #4f46e5;
+    color: #fff;
+    border-radius: 1rem;
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      padding: 0.8rem 2rem;
+      background: #fff;
+      color: #4f46e5;
+      font-weight: 600;
+      border-radius: 2rem;
+      text-decoration: none;
+      transition: background 0.3s, color 0.3s;
+
+      &:hover {
+        background: #3730a3;
+        color: #fff;
+      }
+    }
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+    padding: 2rem 1rem;
+    text-align: center;
+
+    img {
+      width: 100%;
+      margin-top: 2rem;
+    }
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}

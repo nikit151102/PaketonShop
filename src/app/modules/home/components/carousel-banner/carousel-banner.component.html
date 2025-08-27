@@ -9,4 +9,11 @@
 
   <button class="carousel__prev" (click)="prevSlide()"><i class="fas fa-chevron-left"></i></button>
   <button class="carousel__next" (click)="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+
+<div class="carousel__dots">
+  <span *ngFor="let slide of slides; let i = index"
+        [class.active]="i === activeIndex"
+        (click)="activeIndex = i"></span>
+</div>
+
 </div>

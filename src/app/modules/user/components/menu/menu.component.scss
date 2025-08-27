@@ -1,54 +1,25 @@
-.vertical-menu {
-  width: 220px;
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
-}
-
-.vertical-menu ul {
+.menu ul {
   list-style: none;
-  margin: 0;
   padding: 0;
-}
+  margin: 0;
 
-.vertical-menu li {
-  display: flex;
-  align-items: center;
-  padding: 16px 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #333;
-  transition: background 0.3s ease, color 0.3s ease;
-  position: relative;
-}
+  li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+    transition: background 0.2s, color 0.2s;
 
-.vertical-menu li .icon {
-  margin-right: 12px;
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-}
+    &:hover {
+      background: #f3f4f6;
+    }
 
-.vertical-menu li:hover {
-  background: linear-gradient(135deg, #ff758c, #ff7eb3);
-  color: #fff;
-}
-
-.vertical-menu li:hover .icon {
-  transform: rotate(15deg) scale(1.2);
-}
-
-.vertical-menu li.active {
-  background: linear-gradient(135deg, #ff758c, #ff7eb3);
-  color: #fff;
-}
-
-.vertical-menu li.active .icon {
-  transform: scale(1.2);
-}
-
-.vertical-menu li + li {
-  border-top: 1px solid #f0f0f5;
+    &.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+  }
 }

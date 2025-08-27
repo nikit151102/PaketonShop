@@ -1,0 +1,19 @@
+<section class="news-page">
+  <div class="container">
+    <h1 class="page-title">Новости</h1>
+
+    <div class="news-grid">
+      <div class="news-card" *ngFor="let item of news">
+        <div class="news-image">
+          <img [src]="item.image" [alt]="item.title">
+          <span class="news-date">{{ item.date | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="news-content">
+          <h2 class="news-title">{{ item.title }}</h2>
+          <p class="news-summary">{{ item.summary }}</p>
+          <a href="#" class="read-more">Читать далее →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

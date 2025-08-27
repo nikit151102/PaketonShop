@@ -14,7 +14,7 @@ export class AuthComponent implements OnInit {
   visible: boolean = false;
   authForm: FormGroup;
   isError: any;
-
+authMode: 'login' | 'register' = 'login';
   constructor(private authService: AuthService, private fb: FormBuilder) {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
