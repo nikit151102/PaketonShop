@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 interface RelatedProduct {
@@ -32,10 +32,17 @@ interface Product {
 })
 export class ProductComponent {
   @Input() product!: Product;
+  @Input() selected: boolean = false;
+  @Output() selectionChange = new EventEmitter<{ id: number, selected: boolean }>();
+
+  onSelectionChange(event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.selectionChange.emit({ id: this.product.id, selected: checked });
+  }
 
   toggleRelated(product: any) {
     product.relatedCollapsed = !product.relatedCollapsed;
-}
+  }
 
 
   removeProduct(id: number) {

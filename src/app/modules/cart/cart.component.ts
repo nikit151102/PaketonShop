@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductComponent } from './product/product.component';
 import { SummaryComponent } from './summary/summary.component';
+import { SelectCartButtonComponent } from './select-cart-button/select-cart-button.component';
+import { OrderFormComponent } from './order-form/order-form.component';
 
 interface RelatedProduct {
   id: number;
@@ -36,7 +38,7 @@ interface Company {
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductComponent, SummaryComponent]
+  imports: [CommonModule, FormsModule, ProductComponent, SummaryComponent, SelectCartButtonComponent, OrderFormComponent]
 })
 export class CartComponent {
   products: Product[] = [
@@ -52,8 +54,8 @@ export class CartComponent {
       reviews: 12,
       available: true,
       related: [
-        { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://via.placeholder.com/80' },
-        { id: 102, name: 'Маркер для коробок', price: 30, image: 'https://via.placeholder.com/80' }
+        { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://пакетон.рф/thumb/2/hAwNJ5J_pr3fi4-H37Px6A/540r540/d/cml_a8e0d1c6_8067abcf.jpg' },
+        { id: 102, name: 'Маркер для коробок', price: 30, image: 'https://пакетон.рф/thumb/2/hAwNJ5J_pr3fi4-H37Px6A/540r540/d/cml_a8e0d1c6_8067abcf.jpg' }
       ]
     },
     {
@@ -111,5 +113,22 @@ export class CartComponent {
     console.log(`Товар "${product.name}" добавлен в wishlist`);
   }
 
+  selectedProducts: Set<number> = new Set();
+
+  // Проверка для передачи в [selected]
+  isSelected(id: number) {
+    return this.selectedProducts.has(id);
+  }
+
+  // Отслеживание изменения чекбокса
+  onProductSelected(event: { id: number; selected: boolean }) {
+    if (event.selected) {
+      this.selectedProducts.add(event.id);
+    } else {
+      this.selectedProducts.delete(event.id);
+    }
+
+    console.log('Выбранные товары:', Array.from(this.selectedProducts));
+  }
 
 }

@@ -148,24 +148,14 @@ export class GroupsSectionComponent {
     }
   ];
 
- constructor() {
-    this.updateMaxPerRow(window.innerWidth);
-  }
+constructor() {
+  this.categories.forEach((category: any) => {
+    const classes = ['w-small', 'w-medium', 'w-large'];
+    const randomIndex = Math.floor(Math.random() * classes.length);
+    category.widthClass = classes[randomIndex];
+  });
+}
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.updateMaxPerRow(event.target.innerWidth);
-  }
-
-  updateMaxPerRow(width: number) {
-    if (width >= 1200) {
-      this.maxPerRow = 5; // десктоп
-    } else if (width >= 768) {
-      this.maxPerRow = 3; // планшет
-    } else {
-      this.maxPerRow = 2; // телефон
-    }
-  }
 
   toggleShowAll() {
     this.showAll = !this.showAll;
@@ -175,5 +165,12 @@ export class GroupsSectionComponent {
     if (this.showAll) return this.categories;
     return this.categories.slice(0, 2 * this.maxPerRow); // 2 ряда по текущему maxPerRow
   }
+
+getRandomWidthClass(): string {
+  const classes = ['w-small', 'w-medium', 'w-large'];
+  const randomIndex = Math.floor(Math.random() * classes.length);
+  return classes[randomIndex];
+}
+
 
 }

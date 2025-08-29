@@ -1,4 +1,11 @@
 <div class="product-card">
+  <div class="select-product">
+    <label class="custom-checkbox">
+      <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)">
+      <span class="checkmark"></span>
+    </label>
+  </div>
+
   <div class="product-main">
     <!-- Изображение -->
     <div class="product-image">
@@ -61,11 +68,17 @@
     <h4 (click)="toggleRelated(product)">С этим товаром покупают:</h4>
     <div class="related-list">
       <div class="related-item" *ngFor="let r of product.related">
-        <img [src]="r.image" alt="{{ r.name }}">
-        <p>{{ r.name }}</p>
-        <span>{{ r.price }} ₽</span>
-        <button>Добавить</button>
+        <div class="image-wrapper">
+          <img [src]="r.image" alt="{{ r.name }}">
+        </div>
+        <p class="name">{{ r.name }}</p>
+        <span class="price">{{ r.price }} ₽</span>
+        <button class="add-btn" title="Добавить">
+          Добавить
+        </button>
       </div>
     </div>
   </div>
+
+
 </div>

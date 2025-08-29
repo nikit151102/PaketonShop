@@ -15,4 +15,5 @@ export class MegaMenuComponent {
   selectNiche(nicheId: string) {
     this.nicheSelected.emit(nicheId);
   }
+
 }

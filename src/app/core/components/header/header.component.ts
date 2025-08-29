@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/auth.service';
@@ -8,10 +8,11 @@ import { IconsComponent } from './components/icons/icons.component';
 import { LogoComponent } from './components/logo/logo.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { SearchComponent } from './components/search/search.component';
+import { CatalogComponent } from './components/catalog/catalog.component';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, FormsModule, AboutRoutingModule, LogoComponent, MenuComponent, SearchComponent, IconsComponent],
+  imports: [CommonModule, FormsModule, AboutRoutingModule, LogoComponent, MenuComponent, SearchComponent, IconsComponent, CatalogComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -35,6 +36,22 @@ export class HeaderComponent {
 
   megaMenuOpen = false;
   selectedNiche: string = 'all';
+
+@HostListener('window:scroll', [])
+onWindowScroll() {
+  const header = document.querySelector('.header__content__top') as HTMLElement;
+  const header_bottom = document.querySelector('.header__content__bottom') as HTMLElement;
+
+  if (window.scrollY === 0) {
+    header.classList.remove('sticked');
+    header_bottom.classList.remove('sticked');
+  } else if (window.scrollY > 10) {
+    header.classList.add('sticked');
+    header_bottom.classList.add('sticked');
+  }
+}
+
+
 
   niches = [
     {

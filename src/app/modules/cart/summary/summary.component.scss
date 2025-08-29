@@ -14,6 +14,8 @@ $transition: 0.25s ease;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 150px;
 
     h3 {
         font-size: 1.5rem;
@@ -83,10 +85,26 @@ $transition: 0.25s ease;
     .cross-sell {
         display: flex;
         gap: 12px;
-        flex-wrap: wrap;
+        overflow-x: auto; // горизонтальный скролл
+        padding-bottom: 8px; // немного места для скролла
         margin-top: 12px;
+        max-width: 400px;
+
+        &::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
 
         .cross-item {
+            flex: 0 0 auto; // чтобы не сжимались и шли в линию
             width: 110px;
             text-align: center;
             cursor: pointer;
@@ -121,16 +139,12 @@ $transition: 0.25s ease;
                 font-size: 0.95rem;
             }
         }
-    }
 
-    /* ======================
-       Responsive tweaks
-       ====================== */
-    @media (max-width: 768px) {
-        padding: 16px;
-
-        .cross-item {
-            width: 90px;
+        @media (max-width: 768px) {
+            .cross-item {
+                width: 90px;
+            }
         }
     }
+
 }

@@ -33,9 +33,13 @@ export class SummaryComponent {
   };
 
   crossSellProducts: CrossSellProduct[] = [
-    { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://via.placeholder.com/100' },
-    { id: 102, name: 'Пакетик для товаров', price: 15, image: 'https://via.placeholder.com/100' },
-    { id: 103, name: 'Маркер для коробок', price: 30, image: 'https://via.placeholder.com/100' }
+    { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+    { id: 102, name: 'Пакетик для товаров', price: 15, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+        { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+    { id: 102, name: 'Пакетик для товаров', price: 15, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+        { id: 101, name: 'Скотч упаковочный', price: 50, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+    { id: 102, name: 'Пакетик для товаров', price: 15, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' },
+    { id: 103, name: 'Маркер для коробок', price: 30, image: 'https://пакетон.рф/thumb/2/MS5r_rmwu1y1IkQYoicIQQ/300r270/d/cml_86e04eb1_91a7eb07.png' }
   ];
 
   get total() {

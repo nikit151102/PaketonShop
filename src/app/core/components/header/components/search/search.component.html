@@ -1,15 +1,29 @@
 <div class="search-bar">
-  <!-- Иконка поиска -->
-  <i class="fas fa-search"></i>
+  <!-- Основная обёртка для позиционирования кнопок и дропдаунов -->
+  <div class="positioned-wrapper">
+    <!-- Иконка поиска -->
+    <i class="fas fa-search"></i>
 
-  <!-- Поле ввода -->
-  <input type="text" placeholder="Поиск товаров..." [(ngModel)]="searchQuery" (input)="onSearch()" />
+    <!-- Поле ввода -->
+    <input #searchInput type="text" placeholder="Поиск товаров..." [(ngModel)]="searchQuery" (input)="onSearch()" />
 
-  <!-- Кнопка очистки -->
-  <button *ngIf="searchQuery" class="clear-btn" (click)="clearSearch()" aria-label="Очистить">✕</button>
+    <!-- Кнопка очистки -->
+    <!-- <button *ngIf="searchQuery" class="clear-btn" (click)="clearSearch()" aria-label="Очистить">✕</button> -->
 
-  <!-- Кнопка поиска -->
-  <button class="search-btn" (click)="applySearch()" aria-label="Найти">🔍</button>
+    <!-- Кнопка поиска -->
+    <button class="search-btn" (click)="applySearch()" aria-label="Найти">🔍</button>
+
+    <!-- Выпадающий список автокомплита -->
+    <div class="autocomplete-dropdown" *ngIf="autocompleteResults?.length">
+      <div class="autocomplete-item" *ngFor="let item of autocompleteResults" (click)="selectItem(item)">
+        <img [src]="item.image" alt="{{item.name}}" />
+        <div class="item-info">
+          <span class="item-name">{{item.name}}</span>
+          <span class="item-sku">{{item.sku}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Кнопка фильтра -->
   <button class="filter-btn" (click)="toggleFilters()" aria-label="Фильтры">
@@ -20,19 +34,7 @@
       <circle cx="15" cy="19" r="2"/>
     </svg>
   </button>
-
-  <!-- Выпадающий список автокомплита -->
-<div class="autocomplete-dropdown" *ngIf="autocompleteResults?.length">
-    <div class="autocomplete-item" *ngFor="let item of autocompleteResults" (click)="selectItem(item)">
-      <img [src]="item.image" alt="{{item.name}}" />
-      <div class="item-info">
-        <span class="item-name">{{item.name}}</span>
-        <span class="item-sku">{{item.sku}}</span>
-      </div>
-    </div>
-  </div>
 </div>
-
 
 <!-- Маленькое выпадающее окно фильтров -->
 <div class="filters-dropdown" *ngIf="filtersOpen">
@@ -47,17 +49,16 @@
     </div>
   </div>
 
-    <!-- Наличие -->
+  <!-- Наличие -->
   <div class="filter-group">
     <label>
       <input type="checkbox" [(ngModel)]="filters.inStock" />
       В наличии
     </label>
   </div>
-  
+
   <!-- Доп. фильтры -->
   <div class="filter-group">
-
     <label>
       <input type="checkbox" [(ngModel)]="filters.discountOnly" />
       Со скидкой

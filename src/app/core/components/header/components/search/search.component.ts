@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 interface Product {
@@ -82,6 +82,16 @@ export class SearchComponent {
     this.searchQuery = item.name;
     this.autocompleteResults = [];
     console.log('Выбран товар:', item);
-    // здесь можно переходить на страницу товара или выполнять фильтрацию
   }
+
+  constructor(private elementRef: ElementRef) {}
+  
+  @HostListener('document:click', ['$event.target'])
+  onClickOutside(targetElement: HTMLElement) {
+    const clickedInside = this.elementRef.nativeElement.contains(targetElement);
+    if (!clickedInside) {
+      this.filtersOpen = false;
+    }
+  }
+
 }
