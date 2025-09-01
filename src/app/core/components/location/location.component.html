@@ -1,37 +1,32 @@
-<div class="header__location">
-  <button (click)="openCityListModal()" class="location-btn">
-    📍 {{ city || 'Определяем город...' }}
-  </button>
-
-  <!-- Маленькое окошко под кнопкой -->
-  <div *ngIf="detectedCity && !city && !showCityModal" class="city-inline">
-    Ваш город: <strong>{{ detectedCity }}</strong>?
-    <button (click)="confirmCity()" class="yes">Да</button>
-    <button (click)="openCityListModal()" class="change">Изменить</button>
-  </div>
-</div>
-
-<!-- Модалка выбора города -->
-<div class="city-modal" *ngIf="showCityModal">
+<div class="city-modal" *ngIf="showCityModal$ | async">
   <div class="city-modal-content">
-    <h3>Выберите город</h3>
+    <input type="text" placeholder="Поиск области или города..."
+           [(ngModel)]="locationService.citySearch"
+           (input)="onSearchChange()"
+           class="city-search"/>
 
-    <div class="districts">
-      <div *ngFor="let district of groupedDistricts" class="district">
-  <div class="district-header" (click)="district.expanded = !district.expanded">
-    <h4>{{ district.name }}</h4>
-    <span>{{ district.expanded ? '−' : '+' }}</span>
-  </div>
+    <div class="city-selector">
+      <div class="district-list" *ngIf="!locationService.selectedDistrict">
+        <ul>
+          <li *ngFor="let district of filteredDistricts()"
+              (click)="locationService.selectedDistrict = district"
+              class="district-item">
+            {{ district.name }}
+          </li>
+        </ul>
+      </div>
 
-  <ul *ngIf="district.expanded" class="city-list">
-    <li *ngFor="let c of district.cities"
-        (click)="setCity(c)"
-        class="city-item">
-      {{ c.name }} <span class="subj">({{ c.subject }})</span>
-    </li>
-  </ul>
-</div>
-
+      <div class="city-list-panel" *ngIf="locationService.selectedDistrict">
+        <button class="back-btn" (click)="locationService.selectedDistrict = null">← Назад</button>
+        <h4>{{ locationService.selectedDistrict.name }}</h4>
+        <ul class="city-list">
+          <li *ngFor="let c of filteredCities()"
+              (click)="setCity(c)"
+              class="city-item">
+            {{ c.name }}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>

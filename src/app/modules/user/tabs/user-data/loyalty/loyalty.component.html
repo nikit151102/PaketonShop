@@ -8,7 +8,7 @@
         *ngFor="let lvl of loyaltyLevels; let i = index"
         [class.active]="currentAmount >= lvl.min"
       >
-        <div class="crown">👑</div>
+      <img class="crown" [src]="lvl.crown" alt="">
         <span class="label">{{ lvl.name }}</span>
         <span class="range">{{ lvl.min | number }} ₽</span>
       </div>

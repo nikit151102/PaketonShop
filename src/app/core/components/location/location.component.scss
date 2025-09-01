@@ -1,115 +1,186 @@
-/* Кнопка */
-.location-btn {
-  background: linear-gradient(90deg, #6a11cb, #2575fc);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.location-btn:hover {
-  background: linear-gradient(90deg, #2575fc, #6a11cb);
-  transform: translateY(-2px);
-}
-
-/* Маленькое окошко под кнопкой */
-.city-inline {
-  margin-top: 8px;
-  background: #f9f9ff;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-.city-inline button {
-  margin-left: 10px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: none;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.city-inline .yes {
-  background: #2575fc;
-  color: white;
-}
-.city-inline .yes:hover {
-  background: #1e5fd8;
-}
-.city-inline .change {
-  background: #eee;
-  color: #333;
-}
-.city-inline .change:hover {
-  background: #ddd;
-}
-
 /* Модалка */
 .city-modal {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex; justify-content: center; align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
-}
-.city-modal-content {
-  background: #fff;
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  animation: fadeIn 0.3s ease;
-}
-.city-modal-content h3 {
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #2575fc;
+  padding: 10px;
 }
 
-/* Группы (районы/края/республики) */
-.district {
-  border: 1px solid #eee;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  background: #fafafa;
+.city-modal-content {
+  background: #fff;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
-.district-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f0f4ff;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 600;
+
+.city-modal-content h3 {
+  text-align: center;
   color: #2575fc;
+  margin-bottom: 20px;
 }
-.district-header:hover {
-  background: #e6ecff;
+
+/* Контейнер селектора */
+.city-selector {
+  display: flex;
+  gap: 20px;
 }
-.city-list {
+
+.district-list {
+  flex: 1;
+  border-right: 1px solid #eee;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.district-list ul {
   list-style: none;
   margin: 0;
-  padding: 0 0 10px 0;
+  padding: 0;
 }
-.city-item {
-  padding: 8px 14px;
+
+.district-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.district-item:hover {
+  background: #eef4ff;
+  color: #2575fc;
+  font-weight: 600;
+}
+
+/* Панель городов */
+.city-list-panel {
+  flex: 2;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.back-btn {
+  margin-bottom: 10px;
+  background: #eee;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
 }
+
+.back-btn:hover {
+  background: #ddd;
+}
+
+.city-list-panel h4 {
+  margin-bottom: 10px;
+  color: #2575fc;
+}
+
+/* Города */
+.city-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.city-item {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
 .city-item:hover {
   background: #eef4ff;
 }
-.subj {
-  font-size: 0.8rem;
-  color: #666;
-  margin-left: 6px;
+
+/* Показать ещё */
+.show-more {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2575fc;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.show-more:hover {
+  background: #1e5fd8;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+  .city-selector {
+    flex-direction: column;
+  }
+
+  .district-list {
+    border-right: none;
+    max-height: none;
+  }
+
+  .city-list-panel {
+    max-height: none;
+  }
+}
+
+
+
+.city-search {
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: 0.2s;
+}
+
+.city-search:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 5px rgba(37, 117, 252, 0.3);
+}
+
+/* Остальной стиль остается как у тебя */
+.city-item {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.city-item:hover {
+  background: #eef4ff;
+}
+
+.back-btn {
+  margin-bottom: 10px;
+  background: #eee;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.back-btn:hover {
+  background: #ddd;
 }
