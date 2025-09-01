@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ContactsRoutingModule } from './contacts-routing.module';
+import { ContactsRoutingModule } from './contacts-router-module';
 
 
 

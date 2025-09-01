@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-groups-section',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './groups-section.component.html',
   styleUrl: './groups-section.component.scss'
 })

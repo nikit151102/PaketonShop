@@ -1,141 +1,435 @@
-$primary-gradient: linear-gradient(135deg, #6b73ff, #000dff);
-$secondary-gradient: linear-gradient(135deg, #ff6b6b, #ffb36b);
-$card-bg: #ffffff;
-$shadow: 0 8px 20px rgba(0,0,0,0.15);
-$transition: 0.3s;
 
 .contacts-wrapper {
-  max-width: 90rem;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem;
+  padding: 40px 20px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+.contacts-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 50px;
+  position: relative;
+  display: inline-block;
+}
+
+.contacts-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  margin: 10px auto 0;
+  border-radius: 2px;
+}
+
+/* Двухколоночная сетка */
+.contacts-content {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Левая колонка — карточки контактов */
+.contacts-left {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 25px;
+}
+
+/* Карточки контактов */
+.contact-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 0px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+
+.contact-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+.contact-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #2575fc;
+}
+
+.contact-card a {
+  display: inline-block;
+  color: #6a11cb;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-card a:hover {
+  color: #2575fc;
+  text-decoration: underline;
+}
+
+.contact-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-card li {
+  margin-bottom: 10px;
+}
+
+.social-links a {
+  margin: 0 10px;
+  font-weight: 600;
+}
+
+/* Правая колонка — форма обратной связи */
+.contacts-right {
+  flex: 1;
+  min-width: 350px;
+}
+
+.contact-form-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.contact-form-card h3 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #6a11cb;
+}
+
+.contact-form-card form {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  font-family: 'Inter', sans-serif;
+  gap: 15px;
+}
 
-  .contacts-title {
-    text-align: center;
-    font-size: 3rem;
-    font-weight: 800;
-    color: #1f2937;
-    margin-bottom: 2rem;
+.contact-form-card input,
+.contact-form-card textarea {
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-form-card input:focus,
+.contact-form-card textarea:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 10px rgba(37, 117, 252, 0.2);
+}
+
+.contact-form-card button {
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #6a11cb, #2575fc);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.contact-form-card button:hover {
+  background: linear-gradient(90deg, #2575fc, #6a11cb);
+  transform: translateY(-3px);
+}
+
+/* Адаптив */
+@media(max-width: 992px){
+  .contacts-content {
+    flex-direction: column;
   }
+}
 
-  .contacts-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-  }
 
-  .contact-card {
-    background: $card-bg;
-    border-radius: 1.5rem;
-    box-shadow: $shadow;
-    padding: 2rem;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.container {
+    display: flex;
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    height: 70vh;
+}
+
+.left-column {
+    width: 60%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: transform $transition ease, box-shadow $transition ease;
+    gap: 15px;
+}
+
+.select-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    width: 100%;
+}
+
+select:focus {
+    border-color: #007bff;
+}
+
+#map {
+    height: 70vh;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.right-column {
+    width: 40%;
+    margin-top: 44px;
+    overflow-y: auto;
+    height: 95%;
+    padding-right: 10px;
+    margin-top: 44px;
+}
+
+.store-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.store-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.store-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.store-header strong {
+    font-size: 16px;
+    color: #333;
+}
+
+.store-info p {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.store-info span {
+    font-weight: 600;
+    color: #333;
+}
+
+.store-btn {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.store-btn:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .left-column,
+    .right-column {
+        width: 100%;
+    }
+
+    .left-column,
+    .right-column {
+        max-height: 400px;
+    }
+}
+
+
+.btn-group {
+    display: flex;
+    gap: 15px;
+    justify-content: start;
+    margin-top: 20px;
+}
+
+.no-jobs {
+    width: 100%;
+    text-align: start;
+    font-size: 18px;
+    font-weight: bold;
+    color: #888;
+    margin-top: 20px;
+}
+
+.btn {
+    text-decoration: none;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #2f2f2f;
+    background: linear-gradient(135deg, rgb(255 255 255 / 90%), rgb(249 254 255 / 90%));
+    border-radius: 8px;
+    transition: all 0.3sease-in-out;
+    box-shadow: none;
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+        font-size: 15px;
+        padding: 12px 12px;
+    }
 
     &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
     }
 
-    .icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
+    &.active {
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
     }
+}
 
-    h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-    }
 
-    a, p, li {
-      font-size: 1.125rem;
-      color: #374151;
-      margin-bottom: 0.5rem;
-      text-decoration: none;
-      transition: color $transition ease;
+.operators-container {
+    margin: 0 auto;
+    max-width: 1460px;
+    padding: 0 15px;
+    margin-top: 25px;
+}
 
-      &:hover {
-        color: #4f46e5;
-      }
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 0.5rem;
-
-      a {
-        background: $primary-gradient;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 600;
-      }
-    }
-  }
-
-  .contact-form-card {
-    background: $card-bg;
-    padding: 2rem;
-    border-radius: 2rem;
-    box-shadow: $shadow;
+.operators {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    gap: 15px;
+    justify-content: center;
+}
 
-    h3 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      text-align: center;
+.operator {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgb(230 225 225 / 16%);
+    flex: 1 1 300px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    max-width: 400px;
+}
+
+.operator:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+}
+
+.info p {
+    margin: 2px 0;
+}
+
+.info p strong {
+    font-size: 16px;
+}
+
+.contact-link {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+    word-break: break-word;
+}
+
+.contact-link:hover {
+    color: #007bff;
+}
+
+@media (max-width: 1024px) {
+    .operators {
+        flex-wrap: wrap;
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-
-      input, textarea {
-        padding: 0.75rem 1rem;
-        border-radius: 1rem;
-        border: 1px solid #d1d5db;
-        font-size: 1rem;
-        transition: border-color $transition ease, box-shadow $transition ease;
-
-        &:focus {
-          outline: none;
-          border-color: #4f46e5;
-          box-shadow: 0 0 10px rgba(79,70,229,0.3);
-        }
-      }
-
-      button {
-        padding: 0.75rem 1.5rem;
-        border-radius: 1.5rem;
-        background: $secondary-gradient;
-        color: #fff;
-        font-weight: 700;
-        font-size: 1rem;
-        border: none;
-        cursor: pointer;
-        transition: transform $transition ease, box-shadow $transition ease;
-
-        &:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-      }
+    .operator {
+        flex: 1 1 45%;
     }
-  }
+}
+
+@media (max-width: 768px) {
+    .operators {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .operator {
+        flex: 1 1 90%;
+        max-width: 100%;
+
+
+    }
 }

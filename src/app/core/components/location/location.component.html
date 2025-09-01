@@ -1,0 +1,37 @@
+<div class="header__location">
+  <button (click)="openCityListModal()" class="location-btn">
+    📍 {{ city || 'Определяем город...' }}
+  </button>
+
+  <!-- Маленькое окошко под кнопкой -->
+  <div *ngIf="detectedCity && !city && !showCityModal" class="city-inline">
+    Ваш город: <strong>{{ detectedCity }}</strong>?
+    <button (click)="confirmCity()" class="yes">Да</button>
+    <button (click)="openCityListModal()" class="change">Изменить</button>
+  </div>
+</div>
+
+<!-- Модалка выбора города -->
+<div class="city-modal" *ngIf="showCityModal">
+  <div class="city-modal-content">
+    <h3>Выберите город</h3>
+
+    <div class="districts">
+      <div *ngFor="let district of groupedDistricts" class="district">
+  <div class="district-header" (click)="district.expanded = !district.expanded">
+    <h4>{{ district.name }}</h4>
+    <span>{{ district.expanded ? '−' : '+' }}</span>
+  </div>
+
+  <ul *ngIf="district.expanded" class="city-list">
+    <li *ngFor="let c of district.cities"
+        (click)="setCity(c)"
+        class="city-item">
+      {{ c.name }} <span class="subj">({{ c.subject }})</span>
+    </li>
+  </ul>
+</div>
+
+    </div>
+  </div>
+</div>
