@@ -40,7 +40,6 @@
       }
     }
 
-    /* Подкатегории */
     .subcategories {
       position: absolute;
       top: 0;
@@ -68,7 +67,6 @@
   }
 }
 
-/* Чипы подкатегорий */
 .subcategory-chip {
   background: #e8f3ff;
   color: #007bff;
@@ -86,7 +84,6 @@
   }
 }
 
-/* Мобильная адаптация */
 @media (max-width: 768px) {
   .categories .category-card .subcategories {
     position: static;
@@ -97,4 +94,30 @@
     padding: 0.5rem 0 0;
     border: none;
   }
+}
+
+
+
+.load-more-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    background-color: #003f7f;
+    transform: translateY(1px);
+  }
+
 }
