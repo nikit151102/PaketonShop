@@ -8,7 +8,7 @@ export const routes: Routes = [
         path: 'profile', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule)
     },
     {
-        path: 'product', loadChildren: () => import('./modules/card/card.module').then(m => m.CardModule)
+        path: 'product/:id', loadChildren: () => import('./modules/card/card.module').then(m => m.CardModule)
     },
     {
         path: 'contacts', loadChildren: () => import('./modules/contacts/contacts.module').then(m => m.ContactsModule)
@@ -24,6 +24,16 @@ export const routes: Routes = [
     },
     {
         path: 'news', loadChildren: () => import('./modules/news/news.module').then(m => m.NewsModule)
-    }
+    },
+    {
+        path: 'notifications', loadChildren: () => import('./modules/notifications/notifications.module').then(m => m.NotificationsModule)
+    },
+    {
+        path: 'category/:id', loadChildren: () => import('./modules/categories/categories.module').then(m => m.CategoriesModule)
+    },
+    {
+        path: 'products/:id', loadChildren: () => import('./modules/products/products.module').then(m => m.ProductsModule)
+    },
+
 ];
 

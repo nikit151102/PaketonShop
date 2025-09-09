@@ -14,11 +14,12 @@ export class AuthComponent implements OnInit {
   visible: boolean = false;
   authForm: FormGroup;
   isError: any;
-authMode: 'login' | 'register' = 'login';
+  authMode: 'login' | 'register' = 'login';
   constructor(private authService: AuthService, private fb: FormBuilder) {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required,]],
+
     });
   }
 
@@ -30,6 +31,30 @@ authMode: 'login' | 'register' = 'login';
 
   closePopUp() {
     this.authService.changeVisible(false);
+  }
+
+  onSubmit(): void {
+    if (this.authMode === 'login') {
+      const data = {
+        ...this.authForm.value,
+        userName: this.authForm.value.email
+      };
+      this.authService.login(data.userName, data.email, data.password).subscribe({
+        next: (response) => {
+          console.log('Login successful', response);
+          this.closePopUp();
+          // Перенаправление или другие действия после успешного входа
+        },
+        error: (error) => {
+          console.error('Login failed', error);
+        }
+      })
+    } else {
+      // this.authService.register(data).subscribe({
+      //   next: res => console.log('Register success', res),
+      //   error: err => this.isError = err
+      // });
+    }
   }
 
 }

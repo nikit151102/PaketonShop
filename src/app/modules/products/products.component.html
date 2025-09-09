@@ -1,0 +1,12 @@
+<app-view-switcher 
+  [currentView]="currentView" 
+  (viewChange)="setView($event)">
+</app-view-switcher>
+
+<div class="container" [ngClass]="currentView">
+  <app-product 
+    [view]="currentView" 
+    [product]="product" 
+    *ngFor="let product of popularProducts">
+  </app-product>
+</div>
