@@ -1,7 +1,7 @@
 <div class="page-wrapper">
 
 
-<app-header></app-header>
+<app-header ></app-header>
 <router-outlet/>
 <app-footer></app-footer>
 
@@ -9,3 +9,4 @@
 
 <app-auth></app-auth>
 <app-location></app-location>
+<app-mobile-bottom-nav *ngIf="isMobile"></app-mobile-bottom-nav>

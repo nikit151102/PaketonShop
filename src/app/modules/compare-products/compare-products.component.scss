@@ -1,0 +1,150 @@
+.comparison-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 15px;
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f7f7;
+}
+
+h2 {
+    color: #333;
+}
+
+.product-comparison {
+    overflow-x: auto;
+}
+
+.comparison-table {
+    display: flex;
+    flex-direction: column;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-header {
+    display: flex;
+    background-color: #007b5e;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 12px 15px;
+    flex-wrap: wrap;
+    border-radius: 20px;
+}
+
+.table-header-item {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.product-name {
+    font-size: 0.9rem;
+    margin: 5px 0;
+    color: #fff;
+    text-align: start;
+    padding-left: 4px;
+}
+
+.table-row {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.table-row-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+}
+
+.table-row-item:nth-child(1) {
+    text-align: left;
+    font-weight: bold;
+}
+
+.table-row-item:nth-child(n+2) {
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    text-align: start;
+}
+
+.table-row-item:nth-child(n+2):hover {
+    background-color: #eef;
+}
+
+@media (max-width: 768px) {
+    .comparison-table {
+        flex-direction: column;
+    }
+
+    .table-header,
+    .table-row {
+        flex-direction: column;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .product-name {
+        font-size: 0.8rem;
+    }
+
+    .table-header-item,
+    .table-row-item {
+        font-size: 0.8rem;
+        padding: 10px 15px;
+    }
+
+    .table-row-item:nth-child(1) {
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .comparison-container {
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .product-image {
+        width: 40px;
+        height: 40px;
+    }
+
+    .product-name {
+        font-size: 0.75rem;
+    }
+
+    .table-header-item,
+    .table-row-item {
+        font-size: 0.75rem;
+    }
+
+    .table-header-item {
+        padding: 8px;
+    }
+
+    .table-row-item {
+        padding: 8px;
+    }
+}

@@ -34,6 +34,10 @@ export const routes: Routes = [
     {
         path: 'products/:id', loadChildren: () => import('./modules/products/products.module').then(m => m.ProductsModule)
     },
+        {
+        path: 'compare', loadChildren: () => import('./modules/compare-products/compare-products.module').then(m => m.CompareProductsModule)
+    },
+    
 
 ];
 

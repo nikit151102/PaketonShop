@@ -24,6 +24,11 @@
   border-radius: 20px 20px 0 0;
   align-items: center;
   justify-content: space-between;
+
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 // Контейнеры для первой и второй строки
@@ -85,8 +90,16 @@
   app-search {
     width: 100%;
   }
-}
 
+  @media (max-width: 1024px) {
+
+    padding: 0;
+
+    app-logo, app-catalog {
+      display: none;
+    }
+  }
+}
 
 
 
@@ -124,8 +137,8 @@
   display: flex;
   align-items: center;
 
-  span{
-    strong{
+  span {
+    strong {
       color: #67c948;
       font-size: 16px;
     }

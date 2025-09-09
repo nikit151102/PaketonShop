@@ -1,0 +1,35 @@
+<div class="comparison-container">
+  <h2>Сравнение товаров</h2>
+  
+  <div class="product-comparison">
+    <div class="comparison-table">
+
+      <div class="table-header">
+        <div class="table-header-item">Характеристики</div>
+        <div *ngFor="let product of products" class="table-header-item">
+          <img [src]="product.image" alt="{{ product.name }}" class="product-image" />
+          <p class="product-name">{{ product.name }}</p>
+        </div>
+      </div>
+
+      <div *ngFor="let feature of products[0].features | keyvalue" class="table-row">
+        <div class="table-row-item">{{ feature.key }}</div>
+        <div *ngFor="let product of products" class="table-row-item">
+          <ng-container *ngIf="feature.key === 'price'; else defaultFeature">
+            {{ product.price }} руб.
+          </ng-container>
+          <ng-template #defaultFeature>
+            {{ product.features[feature.key] }}
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="table-row">
+        <div class="table-row-item">Цена</div>
+        <div *ngFor="let product of products" class="table-row-item">
+          {{ product.price }} руб.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
