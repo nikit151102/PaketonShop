@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
+import { ProductsService } from '../../../core/services/products.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface Store {
   name: string;
@@ -20,7 +22,7 @@ interface ColorOption {
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss']
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
 
   quantity = 1;
   isDiscount: boolean = true;
@@ -28,6 +30,10 @@ export class ProductCardComponent {
   oldPrice: number = 150;
   selectedColor: string = '';
   selectedVolume: string = '';
+  showStores = false;
+  modalTop = 0;
+  modalLeft = 0;
+  productData: any;
 
   colors: ColorOption[] = [
     { name: 'Красный', value: '#ff4d4d' },
@@ -45,9 +51,29 @@ export class ProductCardComponent {
 
   @ViewChild('storeCheckBtn') storeCheckBtn!: ElementRef;
 
-  showStores = false;
-  modalTop = 0;
-  modalLeft = 0;
+
+  constructor(
+    private route: ActivatedRoute,
+    private productsService: ProductsService
+  ) { }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      this.loadData(params.get('id')!);
+    });
+
+  }
+
+  loadData(id: string) {
+    this.productsService.getById(id).subscribe((values: any) => {
+      this.productData = values.data;
+    });
+  }
+
+  copyArticle(): void {
+    if (!this.productData.article) return;
+    navigator.clipboard.writeText(this.productData.article).then(() => {}).catch(err => {});
+  }
 
   openStores() {
     if (!this.storeCheckBtn) return;

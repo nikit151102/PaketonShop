@@ -8,9 +8,6 @@ interface CacheItem<T> {
  * Утилиты для кэширования данных
  */
 export class StorageUtils {
-  // Кэш в памяти (для быстрого доступа)
-  private static memoryCache = new Map<string, CacheItem<any>>();
-
   // ======================== Общие методы ======================== //
 
   /**
@@ -22,6 +19,8 @@ export class StorageUtils {
   }
 
   // ======================== Кэш в памяти ======================== //
+
+  private static memoryCache = new Map<string, CacheItem<any>>();
 
   /**
    * Сохраняет данные в памяти
@@ -62,7 +61,6 @@ export class StorageUtils {
       this.memoryCache.clear();
     }
   }
-
   // ======================== LocalStorage ======================== //
 
   /**

@@ -5,12 +5,14 @@
 
   <!-- Информация о товаре -->
   <div class="info">
-    <h1 class="title">Наименование товара</h1>
-    <p class="sku">Артикул: 12345</p>
+    <h1 class="title">{{productData.fullName}}</h1>
+    <p class="sku">Артикул: {{productData.article}}   <button class="copy-btn" (click)="copyArticle()" title="Скопировать артикул">
+    📋
+  </button></p>
 
     <!-- Цена -->
     <div class="price-wrapper" [class.discount]="isDiscount">
-      <span class="new-price">{{ 121 | number }} ₽</span>
+      <span class="new-price">{{ productData.retailPrice | number }} ₽</span>
       <span *ngIf="oldPrice" class="old-price">{{ oldPrice | number }} ₽</span>
     </div>
 

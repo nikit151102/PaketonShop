@@ -69,28 +69,28 @@
         overflow: hidden;
         margin-bottom: 0.8rem;
 
-  position: relative;
+        position: relative;
 
-  .quick-view {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(16, 185, 129, 0.9);
-    color: #fff;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    opacity: 0;
-    transition: all 0.3s ease;
-    width: 100%;
-  }
+        .quick-view {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.9);
+            color: #fff;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
 
-  &:hover .quick-view {
-    opacity: 1;
-}
+        &:hover .quick-view {
+            opacity: 1;
+        }
 
         img {
             width: 100%;
@@ -108,9 +108,13 @@
         font-size: 14px;
         font-weight: 700;
         color: #111827;
-        margin-bottom: 0.5rem;
         line-height: 1.3;
         min-height: 40px;
+        margin: 0;
+    }
+
+    .content #article {
+        font-size: 12px;
     }
 
     .price-block {
@@ -272,7 +276,7 @@
         .image-wrapper {
             flex: 0 0 160px;
             height: 160px;
-            margin-bottom: 0; 
+            margin-bottom: 0;
         }
 
         .content {
@@ -336,13 +340,12 @@
     cursor: pointer;
     position: relative;
 
-    // 🟢 wide и compact общие элементы выше остаются
-
     .extra-info {
         display: flex;
         flex-wrap: wrap;
         gap: 0.6rem;
         margin-bottom: 0.6rem;
+        margin-top: 5px;
 
         .stock {
             font-size: 0.85rem;
@@ -453,46 +456,48 @@
 
 /* Модальное окно */
 .quick-view-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 
-  .overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-  }
-
-  .modal-content {
-    position: relative;
-    background: #fff;
-    border-radius: 18px;
-    padding: 2rem;
-    z-index: 1;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-
-    .close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      border: none;
-      background: transparent;
-      font-size: 1.5rem;
-      cursor: pointer;
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
     }
 
-    img {
-      max-width: 200px;
-      margin-bottom: 1rem;
+    .modal-content {
+        position: relative;
+        background: #fff;
+        border-radius: 18px;
+        padding: 2rem;
+        z-index: 1;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        img {
+            max-width: 200px;
+            margin-bottom: 1rem;
+        }
     }
-  }
 }

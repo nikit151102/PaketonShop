@@ -15,9 +15,30 @@
   color: #2d3436;
 }
 
-app-popular-products {
+.products {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
   gap: 20px;
+}
+
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  border: 8px solid #f3f3f3; 
+  border-top: 8px solid #3d8037;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite; 
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
