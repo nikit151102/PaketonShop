@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AboutRoutingModule } from "../../../modules/about/about-routing.module";
 import { StorageUtils } from '../../../../utils/storage.utils';
 import { LocationService } from '../location/location.service';
-import { CleanLinkPipe } from "../../pipes/clear-url";
+import { CleanStringLinkPipe } from "../../pipes/clear-url";
 
 
 @Component({
   selector: 'app-product',
-  imports: [CommonModule, FormsModule, AboutRoutingModule, CleanLinkPipe],
+  imports: [CommonModule, FormsModule, AboutRoutingModule, CleanStringLinkPipe],
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss'
 })

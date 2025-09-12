@@ -1,7 +1,7 @@
 <div class="product-card">
 
   <!-- Галерея изображений -->
-  <app-product-gallery></app-product-gallery>
+  <app-product-gallery [images]="productData.productImageLinks | cleanArrayLink"></app-product-gallery>
 
   <!-- Информация о товаре -->
   <div class="info">

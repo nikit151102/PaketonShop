@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
 import { ProductsService } from '../../../core/services/products.service';
 import { ActivatedRoute } from '@angular/router';
+import { CleanArrayLinkPipe } from "../../../core/pipes/clear-url";
 
 interface Store {
   name: string;
@@ -18,7 +19,7 @@ interface ColorOption {
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductGalleryComponent],
+  imports: [CommonModule, FormsModule, ProductGalleryComponent, CleanArrayLinkPipe],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss']
 })

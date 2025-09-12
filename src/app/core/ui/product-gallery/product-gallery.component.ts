@@ -1,6 +1,6 @@
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-product-gallery',
@@ -20,11 +20,7 @@ import { Component } from '@angular/core';
   ]
 })
 export class ProductGalleryComponent {
-  images = [
-    'https://avatars.mds.yandex.net/i?id=bbc8d604c98e8a47531a26dcc5e15b58_l-8485406-images-thumbs&n=13',
-    'https://img.freepik.com/premium-photo/paper-disposable-cups-with-colored-pattern-isolated-on-white-background_93675-33944.jpg?size=626&ext=jpg',
-    'https://img.freepik.com/premium-photo/colorful-paper-cups-isolated-white_93675-33950.jpg'
-  ];
+  @Input() images: string[] = [];
 
   currentImageIndex = 0;
 
