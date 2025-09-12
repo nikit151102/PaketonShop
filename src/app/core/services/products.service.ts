@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environment';
-
+import { environment, localStorageEnvironment } from '../../../environment';
+import { StorageUtils } from '../../../utils/storage.utils';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,7 +10,8 @@ export class ProductsService {
   constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('auth_token');
+
+    const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
