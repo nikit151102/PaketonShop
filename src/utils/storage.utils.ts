@@ -102,6 +102,30 @@ export class StorageUtils {
     }
   }
 
+   /**
+   * Удаляет данные из localStorage по ключу
+   * @param key Ключ
+   */
+  static removeLocalStorageCache(key: string): void {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error('LocalStorage error (remove):', e);
+    }
+  }
+
+  /**
+   * Полностью очищает localStorage
+   * Можно добавить фильтр по префиксу ключей TTL, если нужно
+   */
+  static clearLocalStorage(): void {
+    try {
+      localStorage.clear();
+    } catch (e) {
+      console.error('LocalStorage error (clear):', e);
+    }
+  }
+
   // ======================== SessionStorage ======================== //
 
   /**

@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { StorageUtils } from '../../../utils/storage.utils';
+import { localStorageEnvironment, sessionStorageEnvironment } from '../../../environment';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-auth',
@@ -15,7 +18,7 @@ export class AuthComponent implements OnInit {
   authForm: FormGroup;
   isError: any;
   authMode: 'login' | 'register' = 'login';
-  constructor(private authService: AuthService, private fb: FormBuilder) {
+  constructor(private authService: AuthService, private fb: FormBuilder, private userService: UserService) {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required,]],
@@ -40,10 +43,10 @@ export class AuthComponent implements OnInit {
         userName: this.authForm.value.email
       };
       this.authService.login(data.userName, data.email, data.password).subscribe({
-        next: (response) => {
-          console.log('Login successful', response);
+        next: (response: any) => {
           this.closePopUp();
-          // Перенаправление или другие действия после успешного входа
+          this.userService.setUser(response.data, false)
+          StorageUtils.setLocalStorageCache(localStorageEnvironment.auth.key, response.data.token, localStorageEnvironment.auth.ttl)
         },
         error: (error) => {
           console.error('Login failed', error);

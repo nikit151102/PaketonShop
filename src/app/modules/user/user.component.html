@@ -1,7 +1,7 @@
 <div class="account-page">
     <!-- Левая панель -->
     <aside class="sidebar">
-        <app-user-card></app-user-card>
+        <app-user-card [currentUserData]="currentUserData"></app-user-card>
         <app-menu></app-menu>
     </aside>
 
@@ -9,4 +9,4 @@
     <main class="content">
         <router-outlet></router-outlet>
     </main>
-</div>
+</div> 

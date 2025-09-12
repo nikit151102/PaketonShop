@@ -1,10 +1,25 @@
 <div class="icons">
   <!-- User Icon -->
-  <a (click)="getAuth()" class="icon-link">
+  <a [routerLink]="['/profile', userId]" class="icon-link" *ngIf="userId">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 
          2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 
          5v3h20v-3c0-3.33-6.67-5-10-5z" fill="currentColor" />
+    </svg>
+  </a>
+
+  <!-- Login -->
+  <a (click)="getAuth()" *ngIf="!userId">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+      <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="SVGRepo_iconCarrier">
+        <path d="M2.00098 11.999L16.001 11.999M16.001 11.999L12.501 8.99902M16.001 11.999L12.501 14.999"
+          stroke="#1C274C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path
+          d="M9.00195 7C9.01406 4.82497 9.11051 3.64706 9.87889 2.87868C10.7576 2 12.1718 2 15.0002 2L16.0002 2C18.8286 2 20.2429 2 21.1215 2.87868C22.0002 3.75736 22.0002 5.17157 22.0002 8L22.0002 16C22.0002 18.8284 22.0002 20.2426 21.1215 21.1213C20.3531 21.8897 19.1752 21.9862 17 21.9983M9.00195 17C9.01406 19.175 9.11051 20.3529 9.87889 21.1213C10.5202 21.7626 11.4467 21.9359 13 21.9827"
+          stroke="#1C274C" stroke-width="1.5" stroke-linecap="round"></path>
+      </g>
     </svg>
   </a>
 
@@ -21,8 +36,7 @@
 
   <!-- Cart Icon -->
   <a [routerLink]="'/cart'" class="icon-link cart-link ">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
-         viewBox="0 0 24 24" fill="none">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path d="M7 18c-1.1 0-1.99.9-1.99 
        2S5.9 22 7 22s2-.9 
        2-2-.9-2-2-2zm10 
@@ -39,13 +53,11 @@
   </a>
 
   <!-- Notifications Icon -->
-<app-notifications></app-notifications>
+  <app-notifications></app-notifications>
   <!-- Burger Menu Icon -->
   <button class="burger">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M3 6h18M3 12h18M3 18h18" 
-            stroke="currentColor" stroke-width="2" 
-            stroke-linecap="round" />
+      <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
     </svg>
   </button>
 </div>

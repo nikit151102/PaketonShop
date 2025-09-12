@@ -5,7 +5,7 @@ export const routes: Routes = [
         path: '', loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule)
     },
     {
-        path: 'profile', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule)
+        path: 'profile/:id', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule)
     },
     {
         path: 'product/:id', loadChildren: () => import('./modules/card/card.module').then(m => m.CardModule)

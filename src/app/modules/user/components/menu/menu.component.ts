@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { UserService } from '../../../../core/services/user.service';
+import { localStorageEnvironment } from '../../../../../environment';
+import { StorageUtils } from '../../../../../utils/storage.utils';
 
 @Component({
   selector: 'app-menu',
@@ -9,11 +12,12 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class MenuComponent {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private userService: UserService) { }
 
   logout() {
-    // Здесь добавь логику выхода
-    console.log('Выход пользователя');
-    this.router.navigate(['/login']);
+    this.userService.clearUser();
+    StorageUtils.removeLocalStorageCache(localStorageEnvironment.auth.key)
+    this.router.navigate(['']);
+
   }
 }
