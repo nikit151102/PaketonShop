@@ -1,14 +1,28 @@
 <div class="product-card">
+  <!-- Галерея -->
+  <app-product-gallery [images]="productData.productImageLinks ? productData.productImageLinks : '' | cleanArrayLink">
+  </app-product-gallery>
 
-  <!-- Галерея изображений -->
-  <app-product-gallery [images]="productData.productImageLinks? productData.productImageLinks: '' | cleanArrayLink"></app-product-gallery>
-
-  <!-- Информация о товаре -->
+  <!-- Информация -->
   <div class="info">
     <h1 class="title">{{productData.fullName}}</h1>
-    <p class="sku">Артикул: {{productData.article}}   <button class="copy-btn" (click)="copyArticle()" title="Скопировать артикул">
-    📋
-  </button></p>
+    <p class="sku">
+      Артикул: {{productData.article}}
+      <a class="copy-btn" (click)="copyArticle()" title="Скопировать артикул">
+        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              d="M20.9983 10C20.9862 7.82497 20.8897 6.64706 20.1213 5.87868C19.2426 5 17.8284 5 15 5H12C9.17157 5 7.75736 5 6.87868 5.87868C6 6.75736 6 8.17157 6 11V16C6 18.8284 6 20.2426 6.87868 21.1213C7.75736 22 9.17157 22 12 22H15C17.8284 22 19.2426 22 20.1213 21.1213C21 20.2426 21 18.8284 21 16V15"
+              stroke="#337336" stroke-width="1.5" stroke-linecap="round"></path>
+            <path
+              d="M3 10V16C3 17.6569 4.34315 19 6 19M18 5C18 3.34315 16.6569 2 15 2H11C7.22876 2 5.34315 2 4.17157 3.17157C3.51839 3.82475 3.22937 4.69989 3.10149 6"
+              stroke="#337336" stroke-width="1.5" stroke-linecap="round"></path>
+          </g>
+        </svg>
+      </a>
+    </p>
 
     <!-- Цена -->
     <div class="price-wrapper" [class.discount]="isDiscount">
@@ -16,15 +30,13 @@
       <span *ngIf="oldPrice" class="old-price">{{ oldPrice | number }} ₽</span>
     </div>
 
-    <!-- Варианты товара -->
+    <!-- Варианты -->
     <div class="variants">
       <div class="variant-group">
         <p>Цвет:</p>
         <div class="variant-options">
-          <span *ngFor="let color of colors" 
-                [style.background]="color.value" 
-                [class.selected]="selectedColor===color.value"
-                (click)="selectColor(color.value)">
+          <span *ngFor="let color of colors" [style.background]="color.value"
+            [class.selected]="selectedColor===color.value" (click)="selectColor(color.value)">
           </span>
         </div>
       </div>
@@ -32,27 +44,25 @@
       <div class="variant-group">
         <p>Объем:</p>
         <div class="variant-options">
-          <button *ngFor="let vol of volumes" 
-                  [class.selected]="selectedVolume===vol" 
-                  (click)="selectVolume(vol)">
+          <button *ngFor="let vol of volumes" [class.selected]="selectedVolume===vol" (click)="selectVolume(vol)">
             {{ vol }}
           </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Действия -->
+  <!-- Блок действий -->
+  <div class="actions-panel">
     <div class="actions">
       <input type="number" [(ngModel)]="quantity" min="1" />
       <button (click)="addToCart()">В корзину</button>
     </div>
 
-    <!-- Наличие -->
     <p class="stock" [class.low]="stock < 5">
       В наличии: {{ stock }} шт.
     </p>
 
-    <!-- Проверка наличия в магазинах -->
     <button #storeCheckBtn class="store-check" (click)="openStores()">
       Проверить наличие
     </button>
@@ -62,7 +72,7 @@
       <h2>Наличие в магазинах</h2>
       <ul>
         <li *ngFor="let store of stores">
-          {{store.name}} — 
+          {{store.name}} —
           <span [class.in-stock]="store.inStock">
             {{ store.inStock ? 'В наличии' : 'Нет в наличии' }}
           </span>
