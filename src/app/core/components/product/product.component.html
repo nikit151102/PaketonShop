@@ -8,7 +8,9 @@
     </div>
 
     <div class="image-wrapper">
-        <img [src]="product.imageInstances[0]?.url" alt="{{ product.fullName }}" />
+        <img [src]="product.productImageLinks[0] | cleanLink" alt="{{ product.fullName }}" />
+
+
 
         <!-- 🔹 Быстрый просмотр -->
         <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button>

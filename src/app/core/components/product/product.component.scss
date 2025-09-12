@@ -63,6 +63,8 @@
     }
 
     .image-wrapper {
+        display: flex;
+        justify-content: center;
         width: 100%;
         height: 200px;
         border-radius: 14px;
@@ -93,7 +95,7 @@
         }
 
         img {
-            width: 100%;
+            // width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform .4s ease;
