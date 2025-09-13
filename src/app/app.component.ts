@@ -20,10 +20,10 @@ export class AppComponent {
   @HostListener('window:resize', ['$event'])
   onResize() {
     console.log('isMobile',this.isMobile)
-    this.isMobile = window.innerWidth <= 768; // Примерная граница для мобильных устройств
+    this.isMobile = window.innerWidth <= 950; // Примерная граница для мобильных устройств
   }
 
   ngOnInit() {
-    this.isMobile = window.innerWidth <= 768;
+    this.isMobile = window.innerWidth <= 950;
   }
 }

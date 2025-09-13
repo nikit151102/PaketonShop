@@ -249,11 +249,31 @@
 
     // 🔹 Вариант compact (сетка)
     &.compact {
-        max-width: 220px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
+         flex: 1 1 220px;
+  max-width: 280px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 1200px) {
+    flex: 1 1 30%;
+    max-width: 28%;
+  }
+
+  @media (max-width: 992px) {
+    flex: 1 1 30%;
+    max-width: 27%;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1 1 40%;
+    max-width: 44%;
+  }
+
+  @media (max-width: 480px) {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 
         h4 {
             font-size: 14px;
@@ -369,10 +389,31 @@
 
     // 🔹 compact (сетка)
     &.compact {
-        max-width: 220px;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
+         flex: 1 1 220px;
+  max-width: 280px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 1200px) {
+    flex: 1 1 30%;
+    max-width: 28%;
+  }
+
+  @media (max-width: 992px) {
+    flex: 1 1 30%;
+    max-width: 27%;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1 1 40%;
+    max-width: 44%;
+  }
+
+  @media (max-width: 480px) {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
 
         .extra-info {
             flex-direction: column;
