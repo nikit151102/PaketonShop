@@ -8,7 +8,7 @@
     </div>
 
     <div class="image-wrapper">
-        <img [src]="product?.productImageLinks?.[0] | cleanStringLink" alt="{{ product.fullName }}" />
+        <img [src]="(product.productImageLinks[0] || 'assets/images/no-image.png') | cleanStringLink" alt="{{ product.fullName }}" />
 
 
 
@@ -21,7 +21,7 @@
         <span id="article">артикул: {{product.article}}</span>
         <!-- 🔹 наличие и упаковка -->
         <div class="extra-info">
-            <span class="stock" *ngIf="product.remains.length > 0">В наличии: {{ product.remains[0]?.quantity }}
+            <span class="stock" *ngIf="product.remains.length > 0">В наличии: {{ product.remains[0].quantity }}
                 упак.</span>
             <span class="pack" *ngIf="product.packCount">В упаковке: {{ product.packCount }} шт.</span>
         </div>
@@ -45,12 +45,12 @@
 <div class="quick-view-modal" *ngIf="showQuickView">
     <div class="modal-content">
         <button class="close" (click)="closeQuickView()">✖</button>
-        <img [src]="product.imageInstances[0]?.url" alt="{{ product.fullName }}" />
+        <!-- <img [src]="product.imageInstances[0]?.url" alt="{{ product.fullName }}" />
         <h3>{{ product.fullName }}</h3>
         <p>Цена: {{ product.retailPrice }} ₽</p>
         <p *ngIf="product.oldPrice">Старая цена: {{ product.oldPrice }} ₽</p>
         <p>В наличии: {{ product.remains[0]?.quantity }} упак., в упаковке: {{ product.packCount }} шт.</p>
-        <p>Рейтинг: {{ product.rating }} ⭐ ({{ product.reviews }} отзывов)</p>
+        <p>Рейтинг: {{ product.rating }} ⭐ ({{ product.reviews }} отзывов)</p> -->
     </div>
     <div class="overlay" (click)="closeQuickView()"></div>
 </div>

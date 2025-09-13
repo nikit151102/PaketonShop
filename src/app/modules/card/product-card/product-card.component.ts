@@ -5,6 +5,7 @@ import { ProductGalleryComponent } from '../../../core/ui/product-gallery/produc
 import { ProductsService } from '../../../core/services/products.service';
 import { ActivatedRoute } from '@angular/router';
 import { CleanArrayLinkPipe } from "../../../core/pipes/clear-url";
+import { Product } from '../../../../models/product.interface';
 
 interface Store {
   name: string;
@@ -34,7 +35,7 @@ export class ProductCardComponent implements OnInit {
   showStores = false;
   modalTop = 0;
   modalLeft = 0;
-  productData: any;
+  productData!: Product;
 
   colors: ColorOption[] = [
     { name: 'Красный', value: '#ff4d4d' },

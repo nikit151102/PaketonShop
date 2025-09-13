@@ -5,6 +5,7 @@ import { AboutRoutingModule } from "../../../modules/about/about-routing.module"
 import { StorageUtils } from '../../../../utils/storage.utils';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from "../../pipes/clear-url";
+import { Product } from '../../../../models/product.interface';
 
 
 @Component({
@@ -18,7 +19,7 @@ export class ProductComponent implements OnInit {
 
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
-  @Input() product: any;
+  @Input() product!: Product;
   city$!: typeof this.locationService.city$;
   inCart: boolean = false;
   hovered = true;
@@ -41,11 +42,11 @@ export class ProductComponent implements OnInit {
   }
 
   toggleFavorite() {
-    this.product.favorite = !this.product.favorite;
+    // this.product.favorite = !this.product.favorite;
   }
 
   toggleCompare() {
-    this.product.compare = !this.product.compare;
+    // this.product.compare = !this.product.compare;
   }
 
   increaseQty(product: any) {

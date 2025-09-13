@@ -1,6 +1,6 @@
-<div class="product-card">
+<div class="product-card" *ngIf="productData as product">
   <!-- Галерея -->
-  <app-product-gallery [images]="productData.productImageLinks ? productData.productImageLinks : '' | cleanArrayLink">
+  <app-product-gallery [images]="(productData ? productData.productImageLinks : []) | cleanArrayLink">
   </app-product-gallery>
 
   <!-- Информация -->
