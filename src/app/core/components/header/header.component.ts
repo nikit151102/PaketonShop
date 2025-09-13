@@ -32,8 +32,6 @@ export class HeaderComponent {
     this.city$ = this.locationService.city$;
     this.detectedCity$ = this.locationService.detectedCity$;
     this.currentSession$ = this.locationService.currentSession$;
-    // this.showCityModal$ = this.locationService.showCityModal$;
-    this.showCityModal$.next(false);
   }
 
   openCityListModal() { this.locationService.openCityListModal(); }

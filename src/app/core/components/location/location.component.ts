@@ -24,9 +24,9 @@ export class LocationComponent implements OnInit {
     this.city$ = this.locationService.city$;
     this.detectedCity$ = this.locationService.detectedCity$;
     this.showCityModal$ = this.locationService.showCityModal$;
+    this.showCityModal$.next(false);
   }
 
-  // Методы проксируем к сервису для HTML
   openCityListModal() { this.locationService.openCityListModal(); }
   setCity(city: City) { this.locationService.setCity(city); }
   confirmCity() { this.locationService.confirmCity(); }
