@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './mobile-bottom-nav.component.scss'
 })
 export class MobileBottomNavComponent {
-activeTab: string = 'home'; 
+  activeTab: string = 'home';
 
   changeTab(tab: string) {
     this.activeTab = tab;

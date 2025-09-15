@@ -32,7 +32,12 @@ export class ProductComponent implements OnInit {
 
   }
 
-  // Метод для получения цены в зависимости от города
+  addToCart(event: MouseEvent) {
+    event.stopPropagation();
+    this.inCart = true;
+  }
+
+  // Получения цены в зависимости от города
   getPrice(city: string | null): number {
     if (city === 'Барнаул') {
       return this.product.retailPrice;

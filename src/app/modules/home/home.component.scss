@@ -1,3 +1,18 @@
+.home-page {
+  #groups_modile {
+    display: none;
+
+    @media (max-width: 950px) {
+      display: block;
+    }
+  }
+  @media (max-width: 950px) {
+    .ready_solutions{
+      display: none;
+    }
+  }
+}
+
 #section-sales {
   padding: 2rem 1rem;
   background: linear-gradient(135deg, #f0f4f8, #ffffff);

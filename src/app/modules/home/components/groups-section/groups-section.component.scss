@@ -3,12 +3,22 @@
     display: flex;
     flex-direction: row;
 
+    @media (max-width: 699px) {
+        flex-direction: column;
+    }
+
     .categories-grid {
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;
         justify-content: flex-start;
         padding: 0.5rem;
+
+        @media (max-width: 950px) {
+            flex-wrap: nowrap;
+            gap: 10px;
+            overflow-x: scroll;
+        }
     }
 
     .category-tile {
@@ -24,6 +34,12 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
 
         width: 100px;
+
+
+        @media (max-width: 950px) {
+            width: 100% !important;
+            min-width: 120px !important;
+        }
 
         &.w-small {
             width: 120px;
@@ -76,6 +92,10 @@
 
             &:hover {
                 color: #6c63ff; // современный акцент
+            }
+
+            @media (max-width: 950px) {
+                font-size: 11px;
             }
         }
 

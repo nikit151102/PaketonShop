@@ -39,25 +39,6 @@
     }
   }
 
-  .burger {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-
-    &:hover {
-      background: #f1f3f5;
-      color: #0d6efd;
-    }
-
-    @media (max-width: 1024px) {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
 }
 
 

@@ -37,7 +37,7 @@
 
 
 
-        <button class="add-cart" *ngIf="!inCart" (click)="inCart = true">🛒 В корзину</button>
+        <button class="add-cart" *ngIf="!inCart" (click)="addToCart($event)">🛒 В корзину</button>
     </div>
 </div>
 

@@ -1,6 +1,6 @@
 .product-card {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 0.8fr; 
+  grid-template-columns: 1fr 1.2fr 0.8fr;
   gap: 2rem;
   padding: 2rem;
   border-radius: 24px;
@@ -12,6 +12,10 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+
+     @media (max-width: 900px) {
+      gap: 5px;
+    }
 
     .title {
       margin: 0;
@@ -28,6 +32,7 @@
       gap: 5px;
       font-size: 0.95rem;
       color: #777;
+      margin: 0;
     }
 
     .price-wrapper {
@@ -67,7 +72,8 @@
           display: flex;
           gap: 0.6rem;
 
-          span, button {
+          span,
+          button {
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -99,7 +105,6 @@
   .actions-panel {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
     padding: 1rem;
     border-left: 1px solid #f0f0f0;
 
@@ -196,6 +201,61 @@
           background: #c82333;
         }
       }
+    }
+  }
+
+  /* Адаптивность */
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1rem;
+
+    .actions-panel {
+      border-left: none;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 1rem;
+    }
+
+    .variants .variant-group .variant-options {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .info .price-wrapper {
+      flex-direction: row;
+      align-items: center;
+
+      .new-price {
+        font-size: 2rem;
+      }
+
+      .old-price {
+        font-size: 1.4rem;
+      }
+    }
+
+  }
+
+  @media (max-width: 600px) {
+    padding: 1rem;
+
+    .info .title {
+      font-size: 18px;
+    }
+
+    .actions-panel .actions button {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+    }
+
+    .actions-panel .store-check {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
     }
   }
 }

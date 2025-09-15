@@ -92,4 +92,5 @@ export class HomeComponent implements OnInit {
     this.products = [];    
     this.loadProducts();  
   }
+
 }

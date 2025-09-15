@@ -34,11 +34,16 @@ export class ProductsService {
     );
   }
 
-  getById(id: string){
-     return this.http.get<any>(
-      `${environment.production}/api/Entities/ProductInstance/${id}`,
-      { headers: this.getHeaders() }
+  getById(id: string) {
+    return this.http.post<any>(
+      `${environment.production}/api/Entities/ProductInstance`,
+      {
+        id: id,
+        productCategoryId: ""
+      },
+      {
+        headers: this.getHeaders(),
+      }
     );
   }
-
 }
