@@ -28,7 +28,7 @@ export class ProductsService {
     };
 
     return this.http.post<any>(
-      `${environment.production}/api/Entities/ProductInstance/Filter`,
+      `${environment.production}/Entities/ProductInstance/Filter`,
       requestBody,
       { headers: this.getHeaders() }
     );
@@ -36,7 +36,7 @@ export class ProductsService {
 
   getById(id: string) {
     return this.http.post<any>(
-      `${environment.production}/api/Entities/ProductInstance`,
+      `${environment.production}/Entities/ProductInstance`,
       {
         id: id,
         productCategoryId: ""
