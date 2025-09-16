@@ -36,10 +36,9 @@ export class ProductsService {
 
   getById(id: string) {
     return this.http.post<any>(
-      `${environment.production}/api/Entities/ProductInstance`,
+      `${environment.production}/api/Entities/ProductInstance/ByCategory`,
       {
-        id: id,
-        productCategoryId: ""
+        id: id
       },
       {
         headers: this.getHeaders(),
