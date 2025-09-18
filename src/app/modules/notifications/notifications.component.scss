@@ -1,42 +1,69 @@
 .notifications-page {
   margin: 2rem auto;
   padding: 1.5rem;
+  max-width: 900px;
   background: #fff;
   border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
 
   h2 {
     margin-bottom: 1rem;
     font-size: 1.6rem;
+    text-align: center;
+
+    @media (max-width: 480px) {
+      font-size: 1.4rem;
+    }
   }
 
   .toolbar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.2rem;
+    gap: 10px;
 
     input {
-      flex: 1;
+      flex: 1 1 200px;
       padding: 0.6rem 1rem;
       border: 1px solid #ddd;
       border-radius: 12px;
       margin-right: 1rem;
+      min-width: 120px;
+
+      @media (max-width: 480px) {
+        margin-bottom: 0.5rem;
+        width: 100%;
+        margin-right: 0;
+      }
     }
 
-    .filters button {
-      background: transparent;
-      border: none;
-      padding: 0.5rem 1rem;
-      margin-left: 0.3rem;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 500;
-      color: #555;
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
 
-      &.active {
-        background: #007bff;
-        color: #fff;
+      button {
+        background: transparent;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #555;
+        flex: 1;
+
+        &.active {
+          background: #007bff;
+          color: #fff;
+        }
+
+        @media (max-width: 480px) {
+          flex: auto;
+          padding: 0.4rem 0.6rem;
+          font-size: 0.85rem;
+        }
       }
     }
   }
@@ -62,14 +89,51 @@
       justify-content: center;
       margin-right: 1rem;
 
-      &.order { background: #e0f7fa; color: #00796b; }
-      &.message { background: #fff3e0; color: #f57c00; }
-      &.sale { background: #ffebee; color: #d32f2f; }
+      &.order {
+        background: #e0f7fa;
+        color: #00796b;
+      }
+
+      &.message {
+        background: #fff3e0;
+        color: #f57c00;
+      }
+
+      &.sale {
+        background: #ffebee;
+        color: #d32f2f;
+      }
+
+      @media (max-width: 480px) {
+        width: 35px;
+        height: 35px;
+        margin-right: 0.7rem;
+      }
     }
 
     .content {
-      p { margin: 0; font-size: 1rem; }
-      .time { font-size: 0.8rem; color: #999; }
+      p {
+        margin: 0;
+        font-size: 1rem;
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+        }
+      }
+
+      .time {
+        font-size: 0.8rem;
+        color: #999;
+
+        @media (max-width: 480px) {
+          font-size: 0.7rem;
+        }
+      }
+    }
+
+    @media (max-width: 480px) {
+      flex-direction: row;
+      padding: 0.8rem;
     }
   }
 
@@ -77,5 +141,10 @@
     text-align: center;
     padding: 2rem;
     color: #777;
+
+    @media (max-width: 480px) {
+      padding: 1.5rem;
+      font-size: 0.9rem;
+    }
   }
 }

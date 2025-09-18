@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AboutRoutingModule } from "../../../modules/about/about-routing.module";
-import { StorageUtils } from '../../../../utils/storage.utils';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from "../../pipes/clear-url";
 import { Product } from '../../../../models/product.interface';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -25,25 +25,52 @@ export class ProductComponent implements OnInit {
   hovered = true;
   showQuickView = false;
 
-  constructor(public locationService: LocationService) { }
+  constructor(public locationService: LocationService, private router: Router) { }
 
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
 
   }
 
-  addToCart(event: MouseEvent) {
-    event.stopPropagation();
-    this.inCart = true;
-  }
-
-  // Получения цены в зависимости от города
   getPrice(city: string | null): number {
     if (city === 'Барнаул') {
       return this.product.retailPrice;
     } else {
       return this.product.wholesalePrice;
     }
+  }
+
+  getTotalPrice(city: string | null): string {
+    const totalPrice = this.getPrice(city) * this.selectedQuantity;
+    return totalPrice.toFixed(1);
+  }
+
+
+  selectedQuantity = 1;
+  quantitySelectorVisible = false;
+
+  toggleQuantitySelector() {
+    this.quantitySelectorVisible = !this.quantitySelectorVisible;
+  }
+
+  addToCart(event: MouseEvent) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+
+    this.inCart = true;
+    this.quantitySelectorVisible = false;
+  }
+
+  onProductClick(event: MouseEvent) {
+    if ((event.target as HTMLElement).closest('.add-cart') || (event.target as HTMLElement).closest('.confirm-quantity') || (event.target as HTMLElement).closest('.input-quantity')
+      || (event.target as HTMLElement).closest('.quantity-btn')
+      || (event.target as HTMLElement).closest('.quick-view')
+    ) {
+      event.stopPropagation();
+      return;
+    }
+
+    this.router.navigate(['/product', this.product.id]);
   }
 
   toggleFavorite() {
@@ -55,15 +82,15 @@ export class ProductComponent implements OnInit {
   }
 
   increaseQty(product: any) {
-    product.qty++;
+    this.selectedQuantity++;
   }
 
   decreaseQty(product: any) {
     if (product.qty > 1) {
-      product.qty--;
+      this.selectedQuantity--;
     } else {
       this.inCart = false;
-      product.qty = 1;
+      this.selectedQuantity = 1;
     }
   }
 

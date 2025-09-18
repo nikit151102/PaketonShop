@@ -18,19 +18,15 @@ export class IconsComponent implements OnInit {
   userId: string = '';
 
   constructor(private authService: AuthService, private userService: UserService) { }
-  
-  ngOnInit(): void {
-   this.userService.user$.subscribe((user: any)=>{
-    this.userId = user?.id ?? null;
-   })
-    
 
+  ngOnInit(): void {
+    this.userService.user$.subscribe((user: any) => {
+      this.userId = user?.id ?? null;
+    })
   }
 
   getAuth() {
     this.authService.changeVisible(true);
   }
-
-
 
 }

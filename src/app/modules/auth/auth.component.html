@@ -33,10 +33,6 @@
       <!-- Регистрация -->
       <div *ngIf="authMode==='register'" class="form-slide">
         <div class="input-group">
-          <input type="text" id="name" formControlName="name" autocomplete="off"/>
-          <label for="name">Имя</label>
-        </div>
-        <div class="input-group">
           <input type="text" id="regEmail" formControlName="email" autocomplete="off"/>
           <label for="regEmail">Email</label>
         </div>
@@ -48,7 +44,7 @@
           <input type="password" id="confirmPassword" formControlName="confirmPassword" autocomplete="off"/>
           <label for="confirmPassword">Подтвердите пароль</label>
         </div>
-        <button type="submit" class="submit-btn">Зарегистрироваться</button>
+        <button type="submit" class="submit-btn" (click)="onSubmit()">Зарегистрироваться</button>
       </div>
 
     </form>
