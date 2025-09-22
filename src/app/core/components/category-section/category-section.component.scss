@@ -1,6 +1,6 @@
 .categories {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
   gap: 2rem;
   padding: 1rem;
 
@@ -20,6 +20,7 @@
 
     .image-wrapper {
       display: flex;
+<<<<<<< HEAD
       justify-content: center;
 
       img {
@@ -28,6 +29,16 @@
         object-fit: cover;
         display: block;
       }
+=======
+      width: 100%;
+      justify-content: center;
+    }
+
+    .image-wrapper img {
+      height: 160px;
+      object-fit: cover;
+      display: block;
+>>>>>>> 98e4edbb0296e211407ff8b106e4f2c5ea3e67a6
     }
 
 

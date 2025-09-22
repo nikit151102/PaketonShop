@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
 import { ProductsService } from '../../../core/services/products.service';
@@ -24,7 +24,7 @@ interface ColorOption {
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss']
 })
-export class ProductCardComponent implements OnInit {
+export class ProductCardComponent {
 
   quantity = 1;
   isDiscount: boolean = true;
@@ -35,7 +35,7 @@ export class ProductCardComponent implements OnInit {
   showStores = false;
   modalTop = 0;
   modalLeft = 0;
-  productData!: Product;
+  @Input() productData!: Product;
 
   colors: ColorOption[] = [
     { name: 'Красный', value: '#ff4d4d' },
@@ -54,23 +54,6 @@ export class ProductCardComponent implements OnInit {
   @ViewChild('storeCheckBtn') storeCheckBtn!: ElementRef;
 
 
-  constructor(
-    private route: ActivatedRoute,
-    private productsService: ProductsService
-  ) { }
-
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.loadData(params.get('id')!);
-    });
-
-  }
-
-  loadData(id: string) {
-    this.productsService.getById(id).subscribe((values: any) => {
-      this.productData = values.data;
-    });
-  }
 
   copyArticle(): void {
     if (!this.productData.article) return;

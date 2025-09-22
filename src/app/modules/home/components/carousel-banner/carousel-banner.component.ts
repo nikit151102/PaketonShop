@@ -10,20 +10,15 @@ import { Component, OnInit } from '@angular/core';
 export class CarouselBannerComponent  implements OnInit {
 slides = [
   {
-    image: 'https://images.unsplash.com/photo-1606813909234-96e9c9d4a812?auto=format&fit=crop&w=1350&q=80',
-    title: 'Добро пожаловать в ShopZone!',
-    subtitle: 'Лучшие товары по лучшим ценам',
+    image: 'img11.jpg',
+    title: '',
+    subtitle: '',
   },
   {
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1350&q=80',
-    title: 'Скидки до 50%',
-    subtitle: 'Успей купить выгодно!',
+    image: 'img22.jpg',
+    title: '',
+    subtitle: '',
   },
-  {
-    image: 'https://images.unsplash.com/photo-1555529669-95a5ba1eaa1e?auto=format&fit=crop&w=1350&q=80',
-    title: 'Новинки уже в продаже',
-    subtitle: 'Открой для себя новое',
-  }
 ];
 
 

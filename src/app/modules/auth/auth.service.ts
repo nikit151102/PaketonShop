@@ -63,16 +63,16 @@ export class AuthService {
   }
 
   // Регистрация пользователя
-  register(user: User): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.production}/register`, user)
+  register(user: any): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${environment.production}/auth/register`, user)
       .pipe(
         tap(response => {
-          if (response.data) {
-            StorageUtils.setLocalStorageCache(this.TOKEN_KEY, response.data.token, 3600);
-            StorageUtils.setLocalStorageCache(this.USER_KEY, response.data, 3600);
+          // if (response.data) {
+          //   StorageUtils.setLocalStorageCache(this.TOKEN_KEY, response.data.token, 3600);
+          //   StorageUtils.setLocalStorageCache(this.USER_KEY, response.data, 3600);
 
-            this.authTokenSubject.next(response.data.token);
-          }
+          //   this.authTokenSubject.next(response.data.token);
+          // }
         })
       );
   }
