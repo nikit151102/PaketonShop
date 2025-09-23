@@ -1,25 +1,60 @@
-.menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.menu {
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
 
-  li {
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #374151;
-    transition: background 0.2s, color 0.2s;
+    li {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #374151;
+      transition: background 0.2s, color 0.2s;
 
-    &:hover {
-      background: #f3f4f6;
+      &:hover {
+        background: #f3f4f6;
+      }
+
+      &.active {
+        background: #3b82f6;
+        color: #fff;
+      }
+    }
+  }
+
+  /* Планшеты */
+  @media (max-width: 1024px) {
+    ul li {
+      font-size: 0.9rem;
+      padding: 0.6rem 0.8rem;
+    }
+  }
+
+  /* Мобильные */
+  @media (max-width: 1024px) {
+    ul {
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding: 0.5rem 0;
+      margin: 0 -0.5rem;
     }
 
-    &.active {
-      background: #3b82f6;
-      color: #fff;
+    ul li {
+      margin-bottom: 0;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      flex-shrink: 0;
     }
   }
 }
