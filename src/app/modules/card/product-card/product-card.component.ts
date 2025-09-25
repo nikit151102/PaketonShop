@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
-import { ProductsService } from '../../../core/services/products.service';
-import { ActivatedRoute } from '@angular/router';
 import { CleanArrayLinkPipe } from "../../../core/pipes/clear-url";
 import { Product } from '../../../../models/product.interface';
 

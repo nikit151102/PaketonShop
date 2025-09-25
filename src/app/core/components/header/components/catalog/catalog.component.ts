@@ -1,5 +1,4 @@
 import { Component, ElementRef, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { MegaMenuComponent } from '../mega-menu/mega-menu.component';
 
 @Component({

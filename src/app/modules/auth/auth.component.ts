@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from './auth.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StorageUtils } from '../../../utils/storage.utils';
-import { localStorageEnvironment, sessionStorageEnvironment } from '../../../environment';
+import { localStorageEnvironment } from '../../../environment';
 import { UserService } from '../../core/services/user.service';
 
 @Component({
