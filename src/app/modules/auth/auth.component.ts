@@ -39,8 +39,7 @@ export class AuthComponent implements OnInit {
   onSubmit(): void {
     if (this.authMode === 'login') {
       const data = {
-        ...this.authForm.value,
-        // userName: this.authForm.value.email
+        ...this.authForm.value
       };
       this.authService.login(data.userName, data.email, data.password).subscribe({
         next: (response: any) => {
