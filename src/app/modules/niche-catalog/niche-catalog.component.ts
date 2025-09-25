@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-niche-catalog',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './niche-catalog.component.html',
   styleUrl: './niche-catalog.component.scss'

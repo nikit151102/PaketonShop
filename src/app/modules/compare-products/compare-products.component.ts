@@ -12,6 +12,7 @@ interface Product {
 
 @Component({
   selector: 'app-compare-products',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './compare-products.component.html',
   styleUrl: './compare-products.component.scss'

@@ -35,9 +35,9 @@ interface Company {
 
 @Component({
   selector: 'app-cart',
+  standalone: true,
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss'],
-  standalone: true,
   imports: [CommonModule, FormsModule, ProductComponent, SummaryComponent, SelectCartButtonComponent, OrderFormComponent]
 })
 export class CartComponent {

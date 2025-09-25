@@ -6,6 +6,7 @@ import { ProductsService } from '../../core/services/products.service';
 
 @Component({
   selector: 'app-card',
+  standalone: true,
   imports: [CommonModule, ProductCardComponent],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'

@@ -9,6 +9,7 @@ declare var ymaps: any;
 
 @Component({
   selector: 'app-contacts',
+  standalone: true,
   imports: [CommonModule, FormsModule, PhoneLinkPipe, WhatsappLinkPipe],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss'

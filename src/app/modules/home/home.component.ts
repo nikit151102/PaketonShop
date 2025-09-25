@@ -11,6 +11,7 @@ import { StorageUtils } from '../../../utils/storage.utils';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [CommonModule, CarouselBannerComponent, CategorySectionComponent, ProductComponent, SalesProductsComponent, GroupsSectionComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
@@ -82,15 +83,15 @@ export class HomeComponent implements OnInit {
 
     if (scrollPosition >= pageHeight - 100 && !this.loading) {
       this.currentPage++;
-      this.loadProducts(); 
+      this.loadProducts();
     }
   }
 
   onCategoryChange(categoryId: string): void {
     this.selectedCategory = categoryId;
     this.currentPage = 0;
-    this.products = [];    
-    this.loadProducts();  
+    this.products = [];
+    this.loadProducts();
   }
 
 }

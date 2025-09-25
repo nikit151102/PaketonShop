@@ -5,6 +5,7 @@ import { CategorySectionComponent } from '../../core/components/category-section
 
 @Component({
   selector: 'app-categories',
+  standalone: true,
   imports: [CategorySectionComponent],
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.scss'

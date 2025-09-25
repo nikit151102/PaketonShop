@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-products',
+  standalone: true,
   imports: [CommonModule, ProductComponent, ViewSwitcherComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'

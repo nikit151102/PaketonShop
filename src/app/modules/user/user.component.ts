@@ -8,6 +8,7 @@ import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-user',
+  standalone: true,
   imports: [CommonModule, RouterOutlet, UserCardComponent, MenuComponent, AuthRoutingModule],
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss'

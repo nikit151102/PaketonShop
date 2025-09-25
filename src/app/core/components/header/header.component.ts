@@ -3,7 +3,6 @@ import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../modules/auth/auth.service';
-import { AboutRoutingModule } from "../../../modules/about/about-routing.module";
 import { IconsComponent } from './components/icons/icons.component';
 import { LogoComponent } from './components/logo/logo.component';
 import { MenuComponent } from './components/menu/menu.component';
@@ -13,7 +12,7 @@ import { City, LocationService } from '../location/location.service';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, FormsModule, AboutRoutingModule, LogoComponent, MenuComponent, SearchComponent, IconsComponent, CatalogComponent],
+  imports: [CommonModule, FormsModule, LogoComponent, MenuComponent, SearchComponent, IconsComponent, CatalogComponent],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

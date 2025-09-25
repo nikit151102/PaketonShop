@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../../../modules/auth/auth.service';
-import { AboutRoutingModule } from "../../../../../modules/about/about-routing.module";
 import { NotificationsComponent } from './notifications/notifications.component';
 import { StorageUtils } from '../../../../../../utils/storage.utils';
 import { localStorageEnvironment, sessionStorageEnvironment } from '../../../../../../environment';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../../../services/user.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-icons',
-  imports: [CommonModule, AboutRoutingModule, NotificationsComponent],
+  imports: [CommonModule, NotificationsComponent, RouterLink],
   templateUrl: './icons.component.html',
   styleUrl: './icons.component.scss'
 })

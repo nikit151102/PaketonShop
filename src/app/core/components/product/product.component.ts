@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AboutRoutingModule } from "../../../modules/about/about-routing.module";
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from "../../pipes/clear-url";
 import { Product } from '../../../../models/product.interface';
@@ -10,12 +9,11 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product',
-  imports: [CommonModule, FormsModule, AboutRoutingModule, CleanStringLinkPipe],
+  imports: [CommonModule, FormsModule, CleanStringLinkPipe],
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss'
 })
 export class ProductComponent implements OnInit {
-
 
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
@@ -29,7 +27,6 @@ export class ProductComponent implements OnInit {
 
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
-
   }
 
   getPrice(city: string | null): number {

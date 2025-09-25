@@ -2,42 +2,41 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
     {
-        path: '', loadChildren: () => import('./modules/home/home.module').then(m => m.HomeModule)
+        path: '', loadComponent: () => import('./modules/home/home.component').then(m => m.HomeComponent)
     },
     {
-        path: 'profile/:id', loadChildren: () => import('./modules/user/user.module').then(m => m.UserModule)
+        path: 'profile/:id',
+        loadChildren: () => import('./modules/user/user-routes').then(m => m.userRoutes),
     },
     {
-        path: 'product/:id', loadChildren: () => import('./modules/card/card.module').then(m => m.CardModule)
+        path: 'product/:id', loadComponent: () => import('./modules/card/card.component').then(m => m.CardComponent)
     },
     {
-        path: 'contacts', loadChildren: () => import('./modules/contacts/contacts.module').then(m => m.ContactsModule)
+        path: 'contacts', loadComponent: () => import('./modules/contacts/contacts.component').then(m => m.ContactsComponent)
     },
     {
-        path: 'cart', loadChildren: () => import('./modules/cart/cart.module').then(m => m.CartModule)
+        path: 'cart', loadComponent: () => import('./modules/cart/cart.component').then(m => m.CartComponent)
     },
     {
-        path: 'about', loadChildren: () => import('./modules/about/about.module').then(m => m.AboutModule)
+        path: 'about', loadComponent: () => import('./modules/about/about.component').then(m => m.AboutComponent)
     },
     {
-        path: 'niches', loadChildren: () => import('./modules/niche-catalog/niche-catalog.module').then(m => m.NicheCatalogModule)
+        path: 'niches', loadComponent: () => import('./modules/niche-catalog/niche-catalog.component').then(m => m.NicheCatalogComponent)
     },
     {
-        path: 'news', loadChildren: () => import('./modules/news/news.module').then(m => m.NewsModule)
+        path: 'news', loadComponent: () => import('./modules/news/news.module').then(m => m.NewsModule)
     },
     {
-        path: 'notifications', loadChildren: () => import('./modules/notifications/notifications.module').then(m => m.NotificationsModule)
+        path: 'notifications', loadComponent: () => import('./modules/notifications/notifications.component').then(m => m.NotificationsComponent)
     },
     {
-        path: 'category/:id', loadChildren: () => import('./modules/categories/categories.module').then(m => m.CategoriesModule)
+        path: 'category/:id', loadComponent: () => import('./modules/categories/categories.component').then(m => m.CategoriesComponent)
     },
     {
-        path: 'products/:id', loadChildren: () => import('./modules/products/products.module').then(m => m.ProductsModule)
+        path: 'products/:id', loadComponent: () => import('./modules/products/products.component').then(m => m.ProductsComponent)
     },
-        {
-        path: 'compare', loadChildren: () => import('./modules/compare-products/compare-products.module').then(m => m.CompareProductsModule)
+    {
+        path: 'compare', loadComponent: () => import('./modules/compare-products/compare-products.component').then(m => m.CompareProductsComponent)
     },
-    
-
 ];
 

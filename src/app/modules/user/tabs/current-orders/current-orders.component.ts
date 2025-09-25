@@ -13,6 +13,7 @@ interface Order {
 
 @Component({
   selector: 'app-current-orders',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './current-orders.component.html',
   styleUrl: './current-orders.component.scss'

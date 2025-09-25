@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-delivery-addresses',
+  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './delivery-addresses.component.html',
   styleUrl: './delivery-addresses.component.scss'

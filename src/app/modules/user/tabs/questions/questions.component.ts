@@ -12,6 +12,7 @@ interface Question {
 
 @Component({
   selector: 'app-questions',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './questions.component.html',
   styleUrls: ['./questions.component.scss']

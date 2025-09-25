@@ -15,6 +15,7 @@ interface Order {
 
 @Component({
   selector: 'app-order-history',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss'
