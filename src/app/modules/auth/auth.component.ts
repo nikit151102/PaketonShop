@@ -45,7 +45,7 @@ export class AuthComponent implements OnInit {
       this.authService.login(data.userName, data.email, data.password).subscribe({
         next: (response: any) => {
           this.closePopUp();
-          this.userService.setUser(response.data, false)
+          this.userService.setUser(response.data, 'session', true)
           StorageUtils.setLocalStorageCache(localStorageEnvironment.auth.key, response.data.token, localStorageEnvironment.auth.ttl)
         },
         error: (error) => {

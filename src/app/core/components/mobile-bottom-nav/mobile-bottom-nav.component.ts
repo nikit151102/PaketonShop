@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../modules/auth/auth.service';
-import { UserService } from '../../services/user.service';
+import { User, UserService } from '../../services/user.service';
+import { Observable, map } from 'rxjs';
 
 @Component({
   selector: 'app-mobile-bottom-nav',
@@ -12,15 +13,14 @@ import { UserService } from '../../services/user.service';
 })
 export class MobileBottomNavComponent {
   activeTab: string = 'home';
-  userId: string = '';
 
-  constructor(private authService: AuthService, private userService: UserService) { }
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
 
-  ngOnInit(): void {
-    this.userService.user$.subscribe((user: any) => {
-      this.userId = user?.id ?? null;
-    })
-  }
+  userId$: Observable<string | null> = this.userService.user$.pipe(
+    map((user: User | null) => user?.id ?? null)
+  );
+
 
   getAuth() {
     this.authService.changeVisible(true);

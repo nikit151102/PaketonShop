@@ -43,7 +43,7 @@
     <span>Уведомления</span>
   </button>
 
-  <button class="nav-item" [class.active]="activeTab === 'profile'" (click)="getAuth()" *ngIf="!userId">
+  <button class="nav-item" [class.active]="activeTab === 'profile'" (click)="getAuth()" *ngIf="!(userId$ | async)">
     <svg width="24px" height="24px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -63,7 +63,7 @@
     </svg>
     <span>Профиль</span>
   </button>
-  <button class="nav-item" [routerLink]="['/profile', userId]" *ngIf="userId">
+  <button class="nav-item" [routerLink]="['/profile', userId]" *ngIf="userId$ | async as userId">
     <svg width="24px" height="24px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000">
       <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

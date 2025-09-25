@@ -18,5 +18,12 @@ export const localStorageEnvironment = {
 
 
 export const sessionStorageEnvironment = {
-
+    auth: {
+        key: 'pkt_',
+        ttl: 600
+    },
+    user: {
+        key: 'pkt_user',
+        ttl: 600
+    }
 }
