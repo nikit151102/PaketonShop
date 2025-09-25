@@ -2,7 +2,7 @@
  * Интерфейс, описывающий адрес
  */
 export interface Address {
-    id: number;                     // Уникальный идентификатор адреса
+    id: string;                     // Уникальный идентификатор адреса
     region: string;                 // Название региона (обязательное поле)
     area?: string | null;           // Название области/района (необязательное)
     city: string;                   // Название города (обязательное)
@@ -10,9 +10,12 @@ export interface Address {
     house: string;                  // Номер дома (обязательное)
     housing?: string | null;        // Корпус/строение (необязательное)
     postIndex: string;              // Почтовый индекс (обязательное)
+      floorNumber?: string;
+     office?: string;
     gps?: string | null;            // GPS-координаты в формате строки (необязательное)
     latitude?: number | null;       // Географическая широта (необязательное)
     longitude?: number | null;      // Географическая долгота (необязательное)
+      system?: string;
 }
 
 /**

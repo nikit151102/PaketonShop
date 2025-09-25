@@ -1,0 +1,114 @@
+<div class="addresses-root">
+  <header class="header">
+    <div>
+      <h1>Мои адреса доставки</h1>
+      <p class="muted">Сохраните адреса, чтобы быстро выбирать при оформлении заказа</p>
+    </div>
+    <div class="actions">
+      <input class="search" placeholder="Поиск по адресу..." [(ngModel)]="filter" />
+      <button class="btn primary" (click)="openAdd()">+ Добавить адрес</button>
+    </div>
+  </header>
+
+  <main>
+    <div *ngIf="loading" class="center">Загрузка...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <div *ngIf="!loading && (filteredAddresses().length === 0)" class="empty">
+      Адресов пока нет — добавьте первый.
+    </div>
+
+    <div class="grid">
+      <article class="card" *ngFor="let addr of filteredAddresses()">
+        <div class="card-top">
+          <div class="title">{{ addr.city }}, {{ addr.street }} {{ addr.house }}{{ addr.housing ? '/' + addr.housing : '' }}</div>
+          <div class="small-muted">Индекс: {{ addr.postIndex || '—' }}</div>
+        </div>
+
+        <div class="card-body">
+          <div class="line"><strong>Офис/Кв:</strong> {{ addr.office || '—' }}</div>
+          <div class="line"><strong>Этаж:</strong> {{ addr.floorNumber || '—' }}</div>
+          <div class="line"><strong>Регион:</strong> {{ addr.region || '—' }}</div>
+        </div>
+
+        <div class="card-actions">
+          <button class="link" (click)="openEdit(addr)" title="Редактировать">✏️ Редактировать</button>
+          <button class="link danger" (click)="confirmDelete(addr)" title="Удалить">🗑 Удалить</button>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Modal: Add / Edit -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <div class="modal">
+      <h2>{{ isEditing ? 'Редактировать адрес' : 'Новый адрес' }}</h2>
+
+      <form [formGroup]="addressForm" (ngSubmit)="save()">
+        <div class="form-row">
+          <label>Город *</label>
+          <input formControlName="city" />
+          <div class="form-error" *ngIf="addressForm.get('city')?.touched && addressForm.get('city')?.invalid">Обязательное поле</div>
+        </div>
+
+        <div class="form-row">
+          <label>Улица *</label>
+          <input formControlName="street" />
+          <div class="form-error" *ngIf="addressForm.get('street')?.touched && addressForm.get('street')?.invalid">Обязательное поле</div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Дом *</label>
+            <input formControlName="house" />
+          </div>
+          <div class="form-row">
+            <label>Корпус</label>
+            <input formControlName="housing" />
+          </div>
+          <div class="form-row">
+            <label>Этаж</label>
+            <input formControlName="floorNumber" />
+          </div>
+          <div class="form-row">
+            <label>Офис / Кв</label>
+            <input formControlName="office" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>Почтовый индекс</label>
+          <input formControlName="postIndex" />
+        </div>
+
+        <div class="form-row two">
+          <div>
+            <label>Широта</label>
+            <input formControlName="latitude" type="number" step="any" />
+          </div>
+          <div>
+            <label>Долгота</label>
+            <input formControlName="longitude" type="number" step="any" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn" (click)="cancelModal()">Отмена</button>
+          <button type="submit" class="btn primary">{{ isEditing ? 'Сохранить' : 'Создать' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirm -->
+  <div class="modal-backdrop" *ngIf="isDeleteConfirmOpen">
+    <div class="modal small">
+      <h3>Удалить адрес?</h3>
+      <p>Вы действительно хотите удалить адрес: <strong>{{ editingAddress?.city }}, {{ editingAddress?.street }} {{ editingAddress?.house }}</strong>?</p>
+      <div class="modal-actions">
+        <button class="btn" (click)="isDeleteConfirmOpen = false">Отмена</button>
+        <button class="btn danger" (click)="delete()">Удалить</button>
+      </div>
+    </div>
+  </div>
+</div>

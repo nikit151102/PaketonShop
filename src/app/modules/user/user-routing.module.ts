@@ -27,6 +27,10 @@ const routes: Routes = [
         path: 'questions',
         loadChildren: () => import('./tabs/questions/questions.module').then(m => m.QuestionsModule)
       },
+      {
+        path: 'delivery-addresses',
+        loadComponent: () => import('./tabs/delivery-addresses/delivery-addresses.component').then(m => m.DeliveryAddressesComponent)
+      },
 
     ]
   }
