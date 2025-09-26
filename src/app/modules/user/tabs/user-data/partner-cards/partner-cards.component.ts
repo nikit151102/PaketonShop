@@ -1,15 +1,17 @@
 import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { Partner } from '../../../../../../models/partner.interface';
 import { CommonModule } from '@angular/common';
+import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
 
 @Component({
   selector: 'app-partner-cards',
-  imports: [CommonModule],
+  imports: [CommonModule, PartnerDetailComponent],
   templateUrl: './partner-cards.component.html',
   styleUrl: './partner-cards.component.scss'
 })
 export class PartnerCardsComponent {
-    companies = [
+
+  companies = [
     {
       FullName: 'ООО "ТехноСервис"',
       ShortName: 'ТехноСервис',
@@ -87,4 +89,13 @@ export class PartnerCardsComponent {
     }
   ];
 
+  activePartner: any = null;
+
+  detailPartner(data: any) {
+    this.activePartner = data;
+  }
+
+  closePartnerDetail() {
+    this.activePartner = null;
+  }
 }

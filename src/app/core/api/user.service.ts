@@ -12,20 +12,10 @@ export class UserApiService {
   constructor(private http: HttpClient) { }
 
   getData(): Observable<any> {
-    const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    return this.http.get(`${environment.production}/api/Profile`, { headers });
+    return this.http.get(`${environment.production}/api/Profile`);
   }
 
   updateData(data: any): Observable<any> {
-    const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-
-    return this.http.put(`${environment.production}/api/Profile`, data, { headers });
+    return this.http.put(`${environment.production}/api/Profile`, data);
   }
 }

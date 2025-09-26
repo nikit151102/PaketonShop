@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Partner } from '../../../../../../../models/partner.interface';
 
 @Component({
@@ -8,10 +8,10 @@ import { Partner } from '../../../../../../../models/partner.interface';
   styleUrl: './partner-detail.component.scss'
 })
 export class PartnerDetailComponent {
-  @Input() partner!: Partner;
-  @Input() closeCallback!: () => void;
+  @Input() partner!: any;
+  @Output() closeCallback = new EventEmitter<void>();
 
-  close() {
-    if (this.closeCallback) this.closeCallback();
+  closeModal() {
+    this.closeCallback.emit();
   }
 }

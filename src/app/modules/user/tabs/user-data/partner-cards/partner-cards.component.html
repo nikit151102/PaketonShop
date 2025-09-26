@@ -1,7 +1,7 @@
 <section class="companies">
     <h3>Мои компании</h3>
     <div class="companies-list">
-        <div class="company-card" *ngFor="let company of companies">
+        <div class="company-card" *ngFor="let company of companies" (click)="detailPartner(company)">
             <div class="card-header">
                 <h4>{{ company.FullName }}</h4>
             </div>
@@ -17,3 +17,5 @@
         </div>
     </div>
 </section>
+
+<app-partner-detail *ngIf="activePartner" [partner]="activePartner" (closeCallback)="closePartnerDetail()"></app-partner-detail>
