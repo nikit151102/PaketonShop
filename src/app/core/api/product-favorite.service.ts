@@ -17,10 +17,17 @@ export class ProductFavoriteService {
    * @param filter Объект с номером страницы и количеством записей
    * @returns Observable с массивом избранных товаров и метаданными
    */
-  getFavorites(filter: FavoriteFilterRequest): Observable<FavoriteResponse> {
+  getFavorites(filters: any[], sort: any = null, page: number = 0, pageSize: number = 20): Observable<FavoriteResponse> {
+    const requestBody = {
+      filters: filters,   // Фильтры могут быть переданы как массив объектов
+      sort: sort,          // Параметры сортировки 
+      page: page,         // Номер страницы
+      pageSize: pageSize // Количество элементов на странице
+    };
+
     return this.http.post<FavoriteResponse>(
       `${environment.production}/api/Profile/Favorites/Filter`,
-      filter
+      requestBody
     );
   }
 

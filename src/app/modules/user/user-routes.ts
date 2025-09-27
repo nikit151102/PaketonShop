@@ -29,6 +29,14 @@ export const userRoutes: Routes = [
           ),
       },
       {
+        path: 'favorites',
+        loadComponent: () =>
+          import('./tabs/products-favorite/products-favorite.component').then(
+            (m) => m.ProductsFavoriteComponent
+          ),
+      },
+
+      {
         path: 'questions',
         loadComponent: () =>
           import('./tabs/questions/questions.component').then(
