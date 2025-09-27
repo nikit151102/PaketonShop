@@ -2,10 +2,11 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular
 import { Partner } from '../../../../../../models/partner.interface';
 import { CommonModule } from '@angular/common';
 import { PartnerDetailComponent } from './partner-detail/partner-detail.component';
+import { PartnerFormComponent } from './partner-form/partner-form.component';
 
 @Component({
   selector: 'app-partner-cards',
-  imports: [CommonModule, PartnerDetailComponent],
+  imports: [CommonModule, PartnerDetailComponent, PartnerFormComponent],
   templateUrl: './partner-cards.component.html',
   styleUrl: './partner-cards.component.scss'
 })

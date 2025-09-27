@@ -1,0 +1,134 @@
+<button class="open-btn" (click)="open()">Добавить компанию</button>
+
+<div class="overlay" [class.active]="isOpen" (click)="close()"></div>
+
+<div class="form-panel" [class.active]="isOpen">
+  <header>
+    <h2>Новый партнер</h2>
+    <button class="close-btn" (click)="close()">✕</button>
+  </header>
+
+  <form [formGroup]="partnerForm" (ngSubmit)="submit()">
+
+    <!-- Блок: Компания -->
+    <section class="form-section">
+      <h3>Компания</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Полное название</label>
+          <input type="text" formControlName="fullName" />
+        </div>
+        <div class="form-group">
+          <label>Краткое название</label>
+          <input type="text" formControlName="shortName" />
+        </div>
+        <div class="form-group">
+          <label>ИНН</label>
+          <input type="text" formControlName="inn" />
+          <small *ngIf="partnerForm.get('inn')?.invalid && partnerForm.get('inn')?.touched">
+            Введите корректный ИНН (10 цифр)
+          </small>
+        </div>
+        <div class="form-group">
+          <label>ОГРН</label>
+          <input type="text" formControlName="ogrn" />
+        </div>
+        <div class="form-group">
+          <label>КПП</label>
+          <input type="text" formControlName="kpp" />
+        </div>
+        <div class="form-group">
+          <label>Тип партнера</label>
+          <input type="text" formControlName="partnerTypeId" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок: Контакты -->
+    <section class="form-section">
+      <h3>Контакты</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Фамилия</label>
+          <input type="text" formControlName="lastName" />
+        </div>
+        <div class="form-group">
+          <label>Имя</label>
+          <input type="text" formControlName="firstName" />
+        </div>
+        <div class="form-group">
+          <label>Отчество</label>
+          <input type="text" formControlName="middleName" />
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="text" formControlName="phoneNumber" />
+        </div>
+        <div class="form-group">
+          <label>Направление работы</label>
+          <input type="text" formControlName="workDirection" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок: Банковские реквизиты -->
+    <section class="form-section">
+      <h3>Банк</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Банковский счет</label>
+          <input type="text" formControlName="bankAccount" />
+        </div>
+        <div class="form-group">
+          <label>Корр. счет</label>
+          <input type="text" formControlName="korAccount" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок: Адрес -->
+    <section class="form-section">
+      <h3>Адрес</h3>
+      <div class="form-group">
+        <label>Выберите адрес</label>
+        <select formControlName="selectedAddressId" (change)="onAddressSelect($event)">
+          <option value="">-- Выберите --</option>
+          <option *ngFor="let addr of existingAddresses" [value]="addr.id">{{ addr.label }}</option>
+          <option value="new">+ Добавить новый адрес</option>
+        </select>
+      </div>
+
+      <fieldset *ngIf="createNewAddress" formGroupName="address">
+        <legend>Новый адрес</legend>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Страна</label>
+            <input type="text" formControlName="country" />
+          </div>
+          <div class="form-group">
+            <label>Регион</label>
+            <input type="text" formControlName="region" />
+          </div>
+          <div class="form-group">
+            <label>Город</label>
+            <input type="text" formControlName="city" />
+          </div>
+          <div class="form-group">
+            <label>Улица</label>
+            <input type="text" formControlName="street" />
+          </div>
+          <div class="form-group">
+            <label>Дом</label>
+            <input type="text" formControlName="house" />
+          </div>
+          <div class="form-group">
+            <label>Почтовый индекс</label>
+            <input type="text" formControlName="postIndex" />
+          </div>
+        </div>
+      </fieldset>
+    </section>
+
+    <button type="submit" class="submit-btn">Сохранить</button>
+  </form>
+</div>
