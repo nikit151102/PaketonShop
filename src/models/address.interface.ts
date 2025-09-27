@@ -2,20 +2,30 @@
  * Интерфейс, описывающий адрес
  */
 export interface Address {
-    id: string;                     // Уникальный идентификатор адреса
-    region: string;                 // Название региона (обязательное поле)
-    area?: string | null;           // Название области/района (необязательное)
-    city: string;                   // Название города (обязательное)
-    street: string;                 // Название улицы (обязательное)
-    house: string;                  // Номер дома (обязательное)
-    housing?: string | null;        // Корпус/строение (необязательное)
-    postIndex: string;              // Почтовый индекс (обязательное)
-      floorNumber?: string;
-     office?: string;
-    gps?: string | null;            // GPS-координаты в формате строки (необязательное)
-    latitude?: number | null;       // Географическая широта (необязательное)
-    longitude?: number | null;      // Географическая долгота (необязательное)
-      system?: string;
+    id?: string;
+    creatorId?: string;
+    country?: string;
+    region: string;
+    area: string;
+    city: string;
+    street: string;
+    house: string;
+    housing?: string;
+    floorNumber?: string;
+    office?: string;
+    postIndex?: string;
+    latitude?: number;
+    longitude?: number;
+    system?: string;
+    createDateTime?: string;
+    changeDateTime?: string;
+}
+
+export interface ApiResponse<T> {
+    message: string;
+    status: number;
+    data: T;
+    breadCrumbs?: any;
 }
 
 /**

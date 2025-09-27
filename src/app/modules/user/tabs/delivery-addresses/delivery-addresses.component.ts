@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { DeliveryAddressesService } from './delivery-addresses.service';
 import { Address } from '../../../../../models/address.interface';
 import { CommonModule } from '@angular/common';
+import { AddressesService } from '../../../../core/api/addresses.service';
 
 
 @Component({
@@ -13,47 +13,24 @@ import { CommonModule } from '@angular/common';
   templateUrl: './delivery-addresses.component.html',
   styleUrl: './delivery-addresses.component.scss'
 })
-export class DeliveryAddressesComponent  implements OnInit {
+export class DeliveryAddressesComponent implements OnInit {
   addresses: Address[] = [
-  {
-    id: '1',
-    region: 'Московская область',
-    area: 'Одинцовский район',
-    city: 'Москва',
-    street: 'Ленина',
-    house: '10',
-    housing: '1',
-    postIndex: '123456',
-    floorNumber: '3',
-    office: '15',
-    gps: '55.7558, 37.6173',
-    latitude: 55.7558,
-    longitude: 37.6173,
-    system: 'web'
-  },
-  {
-    id: '2',
-    region: 'Санкт-Петербург',
-    city: 'Санкт-Петербург',
-    street: 'Невский проспект',
-    house: '24',
-    postIndex: '654321',
-    office: '12',
-    latitude: 59.9343,
-    longitude: 30.3351,
-    system: 'mobile'
-  },
-  {
-    id: '3',
-    region: 'Краснодарский край',
-    city: 'Сочи',
-    street: 'Курортный проспект',
-    house: '5Б',
-    postIndex: '987654',
-    gps: '43.5855, 39.7204',
-    system: 'web'
-  }
-];
+    {
+      id: '1',
+      region: 'Московская область',
+      area: 'Одинцовский район',
+      city: 'Москва',
+      street: 'Ленина',
+      house: '10',
+      housing: '1',
+      postIndex: '123456',
+      floorNumber: '3',
+      office: '15',
+      latitude: 55.7558,
+      longitude: 37.6173,
+      system: 'web'
+    }
+  ];
 
   loading = false;
   error: string | null = null;
@@ -70,7 +47,7 @@ export class DeliveryAddressesComponent  implements OnInit {
   filter = '';
 
   constructor(
-    private deliveryAddressesService: DeliveryAddressesService,
+    private addressesService: AddressesService,
     private fb: FormBuilder
   ) {
     this.addressForm = this.fb.group({
@@ -97,11 +74,10 @@ export class DeliveryAddressesComponent  implements OnInit {
   load(): void {
     this.loading = true;
     this.error = null;
-    this.deliveryAddressesService.list()
+    this.addressesService.getAddresses()
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (list) => (this.addresses = list || []),
-        error: (err) => (this.error = 'Не удалось загрузить адреса')
+        next: (list: any) => (this.addresses = list.data || [])
       });
   }
 
@@ -130,7 +106,7 @@ export class DeliveryAddressesComponent  implements OnInit {
     this.error = null;
 
     if (this.isEditing && payload.id) {
-      this.deliveryAddressesService.update(payload.id, payload)
+      this.addressesService.updateAddress(payload)
         .pipe(finalize(() => (this.loading = false)))
         .subscribe({
           next: () => {
@@ -141,7 +117,7 @@ export class DeliveryAddressesComponent  implements OnInit {
         });
     } else {
       // create
-      this.deliveryAddressesService.create(payload)
+      this.addressesService.createAddress(payload)
         .pipe(finalize(() => (this.loading = false)))
         .subscribe({
           next: () => {
@@ -163,7 +139,7 @@ export class DeliveryAddressesComponent  implements OnInit {
     this.loading = true;
     this.error = null;
     const id = this.editingAddress.id;
-    this.deliveryAddressesService.delete(id)
+    this.addressesService.deleteAddress(id)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
