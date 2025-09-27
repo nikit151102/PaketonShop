@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FavoriteFilterRequest, FavoriteResponse } from '../../../models/favorite.product.interface';
+import { environment } from '../../../environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductFavoriteService {
-  private baseUrl = '/api';
 
   constructor(private http: HttpClient) {}
 
@@ -19,7 +19,7 @@ export class ProductFavoriteService {
    */
   getFavorites(filter: FavoriteFilterRequest): Observable<FavoriteResponse> {
     return this.http.post<FavoriteResponse>(
-      `${this.baseUrl}/Profile/Favorites/Filter`,
+      `${environment.production}/api/Profile/Favorites/Filter`,
       filter
     );
   }
@@ -31,7 +31,7 @@ export class ProductFavoriteService {
    */
   addToFavorites(productId: string): Observable<any> {
     return this.http.post(
-      `${this.baseUrl}/Entities/ProductInstance/Favorite/${productId}`,
+      `${environment.production}/api/Entities/ProductInstance/Favorite/${productId}`,
       {}
     );
   }
@@ -43,7 +43,7 @@ export class ProductFavoriteService {
    */
   removeFromFavorites(productId: string): Observable<any> {
     return this.http.delete(
-      `${this.baseUrl}/Entities/ProductInstance/Unfavorite/${productId}`
+      `${environment.production}/api/Entities/ProductInstance/Unfavorite/${productId}`
     );
   }
 }

@@ -1,61 +1,61 @@
 <div class="product-card" [ngClass]="view" (click)="onProductClick($event)">
-    <div class="top-bar">
-        <div class="badge" [ngClass]="product.badgeType">{{ product.badge }}</div>
-        <div class="actions">
-            <span (click)="toggleFavorite()" [class.active]="product.favorite">❤</span>
-            <span *ngIf="showCompare" (click)="toggleCompare()" [class.active]="product.compare">⇄</span>
-        </div>
+  <div class="top-bar">
+    <div class="badge" [ngClass]="product.badgeType">{{ product.badge }}</div>
+    <div class="actions">
+      <span (click)="toggleFavorite($event)" [class.active]="product.favorite">❤</span>
+      <span *ngIf="showCompare" (click)="toggleCompare($event)" [class.active]="product.compare">⇄</span>
     </div>
+  </div>
 
-    <div class="image-wrapper">
-        <img [src]="(product.productImageLinks[0] || 'assets/images/no-image.png') | cleanStringLink"
-            alt="{{ product.fullName }}" />
+  <div class="image-wrapper">
+    <img [src]="(product.productImageLinks[0] || 'assets/images/no-image.png') | cleanStringLink"
+      alt="{{ product.fullName }}" />
 
-<!-- <a class="quick-view-mobile">
+    <!-- <a class="quick-view-mobile">
     <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#3fa937"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.9999 12C21.9999 16.714 21.9999 19.0711 20.5354 20.5355C19.1784 21.8926 17.055 21.9921 12.9999 21.9994M2.00049 11C2.00779 6.94493 2.10734 4.8215 3.46438 3.46447C4.92884 2 7.28587 2 11.9999 2C16.714 2 19.071 2 20.5354 3.46447C21.5092 4.43821 21.8355 5.80655 21.9448 8" stroke="#319e29" stroke-width="1.5" stroke-linecap="round"></path> <path d="M3 21L11 13M11 13H5M11 13V19" stroke="#319e29" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
 </a> -->
 
-        <!-- 🔹 Быстрый просмотр -->
-        <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
+    <!-- 🔹 Быстрый просмотр -->
+    <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
+  </div>
+
+  <div class="content">
+    <h4>{{ product.fullName }}</h4>
+    <span id="article">артикул: {{product.article}}</span>
+    <!-- 🔹 наличие и упаковка -->
+    <div class="extra-info">
+      <span class="stock" *ngIf="product.remains.length > 0">В наличии: {{ product.remains[0].quantity }}
+        упак.</span>
+      <span class="pack" *ngIf="product.packCount">В упаковке: {{ product.packCount }} шт.</span>
     </div>
 
-    <div class="content">
-        <h4>{{ product.fullName }}</h4>
-        <span id="article">артикул: {{product.article}}</span>
-        <!-- 🔹 наличие и упаковка -->
-        <div class="extra-info">
-            <span class="stock" *ngIf="product.remains.length > 0">В наличии: {{ product.remains[0].quantity }}
-                упак.</span>
-            <span class="pack" *ngIf="product.packCount">В упаковке: {{ product.packCount }} шт.</span>
-        </div>
+    <div class="price-block">
+      <span class="main-price">
+        {{ getPrice(city$ | async) }} ₽
+      </span>
 
-        <div class="price-block">
-            <span class="main-price">
-                {{ getPrice(city$ | async) }} ₽
-            </span>
-
-            <span *ngIf="product.oldPrice" class="old-price">{{ product.oldPrice }} ₽</span>
-            <span *ngIf="product.oldPrice" class="discount">
-                -{{ ((1 - (getPrice(city$ | async)) / product.oldPrice) * 100) | number:'1.0-0' }}%
-            </span>
-        </div>
-
-        <div class="total-price" *ngIf="quantitySelectorVisible && selectedQuantity>1">
-            <strong>Общая сумма:</strong> {{ getTotalPrice(city$ | async) }} ₽
-        </div>
-
-        <button class="add-cart" *ngIf="!inCart && !quantitySelectorVisible" (click)="toggleQuantitySelector()">В
-            корзину</button>
-
-        <div class="quantity-selector" *ngIf="quantitySelectorVisible">
-            <div class="quantity-controls">
-                <button class="quantity-btn" (click)="decreaseQty($event)">&#8722;</button> <!-- Минус -->
-                <input class="input-quantity" type="number" [(ngModel)]="selectedQuantity" min="1" />
-                <button class="quantity-btn" (click)="increaseQty($event)">&#43;</button> <!-- Плюс -->
-            </div>
-        </div>
-
+      <span *ngIf="product.oldPrice" class="old-price">{{ product.oldPrice }} ₽</span>
+      <span *ngIf="product.oldPrice" class="discount">
+        -{{ ((1 - (getPrice(city$ | async)) / product.oldPrice) * 100) | number:'1.0-0' }}%
+      </span>
     </div>
+
+    <div class="total-price" *ngIf="quantitySelectorVisible && selectedQuantity>1">
+      <strong>Общая сумма:</strong> {{ getTotalPrice(city$ | async) }} ₽
+    </div>
+
+    <button class="add-cart" *ngIf="!inCart && !quantitySelectorVisible" (click)="toggleQuantitySelector()">В
+      корзину</button>
+
+    <div class="quantity-selector" *ngIf="quantitySelectorVisible">
+      <div class="quantity-controls">
+        <button class="quantity-btn" (click)="decreaseQty($event)">&#8722;</button> <!-- Минус -->
+        <input class="input-quantity" type="number" [(ngModel)]="selectedQuantity" min="1" />
+        <button class="quantity-btn" (click)="increaseQty($event)">&#43;</button> <!-- Плюс -->
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- Быстрый просмотр товара -->
@@ -67,8 +67,7 @@
 
     <div class="modal-body">
       <div class="product-left">
-        <img [src]="product.productImageLinks[0] || 'assets/images/no-image.png'" 
-             alt="{{ product.fullName }}">
+        <img [src]="product.productImageLinks[0] || 'assets/images/no-image.png'" alt="{{ product.fullName }}">
       </div>
 
       <div class="product-right">

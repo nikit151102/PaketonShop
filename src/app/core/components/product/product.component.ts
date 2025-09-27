@@ -5,6 +5,7 @@ import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from "../../pipes/clear-url";
 import { Product } from '../../../../models/product.interface';
 import { Router } from '@angular/router';
+import { ProductFavoriteService } from '../../api/product-favorite.service';
 
 
 @Component({
@@ -23,7 +24,7 @@ export class ProductComponent implements OnInit {
   hovered = true;
   showQuickView = false;
 
-  constructor(public locationService: LocationService, private router: Router) { }
+  constructor(public locationService: LocationService, private router: Router, private productFavoriteService: ProductFavoriteService) { }
 
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
@@ -70,12 +71,20 @@ export class ProductComponent implements OnInit {
     this.router.navigate(['/product', this.product.id]);
   }
 
-  toggleFavorite() {
-    // this.product.favorite = !this.product.favorite;
+  toggleFavorite(event: MouseEvent) {
+        event.stopImmediatePropagation();
+    event.preventDefault();
+    this.productFavoriteService.addToFavorites(this.product.id).subscribe((value: any) => {
+
+    })
   }
 
-  toggleCompare() {
-    // this.product.compare = !this.product.compare;
+  toggleCompare(event: MouseEvent) {
+        event.stopImmediatePropagation();
+    event.preventDefault();
+    this.productFavoriteService.removeFromFavorites(this.product.id).subscribe((value: any) => {
+
+    })
   }
 
   increaseQty(product: any) {
