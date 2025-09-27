@@ -3,11 +3,12 @@ import { Component } from '@angular/core';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProductsService } from '../../core/services/products.service';
+import { QuestionsComponent } from './questions/questions.component';
 
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ProductCardComponent, QuestionsComponent],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })

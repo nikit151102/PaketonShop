@@ -1,0 +1,185 @@
+/* Карточка отзыва */
+.review-card {
+    background: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.review-card:hover {
+    // transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Хедер отзыва */
+.review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.review-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 0.8rem;
+    object-fit: cover;
+}
+
+.review-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e63946;
+}
+
+.review-rating {
+    font-size: 0.9rem;
+    color: #ffb400;
+}
+
+/* Текст отзыва */
+.review-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 0.8rem;
+}
+
+/* Картинки в отзыве */
+.review-images {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.review-images img {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.review-images img:hover {
+    transform: scale(1.05);
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .review-images img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Ответ на отзыв */
+.review-answer {
+    background: #f9f9f9;
+    border-left: 4px solid #e63946;
+    padding: 0.8rem 1rem;
+    margin-top: 0.8rem;
+    border-radius: 10px;
+}
+
+.answer-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.answer-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    object-fit: cover;
+}
+
+.answer-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #e63946;
+}
+
+.answer-text {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .answer-avatar {
+        width: 25px;
+        height: 25px;
+    }
+
+    .answer-text {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+
+
+
+
+
+/* Форма создания вопроса */
+.question-form {
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.question-form h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.question-form textarea {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0.8rem;
+  resize: none;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.question-form textarea:focus {
+  border-color: #e63946;
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+}
+
+.question-submit {
+  background: #e63946;
+  color: white;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.3s ease, transform 0.2s ease;
+  align-self: flex-end;
+}
+
+.question-submit:hover:not(:disabled) {
+  background: #d62839;
+  transform: translateY(-2px);
+}
+
+.question-submit:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

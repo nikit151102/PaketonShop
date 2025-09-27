@@ -1,0 +1,54 @@
+<div class="questions-container">
+  <ng-container *ngIf="loading">
+    <p>Загрузка вопросов...</p>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && error">
+    <p class="error">{{ error }}</p>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && !error && data.length > 0">
+    <div *ngFor="let q of data" class="review-card">
+      <div class="review-header">
+        <img class="review-avatar" [src]="q.product.productImageLink" alt="Product Image">
+        <div>
+          <h4 class="review-name">{{ q.product.fullName }}</h4>
+          <div class="review-date">{{ q.requestMessage.dateTime | date:'dd.MM.yyyy HH:mm' }}</div>
+        </div>
+      </div>
+
+      <p class="review-text">{{ q.requestMessage.text }}</p>
+
+      <!-- Ответ -->
+      <div class="review-answer" *ngIf="q.responseMessage">
+        <div class="answer-header">
+          <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
+          <span class="answer-name">Ответ бренда</span>
+        </div>
+        <p class="answer-text">{{ q.responseMessage.text }}</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && !error && data.length === 0">
+    <p>Пока нет вопросов по этому товару.</p>
+  </ng-container>
+
+  <!-- Форма создания вопроса -->
+  <div class="question-form">
+    <h4>Задать вопрос</h4>
+    <textarea
+      [(ngModel)]="newQuestion"
+      placeholder="Напишите ваш вопрос..."
+      rows="3"
+    ></textarea>
+
+    <button
+      class="question-submit"
+      (click)="createQuestion()"
+      [disabled]="sending || !newQuestion.trim()"
+    >
+      {{ sending ? 'Отправка...' : 'Отправить' }}
+    </button>
+  </div>
+</div>
