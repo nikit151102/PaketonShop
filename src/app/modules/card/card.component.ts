@@ -4,19 +4,20 @@ import { ProductCardComponent } from './product-card/product-card.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProductsService } from '../../core/services/products.service';
 import { QuestionsComponent } from './questions/questions.component';
+import { ReviewsComponent } from './reviews/reviews.component';
 
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, QuestionsComponent],
+  imports: [CommonModule, ProductCardComponent, QuestionsComponent, ReviewsComponent],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })
 export class CardComponent {
 
-  activeTab: 'description' | 'features' | 'reviews' = 'description';
+  activeTab: 'description' | 'features' | 'reviews' | 'questions' = 'description';
   productData: any;
-  setTab(tab: 'description' | 'features' | 'reviews') {
+  setTab(tab: 'description' | 'features' | 'reviews' | 'questions') {
     this.activeTab = tab;
   }
 

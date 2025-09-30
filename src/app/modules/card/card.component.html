@@ -5,6 +5,7 @@
         <button [class.active]="activeTab==='description'" (click)="setTab('description')">Описание</button>
         <button [class.active]="activeTab==='features'" (click)="setTab('features')">Характеристики</button>
         <button [class.active]="activeTab==='reviews'" (click)="setTab('reviews')">Отзывы</button>
+        <button [class.active]="activeTab==='questions'" (click)="setTab('questions')">Вопросы о товаре</button>
     </div>
 
 
@@ -62,9 +63,10 @@
         </div>
 
         <div *ngIf="activeTab==='reviews'" class="reviews-grid">
-
+            <app-reviews [productId]="productData.id"></app-reviews>
+        </div>
+        <div *ngIf="activeTab==='questions'" class="reviews-grid">
             <app-questions [productId]="productData.id"></app-questions>
         </div>
-
     </div>
 </div>
