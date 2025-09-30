@@ -11,7 +11,7 @@
     <div *ngFor="let q of data" class="review-card">
       <div class="review-header">
         <img class="review-avatar" [src]="q.product.productImageLink" alt="Product Image">
-        <div>
+        <div class="right-block">
           <h4 class="review-name">{{ q.product.fullName }}</h4>
           <div class="review-date">{{ q.requestMessage.dateTime | date:'dd.MM.yyyy HH:mm' }}</div>
         </div>

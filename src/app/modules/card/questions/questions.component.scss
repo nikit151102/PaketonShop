@@ -1,7 +1,7 @@
 /* Карточка отзыва */
 .review-card {
     background: #fff;
-    padding: 1rem 1.5rem;
+    padding: 5px 10px;
     border-radius: 15px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -17,6 +17,12 @@
     display: flex;
     align-items: center;
     margin-bottom: 0.8rem;
+
+    .right-block {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+    }
 }
 
 .review-avatar {
@@ -129,57 +135,57 @@
 
 /* Форма создания вопроса */
 .question-form {
-  margin-top: 1.5rem;
-  padding: 1rem 1.5rem;
-  background: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
 }
 
 .question-form h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #333;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
 }
 
 .question-form textarea {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 0.8rem;
-  resize: none;
-  font-size: 0.95rem;
-  outline: none;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0.8rem;
+    resize: none;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
 .question-form textarea:focus {
-  border-color: #e63946;
-  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+    border-color: #e63946;
+    box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
 }
 
 .question-submit {
-  background: #e63946;
-  color: white;
-  padding: 0.7rem 1.2rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background 0.3s ease, transform 0.2s ease;
-  align-self: flex-end;
+    background: #e63946;
+    color: white;
+    padding: 0.7rem 1.2rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.3s ease, transform 0.2s ease;
+    align-self: flex-end;
 }
 
 .question-submit:hover:not(:disabled) {
-  background: #d62839;
-  transform: translateY(-2px);
+    background: #d62839;
+    transform: translateY(-2px);
 }
 
 .question-submit:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+    background: #ccc;
+    cursor: not-allowed;
 }
