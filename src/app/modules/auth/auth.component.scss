@@ -46,7 +46,7 @@
     }
 
     &:hover svg path {
-        stroke: #5A4BB8;
+        stroke: #327120;
         stroke-opacity: 1;
     }
 }
@@ -73,7 +73,7 @@
         position: relative;
 
         &.active {
-            color: #7666e3;
+            color: #327120;
 
             &::after {
                 content: '';
@@ -83,12 +83,12 @@
                 width: 80%;
                 height: 4px;
                 border-radius: 2px;
-                background: linear-gradient(135deg, #5A4BB8, #7F6FF2);
+                background: linear-gradient(135deg, #327120, #49a330);
             }
         }
 
         &:hover:not(.active) {
-            color: #5A4BB8;
+            color: #327120;
         }
     }
 }
@@ -138,14 +138,12 @@ form {
         border-radius: 12px;
         font-size: 14px;
         outline: none;
-        transition: all 0.25s ease, transform 0.2s ease;
         background-color: #fafafa;
 
         &:focus {
-            border-color: #5A4BB8;
-            box-shadow: 0 0 0 3px rgba(90, 75, 184, 0.15);
+            border-color: #4eb432;
+            box-shadow: 0 0 0 3px rgba(90, 75, 184, 0.1);
             background-color: #fff;
-            transform: scale(1.02);
         }
     }
 
@@ -164,10 +162,10 @@ form {
 
     input:focus+label,
     input:not(:placeholder-shown)+label {
-        top: 8px;
+        top: 13px;
         left: 10px;
-        font-size: 11px;
-        color: #5A4BB8;
+        font-size: 13px;
+        color: #327120;
         background-color: #fff;
     }
 
@@ -188,18 +186,16 @@ form {
     padding: 14px;
     border: none;
     border-radius: 16px;
-    background: linear-gradient(135deg, #5A4BB8, #7F6FF2);
+    background: linear-gradient(135deg, #327120, #4eb432);
     color: #fff;
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
-    box-shadow: 0 6px 16px rgba(90, 75, 184, 0.25);
     transition: all 0.3s ease;
 
     &:hover {
-        background: linear-gradient(135deg, #402abb, #5A4BB8);
-        transform: scale(1.03);
-        box-shadow: 0 8px 20px rgba(90, 75, 184, 0.35);
+        background: linear-gradient(135deg, #4eb432, #327120);
+        transform: scale(1.001);
     }
 }
 
