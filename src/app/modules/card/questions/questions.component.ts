@@ -17,15 +17,15 @@ export class QuestionsComponent implements OnInit {
   /** ID товара, по которому загружаем вопросы */
   @Input() productId: string = '';
 
-  /** Загруженные вопросы */
-  data: UserQuestionDto[] = [];
+  /** Загруженные вопросы  UserQuestionDto*/
+  data: any[] = [];
 
   /** Состояние загрузки */
   loading = false;
 
   /** Ошибка (если произошла) */
   error: string | null = null;
-  
+
   ngOnInit(): void {
     if (this.productId) {
       this.loadQuestions();
@@ -53,37 +53,49 @@ export class QuestionsComponent implements OnInit {
   }
 
 
-newQuestion: string = '';
-sending: boolean = false;
+  newQuestion: string = '';
+  sending: boolean = false;
 
-createQuestion() {
-  if (!this.newQuestion.trim()) return;
+  createQuestion() {
+    if (!this.newQuestion.trim()) return;
 
-  this.sending = true;
+    this.sending = true;
 
-  const now = new Date().toISOString();
+    const now = new Date().toISOString();
 
-  this.userQuestionsService.createQuestion({
-    productId: this.productId,
-    dateTime: now,
-    requestMessage: {
-      text: this.newQuestion,
-      dateTime: now
-    }
-  }).subscribe({
-    next: () => {
-      this.newQuestion = '';
-      this.sending = false;
-      this.loadQuestions(); 
-    },
-    error: (err) => {
-      console.error('Ошибка создания вопроса:', err);
-      this.sending = false;
-      alert('Не удалось отправить вопрос. Попробуйте позже.');
-    }
-  });
-}
+    this.userQuestionsService.createQuestion({
+      productId: this.productId,
+      dateTime: now,
+      requestMessage: {
+        text: this.newQuestion,
+        dateTime: now
+      }
+    }).subscribe({
+      next: () => {
+        this.newQuestion = '';
+        this.sending = false;
+        this.loadQuestions();
+      },
+      error: (err) => {
+        console.error('Ошибка создания вопроса:', err);
+        this.sending = false;
+        alert('Не удалось отправить вопрос. Попробуйте позже.');
+      }
+    });
+  }
 
+  like(q: any) {
+    this.userQuestionsService.SetRate({ id: q.requestMessage.id, rateValue: 1 }).subscribe((value: any) => {
+      q.requestMessage.likeCount = (q.requestMessage.likeCount || 0) + 1;
+    })
+  }
+
+  dislike(q: any) {
+
+    this.userQuestionsService.SetRate({ id: q.requestMessage.id, rateValue: 0 }).subscribe((value: any) => {
+      q.requestMessage.dislikeCount = (q.requestMessage.dislikeCount || 0) + 1;
+    })
+  }
 
 
 }

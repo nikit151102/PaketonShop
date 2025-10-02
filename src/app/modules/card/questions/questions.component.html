@@ -1,54 +1,67 @@
 <div class="questions-container">
+
+  <!-- Загрузка -->
   <ng-container *ngIf="loading">
-    <p>Загрузка вопросов...</p>
+    <p class="info">Загрузка вопросов...</p>
   </ng-container>
 
+  <!-- Ошибка -->
   <ng-container *ngIf="!loading && error">
     <p class="error">{{ error }}</p>
   </ng-container>
 
+  <!-- Список вопросов -->
   <ng-container *ngIf="!loading && !error && data.length > 0">
-    <div *ngFor="let q of data" class="review-card">
-      <div class="review-header">
-        <img class="review-avatar" [src]="q.product.productImageLink" alt="Product Image">
-        <div class="right-block">
-          <h4 class="review-name">{{ q.product.fullName }}</h4>
-          <div class="review-date">{{ q.requestMessage.dateTime | date:'dd.MM.yyyy HH:mm' }}</div>
+    <div *ngFor="let q of data" class="question-card">
+
+      <!-- Хедер вопроса -->
+      <div class="question-header">
+        <img class="question-avatar" [src]="q.product.productImageLink" alt="User Avatar">
+        <div class="header-right">
+          <span class="question-user">{{ q.requestMessage.userName || 'Пользователь' }}</span>
+          <span class="question-date">{{ q.requestMessage.dateTime | date:'dd.MM.yyyy HH:mm' }}</span>
         </div>
       </div>
 
-      <p class="review-text">{{ q.requestMessage.text }}</p>
+      <!-- Текст вопроса -->
+      <p class="question-text">{{ q.requestMessage.text }}</p>
+
+      <!-- Лайки / Дизлайки -->
+      <div class="question-actions">
+        <button class="like-btn" (click)="like(q)">
+          👍 <span>{{ q.requestMessage.likeCount || 0 }}</span>
+        </button>
+        <button class="dislike-btn" (click)="dislike(q)">
+          👎 <span>{{ q.requestMessage.dislikeCount || 0 }}</span>
+        </button>
+      </div>
 
       <!-- Ответ -->
-      <div class="review-answer" *ngIf="q.responseMessage">
+      <div class="question-answer" *ngIf="q.responseMessage">
         <div class="answer-header">
           <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
-          <span class="answer-name">Ответ бренда</span>
+          <span class="answer-label">Ответ бренда</span>
         </div>
         <p class="answer-text">{{ q.responseMessage.text }}</p>
       </div>
+
     </div>
   </ng-container>
 
+  <!-- Нет вопросов -->
   <ng-container *ngIf="!loading && !error && data.length === 0">
-    <p>Пока нет вопросов по этому товару.</p>
+    <p class="info">Пока нет вопросов по этому товару.</p>
   </ng-container>
 
   <!-- Форма создания вопроса -->
   <div class="question-form">
     <h4>Задать вопрос</h4>
-    <textarea
-      [(ngModel)]="newQuestion"
-      placeholder="Напишите ваш вопрос..."
-      rows="3"
-    ></textarea>
+    <textarea [(ngModel)]="newQuestion" placeholder="Напишите ваш вопрос..." rows="3"
+      class="question-textarea"></textarea>
 
-    <button
-      class="question-submit"
-      (click)="createQuestion()"
-      [disabled]="sending || !newQuestion.trim()"
-    >
+    <button class="question-submit" (click)="createQuestion()">
       {{ sending ? 'Отправка...' : 'Отправить' }}
     </button>
   </div>
+
 </div>

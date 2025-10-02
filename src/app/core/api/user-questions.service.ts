@@ -10,7 +10,7 @@ import { UserQuestionCreateDTO, QuestionQueryDto, UserQuestionDto } from '../../
 export class UserQuestionsService {
   private baseUrl = `${environment.production}`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Создать новый вопрос по товару
@@ -52,6 +52,14 @@ export class UserQuestionsService {
     return this.http.post<UserQuestionDto[]>(
       `${this.baseUrl}/api/Entities/UserQuestion/Filter`,
       body
+    );
+  }
+
+
+  SetRate(data: { id: string, rateValue: number }) {
+    return this.http.put<any>(
+      `${this.baseUrl}/api/Entities/UserQuestion/setRate`,
+      data
     );
   }
 }
