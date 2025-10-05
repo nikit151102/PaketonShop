@@ -58,7 +58,7 @@ export interface Product {
   reviews?: number;
   badgeType?: string;
   badge?: string;
-  favorite?: string;
+  isFavorite?: string;
   compare?: string;
 }
 

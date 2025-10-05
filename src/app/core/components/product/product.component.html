@@ -2,7 +2,7 @@
   <div class="top-bar">
     <div class="badge" [ngClass]="product.badgeType">{{ product.badge }}</div>
     <div class="actions">
-      <span (click)="toggleFavorite($event)" [class.active]="product.favorite">❤</span>
+      <span (click)="toggleFavorite($event)" [class.active]="product.isFavorite">❤</span>
       <span *ngIf="showCompare" (click)="toggleCompare($event)" [class.active]="product.compare">⇄</span>
     </div>
   </div>
