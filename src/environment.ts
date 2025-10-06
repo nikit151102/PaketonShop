@@ -27,3 +27,15 @@ export const sessionStorageEnvironment = {
         ttl: 600
     }
 }
+
+
+export const memoryCacheEnvironment = {
+    baskets: {
+        key: 'pkt_baskets',
+        ttl: 60000
+    },
+    user: {
+        key: 'pkt_user',
+        ttl: 600
+    }
+}

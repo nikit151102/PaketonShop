@@ -1,12 +1,31 @@
 <div class="multi-cart-tabs">
-    <div class="tab active">
-        Личная <span class="count">2</span>
+    <!-- Список корзин -->
+    <div class="tab" *ngFor="let basket of baskets; let i = index" [class.active]="activeBasket?.id === basket.id"
+        (click)="selectBasket(basket)">
+        {{ basket.name }}
+        <span class="count">{{ basket.productCount || 0 }}</span>
     </div>
-    <div class="tab">Для компании</div>
-    <div class="tab">Подарки</div>
 
-    <button class="add-tab">+ Новая корзина</button>
+    <!-- Кнопка добавления новой корзины -->
+    <button class="add-tab" (click)="openCreatePopup()">
+        + Новая корзина
+    </button>
 </div>
+
+
+<!-- Popup для создания корзины -->
+<div class="popup-backdrop" *ngIf="isPopupOpen" (click)="closePopup()"></div>
+
+<div class="popup" *ngIf="isPopupOpen">
+    <h3>Создать новую корзину</h3>
+    <input type="text" placeholder="Введите название корзины" [(ngModel)]="newBasketName"
+        (keyup.enter)="confirmCreateBasket()" />
+    <div class="popup-actions">
+        <button class="cancel" (click)="closePopup()">Отмена</button>
+        <button class="confirm" (click)="confirmCreateBasket()">Создать</button>
+    </div>
+</div>
+
 
 <div class="cart-layout">
 
@@ -36,8 +55,17 @@
                 </div>
 
 
-                <app-product [product]="p" *ngFor="let p of products" class="product" [selected]="isSelected(p.id)"
-                    (selectionChange)="onProductSelected($event)"></app-product>
+                <app-product [product]="p" *ngFor="let p of activeBasket.products" class="product"
+                    [selected]="isSelected(p.id)" (selectionChange)="onProductSelected($event)"></app-product>
+
+                <div *ngIf="!activeBasket?.products?.length" class="empty-basket">
+                    <img src="https://avatars.mds.yandex.net/i?id=20b7d61e6c1a1ca1dc503ccbad50e2b8-5695679-images-thumbs&n=13" alt="Корзина пуста" />
+                    <h3>Корзина ждет ваших покупок 🛍️</h3>
+                    <p>Загляните в каталог — наверняка найдется что-то интересное!</p>
+                    <button class="browse-btn" (click)="router.navigate(['/'])">Посмотреть товары</button>
+                </div>
+
+
 
                 <div class="cart-footer">
                     <button type="button" class="continue-btn">Продолжить покупки</button>

@@ -8,12 +8,13 @@
   </div>
 
   <div class="image-wrapper">
-    <img *ngIf="product.productImageLinks" [src]="(product.productImageLinks[0] || 'assets/images/no-image.png') | cleanStringLink"
+    <img *ngIf="product.productImageLinks"
+      [src]="(product.productImageLinks[0] || 'assets/images/no-image.png') | cleanStringLink"
       alt="{{ product.fullName }}" />
 
     <!-- <a class="quick-view-mobile">
     <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#3fa937"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.9999 12C21.9999 16.714 21.9999 19.0711 20.5354 20.5355C19.1784 21.8926 17.055 21.9921 12.9999 21.9994M2.00049 11C2.00779 6.94493 2.10734 4.8215 3.46438 3.46447C4.92884 2 7.28587 2 11.9999 2C16.714 2 19.071 2 20.5354 3.46447C21.5092 4.43821 21.8355 5.80655 21.9448 8" stroke="#319e29" stroke-width="1.5" stroke-linecap="round"></path> <path d="M3 21L11 13M11 13H5M11 13V19" stroke="#319e29" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
-</a> -->
+    </a> -->
 
     <!-- 🔹 Быстрый просмотр -->
     <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
@@ -44,14 +45,36 @@
       <strong>Общая сумма:</strong> {{ getTotalPrice(city$ | async) }} ₽
     </div>
 
-    <button class="add-cart" *ngIf="!inCart && !quantitySelectorVisible" (click)="toggleQuantitySelector()">В
-      корзину</button>
+    <!-- <button class="add-cart" *ngIf="!inCart && !quantitySelectorVisible" (click)="toggleQuantitySelector()">В
+      корзину</button> -->
+
+    <!--Кнопка с выпадающим меню -->
+    <div class="add-cart-wrapper" *ngIf="!inCart && !quantitySelectorVisible">
+      <button class="add-cart" (click)="toggleQuantitySelector()">В корзину</button>
+
+      <button class="cart-arrow" (click)="toggleBasketPopup($event)">
+        ▼
+      </button>
+
+      <!-- Попап со списком корзин -->
+      <div class="basket-popup" *ngIf="showBasketPopup" (click)="$event.stopPropagation()">
+        <div *ngIf="baskets?.length; else noBaskets">
+          <div class="basket-item" *ngFor="let basket of baskets" (click)="selectBasket(basket)">
+            🧺 {{ basket.name }}
+          </div>
+        </div>
+        <ng-template #noBaskets>
+          <div class="no-baskets">Нет доступных корзин</div>
+        </ng-template>
+      </div>
+    </div>
+
 
     <div class="quantity-selector" *ngIf="quantitySelectorVisible">
       <div class="quantity-controls">
-        <button class="quantity-btn" (click)="decreaseQty($event)">&#8722;</button> <!-- Минус -->
+        <button class="quantity-btn" (click)="decreaseQty()">&#8722;</button> <!-- Минус -->
         <input class="input-quantity" type="number" [(ngModel)]="selectedQuantity" min="1" />
-        <button class="quantity-btn" (click)="increaseQty($event)">&#43;</button> <!-- Плюс -->
+        <button class="quantity-btn" (click)="increaseQty()">&#43;</button> <!-- Плюс -->
       </div>
     </div>
 
@@ -95,9 +118,9 @@
 
         <!-- Селектор количества -->
         <div class="quantity-selector">
-          <button class="quantity-btn" (click)="decreaseQty($event)">−</button>
+          <button class="quantity-btn" (click)="decreaseQty()">−</button>
           <input type="number" [(ngModel)]="selectedQuantity" min="1" />
-          <button class="quantity-btn" (click)="increaseQty($event)">+</button>
+          <button class="quantity-btn" (click)="increaseQty()">+</button>
         </div>
 
         <div class="total-price">

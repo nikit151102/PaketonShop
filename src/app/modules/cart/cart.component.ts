@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProductComponent } from './product/product.component';
 import { SummaryComponent } from './summary/summary.component';
 import { SelectCartButtonComponent } from './select-cart-button/select-cart-button.component';
 import { OrderFormComponent } from './order-form/order-form.component';
+import { BasketsService } from '../../core/api/baskets.service';
+import { UserBasket, CreateBasketDto } from '../../../models/baskets.interface';
+import { Router } from '@angular/router';
 
 interface RelatedProduct {
   id: number;
@@ -40,7 +43,8 @@ interface Company {
   styleUrls: ['./cart.component.scss'],
   imports: [CommonModule, FormsModule, ProductComponent, SummaryComponent, SelectCartButtonComponent, OrderFormComponent]
 })
-export class CartComponent {
+export class CartComponent implements OnInit {
+
   products: Product[] = [
     {
       id: 1,
@@ -71,6 +75,77 @@ export class CartComponent {
       available: true
     }
   ];
+
+  baskets: any;
+  activeBasket: any;
+
+  constructor(private basketsService: BasketsService, public router: Router) { }
+
+  ngOnInit(): void {
+    this.loadBaskets();
+  }
+
+
+  /**
+   * Загрузить корзины пользователя
+   */
+  loadBaskets(): void {
+    this.basketsService
+      .filterBaskets({
+        filters: [],
+        sorts: [],
+        page: 0,
+        pageSize: 10
+      })
+      .subscribe({
+        next: (res) => {
+          this.baskets = res.data;
+          this.activeBasket = this.baskets[0] || undefined;
+        },
+        error: (err) => console.error('Ошибка загрузки корзин', err)
+      });
+  }
+
+  /**
+   * Выбор активной корзины
+   */
+  selectBasket(basket: UserBasket): void {
+    this.basketsService.getBasketById(basket.id).subscribe((value: any) => {
+      this.activeBasket = value.data;
+    })
+  }
+
+  isPopupOpen = false;
+  newBasketName = '';
+
+  openCreatePopup(): void {
+    this.isPopupOpen = true;
+    this.newBasketName = '';
+  }
+
+  closePopup(): void {
+    this.isPopupOpen = false;
+  }
+
+  confirmCreateBasket(): void {
+    const name = this.newBasketName.trim();
+    if (!name) return;
+
+    const dto: CreateBasketDto = {
+      name,
+      products: []
+    };
+
+    this.basketsService.createBasket(dto).subscribe({
+      next: (res) => {
+        this.baskets.push(res.data);
+        this.activeBasket = res.data;
+        this.closePopup();
+      },
+      error: (err) => console.error('Ошибка создания корзины', err)
+    });
+  }
+
 
   // Метод добавления сопутствующего товара в корзину
   addRelatedToCart(item: RelatedProduct) {
@@ -113,15 +188,15 @@ export class CartComponent {
     console.log(`Товар "${product.name}" добавлен в wishlist`);
   }
 
-  selectedProducts: Set<number> = new Set();
+  selectedProducts: Set<string> = new Set();
 
   // Проверка для передачи в [selected]
-  isSelected(id: number) {
+  isSelected(id: string) {
     return this.selectedProducts.has(id);
   }
 
   // Отслеживание изменения чекбокса
-  onProductSelected(event: { id: number; selected: boolean }) {
+  onProductSelected(event: { id: string; selected: boolean }) {
     if (event.selected) {
       this.selectedProducts.add(event.id);
     } else {

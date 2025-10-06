@@ -648,3 +648,61 @@
         }
     }
 }
+
+.add-cart-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  gap: 4px;
+
+  .add-cart {
+    flex: 1;
+  }
+
+  .cart-arrow {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 0.7rem;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+  }
+
+  .basket-popup {
+    position: absolute;
+    bottom: 110%;
+    right: 0;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 180px;
+    padding: 0.5rem;
+
+    .basket-item {
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #f3f4f6;
+      }
+    }
+
+    .no-baskets {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #888;
+      padding: 0.5rem;
+    }
+  }
+}

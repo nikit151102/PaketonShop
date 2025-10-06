@@ -59,6 +59,85 @@
     }
 }
 
+.popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 24px;
+    width: 320px;
+    z-index: 1000;
+    text-align: center;
+
+    h3 {
+        margin-bottom: 16px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    input {
+        max-width: 290px;
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 1rem;
+        outline: none;
+
+        &:focus {
+            border-color: #327120;
+            box-shadow: 0 0 0 2px rgba(78, 140, 255, 0.2);
+        }
+    }
+
+    .popup-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+
+        button {
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.3s;
+
+            &.cancel {
+                background: #f0f2f8;
+                border: none;
+                color: #333;
+
+                &:hover {
+                    background: #e6e9f5;
+                }
+            }
+
+            &.confirm {
+                background: linear-gradient(135deg, #327120, #50ad36);
+                color: #fff;
+                border: none;
+
+                &:hover {
+                    opacity: 0.9;
+                }
+            }
+        }
+    }
+}
+
 
 // ==========================
 // Variables
@@ -146,7 +225,7 @@ $transition: 0.25s ease;
         display: flex;
         flex-direction: column;
         gap: 16px;
-        
+
         h2 {
             margin-bottom: 16px;
             font-size: 1.5rem;
@@ -158,6 +237,52 @@ $transition: 0.25s ease;
             background: $bg-white;
             border-radius: $radius;
             box-shadow: $shadow;
+
+            .empty-basket {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 60px 20px;
+                text-align: center;
+                color: #555;
+
+                .empty-icon {
+                    width: 120px;
+                    height: auto;
+                    margin-bottom: 20px;
+                    opacity: 0.8;
+                }
+
+                h3 {
+                    font-size: 1.4rem;
+                    margin-bottom: 10px;
+                    color: #333;
+                }
+
+                p {
+                    font-size: 1rem;
+                    margin-bottom: 20px;
+                    color: #777;
+                }
+
+                .browse-btn {
+                    background: linear-gradient(135deg, #4e8cff, #6b73ff);
+                    color: #fff;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: 0.3s;
+
+                    &:hover {
+                        opacity: 0.9;
+                        transform: translateY(-2px);
+                    }
+                }
+            }
+
         }
 
         .cart-footer {

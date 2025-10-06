@@ -1,7 +1,8 @@
 <div class="product-card">
+  <!-- Чекбокс выбора товара -->
   <div class="select-product">
     <label class="custom-checkbox">
-      <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)">
+      <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)" />
       <span class="checkmark"></span>
     </label>
   </div>
@@ -9,76 +10,88 @@
   <div class="product-main">
     <!-- Изображение -->
     <div class="product-image">
-      <img [src]="product.image" alt="{{ product.name }}">
+      <img [src]="product.product.productImageLink"
+        alt="{{ product.product.fullName }}" />
     </div>
 
-    <!-- Информация -->
+    <!-- Информация о товаре -->
     <div class="product-details">
-      <h3 class="product-title">{{ product.name }}</h3>
-      <small class="sku">Артикул: {{ product.sku }}</small>
+      <h3 class="product-title">{{ product.product.fullName }}</h3>
+      <small class="sku">Артикул: {{ product.product.article }}</small>
 
-      <!-- <p class="product-desc">{{ product.description }}</p> -->
-
-      <!-- Рейтинг -->
-      <div class="rating">
-        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product.rating ?? 0)">★</span>
-        <small>({{ product.reviews }} отзывов)</small>
+      <!-- Рейтинг (если есть) -->
+      <div class="rating" *ngIf="product.product.related?.length">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product.product.rating ?? 0)">
+          ★
+        </span>
+        <small>({{ product.product.reviews ?? 0 }} отзывов)</small>
       </div>
 
       <!-- Наличие -->
-      <p class="availability" [class.in-stock]="product.available" [class.out-stock]="!product.available">
-        {{ product.available ? 'В наличии' : 'Под заказ' }}
+      <p class="availability" [class.in-stock]="product.product.available"
+        [class.out-stock]="!product.product.available">
+        {{ product.product.available ? 'В наличии' : 'Под заказ' }}
       </p>
     </div>
 
-    <!-- Действия -->
+    <!-- Блок действий -->
     <div class="product-actions">
+      <!-- Количество -->
       <div class="qty-control">
-        <button (click)="decreaseQty(product)">−</button>
-        <input type="number" [(ngModel)]="product.qty" min="1">
-        <button (click)="increaseQty(product)">+</button>
+        <button (click)="decreaseQty()">−</button>
+        <input type="number" [(ngModel)]="product.count" min="1" />
+        <button (click)="increaseQty()">+</button>
       </div>
 
+      <!-- Цена -->
       <div class="price-info">
         <div class="current-price">
-          {{ product.price }} ₽
+          {{ product.product.retailPrice | number:'1.0-2' }} ₽
         </div>
 
-        <div class="total-price" *ngIf="product.qty > 1">
-          Всего: <span>{{ product.price * product.qty }} ₽</span>
+        <div class="total-price" *ngIf="product.count > 1">
+          Всего:
+          <span>{{ (product.product.retailPrice * product.count) | number:'1.0-2' }} ₽</span>
         </div>
 
-        <div class="discount" *ngIf="product.oldPrice && product.oldPrice > product.price">
-          <span class="old-price">{{ product.oldPrice }} ₽</span>
-          <span class="sale-badge">-{{ ((product.oldPrice - product.price)/product.oldPrice * 100) | number:'1.0-0'
-            }}%</span>
+        <div class="discount"
+          *ngIf="product.product.retailPriceDest && product.product.retailPriceDest < product.product.retailPrice">
+          <span class="old-price">{{ product.product.retailPrice | number:'1.0-2' }} ₽</span>
+          <span class="sale-badge">
+            -{{ ((product.product.retailPrice - product.product.retailPriceDest) / product.product.retailPrice * 100) |
+            number:'1.0-0' }}%
+          </span>
         </div>
       </div>
 
-
+      <!-- Кнопки -->
       <div class="action-buttons">
-        <button class="wishlist-btn">♥</button>
-        <button class="remove-btn" (click)="removeProduct(product.id)">✕</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Сопутствующие -->
-  <div class="related-products" *ngIf="product.related?.length">
-    <h4 (click)="toggleRelated(product)">С этим товаром покупают:</h4>
-    <div class="related-list">
-      <div class="related-item" *ngFor="let r of product.related">
-        <div class="image-wrapper">
-          <img [src]="r.image" alt="{{ r.name }}">
-        </div>
-        <p class="name">{{ r.name }}</p>
-        <span class="price">{{ r.price }} ₽</span>
-        <button class="add-btn" title="Добавить">
-          Добавить
+        <button class="wishlist-btn" title="Добавить в избранное">♥</button>
+        <button class="remove-btn" (click)="removeProduct()" title="Удалить товар">
+          ✕
         </button>
       </div>
     </div>
   </div>
 
+  <!-- Сопутствующие товары -->
+  <div class="related-products" *ngIf="product.product.related?.length">
+    <h4 (click)="toggleRelated()">
+      С этим товаром покупают:
+      <span class="toggle-arrow">{{ relatedCollapsed ? '▼' : '▲' }}</span>
+    </h4>
 
+    <div class="related-list" *ngIf="!relatedCollapsed">
+      <div class="related-item" *ngFor="let r of product.product.related">
+        <div class="image-wrapper">
+          <img [src]="r.image || 'assets/img/no-image.png'" alt="{{ r.name }}" />
+        </div>
+        <p class="name">{{ r.name }}</p>
+        <span class="price">{{ r.retailPrice | number:'1.0-2' }} ₽</span>
+        <button class="add-btn" title="Добавить в корзину">
+          Добавить
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
