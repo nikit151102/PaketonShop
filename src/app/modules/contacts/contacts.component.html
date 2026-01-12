@@ -2,7 +2,6 @@
   <h2 class="contacts-title">Свяжитесь с нами</h2>
 
   <div class="contacts-content">
-
     <!-- Левая колонка: карточки -->
     <div class="contacts-left">
       <div class="contact-card phone-card">
@@ -10,7 +9,7 @@
         <h3>Телефоны</h3>
         <ul>
           <li *ngFor="let phone of phones">
-            <a href="tel:{{phone | phoneLink}}">{{ phone }}</a>
+            <a href="tel:{{ phone | phoneLink }}">{{ phone }}</a>
           </li>
         </ul>
       </div>
@@ -18,11 +17,13 @@
       <div class="contact-card whatsapp-card">
         <div class="icon">💬</div>
         <h3>WhatsApp</h3>
-        <a href="https://wa.me/{{ whatsapp | whatsappLink }}" target="_blank">{{ whatsapp }}</a>
-      
-    <h3>Email</h3>
+        <a href="https://wa.me/{{ whatsapp | whatsappLink }}" target="_blank">{{
+          whatsapp
+        }}</a>
+
+        <h3>Email</h3>
         <a href="mailto:{{ email }}">{{ email }}</a>
-    </div>
+      </div>
 
       <div class="contact-card social-card">
         <div class="icon">🌐</div>
@@ -45,85 +46,159 @@
       <div class="contact-form-card">
         <h3>Отправьте нам сообщение</h3>
         <form (submit)="onSubmit()">
-          <input type="text" placeholder="Ваше имя" [(ngModel)]="form.name" name="name" required>
-          <input type="email" placeholder="Email" [(ngModel)]="form.email" name="email" required>
-          <textarea placeholder="Сообщение" [(ngModel)]="form.message" name="message" rows="5" required></textarea>
+          <input
+            type="text"
+            placeholder="Ваше имя"
+            [(ngModel)]="form.name"
+            name="name"
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            [(ngModel)]="form.email"
+            name="email"
+            required
+          />
+          <textarea
+            placeholder="Сообщение"
+            [(ngModel)]="form.message"
+            name="message"
+            rows="5"
+            required
+          ></textarea>
           <button type="submit">Отправить</button>
         </form>
       </div>
     </div>
-
   </div>
 </div>
 
-
 <div class="btn-group">
-    <a class="btn" *ngFor="let category of jobCategories" [class.active]="selectedCategory === category"
-        (click)="selectCategory(category)">
-        {{ category }}
-    </a>
+  <a
+    class="btn"
+    *ngFor="let category of jobCategories"
+    [class.active]="selectedCategory === category"
+    (click)="selectCategory(category)"
+  >
+    {{ category }}
+  </a>
 </div>
 
 <div class="container">
-    <div class="left-column">
-        <div class="select-wrapper" *ngIf="selectedCategory == 'Магазин'">
-            <h2 class="title">Выберите город:</h2>
-            <select id="city" [(ngModel)]="selectedCity" (change)="onCityChange($event)">
-                <option *ngFor="let city of storeService.cityCoordinates | keyvalue" [value]="city.key">
-                    {{ city.key }}
-                </option>
-            </select>
-        </div>
-        <div id="map"></div>
+  <div class="left-column">
+    <div class="select-wrapper" *ngIf="selectedCategory == 'Магазин'">
+      <h2 class="title">Выберите город:</h2>
+      <select
+        id="city"
+        [(ngModel)]="selectedCity"
+        (change)="onCityChange($event)"
+      >
+        <option
+          *ngFor="let city of storeService.cityCoordinates | keyvalue"
+          [value]="city.key"
+        >
+          {{ city.key }}
+        </option>
+      </select>
     </div>
+    <div id="map"></div>
+  </div>
 
-    <div class="right-column">
-        <div class="store-list">
-            <div *ngFor="let store of filteredStores" class="store-card">
-                <div class="store-info">
-                    <p><span>📍 Адрес:</span> {{ store.address }}</p>
-                    <p><span>📞 Телефон:</span> {{ store.phone }}</p>
-                </div>
-                <button class="store-btn" (click)="selectStore(store)">Выбрать</button>
-            </div>
+  <div class="right-column">
+    <div class="store-list">
+      <div *ngFor="let store of filteredStores" class="store-card">
+        <div class="store-info">
+          <p><span>📍 Адрес:</span> {{ store.address }}</p>
+          <p><span>📞 Телефон:</span> {{ store.phone }}</p>
         </div>
+        <button class="store-btn" (click)="selectStore(store)">Выбрать</button>
+      </div>
     </div>
+  </div>
 </div>
 
-
 <div class="operators-container">
-    <div class="operators">
-        <div class="operator">
-            <img src="images/operator3.png" alt="Кривенко Ольга Александровна" class="avatar">
-            <div class="info">
-                <p style="padding-bottom: 10px;"><strong>Кривенко Ольга Александровна</strong></p>
-                <p><a href="tel:+79050845188" class="contact-link">8 905 084 51 88</a></p>
-                <p><a href="mailto:paketon@bk.ru" class="contact-link">paketon&#64;bk.ru</a></p>
-            </div>
-        </div>
-        <div class="operator">
-            <img src="images/operator1.png" alt="Зеленина Надежда Васильевна" class="avatar">
-            <div class="info">
-                <p style="padding-bottom: 10px;"><strong>Зеленина Надежда Васильевна</strong></p>
-                <p><a href="tel:+73852555862" class="contact-link">8 3852 55 58 62</a></p>
-                <p><a href="mailto:paketon@bk.ru" class="contact-link">paketon&#64;bk.ru</a></p>
-            </div>
-        </div>
-        <div class="operator">
-            <img src="images/operator2.png" alt="Громова Елена Николаевна" class="avatar">
-            <div class="info">
-                <p style="padding-bottom: 10px;"><strong>Громова Елена Николаевна</strong></p>
-                <p><a href="tel:+73852555863" class="contact-link">8 3852 55 58 63</a></p>
-                <p><a href="mailto:paketon@bk.ru" class="contact-link">paketon&#64;bk.ru</a></p>
-            </div>
-        </div>
-        <div class="operator">
-            <img src="images/operator4.png" alt="Бабенко Алексей Юрьевич" class="avatar">
-            <div class="info">
-                <p style="padding-bottom: 10px;"><strong>Бабенко Алексей Юрьевич</strong></p>
-                <p><a href="tel:+73852555861" class="contact-link">8 3852 55 58 61</a></p>
-                <p><a href="mailto:paketon@bk.ru" class="contact-link">paketon&#64;bk.ru</a></p>
-            </div>
-        </div>
+  <div class="operators">
+    <div class="operator">
+      <img
+        src="images/operator3.png"
+        alt="Кривенко Ольга Александровна"
+        class="avatar"
+      />
+      <div class="info">
+        <p style="padding-bottom: 10px">
+          <strong>Кривенко Ольга Александровна</strong>
+        </p>
+        <p>
+          <a href="tel:+79050845188" class="contact-link">8 905 084 51 88</a>
+        </p>
+        <p>
+          <a href="mailto:paketon@bk.ru" class="contact-link"
+            >paketon&#64;bk.ru</a
+          >
+        </p>
+      </div>
     </div>
+    <div class="operator">
+      <img
+        src="images/operator1.png"
+        alt="Зеленина Надежда Васильевна"
+        class="avatar"
+      />
+      <div class="info">
+        <p style="padding-bottom: 10px">
+          <strong>Зеленина Надежда Васильевна</strong>
+        </p>
+        <p>
+          <a href="tel:+73852555862" class="contact-link">8 3852 55 58 62</a>
+        </p>
+        <p>
+          <a href="mailto:paketon@bk.ru" class="contact-link"
+            >paketon&#64;bk.ru</a
+          >
+        </p>
+      </div>
+    </div>
+    <div class="operator">
+      <img
+        src="images/operator2.png"
+        alt="Громова Елена Николаевна"
+        class="avatar"
+      />
+      <div class="info">
+        <p style="padding-bottom: 10px">
+          <strong>Громова Елена Николаевна</strong>
+        </p>
+        <p>
+          <a href="tel:+73852555863" class="contact-link">8 3852 55 58 63</a>
+        </p>
+        <p>
+          <a href="mailto:paketon@bk.ru" class="contact-link"
+            >paketon&#64;bk.ru</a
+          >
+        </p>
+      </div>
+    </div>
+    <div class="operator">
+      <img
+        src="images/operator4.png"
+        alt="Бабенко Алексей Юрьевич"
+        class="avatar"
+      />
+      <div class="info">
+        <p style="padding-bottom: 10px">
+          <strong>Бабенко Алексей Юрьевич</strong>
+        </p>
+        <p>
+          <a href="tel:+73852555861" class="contact-link">8 3852 55 58 61</a>
+        </p>
+        <p>
+          <a href="mailto:paketon@bk.ru" class="contact-link"
+            >paketon&#64;bk.ru</a
+          >
+        </p>
+      </div>
+    </div>
+  </div>
 </div>

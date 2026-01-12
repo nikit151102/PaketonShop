@@ -1,25 +1,49 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { filter, Observable } from 'rxjs';
 import { Address } from '../../../models/address.interface';
 import { ApiResponse } from '../../../models/address.interface';
 import { environment } from '../../../environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AddressesService {
+  private readonly baseUrl = `${environment.production}/api/Profile/Addresses`;
 
- private readonly baseUrl = `${environment.production}/api/Profile/Addresses`;
-
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Получить список адресов (Filter)
    */
-  getAddresses(): Observable<ApiResponse<Address[]>> {
-    return this.http.post<ApiResponse<Address[]>>(`${this.baseUrl}/Filter`, {});
+  getAddresses(page: number | null = null, pageSize: number | null = null): Observable<any> {
+
+    const requestBody = page !== null ? {
+      filters: [],
+      page: page,
+      pageSize: pageSize
+    } : {};
+
+    return this.http.post(
+      `${environment.production}/api/Entities/Address/Filter`,
+      requestBody
+    );
   }
+
+  getUserAddresses(page: number | null = null, pageSize: number | null = null): Observable<any> {
+
+    const requestBody = page !== null ? {
+      filters: [],
+      page: page,
+      pageSize: pageSize
+    } : {};
+
+    return this.http.post(
+      `${environment.production}/api/Profile/Addresses/Filter`,
+      requestBody
+    );
+  }
+
 
   /**
    * Получить один адрес по id
@@ -48,5 +72,6 @@ export class AddressesService {
   deleteAddress(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
-  
+
+
 }

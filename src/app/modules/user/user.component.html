@@ -1,12 +1,6 @@
+<header *ngIf="showHeader">
+  <a [routerLink]="'/profile/profile'">Вернуться назад</a>
+</header>
 <div class="account-page">
-    <!-- Левая панель -->
-    <aside class="sidebar">
-        <app-user-card [currentUserData]="currentUserData"></app-user-card>
-        <app-menu></app-menu>
-    </aside>
-
-    <!-- Правая панель -->
-    <main class="content">
-        <router-outlet></router-outlet>
-    </main>
-</div> 
+   <router-outlet></router-outlet>
+</div>

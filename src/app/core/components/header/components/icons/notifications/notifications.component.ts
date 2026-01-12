@@ -5,15 +5,27 @@ import { Component, ElementRef, HostListener } from '@angular/core';
   selector: 'app-notifications',
   imports: [CommonModule],
   templateUrl: './notifications.component.html',
-  styleUrl: './notifications.component.scss'
+  styleUrl: './notifications.component.scss',
 })
 export class NotificationsComponent {
   notificationsOpen = false;
 
   notifications = [
-    { type: 'order', text: 'Новый заказ №1234 оформлен', time: '5 минут назад' },
-    { type: 'message', text: 'Новое сообщение от клиента', time: '10 минут назад' },
-    { type: 'sale', text: 'Скидка 20% на товар "Кофеварка"', time: '1 час назад' },
+    {
+      type: 'order',
+      text: 'Новый заказ №1234 оформлен',
+      time: '5 минут назад',
+    },
+    {
+      type: 'message',
+      text: 'Новое сообщение от клиента',
+      time: '10 минут назад',
+    },
+    {
+      type: 'sale',
+      text: 'Скидка 20% на товар "Кофеварка"',
+      time: '1 час назад',
+    },
     { type: 'order', text: 'Заказ №1233 отправлен', time: '2 часа назад' },
   ];
 

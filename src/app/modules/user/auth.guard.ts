@@ -10,8 +10,8 @@ import { localStorageEnvironment } from '../../../environment';
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private userService: UserService
-  ) { }
+    private userService: UserService,
+  ) {}
 
   canActivate(): Promise<boolean> {
     return new Promise((resolve) => {
@@ -28,35 +28,44 @@ export class AuthGuard implements CanActivate {
         return resolve(false);
       }
 
-      this.userService.getDataUser().subscribe({ //Доделать запрос
+      this.userService.getDataUser().subscribe({
+        //Доделать запрос
         next: (response) => {
           if (response.data) {
             if (response.data.id === idUser) {
-              localStorage.setItem(localStorageEnvironment.user.key, response.data.id);
+              localStorage.setItem(
+                localStorageEnvironment.user.key,
+                response.data.id,
+              );
               this.userService.setUser(response.data, false);
               resolve(true);
             } else {
-              this.handleUnauthorizedAccess('Не удалось получить данные о пользователе. Попробуйте снова');
+              this.handleUnauthorizedAccess(
+                'Не удалось получить данные о пользователе. Попробуйте снова',
+              );
               resolve(false);
             }
           } else {
-            this.handleUnauthorizedAccess('Не удалось получить данные о пользователе. Попробуйте снова');
+            this.handleUnauthorizedAccess(
+              'Не удалось получить данные о пользователе. Попробуйте снова',
+            );
             resolve(false);
           }
         },
         error: (err: any) => {
-          this.handleUnauthorizedAccess('Сеанс истек. Пожалуйста, войдите снова.');
+          this.handleUnauthorizedAccess(
+            'Сеанс истек. Пожалуйста, войдите снова.',
+          );
           resolve(false);
         },
       });
-
     });
   }
 
   private utf8ToBase64(str: string): string {
     const utf8Bytes = new TextEncoder().encode(str);
     let binary = '';
-    utf8Bytes.forEach(byte => {
+    utf8Bytes.forEach((byte) => {
       binary += String.fromCharCode(byte);
     });
     return btoa(binary);
@@ -67,5 +76,4 @@ export class AuthGuard implements CanActivate {
     StorageUtils.removeLocalStorageCache(localStorageEnvironment.user.key);
     this.router.navigate(['']);
   }
-
 }

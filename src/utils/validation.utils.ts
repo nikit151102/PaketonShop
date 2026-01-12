@@ -7,7 +7,6 @@ export const isValidEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
 
-
 /**
  * Проверяет сложность пароля:
  * - Минимум 8 символов
@@ -20,16 +19,16 @@ export const isStrongPassword = (password: string): boolean => {
   return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/.test(password);
 };
 
-
 /**
  * Проверяет валидность российского номера телефона
  * @param phone - Номер в формате +7..., 8..., или без кода страны
  * @returns boolean
  */
 export const isValidRussianPhone = (phone: string): boolean => {
-  return /^(\+7|8|7)?[\s\-]?\(?[0-9]{3}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/.test(phone.trim());
+  return /^(\+7|8|7)?[\s\-]?\(?[0-9]{3}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}[\s\-]?[0-9]{2}$/.test(
+    phone.trim(),
+  );
 };
-
 
 /**
  * Проверяет валидность ИНН (для юр. и физ. лиц)
@@ -39,7 +38,6 @@ export const isValidRussianPhone = (phone: string): boolean => {
 export const isValidINN = (inn: string): boolean => {
   return /^(\d{10}|\d{12})$/.test(inn.trim());
 };
-
 
 /**
  * Проверяет валидность номера карты по алгоритму Луна
@@ -62,7 +60,6 @@ export const isValidCreditCard = (cardNumber: string): boolean => {
   return sum % 10 === 0;
 };
 
-
 /**
  * Проверяет валидность CVV/CVC кода карты
  * @param cvv - Код (3 или 4 цифры)
@@ -71,7 +68,6 @@ export const isValidCreditCard = (cardNumber: string): boolean => {
 export const isValidCVV = (cvv: string): boolean => {
   return /^\d{3,4}$/.test(cvv.trim());
 };
-
 
 /**
  * Проверяет валидность срока действия карты (MM/YY)
@@ -84,13 +80,9 @@ export const isValidCardExpiry = (expiry: string): boolean => {
 
   const currentYear = new Date().getFullYear() % 100;
   const currentMonth = new Date().getMonth() + 1;
-  
-  return (
-    year > currentYear || 
-    (year === currentYear && month >= currentMonth)
-  );
-};
 
+  return year > currentYear || (year === currentYear && month >= currentMonth);
+};
 
 /**
  * Проверяет формат промокода (например, только буквы и цифры)
@@ -99,12 +91,11 @@ export const isValidCardExpiry = (expiry: string): boolean => {
  * @returns boolean
  */
 export const isValidPromoCode = (
-  promoCode: string, 
-  pattern: RegExp = /^[A-Z0-9]{6,12}$/i
+  promoCode: string,
+  pattern: RegExp = /^[A-Z0-9]{6,12}$/i,
 ): boolean => {
   return pattern.test(promoCode.trim());
 };
-
 
 /**
  * Проверяет, что количество товара в корзине допустимо
@@ -113,12 +104,11 @@ export const isValidPromoCode = (
  * @returns boolean
  */
 export const isValidProductQuantity = (
-  quantity: number, 
-  max: number = 100
+  quantity: number,
+  max: number = 100,
 ): boolean => {
   return Number.isInteger(quantity) && quantity > 0 && quantity <= max;
 };
-
 
 /**
  * Проверяет, что строка является валидным URL изображения
@@ -128,7 +118,6 @@ export const isValidProductQuantity = (
 export const isValidImageUrl = (url: string): boolean => {
   return /\.(jpeg|jpg|png|webp|gif)$/i.test(url.trim());
 };
-
 
 /**
  * Проверяет, что строка не пустая и не состоит только из пробелов
@@ -166,12 +155,9 @@ export const hasMaxLength = (value: string, maxLength: number): boolean => {
  * @returns boolean
  */
 export const isAlpha = (value: string, allowSpaces = true): boolean => {
-  const pattern = allowSpaces 
-    ? /^[a-zA-Zа-яА-ЯёЁ\s]+$/ 
-    : /^[a-zA-Zа-яА-ЯёЁ]+$/;
+  const pattern = allowSpaces ? /^[a-zA-Zа-яА-ЯёЁ\s]+$/ : /^[a-zA-Zа-яА-ЯёЁ]+$/;
   return pattern.test(value);
 };
-
 
 /**
  * Проверяет, что значение является положительным числом
@@ -202,7 +188,6 @@ export const isInteger = (value: number): boolean => {
   return Number.isInteger(value);
 };
 
-
 /**
  * Проверяет, что дата является будущей (относительно текущей даты)
  * @param date - Проверяемая дата
@@ -228,11 +213,13 @@ export const isPastDate = (date: Date): boolean => {
  * @param endDate - Конечная дата диапазона
  * @returns boolean
  */
-export const isDateInRange = (date: Date, startDate: Date, endDate: Date): boolean => {
+export const isDateInRange = (
+  date: Date,
+  startDate: Date,
+  endDate: Date,
+): boolean => {
   return date >= startDate && date <= endDate;
 };
-
-
 
 /**
  * Проверяет валидность почтового индекса (для России)
@@ -249,10 +236,10 @@ export const isValidRussianZipCode = (zipCode: string): boolean => {
  * @returns boolean
  */
 export const isValidAddress = (address: string): boolean => {
-  return address.trim().length >= 10 && /[а-яА-ЯёЁa-zA-Z0-9\s,.-]/.test(address);
+  return (
+    address.trim().length >= 10 && /[а-яА-ЯёЁa-zA-Z0-9\s,.-]/.test(address)
+  );
 };
-
-
 
 /**
  * Проверяет расширение файла
@@ -261,8 +248,8 @@ export const isValidAddress = (address: string): boolean => {
  * @returns boolean
  */
 export const hasValidFileExtension = (
-  fileName: string, 
-  allowedExtensions: string[]
+  fileName: string,
+  allowedExtensions: string[],
 ): boolean => {
   const extension = fileName.split('.').pop()?.toLowerCase();
   return extension ? allowedExtensions.includes(extension) : false;
@@ -278,7 +265,6 @@ export const isValidFileSize = (fileSize: number, maxSize: number): boolean => {
   return fileSize <= maxSize;
 };
 
-
 /**
  * Проверяет валидность артикула товара
  * @param sku - Артикул товара
@@ -286,8 +272,8 @@ export const isValidFileSize = (fileSize: number, maxSize: number): boolean => {
  * @returns boolean
  */
 export const isValidProductSKU = (
-  sku: string, 
-  pattern: RegExp = /^[A-Z0-9-]{5,20}$/i
+  sku: string,
+  pattern: RegExp = /^[A-Z0-9-]{5,20}$/i,
 ): boolean => {
   return pattern.test(sku.trim());
 };
@@ -311,8 +297,6 @@ export const isValidHexColor = (color: string): boolean => {
   return /^#([0-9A-F]{3}){1,2}$/i.test(color.trim());
 };
 
-
-
 /**
  * Проверяет валидность имени пользователя
  * (латинские/кириллические буквы, цифры, подчеркивания, точки)
@@ -324,7 +308,7 @@ export const isValidHexColor = (color: string): boolean => {
 export const isValidUsername = (
   username: string,
   minLength = 3,
-  maxLength = 20
+  maxLength = 20,
 ): boolean => {
   if (username.length < minLength || username.length > maxLength) return false;
   return /^[a-zA-Zа-яА-ЯёЁ0-9_.]+$/.test(username);
@@ -338,7 +322,6 @@ export const isValidUsername = (
 export const isValidDomain = (domain: string): boolean => {
   return /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i.test(domain.trim());
 };
-
 
 /**
  * Проверяет валидность международного номера телефона
@@ -357,5 +340,3 @@ export const isValidInternationalPhone = (phone: string): boolean => {
 export const isValidSWIFT = (swift: string): boolean => {
   return /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/.test(swift.trim());
 };
-
-

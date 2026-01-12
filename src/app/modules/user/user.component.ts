@@ -2,25 +2,54 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { UserCardComponent } from './components/user-card/user-card.component';
 import { MenuComponent } from './components/menu/menu.component';
-import { AuthRoutingModule } from "../auth/auth-routing.module";
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, RouterLink } from '@angular/router';
 import { UserService } from '../../core/services/user.service';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, UserCardComponent, MenuComponent, AuthRoutingModule],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    UserCardComponent,
+    MenuComponent,
+    DashboardComponent,
+    RouterLink
+],
   templateUrl: './user.component.html',
-  styleUrl: './user.component.scss'
+  styleUrl: './user.component.scss',
 })
-export class UserComponent {
+export class UserComponent implements OnInit {
   currentUserData: any;
+  showHeader: boolean = true;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.userService.user$.subscribe((user: any) => {
+      console.log('user', user);
       this.currentUserData = user;
-    })
+    });
+
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd)
+      )
+      .subscribe(() => {
+        this.updateHeaderVisibility();
+      });
+
+    this.updateHeaderVisibility();
+  }
+
+  private updateHeaderVisibility(): void {
+    const currentUrl = this.router.url;
+    
+    this.showHeader = !currentUrl.includes('/profile/profile');
   }
 }

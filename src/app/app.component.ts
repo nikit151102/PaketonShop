@@ -12,19 +12,27 @@ import { memoryCacheEnvironment } from '../environment';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, HeaderComponent, MobileBottomNavComponent, FooterComponent, AuthComponent, LocationComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    HeaderComponent,
+    MobileBottomNavComponent,
+    FooterComponent,
+    AuthComponent,
+    LocationComponent,
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'PaketonShop';
   isMobile: boolean = false;
 
-  constructor(private basketsService: BasketsService) { }
+  constructor(private basketsService: BasketsService) {}
 
   @HostListener('window:resize', ['$event'])
   onResize() {
-    console.log('isMobile', this.isMobile)
+    console.log('isMobile', this.isMobile);
     this.isMobile = window.innerWidth <= 950; // Примерная граница для мобильных устройств
   }
 
@@ -34,24 +42,27 @@ export class AppComponent {
   }
 
   /**
- * Загрузить корзины пользователя
- */
+   * Загрузить корзины пользователя
+   */
   loadBaskets(): void {
     this.basketsService
       .filterBaskets({
         filters: [],
         sorts: [],
         page: 0,
-        pageSize: 10
+        pageSize: 10,
       })
       .subscribe({
         next: (res) => {
           // this.baskets = res.data;
-          StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, res.data, memoryCacheEnvironment.baskets.ttl)
+          StorageUtils.setMemoryCache(
+            memoryCacheEnvironment.baskets.key,
+            res.data,
+            memoryCacheEnvironment.baskets.ttl,
+          );
           // this.activeBasket = this.baskets[0] || undefined;
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err)
+        error: (err) => console.error('Ошибка загрузки корзин', err),
       });
   }
-
 }

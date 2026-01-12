@@ -1,28 +1,477 @@
-<section class="order-history">
-  <h3>История заказов</h3>
-
-  <div class="orders-list">
-    <div class="order-card" *ngFor="let order of orders">
-      <div class="order-header">
-        <span class="order-number">#{{ order.id }}</span>
-        <span class="order-date">{{ order.date | date:'dd.MM.yyyy' }}</span>
+<section class="order-history-section">
+  <!-- Заголовок и статистика -->
+  <div class="section-header">
+    <div class="header-content">
+      <div class="header-main">
+        <div class="header-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+          </svg>
+        </div>
+        <div class="header-text">
+          <h1 class="section-title">История заказов</h1>
+          <p class="section-subtitle">Все ваши покупки и заказы в одном месте</p>
+        </div>
       </div>
 
-      <div class="order-details">
-        <p><strong>Сумма:</strong> {{ order.amount | currency:'RUB':'symbol':'1.0-0' }}</p>
-        <p><strong>Товаров:</strong> {{ order.itemsCount }}</p>
-        <p>
-          <strong>Статус:</strong>
-          <span class="status" [ngClass]="order.status">{{ order.status }}</span>
-        </p>
-        <p><strong>Оплата:</strong> {{ order.payment }}</p>
-        <p><strong>Доставка:</strong> {{ order.delivery }}</p>
+      <div class="header-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ totalOrders }}</div>
+            <div class="stat-label">Всего заказов</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ formatCurrency(getTotalSum()) }}</div>
+            <div class="stat-label">Общая сумма</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="filter-toggle-btn" (click)="toggleFilters()" [class.active]="showFilters">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+        </svg>
+        <span>Фильтры</span>
+      </button>
+
+      <button class="refresh-btn" (click)="loadOrders()" [disabled]="loading">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path
+            d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+        </svg>
+        Обновить
+      </button>
+    </div>
+  </div>
+
+  <!-- Панель фильтров -->
+  <div class="filters-panel" [class.show]="showFilters">
+    <div class="filters-content">
+      <div class="filters-row">
+        <!-- Поиск -->
+        <div class="filter-group">
+          <label class="filter-label">Поиск заказов</label>
+          <div class="search-input">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path
+                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+            <input type="text" [(ngModel)]="searchTerm" placeholder="Поиск по номеру, товару, партнеру..."
+              class="search-field">
+          </div>
+        </div>
+
+        <!-- Фильтр по статусу -->
+        <div class="filter-group">
+          <label class="filter-label">Статус заказа</label>
+          <div class="status-filter-buttons">
+            <button class="status-filter-btn" [class.active]="statusFilter === 'all'" (click)="statusFilter = 'all'">
+              Все
+            </button>
+            <button class="status-filter-btn active-status" [class.active]="statusFilter === 'active'"
+              (click)="statusFilter = 'active'">
+              Активные
+            </button>
+            <button class="status-filter-btn completed-status" [class.active]="statusFilter === 'completed'"
+              (click)="statusFilter = 'completed'">
+              Выполненные
+            </button>
+            <button class="status-filter-btn cancelled-status" [class.active]="statusFilter === 'cancelled'"
+              (click)="statusFilter = 'cancelled'">
+              Отмененные
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="order-actions">
-        <button class="btn view">Просмотр</button>
-        <button class="btn repeat">Повторить заказ</button>
+      <div class="filters-row">
+        <!-- Фильтр по дате -->
+        <div class="filter-group">
+          <label class="filter-label">Период</label>
+          <div class="date-filter-buttons">
+            <button class="date-filter-btn" [class.active]="dateFilter === 'all'" (click)="dateFilter = 'all'">
+              Все время
+            </button>
+            <button class="date-filter-btn" [class.active]="dateFilter === 'week'" (click)="dateFilter = 'week'">
+              Неделя
+            </button>
+            <button class="date-filter-btn" [class.active]="dateFilter === 'month'" (click)="dateFilter = 'month'">
+              Месяц
+            </button>
+            <button class="date-filter-btn" [class.active]="dateFilter === 'quarter'" (click)="dateFilter = 'quarter'">
+              Квартал
+            </button>
+          </div>
+        </div>
+
+        <!-- Сортировка -->
+        <div class="filter-group">
+          <label class="filter-label">Сортировка</label>
+          <div class="sort-controls">
+            <select [(ngModel)]="sortBy" class="sort-select">
+              <option value="date">По дате</option>
+              <option value="amount">По сумме</option>
+              <option value="status">По статусу</option>
+            </select>
+
+            <button class="sort-direction-btn" (click)="sortDirection = sortDirection === 'asc' ? 'desc' : 'asc'">
+              <svg width="16" height="16" viewBox="0 0 24 24" [class.reverse]="sortDirection === 'asc'">
+                <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="filters-actions">
+        <button class="reset-filters-btn" (click)="resetFilters()">
+          Сбросить фильтры
+        </button>
+        <div class="filtered-count">
+          Найдено заказов: {{ getFilteredOrders().length }}
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Состояние загрузки -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <h3>Загружаем историю заказов...</h3>
+      <p>Пожалуйста, подождите</p>
+    </div>
+  </div>
+
+  <!-- Ошибка -->
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-content">
+      <div class="error-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+      </div>
+      <h3>Ошибка загрузки</h3>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadOrders()">
+        Попробовать снова
+      </button>
+    </div>
+  </div>
+
+  <!-- Пустое состояние -->
+  <div class="empty-state" *ngIf="!loading && !error && getFilteredOrders().length === 0">
+    <div class="empty-content">
+      <div class="empty-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24">
+          <path
+            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+        </svg>
+      </div>
+      <h3 class="empty-title">Заказов не найдено</h3>
+      <p class="empty-description">Попробуйте изменить параметры фильтрации</p>
+      <button class="empty-action-btn" (click)="resetFilters()">
+        Сбросить фильтры
+      </button>
+    </div>
+  </div>
+
+  <!-- Общая статистика -->
+  <div class="summary-stats" *ngIf="!loading && !error && getFilteredOrders().length > 0">
+    <div class="summary-card">
+      <div class="summary-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M11 8v5l4.25 2.52.77-1.28-3.52-2.09V8H11zm10 5c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8 8 3.58 8 8z" />
+        </svg>
+      </div>
+      <div class="summary-content">
+        <div class="summary-value">{{ getAverageOrderValue() | currency:'RUB':'symbol':'1.0-0' }}</div>
+        <div class="summary-label">Средний чек</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+      </div>
+      <div class="summary-content">
+        <div class="summary-value">{{ getCompletedOrdersCount() }}</div>
+        <div class="summary-label">Выполнено заказов</div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7 7h7v2H7V7zm3 8H7v-2h3v2zm-3-3v-2h7v2H7zm10 3v2h-7v-2h7zm0-3v-2h-7v2h7z" />
+        </svg>
+      </div>
+      <div class="summary-content">
+        <div class="summary-value">{{ getActiveOrdersCount() }}</div>
+        <div class="summary-label">Активных заказов</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Список заказов -->
+  <div class="orders-list-container" *ngIf="!loading && !error && getFilteredOrders().length > 0">
+    <div class="orders-grid">
+      <!-- Карточка заказа -->
+      <div class="order-card" *ngFor="let order of getFilteredOrders()" [class.expanded]="order.isExpanded"
+        [class.selected]="selectedOrder?.id === order.id">
+
+        <!-- Заголовок карточки -->
+        <div class="card-header" (click)="toggleOrderExpansion(order)">
+          <div class="order-info-main">
+            <div class="order-number-badge">
+              <span class="order-number">#{{ formatOrderId(order.id) }}</span>
+            </div>
+
+            <div class="order-dates">
+              <div class="order-date">
+                <svg width="14" height="14" viewBox="0 0 24 24">
+                  <path
+                    d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z" />
+                </svg>
+                {{ formatDate(order.orderDateTime) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="order-status-section">
+            <div class="status-badge" [class]="'status-' + order.statusColor">
+              <span class="status-icon">{{ order.statusIcon }}</span>
+              <span class="status-text">{{ order.statusText }}</span>
+            </div>
+
+            <div class="order-amount">
+              <span class="amount-label">Сумма:</span>
+              <span class="amount-value">{{ formatCurrency(order.totalCost) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Краткая информация (свернутое состояние) -->
+        <div class="card-summary">
+          <div class="summary-item">
+            <svg width="14" height="14" viewBox="0 0 24 24">
+              <path
+                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+            </svg>
+            <span>{{ order.productCount }} товар{{ order.productCount % 10 === 1 && order.productCount % 100 !== 11 ? ''
+              : order.productCount % 10 >= 2 && order.productCount % 10 <= 4 && (order.productCount % 100 < 10 ||
+                order.productCount % 100>= 20) ? 'а' : 'ов' }}</span>
+          </div>
+
+          <div class="summary-item">
+            <svg width="14" height="14" viewBox="0 0 24 24">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            </svg>
+            <span>{{ order.deliveryType?.shortName || 'Не указано' }}</span>
+          </div>
+
+          <div class="summary-item">
+            <svg width="14" height="14" viewBox="0 0 24 24">
+              <path
+                d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm0 4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1.4c0-2 4-3.1 6-3.1s6 1.1 6 3.1V19z" />
+            </svg>
+            <span>{{ order.partnerInstance?.partner?.shortName || 'Не указано' }}</span>
+          </div>
+        </div>
+
+        <!-- Подробная информация (развернутое состояние) -->
+        <div class="card-details" *ngIf="order.isExpanded">
+          <div class="details-section">
+            <h4 class="details-title">Информация о доставке</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Способ доставки:</span>
+                <span class="detail-value">{{ order.deliveryType?.fullName || 'Не указано' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Адрес:</span>
+                <span class="detail-value">
+                  {{ order.address?.postIndex }},
+                  {{ order.address?.region }},
+                  {{ order.address?.city }},
+                  {{ order.address?.street }}, д. {{ order.address?.house }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Пункт выдачи:</span>
+                <span class="detail-value">{{ order.productPlace?.fullName || 'Не указано' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Стоимость доставки:</span>
+                <span class="detail-value">{{ formatCurrency(order.deliveryCost) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section" *ngIf="order.productPositions && order.productPositions.length > 0">
+            <h4 class="details-title">Состав заказа</h4>
+            <div class="products-list">
+              <div class="product-item" *ngFor="let position of order.productPositions">
+                <div class="product-image">
+                  <ng-container *ngIf="position.product">
+                    <img *ngIf="position.product.productImageLinks[0]" [src]="position.product.productImageLinks[0]"
+                      [alt]="position.product.shortName">
+                    <div *ngIf="!position.product.productImageLinks[0]" class="image-placeholder">
+                      {{ position.product.shortName?.substring(0, 2) || '??' }}
+                    </div>
+                  </ng-container>
+                </div>
+                <div class="product-info">
+                  <div class="product-name">{{ position.product?.shortName || 'Товар' }}</div>
+                  <div class="product-sku" *ngIf="position.product?.article">
+                    Артикул: {{ position.product?.article }}
+                  </div>
+                  <div class="product-manufacturer" *ngIf="position.product?.manufacturer">
+                    {{ position.product?.manufacturer }}
+                  </div>
+                </div>
+                <div class="product-quantity">
+                  <span class="quantity-count">{{ position.count }} {{ position.product?.measurementUnit?.shortName ||
+                    'шт' }}</span>
+                </div>
+                <div class="product-price">
+                  <div class="price-total">{{ formatCurrency(position.totalCost) }}</div>
+                  <div class="price-per-unit" *ngIf="position.count > 1">
+                    {{ formatCurrency(position.totalCost / position.count) }} за шт.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="details-section">
+            <h4 class="details-title">Финансовая информация</h4>
+            <div class="financial-grid">
+              <div class="financial-item">
+                <span class="financial-label">Стоимость товаров:</span>
+                <span class="financial-value">{{ formatCurrency(order.orderCost) }}</span>
+              </div>
+              <div class="financial-item">
+                <span class="financial-label">Стоимость доставки:</span>
+                <span class="financial-value">{{ formatCurrency(order.deliveryCost) }}</span>
+              </div>
+              <div class="financial-item total">
+                <span class="financial-label">Итого к оплате:</span>
+                <span class="financial-value">{{ formatCurrency(order.totalCost) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="consultation-note" *ngIf="order.consultation">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+            <span>По этому заказу запрошена консультация специалиста</span>
+          </div>
+
+          <div class="details-actions">
+            <button class="action-btn primary" (click)="selectOrder(order)">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path
+                  d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+              </svg>
+              Подробнее
+            </button>
+            <button class="action-btn secondary" (click)="repeatOrder(order)">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path
+                  d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+              </svg>
+              Повторить
+            </button>
+            <button class="action-btn tertiary" (click)="downloadInvoice(order)">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+              Скачать счет
+            </button>
+            <button *ngIf="[0, 1, 2].includes(order.orderStatus)" class="action-btn danger"
+              (click)="cancelOrder(order)">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+              </svg>
+              Отменить
+            </button>
+          </div>
+        </div>
+
+        <!-- Стрелка для разворачивания -->
+        <div class="expand-indicator" (click)="toggleOrderExpansion(order)">
+          <svg width="16" height="16" viewBox="0 0 24 24" [class.expanded]="order.isExpanded">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="pagination-btn" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+        </svg>
+        Назад
+      </button>
+
+      <div class="pagination-pages">
+        <button *ngFor="let page of getPageNumbers()" class="page-number" [class.active]="page === currentPage"
+          (click)="changePage(page)">
+          {{ page + 1 }}
+        </button>
+      </div>
+
+      <button class="pagination-btn" [disabled]="currentPage >= totalPages - 1" (click)="changePage(currentPage + 1)">
+        Вперед
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
 </section>
+
+<!-- Детальное представление заказа -->
+<div class="order-detail-modal" *ngIf="selectedOrder">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Заказ #{{ formatOrderId(selectedOrder.id) }}</h3>
+      <button class="close-modal" (click)="closeOrderDetail()">
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+    <!-- Здесь можно добавить детальное представление заказа -->
+  </div>
+</div>

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
   selector: 'app-logo',
   imports: [],
   templateUrl: './logo.component.html',
-  styleUrl: './logo.component.scss'
+  styleUrl: './logo.component.scss',
 })
 export class LogoComponent {
   constructor(private router: Router) {}

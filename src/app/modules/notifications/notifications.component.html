@@ -2,19 +2,30 @@
   <h2>Уведомления</h2>
 
   <div class="toolbar">
-    <input type="text" placeholder="Поиск..." [(ngModel)]="searchQuery">
+    <input type="text" placeholder="Поиск..." [(ngModel)]="searchQuery" />
 
     <div class="filters">
-      <button (click)="filter='all'" [class.active]="filter==='all'">Все</button>
-      <button (click)="filter='order'" [class.active]="filter==='order'">Заказы</button>
-      <button (click)="filter='message'" [class.active]="filter==='message'">Сообщения</button>
-      <button (click)="filter='sale'" [class.active]="filter==='sale'">Акции</button>
+      <button (click)="filter = 'all'" [class.active]="filter === 'all'">
+        Все
+      </button>
+      <button (click)="filter = 'order'" [class.active]="filter === 'order'">
+        Заказы
+      </button>
+      <button
+        (click)="filter = 'message'"
+        [class.active]="filter === 'message'"
+      >
+        Сообщения
+      </button>
+      <button (click)="filter = 'sale'" [class.active]="filter === 'sale'">
+        Акции
+      </button>
     </div>
   </div>
 
   <div *ngIf="filteredNotifications.length; else emptyState">
-    <div 
-      class="notification-card" 
+    <div
+      class="notification-card"
       *ngFor="let notification of filteredNotifications"
       (click)="openNotification(notification)"
     >

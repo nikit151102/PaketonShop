@@ -1,21 +1,20 @@
 <div class="products-wrapper">
   <button class="scroll-left" (click)="scrollLeft()">‹</button>
 
-
-<div class="products-container" #productsGrid>
-  <div class="products-grid">
-    <div class="product-card" *ngFor="let product of salesProducts">
-      <div class="badge">-{{ product.discount }}%</div>
-      <img [src]="product.image" alt="{{ product.title }}" />
-      <h4>{{ product.title }}</h4>
-      <div class="price">
-        <span class="old">{{ product.oldPrice | currency }}</span>
-        <span class="new">{{ product.price | currency }}</span>
+  <div class="products-container" #productsGrid>
+    <div class="products-grid">
+      <div class="product-card" *ngFor="let product of salesProducts">
+        <div class="badge">-{{ product.discount }}%</div>
+        <img [src]="product.image" alt="{{ product.title }}" />
+        <h4>{{ product.title }}</h4>
+        <div class="price">
+          <span class="old">{{ product.oldPrice | currency }}</span>
+          <span class="new">{{ product.price | currency }}</span>
+        </div>
+        <button>В корзину</button>
       </div>
-      <button>В корзину</button>
     </div>
   </div>
-</div>
 
   <button class="scroll-right" (click)="scrollRight()">›</button>
 </div>

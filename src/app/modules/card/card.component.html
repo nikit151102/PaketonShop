@@ -1,72 +1,106 @@
-<app-product-card [productData]="productData"></app-product-card>
+<div class="product-details-container">
+  <app-product-card [productData]="productData"></app-product-card>
 
-<div class="tabs">
-    <div class="tab-buttons">
-        <button [class.active]="activeTab==='description'" (click)="setTab('description')">Описание</button>
-        <button [class.active]="activeTab==='features'" (click)="setTab('features')">Характеристики</button>
-        <button [class.active]="activeTab==='reviews'" (click)="setTab('reviews')">Отзывы</button>
-        <button [class.active]="activeTab==='questions'" (click)="setTab('questions')">Вопросы о товаре</button>
+  <!-- Навигация по табам -->
+  <div class="tabs-wrapper">
+    <div class="tabs-navigation">
+      <button [class.active]="activeTab === 'description'" (click)="setTab('description')" class="tab-button">
+        <span class="tab-label">Описание</span>
+      </button>
+
+      <button [class.active]="activeTab === 'features'" (click)="setTab('features')" class="tab-button">
+        <span class="tab-label">Характеристики</span>
+        <span class="tab-badge" *ngIf="getProductSpecs().length">
+          {{ getProductSpecs().length }}
+        </span>
+      </button>
+
+      <button [class.active]="activeTab === 'reviews'" (click)="setTab('reviews')" class="tab-button">
+        <span class="tab-label">Отзывы</span>
+        <span class="tab-badge" *ngIf="productData?.reviewsCount">
+          {{ productData.reviewsCount }}
+        </span>
+      </button>
+
+      <button [class.active]="activeTab === 'questions'" (click)="setTab('questions')" class="tab-button">
+        <span class="tab-label">Вопросы</span>
+        <span class="tab-badge" *ngIf="productData?.questionsCount">
+          {{ productData.questionsCount }}
+        </span>
+      </button>
     </div>
 
+    <!-- Содержимое табов -->
+    <div class="tabs-content">
+      <!-- Описание -->
+      <div *ngIf="activeTab === 'description'" class="tab-pane">
+        <div class="description-content">
+          <div class="description-header">
+            <h3 class="description-title">Описание товара</h3>
+          </div>
 
-    <div class="tab-content">
-        <div *ngIf="activeTab==='description'">
-            <p>{{productData.description}}</p>
+          <div class="description-text">
+            <p>{{ productData?.description || 'Описание товара отсутствует' }}</p>
+          </div>
         </div>
-        <div *ngIf="activeTab==='features'">
-            <div class="product-specs-column">
-                <h2>Характеристики</h2>
-                <ul>
-                    <li>
-                        <span class="icon">💧</span>
-                        <span class="label">Объем:</span>
-                        <span class="value">150 мл</span>
-                    </li>
-                    <li>
-                        <span class="icon">📦</span>
-                        <span class="label">Материал:</span>
-                        <span class="value">Картон с защитным внутренним покрытием</span>
-                    </li>
-                    <li>
-                        <span class="icon">⚖️</span>
-                        <span class="label">Диаметр верхнего края:</span>
-                        <span class="value">7,5 см</span>
-                    </li>
-                    <li>
-                        <span class="icon">📏</span>
-                        <span class="label">Высота:</span>
-                        <span class="value">9,5 см</span>
-                    </li>
-                    <li>
-                        <span class="icon">☕❄️</span>
-                        <span class="label">Применение:</span>
-                        <span class="value">Подходит для горячих и холодных напитков</span>
-                    </li>
-                    <li>
-                        <span class="icon">🌱</span>
-                        <span class="label">Экологичность:</span>
-                        <span class="value">Перерабатываемый материал</span>
-                    </li>
-                    <li>
-                        <span class="icon">🔥</span>
-                        <span class="label">Температура использования:</span>
-                        <span class="value">До 90°C</span>
-                    </li>
-                    <li>
-                        <span class="icon">📦</span>
-                        <span class="label">Упаковка:</span>
-                        <span class="value">50 шт. в упаковке</span>
-                    </li>
-                </ul>
+      </div>
+
+      <!-- Характеристики -->
+      <div *ngIf="activeTab === 'features'" class="tab-pane">
+        <div class="features-content">
+          <!-- Заголовок -->
+          <div class="features-header">
+            <h3 class="features-title">Характеристики</h3>
+            <p class="features-subtitle">
+              Все параметры товара в одном месте
+            </p>
+          </div>
+
+          <!-- Список характеристик -->
+          <div class="features-list" *ngIf="getProductSpecs().length">
+            <div class="feature-item" *ngFor="let spec of getProductSpecs(); let i = index"
+              [class.important]="isImportantSpec(spec.propertyName)">
+              <div class="feature-row">
+                <div class="feature-name-container">
+                  <span class="feature-index">#{{ i + 1 }}</span>
+                  <h4 class="feature-name">{{ spec.propertyName }}</h4>
+                </div>
+
+                <div class="feature-value-container">
+                  <span class="feature-value">{{ spec.value }}</span>
+                  <span class="feature-unit" *ngIf="spec.measurementUnitName">
+                    {{ spec.measurementUnitName }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="feature-divider"></div>
             </div>
+          </div>
+
+          <!-- Пустое состояние -->
+          <div class="empty-features" *ngIf="!getProductSpecs().length">
+            <div class="empty-icon">📋</div>
+            <h4>Характеристики отсутствуют</h4>
+            <p>Для этого товара пока не указаны технические параметры</p>
+          </div>
 
         </div>
+      </div>
 
-        <div *ngIf="activeTab==='reviews'" class="reviews-grid">
-            <app-reviews [productId]="productData.id"></app-reviews>
+      <!-- Отзывы -->
+      <div *ngIf="activeTab === 'reviews'" class="tab-pane">
+        <div class="reviews-container">
+          <app-reviews [productId]="productData.id"></app-reviews>
         </div>
-        <div *ngIf="activeTab==='questions'" class="reviews-grid">
-            <app-questions [productId]="productData.id"></app-questions>
+      </div>
+
+      <!-- Вопросы -->
+      <div *ngIf="activeTab === 'questions'" class="tab-pane">
+        <div class="questions-container">
+          <app-questions [productId]="productData.id"></app-questions>
         </div>
+      </div>
     </div>
+  </div>
 </div>

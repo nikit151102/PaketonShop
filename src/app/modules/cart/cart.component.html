@@ -1,86 +1,132 @@
-<div class="multi-cart-tabs">
-    <!-- Список корзин -->
-    <div class="tab" *ngFor="let basket of baskets; let i = index" [class.active]="activeBasket?.id === basket.id"
+<div class="cart-container">
+  <!-- Шапка с табами корзин -->
+  <div class="cart-header">
+    <div class="multi-cart-tabs">
+      <div class="tab" *ngFor="let basket of baskets; let i = index" [class.active]="activeBasket?.id === basket.id"
         (click)="selectBasket(basket)">
-        {{ basket.name }}
-        <span class="count">{{ basket.productCount || 0 }}</span>
+        <span class="tab-name">{{ basket.name }}</span>
+        <span class="tab-count">{{ basket.productCount || 0 }}</span>
+      </div>
+
+      <button class="add-tab" (click)="openCreatePopup()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+        </svg>
+        Новая корзина
+      </button>
     </div>
 
-    <!-- Кнопка добавления новой корзины -->
-    <button class="add-tab" (click)="openCreatePopup()">
-        + Новая корзина
-    </button>
-</div>
+    <!-- Прогресс бар -->
+    <div class="progress-steps">
+      <div class="step active">
+        <span class="step-number">1</span>
+        <span class="step-label">Корзина</span>
+      </div>
+      <div class="step-line"></div>
+      <div class="step" [class.disabled]="!canProceedToCheckout()">
+        <span class="step-number">2</span>
+        <span class="step-label">Оформление</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- Popup для создания корзины -->
+  <div class="popup-backdrop" *ngIf="isPopupOpen" (click)="closePopup()"></div>
 
-<!-- Popup для создания корзины -->
-<div class="popup-backdrop" *ngIf="isPopupOpen" (click)="closePopup()"></div>
-
-<div class="popup" *ngIf="isPopupOpen">
-    <h3>Создать новую корзину</h3>
+  <div class="popup" *ngIf="isPopupOpen">
+    <div class="popup-header">
+      <h3>Создать новую корзину</h3>
+      <button class="popup-close" (click)="closePopup()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
     <input type="text" placeholder="Введите название корзины" [(ngModel)]="newBasketName"
-        (keyup.enter)="confirmCreateBasket()" />
+      (keyup.enter)="confirmCreateBasket()" class="popup-input" />
     <div class="popup-actions">
-        <button class="cancel" (click)="closePopup()">Отмена</button>
-        <button class="confirm" (click)="confirmCreateBasket()">Создать</button>
+      <button class="popup-btn cancel" (click)="closePopup()">Отмена</button>
+      <button class="popup-btn confirm" (click)="confirmCreateBasket()" [disabled]="!newBasketName.trim()">
+        Создать
+      </button>
     </div>
-</div>
+  </div>
 
+  <!-- Основной контент -->
+  <div class="cart-content">
+    <div class="cart-stage">
+      <div class="products-section">
+        <!-- Заголовок с действиями -->
+        <div class="section-header">
+          <h2>Товары в корзине</h2>
 
-<div class="cart-layout">
-
-    <!-- Левый блок: товары -->
-    <div style="flex: 2; display: flex;
-    gap: 20px;">
-        <div class="products">
-
-            <div class="section">
-                <div class="cart-container">
-                    <h2>Товары в корзине</h2>
-
-                    <ng-container *ngIf="selectedProducts.size > 0">
-                        <div class="flex-row">
-                            <app-select-cart-button></app-select-cart-button>
-
-                            <button class="icon-btn remove" title="Удалить">
-                                <!-- Иконка мусорной корзины -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path
-                                        d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6Z" />
-                                </svg>
-                            </button>
-                        </div>
-                    </ng-container>
-                </div>
-
-
-                <app-product [product]="p" *ngFor="let p of activeBasket.products" class="product"
-                    [selected]="isSelected(p.id)" (selectionChange)="onProductSelected($event)"></app-product>
-
-                <div *ngIf="!activeBasket?.products?.length" class="empty-basket">
-                    <img src="https://avatars.mds.yandex.net/i?id=20b7d61e6c1a1ca1dc503ccbad50e2b8-5695679-images-thumbs&n=13" alt="Корзина пуста" />
-                    <h3>Корзина ждет ваших покупок 🛍️</h3>
-                    <p>Загляните в каталог — наверняка найдется что-то интересное!</p>
-                    <button class="browse-btn" (click)="router.navigate(['/'])">Посмотреть товары</button>
-                </div>
-
-
-
-                <div class="cart-footer">
-                    <button type="button" class="continue-btn">Продолжить покупки</button>
-                </div>
+          <div class="actions-bar" *ngIf="selectedProducts.size > 0">
+            <div class="select-all">
+              <app-select-cart-button></app-select-cart-button>
             </div>
 
-            <div class="section">
-                <!-- Форма заказа -->
-                <app-order-form></app-order-form>
-            </div>
-
+            <button class="action-btn delete-btn" (click)="removeSelectedProducts()" title="Удалить выбранные">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+              </svg>
+              Удалить выбранные
+            </button>
+          </div>
         </div>
 
-        <!-- Правый блок: итоги -->
-        <app-summary></app-summary>
+        <!-- Список товаров -->
+        <div class="products-list">
+          <ng-container *ngIf="activeBasket?.products?.length; else emptyBasket">
+            <app-product [product]="p" *ngFor="let p of activeBasket.products; trackBy: trackByProductId"
+              class="product-item" [selected]="isSelected(p.id)" (selectionChange)="onProductSelected($event)"
+              (quantityChange)="onQuantityChange($event)" (remove)="onProductRemove($event)"></app-product>
+          </ng-container>
 
+          <ng-template #emptyBasket>
+            <div class="empty-state">
+              <div class="empty-illustration">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+              </div>
+              <h3>Ваша корзина пуста</h3>
+              <p>Добавьте товары из каталога, чтобы продолжить покупки</p>
+              <button class="primary-btn" (click)="router.navigate(['/'])">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                </svg>
+                Перейти в каталог
+              </button>
+            </div>
+          </ng-template>
+        </div>
 
+        <!-- Кнопка перехода к оформлению -->
+        <div class="next-step-card" *ngIf="activeBasket?.products?.length">
+          <div class="next-step-content">
+            <div class="next-step-info">
+              <h4>Готовы оформить заказ?</h4>
+              <p>Проверьте выбранные товары и перейдите к заполнению данных</p>
+            </div>
+            <div class="next-step-actions">
+              <div class="total-preview">
+                <span class="label">Итого:</span>
+                <span class="amount">{{ calculateTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
+              </div>
+              <button class="primary-btn continue-btn" 
+                      (click)="proceedToCheckout()"
+                      [disabled]="!canProceedToCheckout()">
+                <span>Перейти к оформлению</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+</div>

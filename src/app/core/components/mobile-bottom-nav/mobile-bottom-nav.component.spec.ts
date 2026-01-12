@@ -8,9 +8,8 @@ describe('MobileBottomNavComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MobileBottomNavComponent]
-    })
-    .compileComponents();
+      imports: [MobileBottomNavComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MobileBottomNavComponent);
     component = fixture.componentInstance;

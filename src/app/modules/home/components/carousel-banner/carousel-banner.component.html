@@ -1,19 +1,113 @@
-<div class="carousel">
-  <div class="carousel__item" *ngFor="let slide of slides; let i = index" [class.active]="i === activeIndex">
-    <img [src]="slide.image" alt="banner" />
-    <div class="carousel__caption">
-      <h3>{{ slide.title }}</h3>
-      <p>{{ slide.subtitle }}</p>
+<!-- carousel-banner.component.html -->
+<div class="carousel" (mouseenter)="pauseAutoRotate()" (mouseleave)="resumeAutoRotate()">
+  <div class="carousel__track" [style.transform]="'translateX(-' + activeIndex * 100 + '%)'">
+    <!-- Дублируем последний слайд в начало для бесконечности -->
+    <div
+      class="carousel__slide"
+      *ngFor="let slide of slidesWithDuplicates; let i = index"
+      [class.active]="i === activeIndex + 1"
+      [attr.data-index]="i"
+    >
+      <div class="slide__image">
+        <img 
+          [src]="slide.image" 
+          [alt]="slide.title || 'Banner image'"
+          (load)="onImageLoad()"
+          (error)="onImageError($event, i)"
+        />
+        <div class="image__overlay"></div>
+      </div>
+      
+      <!-- <div class="slide__content" [class.visible]="i === activeIndex + 1">
+        <div class="content__inner">
+          <span class="slide__badge" *ngIf="slide.badge">
+            {{ slide.badge }}
+          </span>
+          
+          <h2 class="slide__title" *ngIf="slide.title">
+            {{ slide.title }}
+          </h2>
+          
+          <p class="slide__subtitle" *ngIf="slide.subtitle">
+            {{ slide.subtitle }}
+          </p>
+          
+          <div class="slide__actions" *ngIf="slide.buttonText">
+            <button 
+              class="slide__button" 
+              (click)="handleButtonClick(slide)"
+              [attr.aria-label]="'Перейти к ' + slide.buttonText"
+            >
+              {{ slide.buttonText }}
+              <svg class="button__icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            
+            <span class="slide__note" *ngIf="slide.note">
+              {{ slide.note }}
+            </span>
+          </div>
+        </div>
+      </div> -->
     </div>
   </div>
 
-  <button class="carousel__prev" (click)="prevSlide()"><i class="fas fa-chevron-left"></i></button>
-  <button class="carousel__next" (click)="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+  <!-- Навигационные кнопки -->
+  <button 
+    class="carousel__nav carousel__prev" 
+    (click)="prevSlide()"
+    aria-label="Previous slide"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+  
+  <button 
+    class="carousel__nav carousel__next" 
+    (click)="nextSlide()"
+    aria-label="Next slide"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
 
-<div class="carousel__dots">
-  <span *ngFor="let slide of slides; let i = index"
-        [class.active]="i === activeIndex"
-        (click)="activeIndex = i"></span>
-</div>
+  <!-- Индикаторы прогресса -->
+  <div class="carousel__progress">
+    <div class="progress__bar" [style.width]="progress + '%'"></div>
+  </div>
 
+  <!-- Индикаторы (точки) -->
+  <div class="carousel__indicators">
+    <div class="indicators__container">
+      <button
+        *ngFor="let slide of slides; let i = index"
+        class="indicator"
+        [class.active]="i === displayIndex"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Перейти к слайду ' + (i + 1)"
+      >
+        <div class="indicator__progress" *ngIf="i === displayIndex">
+          <div class="indicator__fill" [style.width]="progress + '%'"></div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Информация о слайдах -->
+  <div class="carousel__info">
+    <div class="info__current">
+      <span class="info__number">{{ displayIndex + 1 }}</span>
+      <span class="info__separator">/</span>
+      <span class="info__total">{{ slides.length }}</span>
+    </div>
+    <button class="info__pause" (click)="toggleAutoRotate()" [attr.aria-label]="autoRotate ? 'Pause slideshow' : 'Play slideshow'">
+      <svg [class.paused]="!autoRotate" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path *ngIf="autoRotate" d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z" fill="currentColor"/>
+        <path *ngIf="!autoRotate" d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
 </div>

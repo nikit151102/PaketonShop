@@ -1,67 +1,299 @@
-<div class="questions-container">
-
-  <!-- Загрузка -->
-  <ng-container *ngIf="loading">
-    <p class="info">Загрузка вопросов...</p>
-  </ng-container>
-
-  <!-- Ошибка -->
-  <ng-container *ngIf="!loading && error">
-    <p class="error">{{ error }}</p>
-  </ng-container>
-
-  <!-- Список вопросов -->
-  <ng-container *ngIf="!loading && !error && data.length > 0">
-    <div *ngFor="let q of data" class="question-card">
-
-      <!-- Хедер вопроса -->
-      <div class="question-header">
-        <img class="question-avatar" [src]="q.product.productImageLink" alt="User Avatar">
-        <div class="header-right">
-          <span class="question-user">{{ q.requestMessage.userName || 'Пользователь' }}</span>
-          <span class="question-date">{{ q.requestMessage.dateTime | date:'dd.MM.yyyy HH:mm' }}</span>
+<div class="questions-module">
+  <!-- Заголовок и статистика -->
+  <div class="module-header">
+    <div class="header-main">
+      <div class="title-section">
+        <svg class="title-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
+        </svg>
+        <div>
+          <h2 class="module-title">Вопросы и ответы</h2>
+          <p class="module-subtitle">Задайте вопрос о товаре и посмотрите ответы на часто задаваемые вопросы</p>
         </div>
       </div>
-
-      <!-- Текст вопроса -->
-      <p class="question-text">{{ q.requestMessage.text }}</p>
-
-      <!-- Лайки / Дизлайки -->
-      <div class="question-actions">
-        <button class="like-btn" (click)="like(q)">
-          👍 <span>{{ q.requestMessage.likeCount || 0 }}</span>
-        </button>
-        <button class="dislike-btn" (click)="dislike(q)">
-          👎 <span>{{ q.requestMessage.dislikeCount || 0 }}</span>
-        </button>
-      </div>
-
-      <!-- Ответ -->
-      <div class="question-answer" *ngIf="q.responseMessage">
-        <div class="answer-header">
-          <img class="answer-avatar" src="https://i.pravatar.cc/50?img=10" alt="Brand Avatar">
-          <span class="answer-label">Ответ бренда</span>
-        </div>
-        <p class="answer-text">{{ q.responseMessage.text }}</p>
-      </div>
-
+      <!-- <div class="stats-badge" *ngIf="!loading && !error">
+        <span class="stats-count">{{ totalQuestions }}</span>
+        <span class="stats-label">{{ totalQuestions | i18nPlural: {
+          '=0': 'вопросов',
+          '=1': 'вопрос',
+          '=2': 'вопроса',
+          '=3': 'вопроса',
+          '=4': 'вопроса',
+          'other': 'вопросов'
+          } }}</span>
+      </div> -->
     </div>
-  </ng-container>
 
-  <!-- Нет вопросов -->
-  <ng-container *ngIf="!loading && !error && data.length === 0">
-    <p class="info">Пока нет вопросов по этому товару.</p>
-  </ng-container>
-
-  <!-- Форма создания вопроса -->
-  <div class="question-form">
-    <h4>Задать вопрос</h4>
-    <textarea [(ngModel)]="newQuestion" placeholder="Напишите ваш вопрос..." rows="3"
-      class="question-textarea"></textarea>
-
-    <button class="question-submit" (click)="createQuestion()">
-      {{ sending ? 'Отправка...' : 'Отправить' }}
-    </button>
+    <div class="header-actions">
+      <button class="ask-question-btn" (click)="toggleQuestionForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+        </svg>
+        {{ showQuestionForm ? 'Скрыть форму' : 'Задать вопрос' }}
+      </button>
+    </div>
   </div>
 
+  <!-- Индикатор загрузки -->
+  <div class="loading-state" *ngIf="loading && questions.length === 0">
+    <div class="loading-content">
+      <div class="spinner-wrapper">
+        <div class="spinner"></div>
+      </div>
+      <p class="loading-text">Загружаем вопросы...</p>
+    </div>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div class="error-state" *ngIf="error">
+    <div class="error-content">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+      </div>
+      <div class="error-details">
+        <h3>Не удалось загрузить вопросы</h3>
+        <p>{{ error }}</p>
+      </div>
+      <button class="retry-btn" (click)="loadQuestions()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+        </svg>
+        Попробовать снова
+      </button>
+    </div>
+  </div>
+
+  <!-- Форма нового вопроса -->
+  <div class="question-form-section" *ngIf="showQuestionForm" @fadeIn>
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-title-section">
+          <h3 class="form-title">Задать вопрос о товаре</h3>
+          <p class="form-subtitle">Продавец ответит вам в течение 24 часов</p>
+        </div>
+        <button class="close-form-btn" (click)="toggleQuestionForm()" title="Закрыть">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-body">
+        <div class="form-group">
+          <label class="form-label">
+            Ваш вопрос
+            <span class="char-count">{{ newQuestion.length }}/500</span>
+          </label>
+          <textarea class="form-textarea" [(ngModel)]="newQuestion"
+            placeholder="Например: Какой у него срок годности? Или: Подойдет ли для...?" rows="3" maxlength="500"
+            #questionInput (input)="onQuestionInput()">
+          </textarea>
+
+          <div class="form-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+            </svg>
+            Будьте конкретны — так продавец сможет дать точный ответ
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="option-toggle">
+            <input type="checkbox" [(ngModel)]="isAnonymous" class="toggle-input">
+            <span class="toggle-slider">
+              <span class="toggle-dot"></span>
+            </span>
+            <span class="option-label">
+              <strong>Опубликовать анонимно</strong>
+              <span class="option-description">Ваше имя и аватар не будут видны другим</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn-secondary" (click)="toggleQuestionForm()" [disabled]="sending">
+          Отмена
+        </button>
+        <button class="btn-primary" (click)="createQuestion()"
+          [disabled]="!newQuestion.trim() || sending || newQuestion.length > 500" [class.loading]="sending">
+          <span class="btn-text" *ngIf="!sending">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+            Отправить вопрос
+          </span>
+          <span class="btn-text loading" *ngIf="sending">
+            <div class="btn-spinner"></div>
+            Отправка...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Список вопросов -->
+  <div class="questions-list" *ngIf="!loading && !error">
+    <!-- Сообщение о пустом списке -->
+    <div class="empty-state" *ngIf="questions.length === 0">
+      <div class="empty-illustration">
+        <svg viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="80" fill="#F0F4FF" />
+          <path
+            d="M70 80C70 73.3726 75.3726 68 82 68H118C124.627 68 130 73.3726 130 80V120C130 126.627 124.627 132 118 132H82C75.3726 132 70 126.627 70 120V80Z"
+            fill="white" stroke="#667eea" stroke-width="2" />
+          <circle cx="100" cy="95" r="8" fill="#667eea" />
+          <circle cx="100" cy="115" r="8" fill="#667eea" />
+        </svg>
+      </div>
+      <div class="empty-content">
+        <h3>Пока нет вопросов</h3>
+        <p>Станьте первым, кто задаст вопрос об этом товаре. Это поможет другим покупателям!</p>
+        <button class="empty-action-btn" (click)="toggleQuestionForm()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          Задать первый вопрос
+        </button>
+      </div>
+    </div>
+
+    <!-- Вопросы -->
+    <div class="question-item" *ngFor="let q of questions; let i = index" [class.answered]="q.responseMessage"
+      [class.featured]="i < 2 && q.responseMessage">
+      <div class="question-card">
+        <!-- Верхняя часть вопроса -->
+        <div class="question-header">
+          <div class="user-info">
+            <div class="user-avatar" [class.anonymous]="q.requestMessage?.isAnonymous">
+              <img [src]="getUserAvatar(q.requestMessage?.userInstance)" [alt]="getUserDisplayName(q.requestMessage)"
+                loading="lazy" />
+              <div class="avatar-status" *ngIf="!q.requestMessage?.isAnonymous">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+              </div>
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ getUserDisplayName(q.requestMessage) }}</span>
+              <span class="user-date">{{ formatDate(q.requestMessage?.dateTime) }}</span>
+            </div>
+          </div>
+
+          <div class="question-badge" *ngIf="q.responseMessage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+            Есть ответ
+          </div>
+        </div>
+
+        <!-- Текст вопроса -->
+        <div class="question-body">
+          <div class="question-text">{{ q.requestMessage?.text }}</div>
+
+          <!-- Действия -->
+          <div class="question-actions">
+            <div class="rating-widget" [ngClass]="getRatingButtonsClass(q)">
+              <button class="rating-btn like" (click)="like(q)"
+                [disabled]="!q.requestMessage?.id || likingQuestions.has(q.id)">
+                <svg class="rating-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+                <span class="rating-count">{{ q.requestMessage?.likeCount || 0 }}</span>
+              </button>
+
+              <div class="rating-separator"></div>
+
+              <button class="rating-btn dislike" (click)="dislike(q)"
+                [disabled]="!q.requestMessage?.id || dislikingQuestions.has(q.id)">
+                <svg class="rating-icon" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2.65l1.45 1.32C18.6 8.64 22 11.72 22 15.5c0 3.08-2.42 5.5-5.5 5.5-1.74 0-3.41-.81-4.5-2.09C10.91 20.19 9.24 21 7.5 21 4.42 21 2 18.58 2 15.5c0-3.78 3.4-6.86 8.55-11.54L12 2.65z" />
+                </svg>
+                <span class="rating-count">{{ q.requestMessage?.dislikeCount || 0 }}</span>
+              </button>
+            </div>
+
+            <!-- <button class="action-reply" *ngIf="!q.responseMessage" (click)="scrollToForm()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
+              </svg>
+              Ответить
+            </button> -->
+          </div>
+        </div>
+
+        <!-- Ответ (если есть) -->
+        <div class="answer-section" *ngIf="q.responseMessage">
+          <div class="answer-card">
+            <div class="answer-header">
+              <div class="brand-avatar">
+                <img [src]="q.product?.productImageLink || 'assets/brand-default.svg'" alt="Ответ бренда" loading="lazy"
+                  onerror="this.src='assets/brand-default.svg'" />
+              </div>
+              <div class="answer-info">
+                <div class="brand-info">
+                  <span class="brand-name">{{ q.product?.fullName || 'Продавец' }}</span>
+                  <span class="brand-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+                    </svg>
+                    Продавец
+                  </span>
+                </div>
+                <span class="answer-date">{{ formatDate(q.responseMessage.dateTime) }}</span>
+              </div>
+            </div>
+            <div class="answer-text">{{ q.responseMessage.text }}</div>
+
+            <div class="answer-actions">
+              <button class="answer-helpful" (click)="markHelpful(q)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                Ответ был полезен
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пагинация / Загрузка еще -->
+    <div class="questions-pagination">
+      <div class="pagination-info" *ngIf="questions.length > 0">
+        Показано {{ questions.length }} из {{ totalQuestions }} вопросов
+      </div>
+
+      <div class="load-more-container" *ngIf="hasMoreQuestions">
+        <button class="load-more-btn" (click)="loadMoreQuestions()" [disabled]="loadingMore"
+          [class.loading]="loadingMore">
+          <span class="btn-content">
+            <svg *ngIf="!loadingMore" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+            </svg>
+            {{ loadingMore ? 'Загрузка...' : 'Показать еще' }}
+          </span>
+        </button>
+      </div>
+
+      <div class="back-to-top" *ngIf="questions.length > 5">
+        <button class="back-to-top-btn" (click)="scrollToTop()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+          </svg>
+          Наверх
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

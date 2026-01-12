@@ -1,5 +1,4 @@
-import { environment } from "../environment";
-
+import { environment } from '../environment';
 
 /**
  * Уровни логирования
@@ -135,7 +134,7 @@ export class Logger {
   public httpError(
     message: string,
     error: any,
-    context: { url?: string; status?: number } = {}
+    context: { url?: string; status?: number } = {},
   ): void {
     const { url, status } = context;
     const errorMessage = [
@@ -156,7 +155,7 @@ export class Logger {
   public componentLifecycle(
     componentName: string,
     lifecycle: 'OnInit' | 'OnDestroy' | 'OnChanges',
-    data?: any
+    data?: any,
   ): void {
     this.debug(`Component ${componentName} ${lifecycle}`, data);
   }
@@ -170,7 +169,11 @@ export const logger = new Logger('App');
 /**
  * Декоратор для логирования методов класса
  */
-export function LogMethod(target: any, key: string, descriptor: PropertyDescriptor) {
+export function LogMethod(
+  target: any,
+  key: string,
+  descriptor: PropertyDescriptor,
+) {
   const originalMethod = descriptor.value;
   const className = target.constructor.name;
 
@@ -199,7 +202,7 @@ export function LogMethod(target: any, key: string, descriptor: PropertyDescript
  */
 export function logExecutionTime<T>(
   fn: (...args: any[]) => T,
-  context: string = 'Execution'
+  context: string = 'Execution',
 ): (...args: any[]) => T {
   return (...args: any[]) => {
     const start = performance.now();
@@ -217,16 +220,14 @@ export function logExecutionTime<T>(
       return result;
     } catch (e) {
       const end = performance.now();
-      logger.error(`${context} failed after ${(end - start).toFixed(2)}ms`, e as Error);
+      logger.error(
+        `${context} failed after ${(end - start).toFixed(2)}ms`,
+        e as Error,
+      );
       throw e;
     }
   };
 }
-
-
-
-
-
 
 // Как использовать:
 // Базовое логирование:
@@ -238,17 +239,14 @@ export function logExecutionTime<T>(
 // logger.error('Payment failed', error);
 // logger.critical('Database connection lost', error);
 
-
-
 // HTTP-ошибки:
 // typescript
 // this.http.get('/api/data').subscribe({
-//   error: (err) => logger.httpError('API request failed', err, { 
+//   error: (err) => logger.httpError('API request failed', err, {
 //     url: '/api/data',
-//     status: err.status 
+//     status: err.status
 //   })
 // });
-
 
 // Логирование методов:
 // typescript
@@ -256,7 +254,6 @@ export function logExecutionTime<T>(
 // public calculateTotal(items: CartItem[]): number {
 //   // логика расчета
 // }
-
 
 // Замер времени выполнения:
 // typescript

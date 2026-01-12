@@ -8,17 +8,14 @@
         *ngFor="let lvl of loyaltyLevels; let i = index"
         [class.active]="currentAmount >= lvl.min"
       >
-      <img class="crown" [src]="lvl.crown" alt="">
+        <img class="crown" [src]="lvl.crown" alt="" />
         <span class="label">{{ lvl.name }}</span>
         <span class="range">{{ lvl.min | number }} ₽</span>
       </div>
     </div>
 
     <div class="progress-bar">
-      <div
-        class="progress-fill"
-        [style.width.%]="progressPercent"
-      ></div>
+      <div class="progress-fill" [style.width.%]="progressPercent"></div>
     </div>
   </div>
 
@@ -43,9 +40,7 @@
       <div class="icon">⬆️</div>
       <div class="text">
         <p class="title">До следующего уровня</p>
-        <p class="value">
-          {{ nextLevel.min - currentAmount | number }} ₽
-        </p>
+        <p class="value">{{ nextLevel.min - currentAmount | number }} ₽</p>
       </div>
     </div>
 

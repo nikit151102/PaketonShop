@@ -7,10 +7,9 @@ import { ProductFavoriteService } from '../../../../core/api/product-favorite.se
   selector: 'app-products-favorite',
   imports: [CommonModule, ProductComponent],
   templateUrl: './products-favorite.component.html',
-  styleUrl: './products-favorite.component.scss'
+  styleUrl: './products-favorite.component.scss',
 })
 export class ProductsFavoriteComponent implements OnInit {
-
   products: any[] = [];
   currentPage: number = 0;
   pageSize: number = 20;
@@ -23,31 +22,34 @@ export class ProductsFavoriteComponent implements OnInit {
     this.loadProducts();
   }
 
- loadProducts(): void {
-  if (this.loading) return;
+  loadProducts(): void {
+    if (this.loading) return;
 
-  this.loading = true;
+    this.loading = true;
 
-  const filters: any[] = [];
+    const filters: any[] = [];
 
-  this.productFavoriteService.getFavorites(filters, null, this.currentPage, this.pageSize).subscribe({
-    next: (res) => {
-      if (res && Array.isArray(res.data)) {
-        this.products = [...this.products, ...res.data];
-      } else {
-        console.warn('Сервер вернул пустые данные или неверный формат:', res);
-      }
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Ошибка при загрузке продуктов:', err);
-      this.loading = false;
-    }
-  });
-}
+    this.productFavoriteService
+      .getFavorites(filters, null, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (res) => {
+          if (res && Array.isArray(res.data)) {
+            this.products = [...this.products, ...res.data];
+          } else {
+            console.warn(
+              'Сервер вернул пустые данные или неверный формат:',
+              res,
+            );
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Ошибка при загрузке продуктов:', err);
+          this.loading = false;
+        },
+      });
+  }
 
-
-  
   @HostListener('window:scroll', ['$event'])
   onScroll(): void {
     const scrollPosition = window.scrollY + window.innerHeight;
@@ -58,5 +60,4 @@ export class ProductsFavoriteComponent implements OnInit {
       this.loadProducts();
     }
   }
-
 }

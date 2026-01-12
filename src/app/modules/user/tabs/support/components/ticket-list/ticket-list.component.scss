@@ -1,0 +1,193 @@
+@import '../../support.component.scss';
+
+.ticket-list-container {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+// Header
+.list-header {
+  padding: 20px;
+  border-bottom: 1px solid $gray-200;
+  background: white;
+  border-radius: $radius $radius 0 0;
+  
+  .search-box {
+    position: relative;
+    margin-bottom: 16px;
+    
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: $gray-400;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: 2px solid $gray-200;
+      border-radius: $radius;
+      font-size: 14px;
+      color: $dark;
+      background: $light;
+      transition: $transition;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary;
+        background: white;
+      }
+      
+      &::placeholder {
+        color: $gray-400;
+      }
+    }
+  }
+  
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: $gray-300;
+      border-radius: 2px;
+    }
+    
+    .filter-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: $gray-100;
+      border: 1px solid transparent;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: $gray-600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: $transition;
+      
+      &:hover {
+        background: $gray-200;
+      }
+      
+      &.active {
+        background: $primary;
+        color: white;
+        border-color: $primary;
+        
+        .tab-count {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+      }
+      
+      .tab-label {
+        font-weight: 500;
+      }
+      
+      .tab-count {
+        padding: 2px 6px;
+        background: white;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Tickets Scroll Area
+.tickets-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $gray-300;
+    border-radius: 3px;
+  }
+  
+  .empty-list {
+    text-align: center;
+    padding: 40px 20px;
+    
+    .empty-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 16px;
+      color: $gray-300;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .empty-text {
+      margin: 0;
+      color: $gray-500;
+      font-size: 14px;
+    }
+  }
+}
+
+// Footer
+.list-footer {
+  padding: 16px 20px;
+  border-top: 1px solid $gray-200;
+  background: white;
+  border-radius: 0 0 $radius $radius;
+  
+  .footer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: $gray-500;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+      color: $gray-400;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .list-header {
+    padding: 16px;
+  }
+  
+  .tickets-scroll {
+    padding: 12px;
+  }
+}

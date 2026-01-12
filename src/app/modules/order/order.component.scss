@@ -1,0 +1,971 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Переменные
+$primary-gradient: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
+$secondary-gradient: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
+$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$error-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+$primary-color: #3c8a27;
+$primary-light: rgba(102, 126, 234, 0.1);
+$secondary-color: #327120;
+$success-color: #10b981;
+$error-color: #ef4444;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
+
+$bg-white: #ffffff;
+$bg-light: #f8fafc;
+$bg-lighter: #f1f5f9;
+$bg-dark: #0f172a;
+$bg-card: rgba(255, 255, 255, 0.95);
+
+$text-primary: #1a1a1a;
+$text-secondary: #4a5568;
+$text-muted: #718096;
+$text-light: #94a3b8;
+$text-white: #ffffff;
+
+$border-color: #e2e8f0;
+$border-light: rgba(226, 232, 240, 0.5);
+$border-dark: rgba(0, 0, 0, 0.08);
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-full: 50%;
+
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
+
+$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Анимации
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes progressFill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+// Основные стили
+.order-container {
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+
+// Прогресс шагов
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 80px;
+    
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: $bg-light;
+      border: 2px solid $border-color;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: $text-muted;
+      font-size: 14px;
+      transition: $transition-base;
+      
+      &.pulse {
+        animation: pulse 2s infinite;
+      }
+      
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+    
+    .step-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: $text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: $transition-base;
+    }
+    
+    &.active {
+      .step-number {
+        background: $primary-gradient;
+        border-color: $primary-color;
+        color: white;
+        box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+      }
+      
+      .step-label {
+        color: $primary-color;
+        font-weight: 600;
+      }
+    }
+    
+    &.completed {
+      .step-number {
+        background: $success-gradient;
+        border-color: $success-color;
+        color: white;
+      }
+      
+      .step-label {
+        color: $success-color;
+      }
+    }
+    
+    &.disabled {
+      opacity: 0.5;
+    }
+  }
+  
+  .step-line {
+    width: 40px;
+    height: 2px;
+    background: $border-color;
+    margin: 0 4px;
+    
+    &.completed {
+      background: $success-color;
+    }
+  }
+}
+
+// Основной контент
+.order-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
+}
+
+.order-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+// Левая часть: Форма оформления
+.order-form-section {
+  .order-form-header {
+    background: $bg-white;
+    border-radius: $radius-xl;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 1px solid $border-light;
+    box-shadow: $shadow-md;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    animation: slideIn 0.4s ease;
+    
+    @media (max-width: 768px) {
+      padding: 24px;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .form-header-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
+      border-radius: $radius-lg;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+      flex-shrink: 0;
+      
+      svg {
+        width: 28px;
+        height: 28px;
+      }
+    }
+    
+    .form-header-content {
+      flex: 1;
+      
+      .form-title {
+        margin: 0 0 8px;
+        font-size: 28px;
+        font-weight: 700;
+        color: $text-primary;
+        line-height: 1.2;
+      }
+      
+      .form-subtitle {
+        margin: 0 0 16px;
+        font-size: 16px;
+        color: $text-secondary;
+        line-height: 1.5;
+      }
+      
+      .order-progress {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 16px;
+        background: $bg-light;
+        border-radius: $radius-md;
+        border: 1px solid $border-light;
+        
+        .order-count {
+          font-weight: 600;
+          color: $text-primary;
+          font-size: 14px;
+        }
+        
+        .order-total {
+          font-weight: 700;
+          color: $primary-color;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}
+
+.order-form-container {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-light;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+}
+
+// Правая часть: Итоги и чек
+.order-summary-section {
+  .summary-sticky {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      position: static;
+    }
+  }
+}
+
+// Мини-корзина
+.mini-cart-card {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-light;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  animation: slideIn 0.4s ease 0.1s both;
+  
+  .mini-cart-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), transparent);
+    border-bottom: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    svg {
+      color: $primary-color;
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      flex: 1;
+    }
+    
+    .cart-count {
+      background: $primary-color;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+  
+  .mini-cart-items {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 4px;
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 2px;
+    }
+  }
+  
+  .mini-cart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: $radius-md;
+    transition: $transition-base;
+    
+    &:hover {
+      background: $bg-light;
+    }
+    
+    &:not(:last-child) {
+      border-bottom: 1px solid $border-light;
+    }
+    
+    .product-image {
+      .image-placeholder {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
+        border-radius: $radius-md;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+      }
+    }
+    
+    .product-details {
+      flex: 1;
+      
+      .product-name {
+        display: block;
+        font-weight: 500;
+        color: $text-primary;
+        font-size: 14px;
+        margin-bottom: 4px;
+        line-height: 1.3;
+      }
+      
+      .product-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: $text-muted;
+        
+        .product-qty {
+          background: $bg-light;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: 500;
+        }
+        
+        .product-unit {
+          color: $text-secondary;
+        }
+      }
+    }
+    
+    .product-total {
+      font-weight: 600;
+      color: $text-primary;
+      font-size: 15px;
+      min-width: 60px;
+      text-align: right;
+    }
+  }
+}
+
+// Итоговый чек
+.receipt-card {
+  background: $bg-white;
+  border-radius: $radius-xl;
+  border: 1px solid $border-light;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  animation: slideIn 0.4s ease 0.2s both;
+  
+  .receipt-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+    border-bottom: 1px solid $border-light;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+    
+    .receipt-time {
+      font-size: 12px;
+      color: $text-muted;
+      background: $bg-light;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  }
+  
+  .receipt-items {
+    padding: 24px;
+    
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      
+      .receipt-label {
+        font-size: 14px;
+        color: $text-secondary;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        svg {
+          color: $success-color;
+        }
+      }
+      
+      .receipt-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-primary;
+      }
+      
+      &.discount {
+        .receipt-value {
+          color: $success-color;
+          font-weight: 600;
+        }
+      }
+      
+      &.total {
+        padding: 16px 0 0;
+        margin-top: 16px;
+        border-top: 2px dashed $border-color;
+        
+        .receipt-label {
+          font-size: 16px;
+          font-weight: 600;
+          color: $text-primary;
+        }
+        
+        .receipt-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: $primary-color;
+        }
+      }
+    }
+    
+    .receipt-divider {
+      height: 1px;
+      background: $border-light;
+      margin: 12px 0;
+    }
+  }
+  
+  .saving-progress {
+    padding: 0 24px 24px;
+    
+    .progress-bar {
+      height: 4px;
+      background: $bg-light;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
+        animation: progressFill 2s ease-in-out infinite;
+      }
+    }
+    
+    .progress-text {
+      font-size: 12px;
+      color: $text-muted;
+      text-align: center;
+      display: block;
+    }
+  }
+}
+
+// Бейджи безопасности
+.security-badges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  animation: slideIn 0.4s ease 0.3s both;
+  
+  .badge {
+    background: $bg-white;
+    border: 1px solid $border-light;
+    border-radius: $radius-lg;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: $transition-base;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+      border-color: $primary-color;
+    }
+    
+    .badge-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: $radius-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+    
+    .badge-content {
+      .badge-title {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: $text-primary;
+        margin-bottom: 2px;
+      }
+      
+      .badge-subtitle {
+        display: block;
+        font-size: 11px;
+        color: $text-muted;
+      }
+    }
+  }
+}
+
+// Кнопки действий
+.action-buttons {
+  animation: slideIn 0.4s ease 0.4s both;
+  
+  .action-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 24px;
+    border-radius: $radius-lg;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: $transition-base;
+    border: none;
+    margin-bottom: 12px;
+    
+    &.edit-btn {
+      background: $bg-light;
+      color: $text-secondary;
+      border: 2px solid $border-color;
+      
+      &:hover {
+        background: darken($bg-light, 3%);
+        color: $text-primary;
+        border-color: $primary-color;
+      }
+    }
+    
+    &.checkout-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      }
+      
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      
+      &.loading {
+        .btn-content {
+          opacity: 0.8;
+        }
+      }
+      
+      .btn-content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        .btn-spinner {
+          animation: spin 1s linear infinite;
+        }
+      }
+      
+      .btn-total {
+        position: absolute;
+        right: 24px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+    }
+  }
+  
+  .action-hint {
+    font-size: 11px;
+    color: $text-muted;
+    text-align: center;
+    margin: 12px 0 0;
+    line-height: 1.4;
+    
+    .action-link {
+      color: $primary-color;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Уведомление об успешном создании заказа
+.notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+  
+  .notification-modal {
+    background: $bg-white;
+    border-radius: $radius-xl;
+    max-width: 480px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: $shadow-xl;
+    animation: scaleIn 0.3s ease;
+    
+    .notification-header {
+      padding: 24px 24px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      
+      .notification-icon {
+        &.success {
+          color: $success-color;
+        }
+      }
+      
+      .notification-close {
+        background: $bg-light;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: $radius-md;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $text-muted;
+        cursor: pointer;
+        transition: $transition-base;
+        
+        &:hover {
+          background: $primary-color;
+          color: white;
+        }
+      }
+    }
+    
+    .notification-content {
+      padding: 0 24px 24px;
+      
+      h3 {
+        margin: 0 0 12px;
+        font-size: 20px;
+        font-weight: 600;
+        color: $text-primary;
+      }
+      
+      p {
+        margin: 0 0 20px;
+        font-size: 15px;
+        color: $text-secondary;
+        line-height: 1.5;
+      }
+      
+      .notification-details {
+        background: $bg-light;
+        border-radius: $radius-md;
+        padding: 16px;
+        
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          
+          &:not(:last-child) {
+            border-bottom: 1px solid $border-light;
+          }
+          
+          .detail-label {
+            font-size: 14px;
+            color: $text-muted;
+          }
+          
+          .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: $text-primary;
+          }
+        }
+      }
+    }
+    
+    .notification-actions {
+      padding: 24px;
+      border-top: 1px solid $border-light;
+      display: flex;
+      gap: 12px;
+      
+      .notification-btn {
+        flex: 1;
+        padding: 14px 24px;
+        border-radius: $radius-md;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: $transition-base;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        
+        &.secondary {
+          background: $bg-light;
+          color: $text-secondary;
+          
+          &:hover {
+            background: darken($bg-light, 3%);
+            color: $text-primary;
+          }
+        }
+        
+        &.primary {
+          background: $primary-gradient;
+          color: white;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Лоадер
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+  
+  .loader-container {
+    text-align: center;
+    
+    .loader-spinner {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+      
+      .spinner-circle {
+        width: 12px;
+        height: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+        
+        &:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        
+        &:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+      }
+    }
+    
+    .loader-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: $text-primary;
+    }
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .order-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .order-form-header {
+    .form-title {
+      font-size: 24px !important;
+    }
+  }
+  
+  .security-badges {
+    grid-template-columns: 1fr;
+  }
+  
+  .notification-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .progress-steps {
+    .step {
+      min-width: 70px;
+      
+      .step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+      
+      .step-label {
+        font-size: 10px;
+      }
+    }
+    
+    .step-line {
+      width: 30px;
+    }
+  }
+  
+  .order-content {
+    padding: 20px 12px;
+  }
+  
+  .order-form-header {
+    padding: 20px !important;
+    
+    .form-title {
+      font-size: 22px !important;
+    }
+  }
+}

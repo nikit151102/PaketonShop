@@ -2,15 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment';
-import { UserQuestionCreateDTO, QuestionQueryDto, UserQuestionDto } from '../../../models/questions.interface';
+import {
+  UserQuestionCreateDTO,
+  QuestionQueryDto,
+  UserQuestionDto,
+} from '../../../models/questions.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserQuestionsService {
   private baseUrl = `${environment.production}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Создать новый вопрос по товару
@@ -29,7 +33,7 @@ export class UserQuestionsService {
   getUserQuestions(queryDto: QuestionQueryDto): Observable<UserQuestionDto[]> {
     return this.http.post<UserQuestionDto[]>(
       `${this.baseUrl}/api/Profile/UserQuestions`,
-      queryDto
+      queryDto,
     );
   }
 
@@ -40,26 +44,27 @@ export class UserQuestionsService {
    * @param pageSize Размер страницы
    * @returns Observable с массивом вопросов по товару
    */
-  getQuestionsByProduct(productId: string, page: number = 0, pageSize: number = 20): Observable<any> {
+  getQuestionsByProduct(
+    productId: string,
+    page: number = 0,
+    pageSize: number = 20,
+  ): Observable<any> {
     const body: QuestionQueryDto = {
-      filters: [
-        { field: 'ProductId', values: [productId], type: 10 }
-      ],
+      filters: [{ field: 'ProductId', values: [productId], type: 10 }],
       page,
-      pageSize
+      pageSize,
     };
 
     return this.http.post<UserQuestionDto[]>(
       `${this.baseUrl}/api/Entities/UserQuestion/Filter`,
-      body
+      body,
     );
   }
 
-
-  SetRate(data: { id: string, rateValue: number }) {
+  SetRate(data: { id: string; rateValue: number }) {
     return this.http.put<any>(
       `${this.baseUrl}/api/Entities/UserQuestion/setRate`,
-      data
+      data,
     );
   }
 }

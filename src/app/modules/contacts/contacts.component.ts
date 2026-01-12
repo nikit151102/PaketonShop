@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { StoreService } from './store.service';
 import { FormsModule } from '@angular/forms';
-import { PhoneLinkPipe } from "./phone-link.pipe";
-import { WhatsappLinkPipe } from "./whatsapp-link.pipe";
+import { PhoneLinkPipe } from './phone-link.pipe';
+import { WhatsappLinkPipe } from './whatsapp-link.pipe';
 
 declare var ymaps: any;
 
@@ -12,7 +12,7 @@ declare var ymaps: any;
   standalone: true,
   imports: [CommonModule, FormsModule, PhoneLinkPipe, WhatsappLinkPipe],
   templateUrl: './contacts.component.html',
-  styleUrl: './contacts.component.scss'
+  styleUrl: './contacts.component.scss',
 })
 export class ContactsComponent implements OnInit {
   stores: any[] = [];
@@ -26,7 +26,7 @@ export class ContactsComponent implements OnInit {
     '+7 (3852) 555-861',
     '+7 (3852) 555-862',
     '+7 (3852) 555-863',
-    '+7 903 937 31 10'
+    '+7 903 937 31 10',
   ];
   whatsapp = '+7 905 084-51-88';
   email = 'paketon@bk.ru';
@@ -37,7 +37,7 @@ export class ContactsComponent implements OnInit {
   form = {
     name: '',
     email: '',
-    message: ''
+    message: '',
   };
 
   onSubmit() {
@@ -59,7 +59,9 @@ export class ContactsComponent implements OnInit {
   }
 
   filterStores() {
-    this.filteredStores = this.stores.filter(store => store.category === this.selectedCategory);
+    this.filteredStores = this.stores.filter(
+      (store) => store.category === this.selectedCategory,
+    );
     this.loadMap();
   }
 
@@ -70,7 +72,9 @@ export class ContactsComponent implements OnInit {
     }
 
     ymaps.ready(() => {
-      const coordinates = this.storeService.cityCoordinates[this.selectedCity] || [55.76, 37.64];
+      const coordinates = this.storeService.cityCoordinates[
+        this.selectedCity
+      ] || [55.76, 37.64];
 
       if (this.map) {
         this.map.destroy();
@@ -78,13 +82,13 @@ export class ContactsComponent implements OnInit {
 
       this.map = new ymaps.Map('map', {
         center: coordinates,
-        zoom: 11
+        zoom: 11,
       });
 
-      this.placemarks = this.filteredStores.map(store => {
+      this.placemarks = this.filteredStores.map((store) => {
         const placemark = new ymaps.Placemark(store.coords, {
           hintContent: store.address,
-          balloonContent: `<strong>${store.category}</strong><br>Адрес: ${store.address}<br>Телефон: ${store.phone}`
+          balloonContent: `<strong>${store.category}</strong><br>Адрес: ${store.address}<br>Телефон: ${store.phone}`,
         });
 
         this.map.geoObjects.add(placemark);
@@ -103,18 +107,21 @@ export class ContactsComponent implements OnInit {
     if (!this.map) return;
     this.map.setCenter(store.coords, 15, { duration: 300 });
 
-    this.placemarks.forEach(placemark => {
+    this.placemarks.forEach((placemark) => {
       placemark.options.set('preset', 'islands#blueIcon');
     });
 
-    const selectedPlacemark = this.placemarks.find(pm => pm.geometry.getCoordinates().toString() === store.coords.toString());
+    const selectedPlacemark = this.placemarks.find(
+      (pm) =>
+        pm.geometry.getCoordinates().toString() === store.coords.toString(),
+    );
     if (selectedPlacemark) {
       selectedPlacemark.options.set('preset', 'islands#redIcon');
     }
   }
 
   selectCategory(category: string) {
-    if(category == 'Офис' || category == 'Склад'){
+    if (category == 'Офис' || category == 'Склад') {
       this.selectedCity = 'Барнаул';
       this.updateStores();
     }

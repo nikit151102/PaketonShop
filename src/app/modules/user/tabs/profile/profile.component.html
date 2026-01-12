@@ -1,0 +1,287 @@
+<div class="profile-page">
+    <!-- Заголовок страницы -->
+    <div class="page-header">
+        <h1 class="page-title">Личный кабинет</h1>
+        <p class="page-subtitle">Управление вашими данными и заказами</p>
+    </div>
+
+    <div class="profile-container">
+        <!-- Левый блок - информация о пользователе -->
+        <div class="profile-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar"
+                        [style.background-image]="'url(' + (user?.avatarUrl || '/assets/images/default-avatar.png') + ')'">
+                        <div class="avatar-edit" (click)="editAvatar()">
+                            <svg width="20" height="20" viewBox="0 0 24 24">
+                                <path
+                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+                                    fill="white" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="profile-loyalty-badge" *ngIf="user?.loyaltyProgramLevel">
+                        Уровень {{ user.loyaltyProgramLevel }}
+                    </div>
+                </div>
+
+                <div class="profile-info">
+                    <h2 class="profile-name">
+                        {{ user?.firstName }} {{ user?.lastName }}
+                    </h2>
+                    <p class="profile-number">
+                        ID: {{ user?.userNumber || 'Не указан' }}
+                    </p>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ user?.ordersCount || 0 }}</div>
+                            <div class="stat-label">Заказов</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ favoriteCount }}</div>
+                            <div class="stat-label">Избранное</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ user?.userCompanys?.length || 0 }}</div>
+                            <div class="stat-label">Компании</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-contact-info">
+                        <div class="contact-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path
+                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+                            </svg>
+                            <span>{{ user?.email || 'Email не указан' }}</span>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path
+                                    d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                            </svg>
+                            <span>{{ user?.phoneNumber || 'Телефон не указан' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn-edit" [routerLink]="['/profile/profile/edit']">
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path
+                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                            </svg>
+                            Редактировать профиль
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Статусы и подписки -->
+            <!-- <div class="profile-status">
+        <div class="status-item" [class.active]="user?.isMailSubscribed">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+          </svg>
+          <div>
+            <div class="status-title">Подписка на рассылку</div>
+            <div class="status-description">
+              {{ user?.isMailSubscribed ? 'Активна' : 'Не активна' }}
+            </div>
+          </div>
+        </div>
+        <div class="status-item">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+            <circle cx="12" cy="12" r="5"/>
+          </svg>
+          <div>
+            <div class="status-title">Статус аккаунта</div>
+            <div class="status-description" [class.banned]="user?.isBanned">
+              {{ user?.isBanned ? 'Заблокирован' : 'Активен' }}
+            </div>
+          </div>
+        </div>
+      </div> -->
+        </div>
+
+        <!-- Правый блок - карточки меню -->
+        <div class="profile-content">
+            <div class="profile-grid">
+                <!-- Карточка заказов -->
+                <a [routerLink]="['/profile/orderHistory']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+                                </svg>
+                            </div>
+                            <div class="card-notification" *ngIf="unreadOrdersCount > 0">
+                                {{ unreadOrdersCount }}
+                            </div>
+                        </div>
+                        <div class="card-title">История заказов</div>
+                        <div class="card-description">
+                            {{ user?.ordersCount || 0 }} заказов
+                        </div>
+                        <div class="card-action">
+                            <span>Посмотреть все</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Карточка избранного -->
+                <a [routerLink]="['/profile/favorites']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-title">Избранное</div>
+                        <div class="card-description">
+                            {{ favoriteCount }} товаров
+                        </div>
+                        <div class="card-action">
+                            <span>Посмотреть все</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Карточка адресов -->
+                <a [routerLink]="['/profile/delivery-addresses']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-title">Адреса доставки</div>
+                        <div class="card-description">
+                            {{ addressCount }} адресов
+                        </div>
+                        <div class="card-action">
+                            <span>Управлять адресами</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Карточка вопросов -->
+                <a [routerLink]="['/profile/questions']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
+                                </svg>
+                            </div>
+                            <div class="card-notification" *ngIf="unreadAnswersCount > 0">
+                                {{ unreadAnswersCount }}
+                            </div>
+                        </div>
+                        <div class="card-title">Вопросы и ответы</div>
+                        <div class="card-description">
+                            Мои обращения
+                        </div>
+                        <div class="card-action">
+                            <span>Перейти к вопросам</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Карточка поддержки -->
+                <a [routerLink]="['/profile/support']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-title">Поддержка</div>
+                        <div class="card-description">
+                            Помощь и консультации
+                        </div>
+                        <div class="card-action">
+                            <span>Написать в поддержку</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Карточка настроек -->
+                <a [routerLink]="['/profile/settings']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-title">Настройки</div>
+                        <div class="card-description">
+                            Настройки аккаунта
+                        </div>
+                        <div class="card-action">
+                            <span>Изменить настройки</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <a [routerLink]="['/profile/companies']" class="profile-card-link">
+                    <div class="profile-menu-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                    <path
+                                        d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-title">Мои компании</div>
+                        <div class="card-description">
+                            {{ user?.userCompanys?.length || 0 }} компании
+                        </div>
+                        <div class="card-action">
+                            <span>Посмотреть все</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

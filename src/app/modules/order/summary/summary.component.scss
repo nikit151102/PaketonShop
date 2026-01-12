@@ -1,0 +1,149 @@
+$accent: #ff9800;
+$accent-dark: #e67e22;
+$bg-light: #f9f9fb;
+$bg-white: #fff;
+$text-dark: #333;
+$shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+$radius: 16px;
+$transition: 0.25s ease;
+
+.summary {
+  background: #fff;
+  padding: 15px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 150px;
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: $text-dark;
+  }
+
+  h4 {
+    margin: 0;
+  }
+
+  p {
+    margin: 6px 0;
+    font-size: 1rem;
+    color: $text-dark;
+
+    &.total {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: $accent-dark;
+      margin-top: 12px;
+    }
+  }
+
+  .delivery-info {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 12px 0;
+  }
+
+  /* ======================
+       Price and delivery
+       ====================== */
+  .price-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .delivery {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+
+      strong {
+        color: $accent-dark;
+      }
+    }
+
+    .total-price {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $accent;
+    }
+  }
+
+  /* ======================
+       Cross-sell products
+       ====================== */
+  .cross-sell {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto; // горизонтальный скролл
+    padding-bottom: 8px; // немного места для скролла
+    margin-top: 12px;
+    max-width: 400px;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 3px;
+    }
+
+    .cross-item {
+      flex: 0 0 auto; // чтобы не сжимались и шли в линию
+      width: 110px;
+      text-align: center;
+      cursor: pointer;
+      transition: $transition;
+      background: $bg-light;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+
+      &:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      img {
+        width: 100%;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-bottom: 6px;
+      }
+
+      p {
+        font-size: 0.85rem;
+        margin: 4px 0;
+        color: $text-dark;
+      }
+
+      span {
+        font-weight: 600;
+        color: $accent;
+        font-size: 0.95rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cross-item {
+        width: 90px;
+      }
+    }
+  }
+}

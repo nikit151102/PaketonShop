@@ -1,0 +1,27 @@
+div {
+    padding: 6px;
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    position: sticky;
+    top: 95px;
+    z-index: 10000;
+
+    a {
+        text-decoration: none;
+        padding: 10px;
+        background: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        white-space: nowrap;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+        &:hover {
+            background: linear-gradient(135deg, #52b837 0%, #3e8f28 100%);
+        }
+    }
+}

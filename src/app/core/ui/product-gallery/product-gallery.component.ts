@@ -11,13 +11,16 @@ import { Component, Input } from '@angular/core';
     trigger('fadeAnimation', [
       transition(':enter', [
         style({ opacity: 0, transform: 'scale(0.95)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
+        animate('300ms ease-out', style({ opacity: 1, transform: 'scale(1)' })),
       ]),
       transition(':leave', [
-        animate('300ms ease-in', style({ opacity: 0, transform: 'scale(0.95)' }))
-      ])
-    ])
-  ]
+        animate(
+          '300ms ease-in',
+          style({ opacity: 0, transform: 'scale(0.95)' }),
+        ),
+      ]),
+    ]),
+  ],
 })
 export class ProductGalleryComponent {
   @Input() images: string[] = [];

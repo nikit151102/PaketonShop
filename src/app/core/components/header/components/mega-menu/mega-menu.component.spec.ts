@@ -8,9 +8,8 @@ describe('MegaMenuComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MegaMenuComponent]
-    })
-    .compileComponents();
+      imports: [MegaMenuComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MegaMenuComponent);
     component = fixture.componentInstance;

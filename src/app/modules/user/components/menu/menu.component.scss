@@ -1,60 +1,402 @@
-.menu {
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.modern-menu {
+  --menu-primary: #327120;
+  --menu-primary-light: rgba(50, 113, 32, 0.1);
+  --menu-hover: #f8fafc;
+  --menu-active: #327120;
+  --menu-text: #1a1a1a;
+  --menu-text-light: #64748b;
+  --menu-border: #e5e7eb;
+  --menu-radius: 16px;
+  --menu-spacing: 8px;
+  --menu-icon-size: 20px;
+  --menu-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --menu-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --menu-shadow-active: 0 8px 32px rgba(50, 113, 32, 0.15);
+
+  // Кнопка переключения меню
+  .menu-toggle {
+    display: none; // Показываем только на мобильных
+    width: 100%;
+    padding: 16px 20px;
+    background: white;
+    border: 1px solid var(--menu-border);
+    border-radius: var(--menu-radius);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--menu-text);
+    cursor: pointer;
+    transition: var(--menu-transition);
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    box-shadow: var(--menu-shadow);
+
+    &:hover {
+      background: var(--menu-hover);
+      border-color: var(--menu-primary);
+      transform: translateY(-1px);
+    }
+
+    &.active {
+      background: var(--menu-primary-light);
+      border-color: var(--menu-primary);
+      color: var(--menu-primary);
+    }
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: var(--menu-text-light);
+      transition: var(--menu-transition);
+    }
+
+    .toggle-arrow {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  // Аккордеон меню
+  .menu-accordion {
+    background: white;
+    border-radius: var(--menu-radius);
+    box-shadow: var(--menu-shadow);
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // На десктопе всегда открыто
+    max-height: none;
+    opacity: 1;
+
+    &.open {
+      max-height: 800px;
+      opacity: 1;
+    }
+
+    ul {
+      list-style: none;
+      padding: var(--menu-spacing);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
     li {
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.5rem;
-      border-radius: 8px;
+      border-radius: 12px;
       cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #374151;
-      transition: background 0.2s, color 0.2s;
+      transition: var(--menu-transition);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid transparent;
 
-      &:hover {
-        background: #f3f4f6;
+      &:hover:not(.active):not(.logout-item) {
+        background: var(--menu-hover);
+        border-color: var(--menu-border);
+        transform: translateX(4px);
+
+        .menu-item-content {
+          .menu-item-icon svg {
+            color: var(--menu-primary);
+            transform: scale(1.1);
+          }
+
+          .menu-item-title {
+            color: var(--menu-primary);
+          }
+        }
       }
 
       &.active {
-        background: #3b82f6;
-        color: #fff;
+        background: linear-gradient(135deg, #327120 0%, #4a9c2a 100%);
+        border-color: var(--menu-primary);
+        box-shadow: var(--menu-shadow-active);
+
+        .menu-item-content {
+          .menu-item-icon svg {
+            color: white;
+            transform: scale(1.1);
+            fill: #fff;
+          }
+
+          .menu-item-title,
+          .menu-item-description {
+            color: white;
+          }
+
+          .menu-item-indicator svg {
+            color: white;
+          }
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 0 4px 4px 0;
+        }
+      }
+
+      &.logout-item {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--menu-border);
+
+        &:hover {
+          background: #fee2e2;
+          border-color: #fecaca;
+
+          .menu-item-content {
+            .menu-item-icon svg {
+              color: #dc2626;
+            }
+
+            .menu-item-title {
+              color: #dc2626;
+            }
+
+            .menu-item-description {
+              color: #991b1b;
+            }
+          }
+        }
+
+        .menu-item-icon.logout-icon svg {
+          color: #dc2626;
+        }
       }
     }
   }
 
-  /* Планшеты */
-  @media (max-width: 1024px) {
-    ul li {
-      font-size: 0.9rem;
-      padding: 0.6rem 0.8rem;
-    }
-  }
+  // Содержимое пункта меню
+  .menu-item-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    position: relative;
 
-  /* Мобильные */
-  @media (max-width: 1024px) {
-    ul {
-      flex-direction: row;
-      justify-content: flex-start;
+    .menu-item-icon {
+      display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      overflow-x: auto;
-      white-space: nowrap;
-      padding: 0.5rem 0;
-      margin: 0 -0.5rem;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--menu-primary-light);
+      border-radius: 10px;
+      flex-shrink: 0;
+
+      svg {
+        width: var(--menu-icon-size);
+        height: var(--menu-icon-size);
+        color: var(--menu-primary);
+        transition: var(--menu-transition);
+        fill: #6b6868;
+      }
     }
 
-    ul li {
-      margin-bottom: 0;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      padding: 0.5rem 0.75rem;
-      flex-shrink: 0;
+    .menu-item-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .menu-item-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--menu-text);
+        line-height: 1.3;
+      }
+
+      .menu-item-description {
+        font-size: 13px;
+        color: var(--menu-text-light);
+        line-height: 1.2;
+      }
+    }
+
+    .menu-item-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .notification-badge {
+        background: #ef4444;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 12px;
+        min-width: 20px;
+        text-align: center;
+        animation: pulse 2s infinite;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+        color: var(--menu-text-light);
+        transition: var(--menu-transition);
+      }
     }
   }
+
+  /* Десктопная версия (больше 768px) */
+  @media (min-width: 769px) {
+    .menu-toggle {
+      display: none; // Скрываем кнопку на десктопе
+    }
+
+    .menu-accordion {
+      max-height: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  /* Мобильная версия (768px и меньше) */
+  @media (max-width: 768px) {
+    .menu-toggle {
+      display: flex;
+    }
+
+    .menu-accordion {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 8px;
+
+      &.open {
+        max-height: 800px;
+        opacity: 1;
+      }
+    }
+
+    .menu-item-content {
+      padding: 14px 16px;
+      gap: 12px;
+
+      .menu-item-icon {
+        width: 36px;
+        height: 36px;
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .menu-item-text {
+        .menu-item-title {
+          font-size: 14px;
+        }
+
+        .menu-item-description {
+          font-size: 12px;
+        }
+      }
+    }
+
+    li {
+      &:hover:not(.active):not(.logout-item) {
+        transform: translateX(2px);
+      }
+    }
+  }
+
+  /* Очень маленькие экраны (480px и меньше) */
+  @media (max-width: 480px) {
+    .menu-toggle {
+      padding: 14px 16px;
+      font-size: 14px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .toggle-arrow {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .menu-item-content {
+      padding: 12px 14px;
+      gap: 10px;
+
+      .menu-item-icon {
+        width: 32px;
+        height: 32px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .menu-item-text {
+        .menu-item-title {
+          font-size: 13px;
+        }
+
+        .menu-item-description {
+          font-size: 11px;
+        }
+      }
+
+      .menu-item-indicator {
+        .notification-badge {
+          font-size: 10px;
+          padding: 1px 6px;
+          min-width: 18px;
+        }
+
+        svg {
+          width: 14px;
+          height: 14px;
+        }
+      }
+    }
+  }
+
+  /* Планшеты в горизонтальной ориентации (1024px и меньше) */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .menu-item-content {
+      padding: 14px 18px;
+    }
+  }
+}
+
+/* Анимации */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Глобальные стили для корректной работы анимации */
+:host {
+  display: block;
+  width: 100%;
 }

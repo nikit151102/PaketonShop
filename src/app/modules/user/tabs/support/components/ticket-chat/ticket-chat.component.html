@@ -1,0 +1,147 @@
+<div class="ticket-chat-container">
+  <!-- Шапка чата -->
+  <div class="chat-header">
+    <div class="header-left">
+      <div class="ticket-subject">
+        <span class="subject-text">{{ ticket.subject }}</span>
+        <span class="ticket-id">#{{ ticket.id }}</span>
+      </div>
+      <div class="ticket-category">
+        <span class="category-badge">{{ ticket.category }}</span>
+        <span class="status-badge" [ngClass]="'status-' + ticket.status">
+          {{ getStatusText(ticket.status) }}
+        </span>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <button class="header-btn close-ticket-btn" (click)="closeTicket()" *ngIf="ticket.status !== 'closed' && ticket.status !== 'closed_by_client'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+        Закрыть обращение
+      </button>
+      
+      <!-- <div class="agent-info" *ngIf="ticket.agent">
+        <img [src]="ticket.agent.avatar" [alt]="ticket.agent.name" class="agent-avatar" />
+        <div class="agent-details">
+          <span class="agent-name">{{ ticket.agent.name }}</span>
+          <span class="agent-role">Специалист поддержки</span>
+        </div>
+      </div> -->
+    </div>
+  </div>
+
+  <!-- Область сообщений -->
+  <div class="chat-messages" #messagesContainer>
+    <div class="messages-scroll">
+      <ng-container *ngFor="let message of messages; let i = index">
+        <!-- Дата-разделитель -->
+        <div class="date-divider" *ngIf="shouldShowDate(i)">
+          <span class="divider-text">{{ formatDate(message.timestamp) }}</span>
+        </div>
+        
+        <!-- Сообщение пользователя -->
+        <div class="message-wrapper" [class.user]="message.sender === 'user'">
+          <div class="message-bubble" [class.unread]="!message.read && message.sender === 'support'">
+            <div class="message-text">{{ message.text }}</div>
+            <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+            <div class="message-status" *ngIf="message.sender === 'user'">
+              <svg *ngIf="message.read" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Поле ввода -->
+  <div class="chat-input-area" *ngIf="ticket.status !== 'closed' && ticket.status !== 'closed_by_client'">
+    <div class="input-wrapper">
+      <textarea 
+        #messageInput
+        [(ngModel)]="newMessage"
+        placeholder="Введите ваше сообщение..."
+        class="message-input"
+        rows="2"
+        maxlength="2000"
+        (keydown)="onKeydown($event)"
+      ></textarea>
+      
+      <div class="input-actions">
+        <div class="input-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          Ctrl+Enter для отправки
+        </div>
+        
+        <button 
+          class="send-btn" 
+          (click)="sendMessage()" 
+          [disabled]="!newMessage.trim() || isSending"
+          [class.loading]="isSending"
+        >
+          <span *ngIf="!isSending">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </span>
+          <span *ngIf="isSending" class="send-spinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно оценки -->
+  <div class="rating-modal-overlay" *ngIf="showRatingModal" (click)="showRatingModal = false">
+    <div class="rating-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Оцените работу поддержки</h3>
+        <button class="modal-close" (click)="showRatingModal = false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p>Пожалуйста, оцените качество обслуживания по 5-балльной шкале</p>
+        
+        <div class="stars-rating">
+          <div 
+            *ngFor="let star of [1,2,3,4,5]" 
+            class="star"
+            (mouseenter)="hoverRating = star"
+            (mouseleave)="hoverRating = 0"
+            (click)="rating = star"
+          >
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
+        </div>
+        
+        <div class="rating-labels">
+          <span>Плохо</span>
+          <span>Отлично</span>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="modal-btn skip" (click)="showRatingModal = false">
+          Пропустить
+        </button>
+        <button 
+          class="modal-btn submit" 
+          (click)="submitRating()"
+          [disabled]="rating === 0"
+        >
+          Отправить оценку
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

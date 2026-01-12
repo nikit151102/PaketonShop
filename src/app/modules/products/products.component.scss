@@ -1,28 +1,28 @@
 .container {
-    width: 100%;
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 
-    &.compact {
-        flex-direction: row;
-        justify-content: flex-start;
-
-        app-product {
-            flex: 0 1 calc(20% - 16px);
-            max-width: calc(20% - 16px);
-        }
-    }
-
-    &.wide {
-        flex-direction: column;
-
-        app-product {
-            width: 100%;
-        }
-    }
+  &.compact {
+    flex-direction: row;
+    justify-content: flex-start;
 
     app-product {
-        display: contents;
+      flex: 0 1 calc(20% - 16px);
+      max-width: calc(20% - 16px);
     }
+  }
+
+  &.wide {
+    flex-direction: column;
+
+    app-product {
+      width: 100%;
+    }
+  }
+
+  app-product {
+    display: contents;
+  }
 }

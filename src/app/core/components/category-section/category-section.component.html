@@ -1,25 +1,36 @@
-<div class="categories">
-  <div *ngFor="let category of displayedCategories; let i = index"
-    [routerLink]="category.subCategories?.length > 0 ? ['/category', category.id] : ['/products', category.id]">
-    <div class="category-card">
-      <div class="image-wrapper">
-        <img [src]="category.imageInstanceLink" [alt]="category.name" />
-      </div>
-      <div class="category-info">
-        <h4>{{ category.name }}</h4>
-        <p>{{ category.productCount }} товаров</p>
-      </div>
-      <ng-container *ngIf="category.subCategories && category.subCategories.length > 0">
-        <div class="subcategories">
-          <a *ngFor="let sub of category.subCategories" [routerLink]="['/category', sub.id]" class="subcategory-chip">
+<div class="minimal-grid">
+  <div 
+    *ngFor="let category of displayedCategories" 
+    class="minimal-card"
+    [routerLink]="category.subCategories?.length > 0 ? ['/category', category.id] : ['/products', category.id]"
+  >
+    <div class="image-container">
+      <img 
+        [src]="category.imageInstanceLink" 
+        [alt]="category.name"
+        loading="lazy"
+        class="category-image"
+      />
+      <div class="image-overlay"></div>
+    </div>
+    
+    <div class="content-container">
+      <h3 class="category-title">{{ category.name }}</h3>
+      
+      <div *ngIf="category.showTags && category.subCategories?.length" class="subcategories">
+        <div class="tags">
+          <span class="tag" *ngFor="let sub of category.subCategories.slice(0, 2)">
             {{ sub.name }}
-          </a>
+          </span>
+          <span *ngIf="category.subCategories.length > 2" class="more">
+            +{{ category.subCategories.length - 2 }}
+          </span>
         </div>
-      </ng-container>
+      </div>
     </div>
   </div>
 </div>
 
-<button *ngIf="isMainPage" class="load-more-btn" (click)="toggleDisplay()">
-  {{ showAllCategories ? 'Свернуть' : 'Еще'}}
+<button *ngIf="isMainPage && categories.length > 12" class="more-btn" (click)="toggleDisplay()">
+  <span>{{ showAllCategories ? "Свернуть" : "Показать ещё" }}</span>
 </button>

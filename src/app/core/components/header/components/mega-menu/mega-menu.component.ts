@@ -5,7 +5,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   selector: 'app-mega-menu',
   imports: [CommonModule],
   templateUrl: './mega-menu.component.html',
-  styleUrl: './mega-menu.component.scss'
+  styleUrl: './mega-menu.component.scss',
 })
 export class MegaMenuComponent {
   @Input() niches: any[] = [];
@@ -15,5 +15,4 @@ export class MegaMenuComponent {
   selectNiche(nicheId: string) {
     this.nicheSelected.emit(nicheId);
   }
-
 }

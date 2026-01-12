@@ -1,1 +1,149 @@
-<app-category-section  [categories]="subCategories"></app-category-section>
+<div class="categories-page">
+    <!-- Заголовок категории -->
+    <div *ngIf="categoryData" class="category-header">
+        <div class="header-content">
+            <h1 class="category-title">{{ categoryData.name }}</h1>
+            <p *ngIf="categoryData.description" class="category-description">
+                {{ categoryData.description }}
+            </p>
+        </div>
+
+        <div class="header-image" *ngIf="categoryData.imageUrl">
+            <img [src]="categoryData.imageUrl" [alt]="categoryData.name">
+        </div>
+    </div>
+
+    <!-- Подкатегории -->
+    <div *ngIf="subCategories?.length" class="subcategories-section">
+        <app-category-section [categories]="subCategories"></app-category-section>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content">
+        <!-- Сайдбар с фильтрами -->
+        <aside class="filters-sidebar">
+            <app-filters [filters]="filters" [productsCount]="products.length" (filtersChange)="onFiltersChange($event)"
+                (filtersApplied)="applyFilters()">
+            </app-filters>
+        </aside>
+
+        <!-- Товары -->
+        <main class="products-section">
+            <div class="section-header">
+                <h2 class="section-title">Товары категории</h2>
+
+                <div class="sort-controls">
+                    <label class="sort-label">Сортировать:</label>
+                    <select class="sort-select">
+                        <option value="popular">По популярности</option>
+                        <option value="price-asc">По возрастанию цены</option>
+                        <option value="price-desc">По убыванию цены</option>
+                        <option value="new">По новизне</option>
+                        <option value="rating">По рейтингу</option>
+                    </select>
+
+                    <div class="view-toggle">
+                        <button class="view-btn active" title="Сетка">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" />
+                            </svg>
+                        </button>
+                        <button class="view-btn" title="Список">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сообщение об ошибке -->
+            <div *ngIf="error && !loading" class="error-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
+                </svg>
+                <h3>Ошибка загрузки</h3>
+                <p>{{ error }}</p>
+                <button class="retry-btn" (click)="retry()">
+                    Попробовать снова
+                </button>
+            </div>
+
+            <!-- Сообщение если товаров нет -->
+            <div *ngIf="products.length === 0 && !loading && !error" class="empty-state">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M22 9h-4.79l-4.39-6.57a1 1 0 0 0-1.66 0L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+                <h3>Товары не найдены</h3>
+                <p>В данной категории пока нет товаров</p>
+                <button class="back-btn" routerLink="/">
+                    Вернуться в каталог
+                </button>
+            </div>
+
+            <!-- Сетка товаров -->
+            <div *ngIf="products.length > 0" class="products-grid">
+                <app-product *ngFor="let product of products" [product]="product" class="product-card">
+                </app-product>
+            </div>
+
+            <!-- Индикатор загрузки -->
+            <div *ngIf="loading" class="loading-indicator">
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                </div>
+                <p>Загружаем товары...</p>
+            </div>
+
+            <!-- Кнопка загрузки еще -->
+            <div *ngIf="products.length < totalItems && !loading" class="load-more">
+                <button class="load-more-btn" (click)="loadMore()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>
+                    Показать еще
+                </button>
+            </div>
+
+            <!-- Сообщение о конце списка -->
+            <div *ngIf="products.length === totalItems && products.length > 0" class="end-of-list">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+                <p>Вы просмотрели все товары в этой категории</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Пагинация для десктопа -->
+    <div *ngIf="totalItems > pageSize" class="desktop-pagination">
+        <button class="pagination-btn" [disabled]="currentPage === 0" (click)="prevPage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+            Назад
+        </button>
+
+        <div class="pagination-pages">
+            <button *ngFor="let page of getPageNumbers()" class="page-btn" [class.active]="page === currentPage + 1"
+                (click)="goToPage(page - 1)">
+                {{ page }}
+            </button>
+
+            <span *ngIf="getPageNumbers().length < totalPages" class="pagination-dots">...</span>
+        </div>
+
+        <button class="pagination-btn" [disabled]="products.length >= totalItems" (click)="nextPage()">
+            Вперед
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+            </svg>
+        </button>
+    </div>
+</div>

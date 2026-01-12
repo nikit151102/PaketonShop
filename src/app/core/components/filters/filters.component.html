@@ -1,0 +1,210 @@
+<div class="filters-container" [class.mobile-open]="isMobileOpen">
+    <!-- Кнопка для мобильных устройств -->
+    <button class="mobile-filters-toggle" (click)="toggleMobileFilters()" *ngIf="isMobile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" />
+        </svg>
+        <span>Фильтры</span>
+        <span class="filters-count" *ngIf="activeFiltersCount > 0">{{activeFiltersCount}}</span>
+    </button>
+
+    <!-- Оверлей для мобильных -->
+    <div class="filters-overlay" *ngIf="isMobile && isMobileOpen" (click)="closeMobileFilters()"></div>
+
+    <!-- Основной блок фильтров -->
+    <aside class="filters-sidebar" [class.mobile]="isMobile" [class.open]="!isMobile || isMobileOpen">
+        <!-- Заголовок для мобильных -->
+        <div class="filters-header" *ngIf="isMobile">
+            <h3>Фильтры</h3>
+            <button class="close-btn" (click)="closeMobileFilters()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Поиск по фильтрам -->
+        <div class="filters-search" *ngIf="filters.length > 5">
+            <input type="text" placeholder="Поиск фильтров..." [(ngModel)]="searchQuery" (input)="filterFilters()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </svg>
+        </div>
+
+        <!-- Активные фильтры -->
+        <div class="active-filters" *ngIf="activeFilters.length > 0">
+            <div class="active-filters-header">
+                <span class="title">Активные фильтры</span>
+                <button class="clear-all" (click)="clearAllFilters()">Очистить все</button>
+            </div>
+            <div class="active-filters-list">
+                <div class="active-filter-item" *ngFor="let filter of activeFilters">
+                    <span class="filter-name">{{filter.filterName}}</span>
+                    <span class="filter-value">{{getFilterValueText(filter)}}</span>
+                    <button class="remove-filter" (click)="removeFilter(filter)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список фильтров -->
+        <div class="filters-list">
+            <ng-container *ngFor="let filter of filteredFilters">
+                <!-- Чекбокс фильтры (filterType = 0) -->
+                <div class="filter-group" *ngIf="filter.filterType === 0">
+                    <div class="filter-header" (click)="toggleFilterGroup(filter.id)">
+                        <h4 class="filter-title">
+                            {{filter.fullName}}
+                            <span *ngIf="loadingFilters.has(filter.id)" class="loading-indicator">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"
+                                        opacity="0.3" />
+                                    <path
+                                        d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                                </svg>
+                            </span>
+                        </h4>
+                        <svg class="chevron" [class.expanded]="isFilterExpanded(filter.id)" width="16" height="16"
+                            viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                        </svg>
+                    </div>
+
+                    <div class="filter-content" [class.expanded]="isFilterExpanded(filter.id)">
+                        <!-- Состояние загрузки -->
+                        <div *ngIf="loadingFilters.has(filter.id)" class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <span>Загрузка значений...</span>
+                        </div>
+
+                        <!-- Контент фильтра -->
+                        <div *ngIf="!loadingFilters.has(filter.id)" class="filter-content-wrapper">
+                            <div class="checkbox-group">
+                                <label class="checkbox-item" *ngFor="let value of getUniqueValues(filter)">
+                                    <input type="checkbox" [checked]="isChecked(filter.id, value)"
+                                        (change)="toggleCheckbox(filter, value)"
+                                        [disabled]="loadingFilters.has(filter.id)">
+                                    <span class="checkbox-custom">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
+                                    </span>
+                                    <span class="checkbox-label">{{value}}</span>
+                                    <span class="checkbox-count" *ngIf="getValueCount(filter.id, value)">
+                                        {{getValueCount(filter.id, value)}}
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Сообщение если нет значений -->
+                            <div *ngIf="!loadingFilters.has(filter.id) && getUniqueValues(filter)?.length === 0"
+                                class="no-values">
+                                Нет доступных значений
+                            </div>
+
+                            <!-- Показать еще если значений много -->
+                            <div *ngIf="!loadingFilters.has(filter.id) && getUniqueValues(filter).length > 5 && !isFilterExpanded(filter.id)"
+                                class="show-more">
+                                <button (click)="showMore(filter.id)" [disabled]="loadingFilters.has(filter.id)">
+                                    Еще {{getUniqueValues(filter).length - 5}} значений
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ползунок фильтры (filterType = 1) -->
+                <div class="filter-group" *ngIf="filter.filterType === 1">
+                    <div class="filter-header">
+                        <h4 class="filter-title">
+                            {{filter.fullName}}
+                            <span *ngIf="loadingFilters.has(filter.id)" class="loading-indicator">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"
+                                        opacity="0.3" />
+                                    <path
+                                        d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                                </svg>
+                            </span>
+                        </h4>
+                        <span class="filter-unit">{{filter.measurementUnit?.shortName || ''}}</span>
+                    </div>
+
+                    <div class="range-filter">
+                        <!-- Состояние загрузки -->
+                        <div *ngIf="loadingFilters.has(filter.id)" class="loading-state">
+                            <div class="loading-spinner"></div>
+                            <span>Загрузка диапазона...</span>
+                        </div>
+
+                        <!-- Контент ползунка -->
+                        <div *ngIf="!loadingFilters.has(filter.id)" class="range-content">
+                            <div class="range-values">
+                                <span class="min-value">{{getRangeValue(filter, 'min')}}</span>
+                                <span class="max-value">{{getRangeValue(filter, 'max')}}</span>
+                            </div>
+
+                            <div class="range-slider">
+                                <div class="range-track"></div>
+                                <input type="range" [min]="getRangeMin(filter)" [max]="getRangeMax(filter)"
+                                    [step]="getRangeStep(filter)" [value]="rangeMinValues[filter.id] || 0"
+                                    (input)="onRangeMinChange(filter.id, $event)" class="range-min"
+                                    [disabled]="loadingFilters.has(filter.id)">
+                                <input type="range" [min]="getRangeMin(filter)" [max]="getRangeMax(filter)"
+                                    [step]="getRangeStep(filter)" [value]="rangeMaxValues[filter.id] || 100"
+                                    (input)="onRangeMaxChange(filter.id, $event)" class="range-max"
+                                    [disabled]="loadingFilters.has(filter.id)">
+                                <div class="range-selected" [style.left]="getSelectedRangeLeft(filter)"
+                                    [style.right]="getSelectedRangeRight(filter)"></div>
+                            </div>
+
+                            <div class="range-inputs">
+                                <div class="range-input">
+                                    <label>От</label>
+                                    <input type="number" [min]="getRangeMin(filter)"
+                                        [max]="rangeMaxValues[filter.id] || 100"
+                                        [value]="rangeMinValues[filter.id] || 0"
+                                        (change)="onRangeInputMinChange(filter.id, $event)"
+                                        [disabled]="loadingFilters.has(filter.id)">
+                                </div>
+                                <div class="range-input">
+                                    <label>До</label>
+                                    <input type="number" [min]="rangeMinValues[filter.id] || 0"
+                                        [max]="getRangeMax(filter)" [value]="rangeMaxValues[filter.id] || 100"
+                                        (change)="onRangeInputMaxChange(filter.id, $event)"
+                                        [disabled]="loadingFilters.has(filter.id)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+
+        <!-- Кнопки действий для мобильных -->
+        <div class="filters-actions" *ngIf="isMobile">
+            <button class="btn-apply" (click)="applyFilters()" [disabled]="loadingFilters.size > 0">
+                <span *ngIf="loadingFilters.size === 0">Показать {{filteredProductsCount}} товаров</span>
+                <span *ngIf="loadingFilters.size > 0" class="loading-text">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"
+                            opacity="0.3" />
+                        <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                    </svg>
+                    Обновление фильтров...
+                </span>
+            </button>
+            <button class="btn-clear" (click)="clearAllFilters()" [disabled]="loadingFilters.size > 0">
+                Сбросить фильтры
+            </button>
+        </div>
+    </aside>
+</div>

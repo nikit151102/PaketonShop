@@ -10,7 +10,6 @@
   scrollbar-width: thin;
 }
 
-
 .products-container::-webkit-scrollbar {
   height: 6px;
 }
@@ -27,7 +26,6 @@
 .products-container::-webkit-scrollbar-thumb:hover {
   background-color: #a4b0be;
 }
-
 
 .products-wrapper {
   position: relative;
@@ -61,7 +59,6 @@
   right: 0.5rem;
 }
 
-
 .products-grid {
   display: flex;
   flex-wrap: nowrap;
@@ -79,7 +76,9 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   padding: 1rem;
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;

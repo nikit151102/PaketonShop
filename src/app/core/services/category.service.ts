@@ -33,7 +33,7 @@ export interface CategoryByIdResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
   private baseUrl = `${environment.production}/api/Entities/ProductCategory`;
@@ -43,9 +43,9 @@ export class CategoryService {
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-      'accept': 'text/plain'
+      accept: 'text/plain',
     });
   }
 
@@ -54,15 +54,14 @@ export class CategoryService {
     return this.http.post<CategoryResponse>(
       `${this.baseUrl}/Filter/FirstLevel`,
       {},
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders() },
     );
   }
 
   // категория по id
   getCategoryById(id: string): Observable<CategoryByIdResponse> {
-    return this.http.get<CategoryByIdResponse>(
-      `${this.baseUrl}/Filter/${id}`,
-      { headers: this.getHeaders() }
-    );
+    return this.http.get<CategoryByIdResponse>(`${environment.production}/api/Entities/ProductCategory/${id}`, {
+      headers: this.getHeaders(),
+    });
   }
 }

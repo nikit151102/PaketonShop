@@ -1,0 +1,293 @@
+<div class="shop-details-container" *ngIf="shop && !loading; else loadingTemplate">
+    <!-- Хлебные крошки -->
+    <nav class="breadcrumbs">
+        <a [routerLink]="['/shops']" class="breadcrumb-link">Магазины</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">{{ shop.fullName || shop.shortName }}</span>
+    </nav>
+
+    <!-- Заголовок магазина -->
+    <header class="shop-header">
+        <div class="shop-header-content">
+            <h1 class="shop-title">{{ shop.fullName || shop.shortName }}</h1>
+            <div class="shop-meta">
+                <span class="shop-city" *ngIf="shop.address?.city">
+                    {{ shop.address.city }}
+                </span>
+                <span class="shop-status" [class.open]="isOpenNow()">
+                    {{ isOpenNow() ? '● Открыто сейчас' : '● Закрыто' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="shop-actions">
+            <button class="action-button share-button" (click)="shareShop()" title="Поделиться">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Сообщение об ошибке -->
+    <div *ngIf="error" class="error-message">
+        <svg viewBox="0 0 24 24">
+            <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+        {{ error }}
+        <button class="error-retry" (click)="loadShop(shop.id)">
+            Попробовать снова
+        </button>
+    </div>
+
+    <!-- Информация о магазине -->
+    <div class="shop-info-container">
+        <!-- Боковая панель с контактами -->
+        <aside class="contact-sidebar">
+            <div class="contact-card">
+                <h3 class="contact-title">Контактная информация</h3>
+
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                    </svg>
+                    <div class="contact-content">
+                        <div class="contact-label">Адрес</div>
+                        <div class="contact-value">{{ getFullAddress() }}</div>
+                        <button class="contact-action" (click)="openDirections()"
+                            *ngIf="shop.address?.latitude && shop.address?.longitude">
+                            Проложить маршрут →
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-item" *ngIf="shop.partner?.email">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                    </svg>
+                    <div class="contact-content">
+                        <div class="contact-label">Телефон</div>
+                        <div class="contact-value">{{ formatPhone(shop.partner.email) }}</div>
+                        <button class="contact-action" (click)="callPhone()">
+                            Позвонить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-item" *ngIf="shop.partner?.email">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                    </svg>
+                    <div class="contact-content">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value">{{ shop.partner.email }}</div>
+                        <button class="contact-action" (click)="openEmail()">
+                            Написать
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24">
+                        <path
+                            d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+                    </svg>
+                    <div class="contact-content">
+                        <div class="contact-label">Часы работы</div>
+                        <div class="contact-value">{{ getOpeningHours() }}</div>
+                        <div class="contact-subtext"
+                            *ngIf="!isOpenNow() && todaySchedule?.openTime && todaySchedule?.closeTime">
+                            Откроется в {{ todaySchedule.openTime }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Информация о партнере -->
+                <div class="partner-section" *ngIf="shop.partner">
+                    <h4 class="partner-title">Информация о партнере</h4>
+                    <div class="partner-info">
+                        <div class="partner-item">
+                            <strong>Название:</strong> {{ shop.partner.shortName }}
+                        </div>
+                        <div class="partner-item" *ngIf="shop.partner.inn">
+                            <strong>ИНН:</strong> {{ shop.partner.inn }}
+                        </div>
+                        <div class="partner-item" *ngIf="shop.partner.ogrn">
+                            <strong>ОГРН:</strong> {{ shop.partner.ogrn }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Особенности магазина -->
+                <div class="features-section">
+                    <h4 class="features-title">Особенности магазина</h4>
+                    <div class="features-grid">
+                        <span *ngFor="let feature of getFeatures()" class="feature-tag">
+                            {{ feature }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- График работы на неделю -->
+                <div class="schedule-section" *ngIf="storeHoursInfo.length > 0">
+                    <h4 class="schedule-title">График работы</h4>
+                    <div class="schedule-week">
+                        <div *ngFor="let day of storeHoursInfo" class="schedule-day" [class.today]="day.isToday">
+                            <span class="day-name">{{ day.dayName }}</span>
+                            <span class="day-hours" [class.day-off]="!day.isWorkingDay">
+                                {{ day.isWorkingDay ? (day.openTime + ' - ' + day.closeTime) : 'выходной' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="shop-main-content">
+            <!-- Галерея изображений -->
+            <div class="shop-gallery">
+                <div class="main-image">
+                    <img [src]="shopImages[selectedImageIndex]" [alt]="shop.fullName" />
+                </div>
+                <div class="image-thumbnails">
+                    <button *ngFor="let image of shopImages; let i = index" class="thumbnail-button"
+                        [class.active]="i === selectedImageIndex" (click)="selectImage(i)">
+                        <img [src]="image" [alt]="'Изображение ' + (i + 1)" />
+                    </button>
+                </div>
+            </div>
+
+            <!-- Табы -->
+            <div class="tabs">
+                <button class="tab-button" [class.active]="activeTab === 'info'" (click)="setActiveTab('info')">
+                    О магазине
+                </button>
+                <button class="tab-button" [class.active]="activeTab === 'map'" (click)="setActiveTab('map')">
+                    На карте
+                </button>
+            </div>
+
+            <!-- Контент табов -->
+            <div class="tab-content">
+                <!-- Информация о магазине -->
+                <div *ngIf="activeTab === 'info'" class="tab-pane info-pane">
+                    <div class="description-section">
+                        <h3 class="section-title">О нашем магазине</h3>
+                        <p class="description" *ngIf="shop.fullName">
+                            Магазин "{{ shop.fullName }}" расположен в {{ shop.address?.city }}.
+                            {{ shop.partner?.fullName ? 'Официальный партнер: ' + shop.partner.fullName + '.' : '' }}
+                        </p>
+                        <p class="description" *ngIf="!shop.fullName">
+                            Информация о магазине будет добавлена в ближайшее время.
+                        </p>
+                    </div>
+
+                    <div class="manager-section" *ngIf="getManagerName() !== 'Информация отсутствует'">
+                        <h3 class="section-title">Контактное лицо</h3>
+                        <div class="manager-card">
+                            <div class="manager-avatar">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                </svg>
+                            </div>
+                            <div class="manager-info">
+                                <h4 class="manager-name">{{ getManagerName() }}</h4>
+                                <div class="manager-contacts">
+                                    <div class="manager-contact" *ngIf="getManagerPhone()">
+                                        <svg viewBox="0 0 24 24">
+                                            <path
+                                                d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                                        </svg>
+                                        {{ formatPhone(getManagerPhone()) }}
+                                    </div>
+                                    <div class="manager-contact" *ngIf="shop.partner?.email">
+                                        <svg viewBox="0 0 24 24">
+                                            <path
+                                                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                        </svg>
+                                        {{ shop.partner.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Карта -->
+                <div *ngIf="activeTab === 'map'" class="tab-pane map-pane">
+                    <h3 class="section-title">Расположение на карте</h3>
+                    <div class="map-container">
+                        <div class="map-placeholder" *ngIf="shop.address?.latitude && shop.address?.longitude">
+                            <div class="map-coordinates">
+                                <div class="coordinate-item">
+                                    <span class="coordinate-label">Широта:</span>
+                                    <span class="coordinate-value">{{ shop.address.latitude.toFixed(6) }}</span>
+                                </div>
+                                <div class="coordinate-item">
+                                    <span class="coordinate-label">Долгота:</span>
+                                    <span class="coordinate-value">{{ shop.address.longitude.toFixed(6) }}</span>
+                                </div>
+                            </div>
+                            <button class="map-action-button" (click)="openDirections()">
+                                Открыть в Яндекс.Картах
+                            </button>
+                        </div>
+                        <div class="map-instructions" *ngIf="shop.address">
+                            <h4>Как добраться:</h4>
+                            <ul>
+                                <li *ngIf="shop.address.city">Город: {{ shop.address.city }}</li>
+                                <li *ngIf="shop.address.street">Улица: {{ shop.address.street }}</li>
+                                <li *ngIf="shop.address.house">Дом: {{ shop.address.house }}</li>
+                                <li *ngIf="shop.address.office">Офис: {{ shop.address.office }}</li>
+                                <li *ngIf="shop.address.postIndex">Почтовый индекс: {{ shop.address.postIndex }}</li>
+                            </ul>
+                        </div>
+                        <div class="map-placeholder" *ngIf="!shop.address?.latitude || !shop.address?.longitude">
+                            <div class="map-no-coordinates">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                                </svg>
+                                <p>Координаты не указаны</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Похожие магазины -->
+            <div *ngIf="similarShops.length > 0" class="similar-shops">
+                <h3 class="similar-title">Другие магазины в {{ shop.address?.city }}</h3>
+                <div class="similar-grid">
+                    <div *ngFor="let similarShop of similarShops" class="similar-card"
+                        [routerLink]="['/shop', similarShop.id]">
+                        <div class="similar-image">
+                            <img [src]="shopImages[0]" [alt]="similarShop.fullName" />
+                        </div>
+                        <div class="similar-info">
+                            <h4 class="similar-name">{{ similarShop.fullName || similarShop.shortName }}</h4>
+                            <div class="similar-address">{{ productPlaceService.getFullAddress(similarShop) }}</div>
+                            <div class="similar-hours">
+                                {{ productPlaceService.getTodaySchedule(similarShop)?.isOpen ? 'Открыто сейчас' :
+                                'Закрыто' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<ng-template #loadingTemplate>
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Загрузка информации о магазине...</p>
+    </div>
+</ng-template>

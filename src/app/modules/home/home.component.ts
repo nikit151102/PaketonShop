@@ -8,16 +8,26 @@ import { ProductComponent } from '../../core/components/product/product.componen
 import { CommonModule } from '@angular/common';
 import { ProductsService } from '../../core/services/products.service';
 import { StorageUtils } from '../../../utils/storage.utils';
+import { BusinessBlockComponent } from './components/business-block/business-block.component';
+import { CompareCommonBtnComponent } from '../../core/components/compare-common-btn/compare-common-btn.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, CarouselBannerComponent, CategorySectionComponent, ProductComponent, SalesProductsComponent, GroupsSectionComponent],
+  imports: [
+    CommonModule,
+    CarouselBannerComponent,
+    CategorySectionComponent,
+    ProductComponent,
+    SalesProductsComponent,
+    GroupsSectionComponent,
+    BusinessBlockComponent,
+    CompareCommonBtnComponent
+  ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-
   categories: any[] = [];
   products: any[] = [];
   loading: boolean = false;
@@ -29,16 +39,16 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private categoryService: CategoryService,
-    private productsService: ProductsService
-  ) { }
+    private productsService: ProductsService,
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
+    
   }
 
   loadCategories(): void {
-
     const cachedCategories = StorageUtils.getMemoryCache<any[]>('categories');
 
     if (cachedCategories) {
@@ -48,32 +58,42 @@ export class HomeComponent implements OnInit {
         next: (res) => {
           this.categories = res.data;
           StorageUtils.setMemoryCache('categories', res.data, 600);
+          
         },
         error: (err) => {
           console.error('Error fetching categories:', err);
-        }
+        },
       });
     }
   }
-
 
   loadProducts(): void {
     if (this.loading) return;
 
     this.loading = true;
-    const filters = this.selectedCategory ? [{ field: 'ProductCategories.Id', values: [this.selectedCategory], type: 11 }] : [];
+    const filters = this.selectedCategory
+      ? [
+          {
+            field: 'ProductCategories.Id',
+            values: [this.selectedCategory],
+            type: 11,
+          },
+        ]
+      : [];
 
-    this.productsService.getAll(filters, null, this.currentPage, this.pageSize).subscribe({
-      next: (res) => {
-        this.products = this.products.concat(res.data);
-        this.totalItems = res.totalCount;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Произошла ошибка при загрузке продуктов';
-        this.loading = false;
-      }
-    });
+    this.productsService
+      .getAll(filters, null, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (res) => {
+          this.products = this.products.concat(res.data);
+          this.totalItems = res.totalCount;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Произошла ошибка при загрузке продуктов';
+          this.loading = false;
+        },
+      });
   }
 
   @HostListener('window:scroll', ['$event'])
@@ -81,7 +101,7 @@ export class HomeComponent implements OnInit {
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
 
-    if (scrollPosition >= pageHeight - 100 && !this.loading) {
+    if (scrollPosition >= pageHeight - 350 && !this.loading) {
       this.currentPage++;
       this.loadProducts();
     }
@@ -93,5 +113,4 @@ export class HomeComponent implements OnInit {
     this.products = [];
     this.loadProducts();
   }
-
 }

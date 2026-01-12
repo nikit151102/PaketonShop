@@ -1,8 +1,24 @@
-<div class="categories">
-  <div class="category-card" *ngFor="let category of categories">
-    <img [src]="category.image" alt="{{ category.name }}" />
-    <div class="category-info">
-      <h4>{{ category.name }}</h4>
+<section class="groups">
+  <div class="category-container" *ngFor="let category of categories; let i = index">
+    <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick($event)">
+      <!-- Левая часть с контентом -->
+      <div class="category-content">
+        <div class="category-header">
+          <h3 class="category-title">{{ category.name }}</h3>
+          <div class="category-arrow">→</div>
+        </div>
+
+        <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
+          <span class="tag" *ngFor="let subcategory of category.subcategories">
+            {{ subcategory.name }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Правая часть с изображением -->
+      <div class="category-image" *ngIf="category.image">
+        <img [src]="category.image" [alt]="category.name" loading="lazy" />
+      </div>
     </div>
   </div>
-</div>
+</section>

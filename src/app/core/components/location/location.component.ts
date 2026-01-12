@@ -9,14 +9,17 @@ import { AsyncPipe } from '@angular/common';
   standalone: true,
   imports: [CommonModule, FormsModule, AsyncPipe],
   templateUrl: './location.component.html',
-  styleUrls: ['./location.component.scss']
+  styleUrls: ['./location.component.scss'],
 })
 export class LocationComponent implements OnInit {
   city$!: typeof this.locationService.city$;
   detectedCity$!: typeof this.locationService.detectedCity$;
   showCityModal$!: typeof this.locationService.showCityModal$;
 
-  constructor(public locationService: LocationService, private elementRef: ElementRef) { }
+  constructor(
+    public locationService: LocationService,
+    private elementRef: ElementRef,
+  ) {}
 
   async ngOnInit() {
     await this.locationService.init();
@@ -27,19 +30,30 @@ export class LocationComponent implements OnInit {
     this.showCityModal$.next(false);
   }
 
-  openCityListModal() { this.locationService.openCityListModal(); }
-  setCity(city: City) { this.locationService.setCity(city); }
-  confirmCity() { this.locationService.confirmCity(); }
-  filteredDistricts(): DistrictGroup[] { return this.locationService.filteredDistricts(); }
-  filteredCities(): City[] { return this.locationService.filteredCities(); }
-  onSearchChange() { this.locationService.onSearchChange(); }
+  openCityListModal() {
+    this.locationService.openCityListModal();
+  }
+  setCity(city: City) {
+    this.locationService.setCity(city);
+  }
+  confirmCity() {
+    this.locationService.confirmCity();
+  }
+  filteredDistricts(): DistrictGroup[] {
+    return this.locationService.filteredDistricts();
+  }
+  filteredCities(): City[] {
+    return this.locationService.filteredCities();
+  }
+  onSearchChange() {
+    this.locationService.onSearchChange();
+  }
 
   @HostListener('document:click', ['$event.target'])
   onClickOutside(targetElement: HTMLElement) {
     const clickedInside = this.elementRef.nativeElement.contains(targetElement);
-    if (!clickedInside && this.city$.value == "true") {
+    if (!clickedInside && this.city$.value == 'true') {
       this.locationService.showCityModal$.next(false);
-
     }
   }
 }

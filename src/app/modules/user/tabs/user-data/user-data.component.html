@@ -1,56 +1,432 @@
-<div class="profile-tab">
+<div class="shop-profile-wrapper">
 
-  <app-loyalty></app-loyalty>
-
-  <section class="profile-form">
-    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-      <div class="form-grid">
-        <div class="avatar-upload">
-          <div class="avatar-wrapper">
-            <img [src]="userForm.get('avatar')?.value" alt="User avatar" class="avatar" />
-            <input type="file" id="avatar" hidden (change)="onAvatarChange($event)" />
-          </div>
+  <!-- Основной контейнер -->
+  <div class="shop-profile-container">
+    <div class="container-slim">
+      <!-- Заголовок страницы -->
+      <div class="page-header">
+        <div class="header-content">
+          <h1 class="page-title">
+            <svg width="28" height="28" viewBox="0 0 24 24" class="title-icon">
+              <path
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+            Личные данные
+          </h1>
+          <p class="page-subtitle">Управление контактной информацией и профилем</p>
         </div>
 
-        <div style="display: flex; width: 100%; flex-wrap: wrap;">
-          <div class="form-group">
-            <label>Фамилия</label>
-            <input type="text" formControlName="lastName" />
-          </div>
-
-          <div class="form-group">
-            <label>Имя</label>
-            <input type="text" formControlName="firstName" />
-          </div>
-
-          <div class="form-group">
-            <label>Отчество</label>
-            <input type="text" formControlName="middleName" />
-          </div>
-
-          <div class="form-group">
-            <label>Дата рождения</label>
-            <input type="date" formControlName="birthday" />
-          </div>
-
-          <div class="form-group">
-            <label>Телефон</label>
-            <input type="tel" formControlName="phoneNumber" />
-          </div>
-
-          <div class="form-group">
-            <label>email</label>
-            <input type="email" formControlName="email" />
+        <!-- Статистика профиля -->
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ getCompletionPercentage() }}%</div>
+              <div class="stat-label">Профиль заполнен</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn-primary" [disabled]="userForm.invalid">Сохранить</button>
+      <!-- Основной контент в 2 колонки -->
+      <div class="profile-content">
+        <!-- Левая колонка: Форма данных -->
+        <div class="profile-left-column">
+          <!-- Карточка аватара и быстрых действий -->
+          <div class="profile-avatar-card shop-card">
+            <div class="avatar-card-header">
+              <h3 class="card-title">Фотография профиля</h3>
+              <span class="card-badge" *ngIf="isCustomAvatar">Пользовательское фото</span>
+            </div>
+
+            <div class="avatar-card-body">
+              <div class="avatar-main-section">
+                <div class="avatar-preview-wrapper">
+                  <img [src]="selectedAvatar || userForm.get('avatar')?.value || 'assets/images/default-avatar.png'"
+                    alt="Аватар профиля" class="shop-avatar-preview" [class.loading]="avatarLoading">
+                </div>
+
+                <div class="avatar-actions">
+                  <button class="shop-btn secondary small" (click)="openAvatarModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                    </svg>
+                    Изменить фото
+                  </button>
+
+                  <div class="quick-avatars-mini">
+                    <div class="quick-avatars-label">Быстрый выбор:</div>
+                    <div class="quick-avatars-grid">
+                      <div class="quick-avatar-item" *ngFor="let avatar of popularAvatars; let i = index"
+                        (click)="selectQuickAvatar(avatar)" [class.active]="selectedAvatar === avatar">
+                        <img [src]="avatar" alt="Аватар {{i+1}}">
+                      </div>
+                      <div class="quick-avatar-item more" (click)="openAvatarModal()" title="Все аватары">
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Карточка личных данных -->
+          <div class="profile-data-card shop-card">
+            <div class="card-header">
+              <h3 class="card-title">Личная информация</h3>
+              <div class="card-subtitle">Основные данные для оформления заказов</div>
+            </div>
+
+            <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="shop-profile-form" style="    padding: 5px;">
+              <!-- Персональные данные -->
+              <div class="form-section">
+                <h4 class="section-title">Персональные данные</h4>
+                <div class="form-grid">
+                  <div class="form-group"
+                    [class.has-error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+                    <label class="form-label">
+                      Фамилия <span class="required">*</span>
+                    </label>
+                    <input type="text" formControlName="lastName" placeholder="Иванов" class="shop-input"
+                      [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+                    <div class="form-error"
+                      *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+                      {{ getFieldError('lastName') }}
+                    </div>
+                  </div>
+
+                  <div class="form-group"
+                    [class.has-error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+                    <label class="form-label">
+                      Имя <span class="required">*</span>
+                    </label>
+                    <input type="text" formControlName="firstName" placeholder="Иван" class="shop-input"
+                      [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+                    <div class="form-error"
+                      *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+                      {{ getFieldError('firstName') }}
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Отчество
+                    </label>
+                    <input type="text" formControlName="middleName" placeholder="Иванович" class="shop-input">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      Дата рождения
+                    </label>
+                    <input type="date" formControlName="birthday" class="shop-input date-input">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Контактные данные -->
+              <div class="form-section">
+                <h4 class="section-title">Контактные данные</h4>
+                <div class="form-grid">
+                  <div class="form-group"
+                    [class.has-error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                    <label class="form-label">
+                      Телефон <span class="required">*</span>
+                    </label>
+                    <div class="phone-input-wrapper">
+                      <span class="phone-prefix">+7</span>
+                      <input #phoneInput type="tel" formControlName="phoneNumber" placeholder="(999) 999-99-99"
+                        class="shop-input phone-input"
+                        [class.error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched"
+                        (input)="onPhoneInput($event)" (keydown)="onPhoneKeyDown($event)" (paste)="onPhonePaste($event)"
+                        (focus)="onPhoneFocus($event)" maxlength="15" autocomplete="tel">
+                    </div>
+                    <div class="form-error"
+                      *ngIf="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                      {{ getFieldError('phoneNumber') }}
+                    </div>
+                  </div>
+
+                  <div class="form-group"
+                    [class.has-error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                    <label class="form-label">
+                      Email <span class="required">*</span>
+                    </label>
+                    <input type="email" formControlName="email" placeholder="example@mail.com" class="shop-input"
+                      [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                    <div class="form-error" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                      {{ getFieldError('email') }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Действия формы -->
+              <div class="form-actions">
+                <div class="form-status">
+                  <div class="status-indicator" *ngIf="userForm.dirty || (isCustomAvatar && customAvatarFile)">
+                    <div class="status-dot"></div>
+                    <span class="status-text">
+                      {{ isCustomAvatar && customAvatarFile ? 'Требуется загрузка фото' : 'Есть несохраненные изменения'
+                      }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="action-buttons">
+                  <button type="button" class="shop-btn outline" (click)="resetForm()"
+                    [disabled]="!userForm.dirty && !(isCustomAvatar && customAvatarFile)">
+                    Отменить
+                  </button>
+
+                  <button type="submit" class="shop-btn primary"
+                    [disabled]="(userForm.invalid || (!userForm.dirty && !(isCustomAvatar && customAvatarFile))) || isSubmitting"
+                    [class.loading]="isSubmitting">
+                    <span class="btn-content">
+                      <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" *ngIf="!isSubmitting">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                      </svg>
+                      <svg class="btn-spinner" width="16" height="16" viewBox="0 0 24 24" *ngIf="isSubmitting">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"
+                          opacity="0.3" />
+                        <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                      </svg>
+                      <span class="btn-text">
+                        {{ isSubmitting ? 'Сохранение...' :
+                        (isCustomAvatar && customAvatarFile ? 'Загрузить фото и сохранить' : 'Сохранить изменения') }}
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Правая колонка: Дополнительная информация -->
+        <div class="profile-right-column">
+          <!-- Карточка программы лояльности -->
+          <!-- <div class="loyalty-card shop-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                Программа лояльности
+              </h3>
+            </div>
+            <div class="card-body">
+              <app-loyalty></app-loyalty>
+            </div>
+          </div> -->
+
+          <!-- Карточка партнерских карт -->
+          <div class="cards-card shop-card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path
+                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+                </svg>
+                Мои компании
+              </h3>
+            </div>
+            <div class="card-body">
+              <app-partner-cards></app-partner-cards>
+            </div>
+          </div>
+
+          <!-- Карточка подсказок -->
+          <div class="tips-card shop-card">
+            <div class="card-header">
+              <h3 class="card-title">Полезные советы</h3>
+            </div>
+            <div class="card-body">
+              <ul class="tips-list">
+                <li class="tip-item">
+                  <div class="tip-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                  </div>
+                  <div class="tip-content">
+                    <strong>Актуальные данные</strong>
+                    <p>Убедитесь, что контактная информация актуальна для доставки заказов</p>
+                  </div>
+                </li>
+                <li class="tip-item">
+                  <div class="tip-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+                    </svg>
+                  </div>
+                  <div class="tip-content">
+                    <strong>Безопасность</strong>
+                    <p>Ваши данные защищены и используются только для обработки заказов</p>
+                  </div>
+                </li>
+                <li class="tip-item">
+                  <div class="tip-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path
+                        d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
+                    </svg>
+                  </div>
+                  <div class="tip-content">
+                    <strong>Поддержка</strong>
+                    <p>Если возникнут вопросы, напишите в службу поддержки</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
-    </form>
-  </section>
+    </div>
+  </div>
 
-  <app-partner-cards></app-partner-cards>
+  <!-- Модальное окно выбора аватара (обновленное) -->
+  <div class="avatar-modal-overlay shop-modal-overlay" [class.active]="showAvatarModal" (click)="closeAvatarModal()">
+    <div class="avatar-modal shop-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-content">
+          <h2 class="modal-title">Выбор фотографии профиля</h2>
+          <p class="modal-subtitle">Выберите готовый аватар или загрузите своё фото</p>
+        </div>
+        <button class="modal-close" (click)="closeAvatarModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
 
+      <div class="modal-content">
+        <!-- Готовые аватары -->
+        <div class="avatars-section">
+          <h3 class="section-title">Готовые аватары</h3>
+          <div class="avatars-grid">
+            <div class="shop-avatar-item" *ngFor="let avatar of allAvatars"
+              [class.selected]="selectedAvatar === avatar && !isCustomAvatar" (click)="selectDefaultAvatar(avatar)">
+              <img [src]="avatar" alt="Аватар" class="avatar-image">
+              <div class="avatar-check" *ngIf="selectedAvatar === avatar && !isCustomAvatar">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Загрузка своего фото -->
+        <div class="upload-section">
+          <h3 class="section-title">Загрузить своё фото</h3>
+          <div class="upload-area" [class.dragover]="isDragOver" [class.has-file]="isCustomAvatar && selectedAvatar"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+            <input type="file" id="avatar-upload" hidden (change)="onAvatarUpload($event)" accept="image/*">
+
+            <div class="upload-content" *ngIf="!isCustomAvatar || !selectedAvatar">
+              <div class="upload-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+              </div>
+              <div class="upload-text">
+                <h4>Перетащите фото сюда</h4>
+                <p>или <label for="avatar-upload" class="upload-link">выберите файл</label></p>
+                <span class="upload-note">JPG, PNG или GIF • Макс. 5 МБ</span>
+              </div>
+            </div>
+
+            <div class="file-preview" *ngIf="isCustomAvatar && selectedAvatar">
+              <div class="preview-image-wrapper">
+                <img [src]="selectedAvatar" alt="Предпросмотр" class="preview-image">
+              </div>
+              <div class="file-info">
+                <h4>Фото готово к загрузке</h4>
+                <button class="change-file-btn"
+                  (click)="$event.stopPropagation(); avatarUploadInput.nativeElement.click()">
+                  Выбрать другое фото
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="shop-btn outline" (click)="closeAvatarModal()">
+          Отмена
+        </button>
+        <button class="shop-btn primary" (click)="applySelectedAvatar()" [disabled]="!selectedAvatar || avatarLoading"
+          [class.loading]="avatarLoading">
+          <span *ngIf="!avatarLoading">
+            {{ isCustomAvatar ? 'Загрузить фото' : 'Применить аватар' }}
+          </span>
+          <span *ngIf="avatarLoading">
+            <svg class="btn-spinner" width="16" height="16" viewBox="0 0 24 24">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity="0.3" />
+              <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+            </svg>
+            {{ isCustomAvatar ? 'Загрузка...' : 'Применение...' }}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Уведомления -->
+  <div class="shop-notifications">
+    <div class="notification success" *ngIf="successMessage" @slideInOut>
+      <div class="notification-content">
+        <div class="notification-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        </div>
+        <div class="notification-text">
+          <div class="notification-title">Успешно</div>
+          <div class="notification-message">{{ successMessage }}</div>
+        </div>
+      </div>
+      <button class="notification-close" (click)="successMessage = ''">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="notification error" *ngIf="errorMessage" @slideInOut>
+      <div class="notification-content">
+        <div class="notification-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+        </div>
+        <div class="notification-text">
+          <div class="notification-title">Ошибка</div>
+          <div class="notification-message">{{ errorMessage }}</div>
+        </div>
+      </div>
+      <button class="notification-close" (click)="errorMessage = ''">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </button>
+    </div>
+  </div>
 </div>

@@ -1,12 +1,42 @@
 <section class="groups">
-  <div class="categories-grid">
-    <div class="category-tile" *ngFor="let category of categories; let i = index" [ngClass]="category.widthClass">
-      <div class="tile-image">
-        <img [src]="category.image" alt="{{ category.name }}" />
+  <div class="category-container" *ngFor="let category of categories; let i = index">
+    <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick($event)">
+      <!-- Левая часть с контентом -->
+      <div class="category-content">
+        <div class="category-header">
+          <h3 class="category-title">{{ category.name }}</h3>
+          <div class="category-arrow">→</div>
+        </div>
+
+        <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
+          <span class="tag" *ngFor="let subcategory of category.subcategories">
+            {{ subcategory.name }}
+          </span>
+        </div>
       </div>
-      <div class="tile-name">{{ category.name }}</div>
+
+      <!-- Правая часть с изображением -->
+      <div class="category-image" *ngIf="category.image">
+        <img [src]="category.image" [alt]="category.name" loading="lazy" />
+      </div>
     </div>
   </div>
 
-  <!-- <img src="https://пакетон.рф/thumb/2/A2vunsUkVzCHDeoCm-nI2g/580r450/d/reklamnyj_blok_dlya_franshizy111.jpg" alt=""> -->
+  <!-- Карточка "Другие готовые решения" -->
+  <div class="category-container">
+    <div class="category-card other-solutions" [routerLink]="'/niches'">
+      <!-- Левая часть с контентом -->
+      <div class="category-content">
+        <div class="category-header">
+          <h3 class="category-title">Другие готовые решения</h3>
+          <div class="category-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- Правая часть с иконкой вместо изображения -->
+      <div class="category-image">
+        <div class="icon-placeholder">📦</div>
+      </div>
+    </div>
+  </div>
 </section>

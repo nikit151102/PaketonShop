@@ -1,40 +1,42 @@
 <div class="home-page">
+  <!-- <app-groups-section id="groups_modile"></app-groups-section> -->
 
-    <app-groups-section  id="groups_modile"></app-groups-section>
+  <!-- Карусель -->
+  <app-carousel-banner></app-carousel-banner>
 
-    <!-- Карусель -->
-    <app-carousel-banner></app-carousel-banner>
+  <app-business-block></app-business-block>
+  <!-- Категории -->
+  <section class="section">
+    <h2>Категории</h2>
+    <app-category-section [categories]="categories"> </app-category-section>
+  </section>
 
-    <!-- Категории -->
-    <section class="section">
-        <h2>Категории</h2>
-        <app-category-section [categories]="categories">
-        </app-category-section>
-    </section>
+  <!-- Ниши -->
+  <!-- <section class="section ready_solutions">
+    <h2>Готовые решения</h2>
+    <app-groups-section [showAll]="false"></app-groups-section>
+  </section> -->
 
-    <!-- Ниши -->
-    <section class="section ready_solutions">
-        <h2>Готовые решения</h2>
-        <app-groups-section></app-groups-section>
-    </section>
+  <!-- Акции -->
+  <!-- <section id="section-sales" class="section">
+    <h2>Товары по акции</h2>
+    <app-sales-products></app-sales-products>
+  </section> -->
+  <!-- Индикация загрузки -->
 
-    <!-- Акции -->
-    <section id="section-sales" class="section">
-        <h2>Товары по акции</h2>
-        <app-sales-products></app-sales-products>
-    </section>
-    <!-- Индикация загрузки -->
-
-    <!-- Популярные -->
-    <section class="section" (scroll)="onScroll()">
-        <h2>Популярные товары</h2>
-        <div class="products">
-            <app-product [product]="product" *ngFor="let product of products"></app-product>
-        </div>
-    </section>
-
-    <div *ngIf="loading" class="loading">
-        <div class="spinner"></div>
+  <!-- Популярные -->
+  <section class="section" (scroll)="onScroll()">
+    <h2>Популярные товары</h2>
+    <app-compare-common-btn [showHeader]="true"></app-compare-common-btn>
+    <div class="products">
+      <app-product
+        [product]="product"
+        *ngFor="let product of products"
+      ></app-product>
     </div>
+  </section>
 
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+  </div>
 </div>

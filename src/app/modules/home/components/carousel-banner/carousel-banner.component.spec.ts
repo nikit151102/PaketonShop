@@ -8,9 +8,8 @@ describe('CarouselBannerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CarouselBannerComponent]
-    })
-    .compileComponents();
+      imports: [CarouselBannerComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CarouselBannerComponent);
     component = fixture.componentInstance;

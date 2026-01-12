@@ -7,27 +7,33 @@ import { Router, RouterLink } from '@angular/router';
 import { Observable, map, take } from 'rxjs';
 import { UserApiService } from '../../../../api/user.service';
 import { StorageUtils } from '../../../../../../utils/storage.utils';
-import { localStorageEnvironment, sessionStorageEnvironment } from '../../../../../../environment';
+import {
+  localStorageEnvironment,
+  sessionStorageEnvironment,
+} from '../../../../../../environment';
 
 @Component({
   selector: 'app-icons',
   imports: [CommonModule, NotificationsComponent, RouterLink],
   templateUrl: './icons.component.html',
-  styleUrl: './icons.component.scss'
+  styleUrl: './icons.component.scss',
 })
 export class IconsComponent {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private userApiService = inject(UserApiService);
-  private router = inject(Router)
-  
+  private router = inject(Router);
+
   userId$: Observable<string | null> = this.userService.user$.pipe(
-    map((user: User | null) => user?.id ?? null)
+    map((user: User | null) => user?.id ?? null),
   );
 
   getAuth() {
-    const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
 
+    console.log('authToken',authToken)
     if (!authToken) {
       this.authService.changeVisible(true);
       return;
@@ -35,25 +41,32 @@ export class IconsComponent {
 
     this.userId$.pipe(take(1)).subscribe((userId) => {
       if (userId) {
-        this.router.navigate(['/profile', userId]);
+        this.router.navigate(['/profile']);
         return;
       }
 
-      const userData = StorageUtils.getSessionStorage<User>(sessionStorageEnvironment.user.key);
+      const userData = StorageUtils.getSessionStorage<User>(
+        sessionStorageEnvironment.user.key,
+      );
       if (userData && userData.id) {
-        this.router.navigate(['/profile', userData.id]);
+        this.router.navigate(['/profile']);
         return;
       }
 
-      this.userApiService.getData().pipe(take(1)).subscribe((data: any) => {
-        if (data?.data?.id) {
-          StorageUtils.setSessionStorage(sessionStorageEnvironment.user.key, data.data);
-          this.router.navigate(['/profile', data.data.id]);
-        } else {
-          this.authService.changeVisible(true);
-        }
-      });
+      this.userApiService
+        .getData()
+        .pipe(take(1))
+        .subscribe((data: any) => {
+          if (data?.data?.id) {
+            StorageUtils.setSessionStorage(
+              sessionStorageEnvironment.user.key,
+              data.data,
+            );
+            this.router.navigate(['/profile']);
+          } else {
+            this.authService.changeVisible(true);
+          }
+        });
     });
   }
-
 }

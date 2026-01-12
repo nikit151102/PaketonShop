@@ -1,102 +1,438 @@
+/* carousel-banner.component.scss */
+:root {
+  --carousel-height: 310px;
+  --carousel-mobile-height: 250px;
+  --primary-color: #3b82f6;
+  --text-light: #ffffff;
+  --text-dark: #1f2937;
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.05);
+  --transition-smooth: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.3s ease;
+}
+
 .carousel {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 300px;
+  border-radius: 16px;
   overflow: hidden;
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
+  background: #000;
 
-  &__item {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity 0.7s ease;
+  @media (max-width: 768px) {
+    height: var(--carousel-mobile-height);
+    border-radius: 12px;
+  }
+
+  &__track {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    height: 100%;
+    transition: var(--transition-smooth);
+    will-change: transform;
+  }
 
+  &__slide {
+    flex: 0 0 100%;
+    position: relative;
+    height: 100%;
+    min-width: 100%;
 
-    &.active {
-      transform: scale(1.05);
-      opacity: 1;
-      z-index: 2;
-    }
-
-    img {
+    .slide__image {
+      position: absolute;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-    }
 
-    .carousel__caption {
-      position: absolute;
-      bottom: 3rem;
-      left: 3rem;
-      color: white;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-
-      h3 {
-        font-size: 2.5rem;
-        font-weight: 700;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
       }
 
-      p {
-        font-size: 1.2rem;
-        margin-top: 0.5rem;
+      .image__overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        // background: linear-gradient(to right, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 100%);
+      }
+    }
+
+    .slide__content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 60px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+
+      @media (max-width: 1024px) {
+        padding: 0 40px;
+      }
+
+      @media (max-width: 640px) {
+        padding: 0 20px;
+      }
+
+      &.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .content__inner {
+        max-width: 500px;
+        color: var(--text-light);
+
+        .slide__badge {
+          display: inline-block;
+          background: var(--primary-color);
+          color: var(--text-light);
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 600;
+          margin-bottom: 20px;
+          animation: fadeInUp 0.6s ease 0.2s forwards;
+          opacity: 0;
+        }
+
+        .slide__title {
+          font-size: 2rem;
+          font-weight: 700;
+          line-height: 1.2;
+          margin-bottom: 12px;
+          animation: fadeInUp 0.6s ease 0.4s forwards;
+          opacity: 0;
+
+          @media (max-width: 1024px) {
+            font-size: 1.8rem;
+          }
+
+          @media (max-width: 640px) {
+            font-size: 1.5rem;
+          }
+        }
+
+        .slide__subtitle {
+          font-size: 1.1rem;
+          line-height: 1.5;
+          margin-bottom: 24px;
+          opacity: 0.9;
+          animation: fadeInUp 0.6s ease 0.6s forwards;
+          opacity: 0;
+
+          @media (max-width: 640px) {
+            font-size: 1rem;
+          }
+        }
+
+        .slide__actions {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          animation: fadeInUp 0.6s ease 0.8s forwards;
+          opacity: 0;
+
+          .slide__button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--text-light);
+            color: var(--text-dark);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+
+            &:hover {
+              background: #f3f4f6;
+              transform: translateY(-2px);
+
+              .button__icon {
+                transform: translateX(4px);
+              }
+            }
+
+            .button__icon {
+              transition: var(--transition-fast);
+            }
+          }
+
+          .slide__note {
+            font-size: 14px;
+            opacity: 0.8;
+          }
+        }
       }
     }
   }
 
-  &__prev,
-  &__next {
+  &__nav {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.7);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
     border: none;
-    font-size: 1.5rem;
-    padding: 0.6rem;
     border-radius: 50%;
     cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background: rgba(255, 255, 255, 1);
-    }
-  }
-
-  &__prev {
-    left: 1rem;
-  }
-
-  &__next {
-    right: 1rem;
-  }
-
-  .carousel__dots {
-    position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
     z-index: 10;
 
-    span {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
-      cursor: pointer;
-      transition: background 0.3s;
-      border: 1px solid #c3c2c2;
+    &:hover {
+      background: rgba(255, 255, 255, 0.603);
+      transform: translateY(-50%) scale(1.1);
+    }
 
-      &.active {
-        background: #189232;
+    svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-dark);
+    }
+
+    &.carousel__prev {
+      left: 16px;
+    }
+
+    &.carousel__next {
+      right: 16px;
+    }
+
+    @media (max-width: 768px) {
+      width: 40px;
+      height: 40px;
+
+      &.carousel__prev {
+        left: 12px;
+      }
+
+      &.carousel__next {
+        right: 12px;
       }
     }
   }
 
+  &__progress {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    overflow: hidden;
+
+    @media (max-width: 1024px) {
+      left: 40px;
+      right: 40px;
+      bottom: 40px;
+    }
+
+    @media (max-width: 640px) {
+      left: 20px;
+      right: 20px;
+      bottom: 60px;
+    }
+
+    .progress__bar {
+      height: 100%;
+      background: var(--text-light);
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+  }
+
+  &__indicators {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    @media (max-width: 640px) {
+      bottom: 20px;
+    }
+
+    .indicators__container {
+      display: flex;
+      gap: 8px;
+    }
+
+    .indicator {
+      width: 10px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.5);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition-fast);
+
+      &:hover {
+        background: var(--text-light);
+        transform: scale(1.2);
+      }
+
+      &.active {
+        background: var(--text-light);
+
+        .indicator__progress {
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+
+          .indicator__fill {
+            height: 100%;
+            background: var(--text-light);
+            border-radius: 50%;
+            transition: width 0.1s linear;
+          }
+        }
+      }
+    }
+  }
+
+  &__info {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-light);
+
+    @media (max-width: 640px) {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .info__current {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 16px;
+
+      .info__number {
+        font-weight: 700;
+      }
+
+      .info__separator {
+        opacity: 0.6;
+      }
+
+      .info__total {
+        opacity: 0.6;
+      }
+    }
+
+    .info__pause {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      transition: var(--transition-fast);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+
+        &.paused {
+          opacity: 0.6;
+        }
+      }
+    }
+  }
+}
+
+// Анимации
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+// Плавная замена контента при смене слайда
+.slide__content {
+  &.visible {
+
+    .slide__badge,
+    .slide__title,
+    .slide__subtitle,
+    .slide__actions {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+  }
+}
+
+// Стили для состояния загрузки
+.loading {
+  .carousel__slide {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+
+  @keyframes loading {
+    0% {
+      background-position: 200% 0;
+    }
+
+    100% {
+      background-position: -200% 0;
+    }
+  }
+}
+
+// Плавный эффект для перехода
+.carousel__track {
+  &.smooth {
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
 }

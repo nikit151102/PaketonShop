@@ -1,5 +1,5 @@
 .about-company-page {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: #333;
   line-height: 1.6;
   background: #fefefe;
@@ -10,9 +10,9 @@
     align-items: center;
     justify-content: space-between;
     padding: 5rem 2rem;
-    background: linear-gradient(to right, #E0F7FA, #FFFFFF);
+    background: linear-gradient(to right, #e0f7fa, #ffffff);
     border-radius: 1rem;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.07);
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
 
     .hero-content {
       max-width: 600px;
@@ -21,10 +21,10 @@
         font-size: 3rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        color: #00796B;
+        color: #00796b;
 
         span {
-          color: #004D40;
+          color: #004d40;
         }
       }
 
@@ -36,7 +36,7 @@
 
       .btn-primary {
         padding: 1rem 2.5rem;
-        background: #00796B;
+        background: #00796b;
         color: #fff;
         border-radius: 2rem;
         font-weight: 600;
@@ -44,7 +44,7 @@
         transition: all 0.3s;
 
         &:hover {
-          background: #004D40;
+          background: #004d40;
           transform: translateY(-2px);
         }
       }
@@ -55,7 +55,7 @@
       max-width: 100%;
       border-radius: 1rem;
       object-fit: cover;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
     }
   }
 
@@ -65,7 +65,7 @@
     flex-wrap: wrap;
     gap: 2rem;
     padding: 4rem 2rem;
-    background: #F1F8E9;
+    background: #f1f8e9;
     border-radius: 1rem;
 
     .stat {
@@ -75,7 +75,7 @@
 
       h2 {
         font-size: 3rem;
-        color: #689F38;
+        color: #689f38;
         margin-bottom: 0.5rem;
       }
 
@@ -90,8 +90,8 @@
     padding: 2rem 2rem;
     text-align: center;
     font-style: italic;
-    background: #FFFDE7;
-    border-left: 6px solid #FBC02D;
+    background: #fffde7;
+    border-left: 6px solid #fbc02d;
     margin: 2rem 0;
     border-radius: 0.5rem;
     font-size: 1.1rem;
@@ -100,11 +100,11 @@
 
   .timeline-section {
     padding: 4rem 2rem;
-    background: #E3F2FD;
+    background: #e3f2fd;
 
     h2 {
       text-align: center;
-      color: #1976D2;
+      color: #1976d2;
       font-size: 2rem;
       margin-bottom: 3rem;
     }
@@ -117,13 +117,13 @@
       padding-left: 2rem;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         left: 25px;
         top: 0;
         width: 4px;
         height: 100%;
-        background: #64B5F6;
+        background: #64b5f6;
         border-radius: 2px;
       }
 
@@ -134,7 +134,7 @@
         .year {
           position: absolute;
           left: -50px;
-          background: #1976D2;
+          background: #1976d2;
           color: #fff;
           font-weight: 600;
           padding: 0.3rem 0.8rem;
@@ -155,7 +155,7 @@
 
     h2 {
       font-size: 2rem;
-      color: #00796B;
+      color: #00796b;
       margin-bottom: 2.5rem;
     }
 
@@ -166,23 +166,25 @@
       gap: 2rem;
 
       .value-card {
-        background: #FFFFFF;
-        border: 1px solid #E0E0E0;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
         border-radius: 1rem;
         padding: 2rem 1.5rem;
         width: 220px;
         text-align: center;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
 
         &:hover {
           transform: translateY(-5px);
-          box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
         }
 
         .front {
           font-weight: 700;
-          color: #00796B;
+          color: #00796b;
           font-size: 1.1rem;
           margin-bottom: 0.5rem;
         }
@@ -201,7 +203,7 @@
 
     h2 {
       text-align: center;
-      color: #F57F17;
+      color: #f57f17;
       margin-bottom: 2.5rem;
     }
 
@@ -215,11 +217,11 @@
       padding: 0;
 
       li {
-        background: #FFF8E1;
+        background: #fff8e1;
         padding: 1.5rem;
         border-radius: 1rem;
-        border: 1px solid #FFE082;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        border: 1px solid #ffe082;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
         font-weight: 500;
       }
     }
@@ -231,7 +233,7 @@
 
     h2 {
       font-size: 2rem;
-      color: #00796B;
+      color: #00796b;
       margin-bottom: 3rem;
     }
 
@@ -245,7 +247,9 @@
         height: 60px;
         object-fit: contain;
         border-radius: 0.5rem;
-        transition: transform 0.3s, filter 0.3s;
+        transition:
+          transform 0.3s,
+          filter 0.3s;
 
         &:hover {
           transform: scale(1.1);
@@ -258,7 +262,7 @@
   .call-to-action {
     text-align: center;
     padding: 5rem 2rem;
-    background: #00796B;
+    background: #00796b;
     color: #fff;
     border-radius: 1rem;
 
@@ -270,15 +274,15 @@
 
     .btn-primary {
       padding: 1rem 2.5rem;
-      background: #FFC107;
-      color: #004D40;
+      background: #ffc107;
+      color: #004d40;
       font-weight: 600;
       border-radius: 2rem;
       text-decoration: none;
       transition: all 0.3s;
 
       &:hover {
-        background: #FFA000;
+        background: #ffa000;
         color: #fff;
         transform: translateY(-2px);
       }

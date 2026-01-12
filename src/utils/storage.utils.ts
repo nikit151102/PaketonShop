@@ -79,30 +79,46 @@ export class StorageUtils {
     }
   }
 
-  /**
-   * Получает данные из localStorage
-   * @param key Ключ
-   * @returns Данные или null, если кэш невалиден
-   */
-  static getLocalStorageCache<T>(key: string): T | null {
+/**
+ * Получает данные из localStorage
+ * @param key Ключ
+ * @returns Данные или null, если кэш невалиден
+ */
+static getLocalStorageCache<T>(key: string): T | null {
+  try {
+    const itemStr = localStorage.getItem(key);
+    if (!itemStr) return null;
+
+    // Пытаемся распарсить как JSON
     try {
-      const itemStr = localStorage.getItem(key);
-      if (!itemStr) return null;
-
       const item = JSON.parse(itemStr) as CacheItem<T>;
-      if (this.isCacheValid(item.expires)) {
-        return item.data;
+      // Если распарсилось успешно и это объект CacheItem
+      if (item && typeof item === 'object' && 'data' in item && 'expires' in item) {
+        if (this.isCacheValid(item.expires)) {
+          return item.data;
+        }
+        localStorage.removeItem(key); // Автоочистка
+        return null;
       }
-
-      localStorage.removeItem(key); // Автоочистка
-      return null;
     } catch (e) {
-      console.error('LocalStorage error:', e);
-      return null;
+      // Если не удалось распарсить как JSON, возможно это простая строка (например, токен)
+      // Проверяем, похоже ли это на JWT токен
+      if (itemStr.length > 50 && itemStr.includes('.')) {
+        // Это может быть JWT токен, возвращаем как есть
+        return itemStr as unknown as T;
+      }
+      // Если это не JWT и не JSON, это может быть обычная строка
+      return itemStr as unknown as T;
     }
-  }
 
-   /**
+    return null;
+  } catch (e) {
+    console.error('LocalStorage error:', e);
+    return null;
+  }
+}
+
+  /**
    * Удаляет данные из localStorage по ключу
    * @param key Ключ
    */

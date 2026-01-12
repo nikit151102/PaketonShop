@@ -1,6 +1,9 @@
 <section class="section" (scroll)="onScroll()">
-    <h2>Избранные товары</h2>
-    <div class="products" *ngIf="products.length > 0">
-        <app-product [product]="product" *ngFor="let product of products"></app-product>
-    </div>
+  <h2>Избранные товары</h2>
+  <div class="products" *ngIf="products.length > 0">
+    <app-product
+      [product]="product"
+      *ngFor="let product of products"
+    ></app-product>
+  </div>
 </section>

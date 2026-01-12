@@ -72,10 +72,7 @@ export const formatDateTime = (date: DateInput): string => {
 /**
  * Форматирует время доставки (например, "14:30-16:30")
  */
-export const formatTimeRange = (
-  start: DateInput,
-  end: DateInput
-): string => {
+export const formatTimeRange = (start: DateInput, end: DateInput): string => {
   const s = parseDate(start);
   const e = parseDate(end);
   return `${s.getHours()}:${s.getMinutes().toString().padStart(2, '0')}-${e.getHours()}:${e.getMinutes().toString().padStart(2, '0')}`;
@@ -163,7 +160,7 @@ export const diffInDays = (date1: DateInput, date2: DateInput): number => {
  */
 export const getDeliveryDate = (
   startDate: DateInput = new Date(),
-  workingDays: number = 3
+  workingDays: number = 3,
 ): Date => {
   let count = 0;
   let date = parseDate(startDate);
@@ -185,7 +182,7 @@ export const getDeliveryDate = (
  */
 export const formatDeliveryRange = (
   start: DateInput,
-  daysRange: number = 2
+  daysRange: number = 2,
 ): string => {
   const startDate = parseDate(start);
   const endDate = addDays(startDate, daysRange);

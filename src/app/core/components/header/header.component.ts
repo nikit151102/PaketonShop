@@ -12,15 +12,26 @@ import { City, LocationService } from '../location/location.service';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, FormsModule, LogoComponent, MenuComponent, SearchComponent, IconsComponent, CatalogComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LogoComponent,
+    MenuComponent,
+    SearchComponent,
+    IconsComponent,
+    CatalogComponent,
+  ],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
-
 export class HeaderComponent {
   mobileMenuOpen = false;
 
-  constructor(private authService: AuthService, private router: Router, public locationService: LocationService) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    public locationService: LocationService,
+  ) {}
 
   city$!: typeof this.locationService.city$;
   detectedCity$!: typeof this.locationService.detectedCity$;
@@ -33,9 +44,15 @@ export class HeaderComponent {
     this.currentSession$ = this.locationService.currentSession$;
   }
 
-  openCityListModal() { this.locationService.openCityListModal(); }
-  setCity(city: City) { this.locationService.setCity(city); }
-  confirmCity() { this.locationService.confirmCity(); }
+  openCityListModal() {
+    this.locationService.openCityListModal();
+  }
+  setCity(city: City) {
+    this.locationService.setCity(city);
+  }
+  confirmCity() {
+    this.locationService.confirmCity();
+  }
 
   goHome() {
     this.router.navigate(['/']);
@@ -54,8 +71,12 @@ export class HeaderComponent {
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    const header = document.querySelector('.header__content__top') as HTMLElement;
-    const header_bottom = document.querySelector('.header__content__bottom') as HTMLElement;
+    const header = document.querySelector(
+      '.header__content__top',
+    ) as HTMLElement;
+    const header_bottom = document.querySelector(
+      '.header__content__bottom',
+    ) as HTMLElement;
 
     if (window.scrollY === 0) {
       header.classList.remove('sticked');
@@ -66,35 +87,33 @@ export class HeaderComponent {
     }
   }
 
-
-
   niches = [
     {
       id: 'all',
       name: 'Все',
-      categories: []
+      categories: [],
     },
 
     {
       id: 'electronics',
       name: 'Электроника',
-      categories: ['Смартфоны', 'Ноутбуки', 'Телевизоры']
+      categories: ['Смартфоны', 'Ноутбуки', 'Телевизоры'],
     },
     {
       id: 'fashion',
       name: 'Мода',
-      categories: ['Женская одежда', 'Мужская одежда', 'Обувь']
+      categories: ['Женская одежда', 'Мужская одежда', 'Обувь'],
     },
     {
       id: 'home',
       name: 'Дом и сад',
-      categories: ['Мебель', 'Инструменты', 'Декор']
+      categories: ['Мебель', 'Инструменты', 'Декор'],
     },
     {
       id: 'autos',
       name: 'Авто',
-      categories: ['Машины', 'Мотоциклы', 'Запчасти']
-    }
+      categories: ['Машины', 'Мотоциклы', 'Запчасти'],
+    },
   ];
 
   openMegaMenu() {
@@ -113,6 +132,4 @@ export class HeaderComponent {
     event.preventDefault();
     this.megaMenuOpen = !this.megaMenuOpen;
   }
-
-
 }

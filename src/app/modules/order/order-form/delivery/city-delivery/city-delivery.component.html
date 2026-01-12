@@ -1,0 +1,244 @@
+<div class="city-delivery-container">
+  <!-- Заголовок -->
+  <div class="delivery-header">
+    <h3 class="delivery-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
+      Доставка по городу
+    </h3>
+    <p class="delivery-subtitle">Выберите адрес доставки и способ</p>
+  </div>
+
+  <!-- Индикатор загрузки -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Загружаем ваши адреса...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-content">
+      <div class="error-icon">⚠️</div>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadAddresses()">Повторить попытку</button>
+    </div>
+  </div>
+
+  <!-- Основной контент -->
+  <div *ngIf="!loading && !error">
+    <!-- Выбранный адрес -->
+    <div class="selected-address-section" *ngIf="selectedAddress && !showAddressList && !showNewAddressForm">
+      <div class="address-card selected">
+        <div class="address-header">
+          <div class="address-content">
+            <h4 class="address-title">Адрес доставки</h4>
+            <p class="address-text">{{ getFullAddress(selectedAddress) }}</p>
+          </div>
+        </div>
+        <div class="address-actions">
+          <button class="change-btn" (click)="showAddressSelection()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            Изменить адрес
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Список адресов для выбора -->
+    <div class="address-selection" *ngIf="showAddressList">
+      <div class="selection-header">
+        <h4>Выберите адрес доставки</h4>
+        <button class="close-selection" (click)="cancelSelection()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="addresses-list">
+        <div 
+          *ngFor="let address of addresses"
+          class="address-card"
+          [class.selected]="selectedAddress?.id === address.id"
+          (click)="selectAddress(address)"
+        >
+          <div class="address-icon">🏠</div>
+          <div class="address-content">
+            <p class="address-text">{{ getFullAddress(address) }}</p>
+          </div>
+          <div class="address-check" *ngIf="selectedAddress?.id === address.id">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="selection-footer">
+        <button class="add-address-btn" (click)="showAddressForm()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Добавить новый адрес
+        </button>
+      </div>
+    </div>
+
+    <!-- Форма нового адреса -->
+    <div class="new-address-form" *ngIf="showNewAddressForm">
+      <div class="form-header">
+        <h4>Добавить новый адрес</h4>
+        <button class="close-form" (click)="cancelSelection()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Город *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.city" 
+            placeholder="Например: Москва"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Улица *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.street" 
+            placeholder="Название улицы"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Дом *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.house" 
+            placeholder="Номер дома"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Корпус</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.housing" 
+            placeholder="Корпус (если есть)"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Квартира/Офис</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.office" 
+            placeholder="Номер квартиры или офиса"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Этаж</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.floorNumber" 
+            placeholder="Этаж"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label>Почтовый индекс *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newAddress.postIndex" 
+            placeholder="123456"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label>Комментарий для курьера</label>
+          <textarea 
+            [(ngModel)]="newAddress.comment" 
+            placeholder="Например: код домофона, особенности подъезда и т.д."
+            class="form-textarea"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="cancel-btn" (click)="cancelSelection()">Отмена</button>
+        <button 
+          class="save-btn" 
+          (click)="addNewAddress()"
+          [disabled]="!newAddress.city || !newAddress.street || !newAddress.house || !newAddress.postIndex"
+        >
+          Сохранить адрес
+        </button>
+      </div>
+    </div>
+
+    <!-- Выбор способа доставки -->
+    <!-- <div class="delivery-options" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+      <div class="options-header">
+        <h4>Способ доставки</h4>
+        <p class="options-subtitle">Выберите удобный для вас вариант</p>
+      </div>
+
+      <div class="options-grid">
+        <div 
+          *ngFor="let option of deliveryOptions"
+          class="option-card"
+          [class.selected]="selectedDeliveryOption.id === option.id"
+          (click)="selectDeliveryOption(option)"
+        >
+          <div class="option-icon">{{ option.icon }}</div>
+          <div class="option-content">
+            <div class="option-title">{{ option.name }}</div>
+            <div class="option-details">
+              <span class="option-duration">{{ option.duration }}</span>
+              <span class="option-price">{{ option.price }} ₽</span>
+            </div>
+          </div>
+          <div class="option-check" *ngIf="selectedDeliveryOption.id === option.id">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Информация о доставке -->
+    <div class="delivery-info" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+      <div class="info-card">
+        <div class="info-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+          <h5>Информация о доставке</h5>
+        </div>
+        
+        <ul class="info-list">
+          <li>Доставка осуществляется в рабочие дни с 9:00 до 21:00</li>
+          <li>Курьер свяжется с вами за 30 минут до доставки</li>
+          <li>Оплата возможна наличными или картой курьеру</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

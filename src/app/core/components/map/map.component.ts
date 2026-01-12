@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 declare var ymaps: any;
 
@@ -6,11 +14,11 @@ declare var ymaps: any;
   selector: 'app-map',
   imports: [],
   templateUrl: './map.component.html',
-  styleUrl: './map.component.scss'
+  styleUrl: './map.component.scss',
 })
 export class MapComponent implements OnChanges, AfterViewInit {
   @Input() coordinates: number[] = [55.76, 37.64]; // Центр карты
-  @Input() placemarks: any[] = [];                // Список меток
+  @Input() placemarks: any[] = []; // Список меток
   @Output() placemarkClick = new EventEmitter<any>(); // Событие клика по метке
 
   private map: any;
@@ -38,7 +46,7 @@ export class MapComponent implements OnChanges, AfterViewInit {
     ymaps.ready(() => {
       this.map = new ymaps.Map(this.mapId, {
         center: this.coordinates,
-        zoom: 11
+        zoom: 11,
       });
 
       this.updatePlacemarks();
@@ -50,10 +58,10 @@ export class MapComponent implements OnChanges, AfterViewInit {
 
     this.map.geoObjects.removeAll();
 
-    this.placemarks.forEach(store => {
+    this.placemarks.forEach((store) => {
       const placemark = new ymaps.Placemark(store.coords, {
         hintContent: store.address,
-        balloonContent: `<strong>${store.category}</strong><br>Адрес: ${store.address}<br>Телефон: ${store.phone}`
+        balloonContent: `<strong>${store.category}</strong><br>Адрес: ${store.address}<br>Телефон: ${store.phone}`,
       });
 
       placemark.events.add('click', () => {

@@ -1,10 +1,10 @@
 .products {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 20px;
 
-    app-product {
-        display: contents;
-    }
+  app-product {
+    display: contents;
+  }
 }

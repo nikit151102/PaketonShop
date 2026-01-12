@@ -1,0 +1,828 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Переменные
+$primary-color: #3c8a27;
+$primary-dark: #2d6c1d;
+$primary-light: #e6f4ea;
+$primary-light-hover: #d4edda;
+
+$secondary-color: #3b82f6;
+$error-color: #ef4444;
+$success-color: #10b981;
+$warning-color: #f59e0b;
+
+$background-light: #f8fafc;
+$background-card: #ffffff;
+$background-hover: #f1f5f9;
+$background-selected: rgba(60, 138, 39, 0.08);
+
+$text-primary: #1a1a1a;
+$text-secondary: #4a5568;
+$text-muted: #718096;
+$text-light: #94a3b8;
+
+$border-color: #e2e8f0;
+$border-light: rgba(226, 232, 240, 0.5);
+$border-primary: rgba(60, 138, 39, 0.3);
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
+
+$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+// Анимации
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+// Основные стили
+.company-selector-modern {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: fadeIn 0.4s ease-out;
+
+    .selector-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+
+        .selector-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: $text-primary;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            svg {
+                color: $primary-color;
+            }
+        }
+
+        .add-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, $primary-color, $primary-dark);
+            color: white;
+            border: none;
+            border-radius: $radius-md;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: $transition-base;
+            box-shadow: $shadow-sm;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: $shadow-md;
+            }
+
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
+    // Состояния загрузки и ошибки
+    .loading-state,
+    .error-state,
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 24px;
+        background: $background-light;
+        border-radius: $radius-lg;
+        border: 1px dashed $border-color;
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .loading-state {
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid $border-color;
+            border-top-color: $primary-color;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        span {
+            font-size: 15px;
+            color: $text-muted;
+        }
+    }
+
+    .error-state {
+        background: rgba($error-color, 0.05);
+        border-color: rgba($error-color, 0.2);
+
+        .error-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .error-message {
+            font-size: 15px;
+            color: $text-primary;
+            margin-bottom: 20px;
+            max-width: 300px;
+        }
+
+        .retry-button {
+            padding: 10px 20px;
+            background: $error-color;
+            color: white;
+            border: none;
+            border-radius: $radius-md;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: $transition-base;
+
+            &:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+            }
+        }
+    }
+
+    .empty-state {
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            background: rgba($primary-color, 0.1);
+            border-radius: $radius-lg;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $primary-color;
+            margin-bottom: 24px;
+
+            svg {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        h4 {
+            margin: 0 0 8px;
+            font-size: 17px;
+            font-weight: 600;
+            color: $text-primary;
+        }
+
+        p {
+            margin: 0 0 24px;
+            font-size: 15px;
+            color: $text-muted;
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .empty-action-button {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, $primary-color, $primary-dark);
+            color: white;
+            border: none;
+            border-radius: $radius-md;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: $transition-base;
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: $shadow-md;
+            }
+        }
+    }
+
+    // Выбранная компания (отображение)
+    .selected-company-display {
+        animation: slideIn 0.4s ease;
+
+        .selected-card {
+            background: $background-card;
+            border-radius: $radius-lg;
+            border: 2px solid $primary-color;
+            padding: 24px;
+            box-shadow: $shadow-md;
+
+            .selected-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+
+                .selected-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 12px;
+                    background: rgba($primary-color, 0.1);
+                    border-radius: $radius-sm;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: $primary-color;
+
+                    svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+                }
+
+                .change-button {
+                    padding: 8px 16px;
+                    background: $background-light;
+                    border: 1px solid $border-color;
+                    border-radius: $radius-sm;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: $text-secondary;
+                    cursor: pointer;
+                    transition: $transition-base;
+
+                    &:hover {
+                        background: darken($background-light, 3%);
+                        border-color: $primary-color;
+                        color: $primary-color;
+                    }
+                }
+            }
+
+            .selected-content {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                .selected-logo {
+                    width: 64px;
+                    height: 64px;
+                    background: $primary-light;
+                    border-radius: $radius-md;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: $primary-color;
+                    flex-shrink: 0;
+
+                    svg {
+                        width: 28px;
+                        height: 28px;
+                    }
+                }
+
+                .selected-info {
+                    flex: 1;
+
+                    .selected-name {
+                        margin: 0 0 8px;
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: $text-primary;
+                    }
+
+                    .selected-details {
+                        display: flex;
+                        gap: 20px;
+                        margin-bottom: 12px;
+
+                        .selected-detail {
+                            font-size: 14px;
+                            color: $text-secondary;
+                            position: relative;
+
+                            &:not(:last-child)::after {
+                                content: '•';
+                                position: absolute;
+                                right: -12px;
+                                top: 0;
+                                color: $border-color;
+                            }
+                        }
+                    }
+
+                    .selected-type {
+                        display: inline-block;
+                        padding: 4px 12px;
+                        background: rgba($primary-color, 0.1);
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        color: $primary-color;
+                    }
+                }
+            }
+        }
+    }
+
+    // Список компаний (обычный режим)
+    .companies-list {
+        animation: fadeIn 0.4s ease;
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+
+            .list-title {
+                font-size: 16px;
+                font-weight: 500;
+                color: $text-primary;
+            }
+
+            .list-count {
+                font-size: 14px;
+                color: $text-muted;
+            }
+        }
+
+        .company-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .company-card {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 20px;
+                background: $background-card;
+                border: 2px solid $border-color;
+                border-radius: $radius-lg;
+                cursor: pointer;
+                transition: $transition-base;
+                position: relative;
+
+                &:hover {
+                    border-color: $border-primary;
+                    transform: translateX(4px);
+                    box-shadow: $shadow-md;
+
+                    .card-arrow {
+                        color: $primary-color;
+                        transform: translateX(2px);
+                    }
+                }
+
+                &.hovered {
+                    border-color: $border-primary;
+                    background: $background-selected;
+                }
+
+                .card-logo {
+                    width: 56px;
+                    height: 56px;
+                    background: $primary-light;
+                    border-radius: $radius-md;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: $primary-color;
+                    flex-shrink: 0;
+
+                    svg {
+                        width: 24px;
+                        height: 24px;
+                    }
+                }
+
+                .card-content {
+                    flex: 1;
+                    min-width: 0;
+
+                    .company-name {
+                        font-weight: 600;
+                        color: $text-primary;
+                        margin-bottom: 6px;
+                        font-size: 16px;
+                        line-height: 1.3;
+                    }
+
+                    .company-details {
+                        font-size: 14px;
+                        color: $text-secondary;
+                        margin-bottom: 8px;
+                    }
+
+                    .company-type {
+                        display: inline-block;
+                        padding: 4px 10px;
+                        background: rgba($primary-color, 0.1);
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        color: $primary-color;
+                    }
+                }
+
+                .card-arrow {
+                    color: $text-muted;
+                    transition: $transition-base;
+
+                    svg {
+                        width: 16px;
+                        height: 16px;
+                    }
+                }
+            }
+        }
+    }
+
+    // Режим выбора
+    .selection-mode {
+        animation: scaleIn 0.4s ease;
+
+        .selection-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid $border-light;
+
+            .back-button {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 12px;
+                background: $background-light;
+                border: 1px solid $border-color;
+                border-radius: $radius-sm;
+                font-size: 14px;
+                font-weight: 500;
+                color: $text-secondary;
+                cursor: pointer;
+                transition: $transition-base;
+                flex-shrink: 0;
+
+                &:hover {
+                    background: darken($background-light, 3%);
+                    color: $text-primary;
+                }
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+
+            .selection-title {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: $text-primary;
+                flex: 1;
+            }
+
+            .selection-actions {
+                .add-button-sm {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 14px;
+                    background: $background-light;
+                    border: 1px solid $border-color;
+                    border-radius: $radius-sm;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: $primary-color;
+                    cursor: pointer;
+                    transition: $transition-base;
+
+                    &:hover {
+                        background: $primary-light;
+                        border-color: $primary-color;
+                    }
+
+                    svg {
+                        width: 14px;
+                        height: 14px;
+                    }
+                }
+            }
+        }
+
+        .company-selection {
+            margin-bottom: 24px;
+            padding: 24px;
+            background: $background-card;
+            border-radius: $radius-lg;
+            border: 2px solid $primary-color;
+            box-shadow: $shadow-md;
+
+            .preview-card {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                margin-bottom: 24px;
+
+                .preview-logo {
+                    width: 72px;
+                    height: 72px;
+                    background: $primary-light;
+                    border-radius: $radius-md;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: $primary-color;
+                    flex-shrink: 0;
+
+                    svg {
+                        width: 32px;
+                        height: 32px;
+                    }
+                }
+
+                .preview-info {
+                    flex: 1;
+
+                    .preview-name {
+                        margin: 0 0 12px;
+                        font-size: 20px;
+                        font-weight: 600;
+                        color: $text-primary;
+                    }
+
+                    .preview-details {
+                        .preview-row {
+                            display: flex;
+                            gap: 8px;
+                            margin-bottom: 6px;
+
+                            &:last-child {
+                                margin-bottom: 0;
+                            }
+
+                            .label {
+                                font-size: 14px;
+                                color: $text-secondary;
+                                min-width: 40px;
+                            }
+
+                            .value {
+                                font-size: 14px;
+                                font-weight: 500;
+                                color: $text-primary;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .selection-confirm {
+                .confirm-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 10px;
+                    width: 100%;
+                    padding: 16px;
+                    background: linear-gradient(135deg, $primary-color, $primary-dark);
+                    color: white;
+                    border: none;
+                    border-radius: $radius-md;
+                    font-weight: 600;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: $transition-base;
+                    box-shadow: $shadow-md;
+
+                    &:hover {
+                        transform: translateY(-2px);
+                        box-shadow: $shadow-lg;
+                    }
+
+                    svg {
+                        width: 18px;
+                        height: 18px;
+                    }
+                }
+            }
+        }
+
+        .other-companies {
+            .other-companies-header {
+                margin-bottom: 16px;
+
+                .other-title {
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: $text-secondary;
+                }
+            }
+
+            .other-companies-list {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+
+                .other-company-card {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 16px;
+                    background: $background-card;
+                    border: 2px solid $border-color;
+                    border-radius: $radius-md;
+                    cursor: pointer;
+                    transition: $transition-base;
+
+                    &:hover {
+                        border-color: $border-primary;
+                        background: $background-selected;
+                    }
+
+                    &.active {
+                        border-color: $primary-color;
+                        background: $background-selected;
+                    }
+
+                    .other-logo {
+                        width: 40px;
+                        height: 40px;
+                        background: $primary-light;
+                        border-radius: $radius-sm;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: $primary-color;
+                        flex-shrink: 0;
+
+                        svg {
+                            width: 16px;
+                            height: 16px;
+                        }
+                    }
+
+                    .other-info {
+                        flex: 1;
+                        min-width: 0;
+
+                        .other-name {
+                            font-weight: 500;
+                            color: $text-primary;
+                            margin-bottom: 4px;
+                            font-size: 14px;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .other-details {
+                            font-size: 13px;
+                            color: $text-muted;
+                        }
+                    }
+
+                    .other-check {
+                        width: 20px;
+                        height: 20px;
+                        background: $primary-color;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        svg {
+                            width: 12px;
+                            height: 12px;
+                            color: white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+    .company-selector-modern {
+        .selector-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 16px;
+
+            .add-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .selected-company-display {
+            .selected-card {
+                padding: 20px;
+
+                .selected-content {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 16px;
+
+                    .selected-logo {
+                        width: 56px;
+                        height: 56px;
+                    }
+
+                    .selected-info {
+                        .selected-details {
+                            flex-direction: column;
+                            gap: 8px;
+
+                            .selected-detail::after {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .companies-list {
+            .company-card {
+                padding: 16px;
+
+                .card-logo {
+                    width: 48px;
+                    height: 48px;
+                }
+            }
+        }
+
+        .selection-mode {
+            .company-selection {
+                padding: 20px;
+
+                .preview-card {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 16px;
+
+                    .preview-logo {
+                        width: 64px;
+                        height: 64px;
+                        align-self: center;
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .company-selector-modern {
+        .selection-mode {
+            .selection-header {
+                flex-wrap: wrap;
+
+                .back-button {
+                    order: 1;
+                }
+
+                .selection-title {
+                    order: 3;
+                    width: 100%;
+                    margin-top: 12px;
+                }
+
+                .selection-actions {
+                    order: 2;
+                    margin-left: auto;
+                }
+            }
+        }
+    }
+}

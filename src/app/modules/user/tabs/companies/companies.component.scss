@@ -1,0 +1,85 @@
+
+// Переменные для интернет-магазина
+$primary-color: #3c8a27;
+$primary-light: rgba(60, 138, 39, 0.1);
+$primary-dark: #327120;
+$secondary-color: #f5f5f5;
+$accent-color: #ff6b00;
+
+$text-primary: #1a1a1a;
+$text-secondary: #4a5568;
+$text-muted: #718096;
+$text-light: #94a3b8;
+
+$bg-white: #ffffff;
+$bg-light: #f8fafc;
+$bg-lighter: #f5f7fa;
+$bg-dark: #0f172a;
+
+$border-color: #e2e8f0;
+$border-light: rgba(226, 232, 240, 0.5);
+$border-dark: rgba(0, 0, 0, 0.08);
+
+$success-color: #10b981;
+$error-color: #ef4444;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
+
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.15);
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-full: 16px;
+
+$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Карточки магазина
+.shop-card {
+  overflow: hidden;
+  margin-bottom: 24px;
+
+  .card-header {
+    padding: 24px;
+    border-bottom: 1px solid $border-color;
+
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      svg {
+        color: $primary-color;
+      }
+    }
+
+    .card-subtitle {
+      margin: 8px 0 0;
+      color: $text-muted;
+      font-size: 13px;
+    }
+
+    .card-badge {
+      display: inline-block;
+      margin-left: 12px;
+      padding: 4px 8px;
+      background: $primary-light;
+      color: $primary-color;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+  }
+
+  .card-body {
+    padding: 24px;
+  }
+}

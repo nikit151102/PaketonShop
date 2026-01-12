@@ -1,0 +1,426 @@
+<div class="shops-modern">
+  <!-- Hero Section с параллакс эффектом -->
+  <section class="hero-section">
+    <div class="hero-background"></div>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          <span>Официальная сеть</span>
+        </div>
+        
+        <h1 class="hero-title">
+          <span class="hero-title-line">Наши магазины</span>
+          <span class="hero-title-line gradient">по всей России</span>
+        </h1>
+        
+        <p class="hero-subtitle">
+          Посетите один из наших магазинов для личной консультации
+          и профессионального подбора оборудования
+        </p>
+        
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-number">
+              <span>{{ uniqueCities.length }}</span>
+              <span class="stat-plus">+</span>
+            </div>
+            <div class="stat-label">города</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-number">
+              <span>{{ getTotalShops() }}</span>
+            </div>
+            <div class="stat-label">магазинов</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-number">
+              <span>{{ getOpenShopsCount() }}</span>
+            </div>
+            <div class="stat-label">открыто сейчас</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Фильтры в стиле macOS -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-grid">
+        <!-- Поиск с умным автокомплитом -->
+        <div class="filter-group search-group">
+          <div class="search-wrapper glassmorphism">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="onSearchChange()"
+              placeholder="Поиск по городу, адресу или названию магазина..."
+              class="search-input"
+              [class.has-suggestions]="searchSuggestions.length > 0">
+            
+            <div class="search-suggestions" *ngIf="searchSuggestions.length > 0">
+              <div class="suggestion-item" 
+                   *ngFor="let suggestion of searchSuggestions"
+                   (click)="selectSearchSuggestion(suggestion)">
+                <svg width="14" height="14" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                {{ suggestion }}
+              </div>
+            </div>
+            
+            <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Фильтр региона и города -->
+        <div class="filter-group location-group">
+          <div class="filter-select-wrapper glassmorphism" [class.active]="selectedRegion">
+            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+            <select class="filter-select" [(ngModel)]="selectedRegion" (ngModelChange)="onRegionChange($event)">
+              <option [value]="null">Все регионы</option>
+              <option *ngFor="let region of uniqueRegions" [value]="region">{{ region }}</option>
+            </select>
+          </div>
+          
+          <div class="filter-select-wrapper glassmorphism" [class.active]="selectedCity" [class.disabled]="!selectedRegion">
+            <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z"/>
+            </svg>
+            <select class="filter-select" [(ngModel)]="selectedCity" (ngModelChange)="onCityChange($event)" [disabled]="!selectedRegion">
+              <option [value]="null">Все города</option>
+              <option *ngFor="let city of uniqueCities" [value]="city">{{ city }}</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Быстрые фильтры -->
+        <div class="filter-group quick-filters">
+          <div class="filter-chips">
+            <button class="filter-chip" [class.active]="showOnlyOpen" (click)="toggleOpenFilter()">
+              <span class="chip-indicator" [class.open]="showOnlyOpen"></span>
+              <span>Открытые сейчас</span>
+            </button>
+            
+            <button class="filter-chip" [class.active]="sortBy === 'distance'" (click)="toggleSortDistance()">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path d="M20.94 11c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+              </svg>
+              <span>Ближайшие</span>
+            </button>
+            
+            <button class="filter-chip" [class.active]="showPartnerOnly" (click)="togglePartnerFilter()">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              <span>Официальные партнеры</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Переключатель вида -->
+        <div class="filter-group view-toggle-group">
+          <div class="view-toggle glassmorphism">
+            <button class="view-toggle-btn" [class.active]="viewMode === 'grid'" (click)="onViewModeChange('grid')" title="Сетка">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>
+              </svg>
+            </button>
+            <button class="view-toggle-btn" [class.active]="viewMode === 'list'" (click)="onViewModeChange('list')" title="Список">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Активные фильтры (чипсы) -->
+  <section class="active-filters" *ngIf="hasActiveFilters()">
+    <div class="container">
+      <div class="active-filters-content">
+        <span class="filters-label">Активные фильтры:</span>
+        <div class="active-filters-chips">
+          <div class="active-filter-chip" *ngIf="selectedRegion">
+            {{ selectedRegion }}
+            <button class="remove-filter" (click)="clearRegionFilter()">
+              <svg width="12" height="12" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="active-filter-chip" *ngIf="selectedCity">
+            {{ selectedCity }}
+            <button class="remove-filter" (click)="clearCityFilter()">
+              <svg width="12" height="12" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="active-filter-chip" *ngIf="showOnlyOpen">
+            Открытые сейчас
+            <button class="remove-filter" (click)="showOnlyOpen = false; applyFilters()">
+              <svg width="12" height="12" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+          <button class="clear-all-filters" (click)="clearAllFilters()">
+            Сбросить все
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Загрузка скелетоном -->
+  <section class="shops-content" *ngIf="loading">
+    <div class="container">
+      <div class="skeleton-grid">
+        <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6]">
+          <div class="skeleton-header"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Основной контент -->
+  <section class="shops-content" *ngIf="!loading">
+    <div class="container">
+      <!-- Статистика фильтров -->
+      <div class="content-header">
+        <div class="results-stats">
+          <h2 class="results-title">
+            Найдено 
+            <span class="highlight">{{ getFilteredLocationsCount() }}</span> 
+            населенных пунктов • 
+            <span class="highlight">{{ getFilteredShopsCount() }}</span> 
+            магазинов
+          </h2>
+          <div class="live-stats">
+            <div class="live-stat">
+              <div class="live-indicator" [class.active]="getFilteredOpenShopsCount() > 0"></div>
+              <span>{{ getFilteredOpenShopsCount() }} открыто сейчас</span>
+            </div>
+            <div class="live-stat">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Обновлено {{ lastUpdateTime | date:'HH:mm' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <button class="refresh-action" (click)="refreshStores()" [class.refreshing]="loading">
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+          Обновить
+        </button>
+      </div>
+
+      <!-- Пустой результат -->
+      <div *ngIf="filteredCities.length === 0" class="empty-state">
+        <div class="empty-illustration">
+          <svg width="120" height="120" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">Магазины не найдены</h3>
+        <p class="empty-description">
+          Попробуйте изменить параметры поиска или выбрать другой регион
+        </p>
+        <button class="empty-action" (click)="clearAllFilters()">
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+          Сбросить фильтры
+        </button>
+      </div>
+
+      <!-- Список городов -->
+      <div *ngIf="filteredCities.length > 0" class="cities-list">
+        <div class="city-group" *ngFor="let cityData of filteredCities; trackBy: trackByCity">
+          <div class="city-group-header">
+            <div class="city-group-info">
+              <h3 class="city-name">
+                {{ cityData.city }}
+                <span class="city-shop-count">{{ cityData.shops.length }}</span>
+              </h3>
+              <div class="city-group-meta">
+                <span class="city-region">{{ cityData.region }}</span>
+                <span class="city-open-count">
+                  {{ getCityOpenShopsCount(cityData.shops) }} открыто сейчас
+                </span>
+              </div>
+            </div>
+            
+            <button class="city-group-toggle" (click)="toggleCityExpansion(cityData)">
+              {{ cityData.expanded ? 'Свернуть' : 'Развернуть' }}
+              <svg width="16" height="16" viewBox="0 0 24 24" [class.rotated]="cityData.expanded">
+                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Список магазинов -->
+          <div class="shops-grid" *ngIf="cityData.expanded" [class.list-view]="viewMode === 'list'">
+            <div class="shop-card" *ngFor="let shop of cityData.shops; trackBy: trackByShopId"
+                 [routerLink]="['/shop', shop.id]"
+                 [class.featured]="shop.partner"
+                 [class.closing-soon]="isClosingSoon(shop)">
+              
+              <!-- Статус магазина -->
+              <div class="shop-card-status">
+                <div class="status-indicator" [class]="shop.status"></div>
+                <span class="status-text">{{ shop.statusText }}</span>
+                <span class="status-time" *ngIf="shop.isOpenNow && shop.closingTime">
+                  до {{ shop.closingTime }}
+                </span>
+              </div>
+              
+              <!-- Основная информация -->
+              <div class="shop-card-main">
+                <div class="shop-card-header">
+                  <h4 class="shop-name">{{ shop.name }}</h4>
+                  <div class="shop-badges">
+                    <span class="shop-badge partner" *ngIf="shop.partner">
+                      <svg width="12" height="12" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                      </svg>
+                      Партнер
+                    </span>
+                    <span class="shop-badge distance" *ngIf="shop.distance">
+                      {{ formatDistance(shop.distance) }}
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Контактная информация -->
+                <div class="shop-card-contacts">
+                  <div class="contact-item">
+                    <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    </svg>
+                    <div class="contact-details">
+                      <div class="contact-label">Адрес</div>
+                      <div class="contact-value">{{ shop.address }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="contact-item">
+                    <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                    <div class="contact-details">
+                      <div class="contact-label">Телефон</div>
+                      <a href="tel:{{ shop.phone }}" class="contact-value link">{{ shop.phone }}</a>
+                    </div>
+                  </div>
+                  
+                  <div class="contact-item" *ngIf="shop.email">
+                    <svg class="contact-icon" width="16" height="16" viewBox="0 0 24 24">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    <div class="contact-details">
+                      <div class="contact-label">Email</div>
+                      <a href="mailto:{{ shop.email }}" class="contact-value link">{{ shop.email }}</a>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- График работы -->
+                <div class="shop-card-schedule">
+                  <div class="schedule-header">
+                    <svg class="schedule-icon" width="14" height="14" viewBox="0 0 24 24">
+                      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                    </svg>
+                    <span>График работы</span>
+                  </div>
+                  <div class="schedule-details">
+                    <div class="schedule-today" [class.open]="shop.isOpenNow">
+                      {{ shop.hours }}
+                    </div>
+                    <button class="schedule-more" (click)="toggleShopSchedule(shop); $event.stopPropagation()">
+                      Полный график
+                      <svg width="12" height="12" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Особенности -->
+                <div class="shop-card-features" *ngIf="shop.features.length > 0">
+                  <div class="features-list">
+                    <span class="feature-tag" *ngFor="let feature of shop.features">
+                      {{ feature }}
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- Расширенная информация -->
+                <div class="shop-card-expanded" *ngIf="shop.showSchedule">
+                  <div class="expanded-schedule">
+                    <h5>Полный график работы:</h5>
+                    <div class="schedule-week">
+                      <div class="schedule-day" *ngFor="let day of shop.scheduleInfo">
+                        <span class="day-name">{{ day.dayName }}</span>
+                        <span class="day-hours" [class.day-off]="!day.isWorkingDay">
+                          {{ day.isWorkingDay ? (day.openTime + ' - ' + day.closeTime) : 'выходной' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Действия -->
+              <div class="shop-card-actions">
+                <button class="action-button primary" [routerLink]="['/shop', shop.id]">
+                  Подробнее
+                </button>
+                <!-- <button class="action-button secondary" (click)="getDirections(shop); $event.stopPropagation()">
+                  <svg width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  Маршрут
+                </button> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Кнопка наверх -->
+  <button class="scroll-to-top" (click)="scrollToTop()" [class.visible]="showScrollTop">
+    <svg width="20" height="20" viewBox="0 0 24 24">
+      <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+    </svg>
+  </button>
+
+</div>

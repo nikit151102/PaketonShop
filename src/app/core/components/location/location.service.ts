@@ -30,11 +30,13 @@ export class LocationService {
 
   citySearch: string = '';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   async init() {
     if (!this.cities.length) {
-      const data = await firstValueFrom(this.http.get<City[]>('/russian-cities.json'));
+      const data = await firstValueFrom(
+        this.http.get<City[]>('/russian-cities.json'),
+      );
       this.cities = data;
       this.groupCities();
       this.detectUserCity();
@@ -42,18 +44,21 @@ export class LocationService {
   }
 
   groupCities() {
-    const grouped = this.cities.reduce((acc, city) => {
-      if (!acc[city.subject]) acc[city.subject] = [];
-      acc[city.subject].push(city);
-      return acc;
-    }, {} as Record<string, City[]>);
+    const grouped = this.cities.reduce(
+      (acc, city) => {
+        if (!acc[city.subject]) acc[city.subject] = [];
+        acc[city.subject].push(city);
+        return acc;
+      },
+      {} as Record<string, City[]>,
+    );
 
     this.groupedDistricts = Object.keys(grouped)
       .sort((a, b) => a.localeCompare(b))
-      .map(subject => ({
+      .map((subject) => ({
         name: subject,
         cities: grouped[subject].sort((a, b) => a.name.localeCompare(b.name)),
-        showAll: false
+        showAll: false,
       }));
   }
 
@@ -64,16 +69,16 @@ export class LocationService {
 
   setCity(city: City) {
     this.city$.next(city.name);
-    localStorage.setItem(this.localStorage_city, city.name)
+    localStorage.setItem(this.localStorage_city, city.name);
     this.selectedDistrict = null;
     this.showCityModal$.next(false);
-    StorageUtils.setSessionStorage(this.localStorage_city, 'true')
+    StorageUtils.setSessionStorage(this.localStorage_city, 'true');
   }
 
   confirmCity() {
     this.city$.next(this.detectedCity$.value);
     this.showCityModal$.next(false);
-    StorageUtils.setSessionStorage(this.localStorage_city, 'true')
+    StorageUtils.setSessionStorage(this.localStorage_city, 'true');
   }
 
   // фильтрация областей
@@ -81,9 +86,10 @@ export class LocationService {
     if (!this.citySearch) return this.groupedDistricts;
 
     const search = this.citySearch.toLowerCase();
-    return this.groupedDistricts.filter(d =>
-      d.name.toLowerCase().startsWith(search) ||
-      d.cities.some(c => c.name.toLowerCase().startsWith(search))
+    return this.groupedDistricts.filter(
+      (d) =>
+        d.name.toLowerCase().startsWith(search) ||
+        d.cities.some((c) => c.name.toLowerCase().startsWith(search)),
     );
   }
 
@@ -93,7 +99,9 @@ export class LocationService {
     if (!this.citySearch) return this.selectedDistrict.cities;
 
     const search = this.citySearch.toLowerCase();
-    return this.selectedDistrict.cities.filter(c => c.name.toLowerCase().startsWith(search));
+    return this.selectedDistrict.cities.filter((c) =>
+      c.name.toLowerCase().startsWith(search),
+    );
   }
 
   onSearchChange() {
@@ -106,11 +114,14 @@ export class LocationService {
     const userCity = localStorage.getItem(this.localStorage_city);
     if (navigator.geolocation && !userCity) {
       navigator.geolocation.getCurrentPosition(
-        pos => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
-        () => console.warn('Не удалось получить геолокацию')
+        (pos) =>
+          this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
+        () => console.warn('Не удалось получить геолокацию'),
       );
     } else {
-      this.currentSession$.next(StorageUtils.getSessionStorage(this.localStorage_city));
+      this.currentSession$.next(
+        StorageUtils.getSessionStorage(this.localStorage_city),
+      );
       this.detectedCity$.next(userCity);
       this.city$.next(userCity);
     }
@@ -139,18 +150,21 @@ export class LocationService {
 
   private async getCityFromCoords(lat: number, lon: number) {
     try {
-      const res = await fetch("https://песочница.пакетон.рф/api/auth/authentication", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        'https://песочница.пакетон.рф/api/auth/authentication',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: 'Admin1',
+            password: 'QweQwe',
+            lat,
+            lon,
+          }),
         },
-        body: JSON.stringify({
-          email: "Admin1",
-          password: "QweQwe",
-          lat,
-          lon,
-        }),
-      });
+      );
 
       if (!res.ok) {
         throw new Error(`HTTP error! Status: ${res.status}`);
@@ -159,7 +173,7 @@ export class LocationService {
       const data = await res.json();
 
       this.detectedCity$.next(
-        data.address?.city || data.address?.town || data.address?.village
+        data.address?.city || data.address?.town || data.address?.village,
       );
       this.showCityModal$.next(true);
     } catch (err) {
@@ -167,5 +181,4 @@ export class LocationService {
       this.showCityModal$.next(true);
     }
   }
-
 }

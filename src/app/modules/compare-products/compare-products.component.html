@@ -1,35 +1,167 @@
-<div class="comparison-container">
-  <h2>Сравнение товаров</h2>
-  
-  <div class="product-comparison">
-    <div class="comparison-table">
+<div class="comparison-page">
+  <!-- Заголовок страницы -->
+  <header class="page-header">
+    <h1 class="page-title">
+      <i class="icon-compare"></i>
+      Сравнение товаров
+    </h1>
+    <p class="page-subtitle">Сравните характеристики и выберите лучший товар</p>
+  </header>
 
-      <div class="table-header">
-        <div class="table-header-item">Характеристики</div>
-        <div *ngFor="let product of products" class="table-header-item">
-          <img [src]="product.image" alt="{{ product.name }}" class="product-image" />
-          <p class="product-name">{{ product.name }}</p>
+  <!-- Индикатор загрузки -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Загружаем данные для сравнения...</p>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container">
+    <i class="icon-error"></i>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Основной контент -->
+  <div *ngIf="!isLoading && !errorMessage && comparisonData.length > 0" class="comparison-content">
+
+    <!-- Категории для сравнения -->
+    <div class="categories-section">
+      <h2 class="section-title">Категории для сравнения</h2>
+      <div class="categories-scroll">
+        <div class="categories-container">
+          <button *ngFor="let category of comparisonData; let i = index" class="category-tab"
+            [class.active]="selectedCategoryIndex === i" (click)="selectCategory(category, i)">
+            <span class="category-name">{{ category.productCategory.name }}</span>
+            <span class="product-count">{{ category.products.length }} товаров</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Блок сравнения -->
+    <div *ngIf="selectedCategory" class="comparison-main">
+
+      <!-- Заголовок выбранной категории -->
+      <div class="category-header">
+        <h2 class="category-title">
+          {{ selectedCategory.productCategory.name }}
+          <span class="products-count">({{ selectedCategory.products.length }} товаров)</span>
+        </h2>
+        <div class="category-actions">
+          <button class="btn-clear">
+            <i class="icon-trash"></i>
+            Очистить сравнение
+          </button>
         </div>
       </div>
 
-      <div *ngFor="let feature of products[0].features | keyvalue" class="table-row">
-        <div class="table-row-item">{{ feature.key }}</div>
-        <div *ngFor="let product of products" class="table-row-item">
-          <ng-container *ngIf="feature.key === 'price'; else defaultFeature">
-            {{ product.price }} руб.
-          </ng-container>
-          <ng-template #defaultFeature>
-            {{ product.features[feature.key] }}
-          </ng-template>
+      <!-- Карточки товаров -->
+      <div class="products-header">
+        <div class="product-cards">
+          <div *ngFor="let product of selectedCategory.products" class="product-card">
+            <div class="card-header">
+              <button class="btn-remove" (click)="removeFromComparison(product.id)" title="Удалить из сравнения">
+                ×
+              </button>
+              <button class="btn-favorite" [class.active]="product.isFavorite" (click)="toggleFavorite(product)"
+                title="Добавить в избранное">
+                ♡
+              </button>
+            </div>
+
+            <img [src]="product.productImageLinks[0] || 'assets/default-product.png'" [alt]="product.shortName"
+              class="product-image" (error)="product.productImageLinks[0] = 'assets/default-product.png'" />
+
+            <div class="product-info">
+              <h3 class="product-name">{{ product.shortName }}</h3>
+              <p class="product-description">{{ product.fullName }}</p>
+
+              <div class="product-prices">
+                <div class="price-main">
+                  <span class="price-label">Цена:</span>
+                  <span class="price-value">{{ formatPrice(product.retailPrice) }} ₽</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn-add-to-basket" (click)="addToBasket(product)">
+              <i class="icon-cart"></i>
+              В корзину
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="table-row">
-        <div class="table-row-item">Цена</div>
-        <div *ngFor="let product of products" class="table-row-item">
-          {{ product.price }} руб.
+      <!-- Таблица сравнения характеристик -->
+      <div class="comparison-table-section">
+        <h3 class="table-title">Характеристики товаров</h3>
+
+        <div class="comparison-table-wrapper">
+          <div class="comparison-table">
+            <!-- Заголовок таблицы -->
+            <div class="table-header">
+              <div class="header-cell feature-cell">Характеристика</div>
+              <div *ngFor="let product of selectedCategory.products" class="header-cell product-cell">
+                {{ product.shortName }}
+              </div>
+            </div>
+
+            <!-- Розничная цена -->
+            <div class="table-row highlight">
+              <div class="row-cell feature-cell">
+                <span class="feature-name">Цена</span>
+              </div>
+              <div *ngFor="let product of selectedCategory.products" class="row-cell product-cell">
+                <span class="value price">{{ formatPrice(product.retailPrice) }} ₽</span>
+              </div>
+            </div>
+
+            <!-- Характеристики из свойств -->
+            <div *ngFor="let property of getUniqueProperties()" class="table-row">
+              <div class="row-cell feature-cell">
+                <span class="feature-name">{{ property.fullName }}</span>
+                <span *ngIf="property.description" class="feature-description">
+                  {{ property.description }}
+                </span>
+              </div>
+              <div *ngFor="let product of selectedCategory.products" class="row-cell product-cell">
+                <span class="value">{{ getProductPropertyValue(product, property.fullName) }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Резюме сравнения -->
+      <div class="comparison-summary">
+        <h3 class="summary-title">Итоги сравнения</h3>
+        <div class="summary-content">
+          <p>
+            Сравнивая {{ selectedCategory.products.length }} товаров в категории "{{
+            selectedCategory.productCategory.name }}",
+            вы можете выбрать оптимальный вариант по соотношению цены и характеристик.
+          </p>
+          <div class="summary-tips">
+            <div class="tip">
+              <i class="icon-tip"></i>
+              Обращайте внимание на ключевые характеристики
+            </div>
+            <div class="tip">
+              <i class="icon-tip"></i>
+              Сравнивайте цены для разных объемов закупки
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Сообщение если нет данных -->
+    <div *ngIf="!selectedCategory && !isLoading" class="empty-state">
+      <i class="icon-empty"></i>
+      <h3>Нет данных для сравнения</h3>
+      <p>Добавьте товары в сравнение, чтобы увидеть их характеристики</p>
+      <button class="btn-primary" routerLink="/catalog">
+        Перейти в каталог
+      </button>
     </div>
   </div>
 </div>

@@ -6,11 +6,10 @@ import { UserQuestionsService } from '../../../core/api/user-questions.service';
   selector: 'app-reviews',
   imports: [],
   templateUrl: './reviews.component.html',
-  styleUrl: './reviews.component.scss'
+  styleUrl: './reviews.component.scss',
 })
 export class ReviewsComponent implements OnInit {
-
-  userQuestionsService = inject(UserQuestionsService)
+  userQuestionsService = inject(UserQuestionsService);
 
   /** ID товара, по которому загружаем вопросы */
   @Input() productId: string = '';
@@ -37,19 +36,20 @@ export class ReviewsComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    this.userQuestionsService.getQuestionsByProduct(this.productId, 0, 10).subscribe({
-      next: (values) => {
-        this.data = values.data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Ошибка загрузки вопросов:', err);
-        this.error = 'Не удалось загрузить вопросы. Попробуйте позже.';
-        this.loading = false;
-      }
-    });
+    this.userQuestionsService
+      .getQuestionsByProduct(this.productId, 0, 10)
+      .subscribe({
+        next: (values) => {
+          this.data = values.data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Ошибка загрузки вопросов:', err);
+          this.error = 'Не удалось загрузить вопросы. Попробуйте позже.';
+          this.loading = false;
+        },
+      });
   }
-
 
   newQuestion: string = '';
   sending: boolean = false;
@@ -61,27 +61,26 @@ export class ReviewsComponent implements OnInit {
 
     const now = new Date().toISOString();
 
-    this.userQuestionsService.createQuestion({
-      productId: this.productId,
-      dateTime: now,
-      requestMessage: {
-        text: this.newQuestion,
-        dateTime: now
-      }
-    }).subscribe({
-      next: () => {
-        this.newQuestion = '';
-        this.sending = false;
-        this.loadQuestions();
-      },
-      error: (err) => {
-        console.error('Ошибка создания вопроса:', err);
-        this.sending = false;
-        alert('Не удалось отправить вопрос. Попробуйте позже.');
-      }
-    });
+    this.userQuestionsService
+      .createQuestion({
+        productId: this.productId,
+        dateTime: now,
+        requestMessage: {
+          text: this.newQuestion,
+          dateTime: now,
+        },
+      })
+      .subscribe({
+        next: () => {
+          this.newQuestion = '';
+          this.sending = false;
+          this.loadQuestions();
+        },
+        error: (err) => {
+          console.error('Ошибка создания вопроса:', err);
+          this.sending = false;
+          alert('Не удалось отправить вопрос. Попробуйте позже.');
+        },
+      });
   }
-
-
-
 }

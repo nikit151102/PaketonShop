@@ -2,17 +2,16 @@
   position: sticky;
   top: 0;
   width: 100%;
-  z-index: 999;
+  z-index: 1000;
   transition: background 0.3s ease;
   margin-bottom: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-
 }
 
 .header__content__top {
-  padding: 5px 20px;
+  padding: 15px 20px;
   max-width: 1440px;
   margin: 0 auto;
   display: flex;
@@ -21,10 +20,8 @@
   backdrop-filter: blur(12px);
   background: rgba(255, 255, 255, 0.75);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  border-radius: 20px 20px 0 0;
   align-items: center;
   justify-content: space-between;
-
 }
 
 // Контейнеры для первой и второй строки
@@ -45,7 +42,6 @@
     @media (max-width: 699px) {
       display: block;
     }
-
   }
 
   @media (max-width: 699px) {
@@ -53,7 +49,6 @@
       display: none;
     }
   }
-
 }
 
 .top-right {
@@ -77,15 +72,12 @@
   .top-left,
   .top-right {
     justify-content: space-between;
-
   }
 
   .top-left {
     margin-bottom: 5px;
   }
 }
-
-
 
 .header__content__top__location {
   display: flex;
@@ -113,6 +105,7 @@
   }
 
   &.sticked {
+    backdrop-filter: blur(12px);
     border-radius: 0 0 20px 20px;
   }
 
@@ -120,10 +113,7 @@
     width: 100%;
   }
 
-
-
   @media (max-width: 1024px) {
-
     padding: 0;
     gap: 5px;
     padding-left: 10px;
@@ -140,8 +130,6 @@
   }
 }
 
-
-
 /* Кнопка */
 .location-btn {
   display: flex;
@@ -155,7 +143,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
-
 
   @media (max-width: 1024px) {
     font-size: 12px;

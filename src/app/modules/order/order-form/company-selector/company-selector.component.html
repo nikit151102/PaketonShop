@@ -1,0 +1,208 @@
+<div class="company-selector-modern">
+  <!-- Заголовок с кнопкой добавления -->
+  <div class="selector-header">
+    <h3 class="selector-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/>
+      </svg>
+      Мои компании
+    </h3>
+    
+    <button class="add-button" (click)="openAddModal()" *ngIf="!isSelectionMode">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+      </svg>
+      Добавить компанию
+    </button>
+  </div>
+
+  <!-- Лоадер -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Загрузка компаний...</span>
+  </div>
+
+  <!-- Ошибка -->
+  <div class="error-state" *ngIf="error && !loading">
+    <div class="error-icon">⚠️</div>
+    <div class="error-message">{{ error }}</div>
+    <button class="retry-button" (click)="loadCompanies()">Повторить</button>
+  </div>
+
+  <!-- Сообщение об отсутствии компаний -->
+  <div class="empty-state" *ngIf="!loading && !error && companies.length === 0">
+    <div class="empty-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+      </svg>
+    </div>
+    <h4>Нет добавленных компаний</h4>
+    <p>Добавьте компанию для оформления заказа как юридическое лицо</p>
+    <button class="empty-action-button" (click)="openAddModal()">
+      Добавить первую компанию
+    </button>
+  </div>
+
+  <!-- Основное состояние: список компаний -->
+  <ng-container *ngIf="!isSelectionMode && !loading && !error && companies.length > 0">
+    <!-- Если есть выбранная компания - показываем её -->
+    <div class="selected-company-display" *ngIf="selectedCompanyId && getSelectedCompany() as selected">
+      <div class="selected-card">
+        <div class="selected-header">
+          <div class="selected-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            <span>Выбрана</span>
+          </div>
+          <button class="change-button" (click)="enterSelectionMode()">
+            Изменить
+          </button>
+        </div>
+        
+        <div class="selected-content">
+          <div class="selected-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+            </svg>
+          </div>
+          
+          <div class="selected-info">
+            <h4 class="selected-name">{{ getCompanyDisplayName(selected) }}</h4>
+            <div class="selected-details">
+              <span class="selected-detail">ИНН: {{ selected.inn }}</span>
+              <span class="selected-detail" *ngIf="selected.kpp">КПП: {{ selected.kpp }}</span>
+            </div>
+            <div class="selected-type">{{ selected.partnerType?.shortName || 'Юридическое лицо' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Если нет выбранной компании - показываем список -->
+    <div class="companies-list" *ngIf="!selectedCompanyId">
+      <div class="list-header">
+        <span class="list-title">Выберите компанию</span>
+        <span class="list-count">{{ companies.length }} компаний</span>
+      </div>
+      
+      <div class="company-cards">
+        <div class="company-card" 
+             *ngFor="let company of companies"
+             [class.hovered]="hoveredCompanyId === company.id.toString()"
+             (mouseenter)="hoveredCompanyId = company.id.toString()"
+             (mouseleave)="hoveredCompanyId = null"
+             (click)="onCompanyClick(company)">
+          
+          <div class="card-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+            </svg>
+          </div>
+
+          <div class="card-content">
+            <div class="company-name">{{ getCompanyDisplayName(company.partner) }}</div>
+            <div class="company-details">{{ getCompanyDetails(company.partner) }}</div>
+            <div class="company-type">{{ company.partnerType?.shortName || 'Юридическое лицо' }}</div>
+          </div>
+
+          <div class="card-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Режим выбора: компания с кнопкой "Выбрать" -->
+  <div class="selection-mode" *ngIf="isSelectionMode">
+    <div class="selection-header">
+      <button class="back-button" (click)="cancelSelection()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+        </svg>
+        Назад
+      </button>
+      <h4 class="selection-title">Выберите компанию</h4>
+      <div class="selection-actions">
+        <button class="add-button-sm" (click)="openAddModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Добавить
+        </button>
+      </div>
+    </div>
+
+    <div class="company-selection" *ngIf="previewedCompany">
+      <div class="preview-card">
+        <div class="preview-logo">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+          </svg>
+        </div>
+        
+        <div class="preview-info">
+          <h4 class="preview-name">{{ getCompanyDisplayName(previewedCompany) }}</h4>
+          <div class="preview-details">
+            <div class="preview-row">
+              <span class="label">ИНН:</span>
+              <span class="value">{{ previewedCompany.partner.inn }}</span>
+            </div>
+            <div class="preview-row" *ngIf="previewedCompany.partner.kpp">
+              <span class="label">КПП:</span>
+              <span class="value">{{ previewedCompany.partner.kpp }}</span>
+            </div>
+            <div class="preview-row">
+              <span class="label">Тип:</span>
+              <span class="value">{{ previewedCompany.partnerType?.shortName || 'Юридическое лицо' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="selection-confirm">
+        <button class="confirm-button" (click)="confirmSelection()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          Выбрать эту компанию
+        </button>
+      </div>
+    </div>
+
+    <!-- Другие компании для выбора -->
+    <div class="other-companies" *ngIf="companies.length > 1">
+      <div class="other-companies-header">
+        <span class="other-title">Другие компании</span>
+      </div>
+      
+      <div class="other-companies-list">
+        <div class="other-company-card" 
+             *ngFor="let company of companies"
+             (click)="previewCompany(company)"
+             [class.active]="previewedCompany?.id === company.id">
+          
+          <div class="other-logo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
+            </svg>
+          </div>
+
+          <div class="other-info">
+            <div class="other-name">{{ getCompanyDisplayName(company) }}</div>
+            <div class="other-details">{{ company.inn }}</div>
+          </div>
+
+          <div class="other-check" *ngIf="previewedCompany?.id === company.id">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

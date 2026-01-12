@@ -1,334 +1,355 @@
-/* Табы */
-.tab-buttons {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
+@use 'sass:color';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+$primary: #3c8a27;
+$primary-dark: #327120;
+$secondary: #10b981;
+$accent: #f59e0b;
+$danger: #ef4444;
+$light: #f9fafb;
+$dark: #1f2937;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+$border-radius: 16px;
+$border-radius-sm: 12px;
+$border-radius-xs: 8px;
+
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+$shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+$transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Main Container
+.product-details-container {
+  margin: 0 auto;
+  padding: 0 20px 40px;
+  
+  @media (max-width: 768px) {
+    padding: 0 16px 32px;
+  }
 }
 
-.tab-buttons button {
-    background: none;
-    border: none;
-    padding: 0.8rem 1.4rem;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-    position: relative;
-    transition: color 0.3s ease;
+// Tabs Wrapper
+.tabs-wrapper {
+  margin-top: 32px;
+  
+  @media (max-width: 768px) {
+    margin-top: 24px;
+  }
 }
 
-.tab-buttons button::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -6px;
-    width: 0%;
-    height: 3px;
-    background: linear-gradient(90deg, #327120, #4ca733);
-    transition: all 0.35s ease;
-    border-radius: 4px;
-    transform: translateX(-50%);
-}
-
-.tab-buttons button:hover {
-    color: #327120;
-}
-
-.tab-buttons button:hover::after {
-    width: 80%;
-}
-
-.tab-buttons button.active {
-    color: #327120;
-    font-weight: 700;
-}
-
-.tab-buttons button.active::after {
-    width: 100%;
-}
-
-.tab-content {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    color: #333;
-    animation: fadeIn 0.4s ease;
-}
-
-/* Анимация табов */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+// Tabs Navigation
+.tabs-navigation {
+  display: flex;
+  gap: 8px;
+  background: $gray-50;
+  border-radius: $border-radius;
+  padding: 8px;
+  margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+      display: none;
     }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Адаптивность */
-@media (max-width: 1024px) {
-    .tab-buttons {
-        gap: 1.5rem;
-    }
-
-    .tab-buttons button {
-        font-size: 0.95rem;
-        padding: 0.7rem 1.2rem;
-    }
-
-    .tab-content {
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-}
-
-@media (max-width: 768px) {
-    .tab-buttons {
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-    }
-
-    .tab-buttons button {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.5rem
-    }
-
-    .tab-content {
-        font-size: 0.95rem;
-    }
-}
-
-@media (max-width: 520px) {
-    .tab-buttons {
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-
-    .tab-buttons button {
-        text-align: center;
-        font-size: 0.85rem;
-        padding: 0.8rem 0.5rem 0rem 0.5rem
-    }
-
-    .tab-content {
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-}
-
-
-/* Контейнер описания и характеристик */
-.tab-content {
+  }
+  
+  .tab-button {
+    flex: 1;
+    padding: 12px 20px;
     background: transparent;
-    padding: 1.8rem 2rem;
-    border-radius: 20px;
-    margin-top: 1rem;
-    transition: all 0.3s ease;
-}
-
-/* Заголовки внутри табов */
-.tab-content h3 {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #222;
-}
-
-/* Описание товара */
-.tab-content p {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #444;
-    margin-bottom: 1rem;
-}
-
-/* Списки характеристик */
-.tab-content ul {
-    list-style: disc inside;
-    padding-left: 1rem;
-}
-
-.tab-content ul li {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 0.6rem;
-    position: relative;
-    padding-left: 1rem;
-}
-
-.tab-content ul li::before {
-    content: "•";
-    position: absolute;
-    left: 0;
-    color: #e63946;
-    font-weight: bold;
-}
-
-
-/* Адаптив для мобильных */
-@media (max-width: 768px) {
-    .tab-content {
-        padding: 1.2rem 1.5rem;
-    }
-}
-
-
-
-
-
-.product-specs-column {
-    margin-top: 2rem;
-    padding: 24px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transition: box-shadow 0.3s ease;
-}
-
-.product-specs-column:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-}
-
-h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 3px solid #f2f2f2;
-    letter-spacing: 1px;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-li {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: #fafafa;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    border-radius: $border-radius-sm;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: $gray-600;
     cursor: pointer;
-}
-
-li:hover {
-    transform: translateX(8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.icon {
-    font-size: 1.8rem;
-    width: 40px;
-    height: 40px;
-    background: #e8f0fe;
-    border-radius: 50%;
+    transition: $transition;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4e6dff;
+    gap: 8px;
+    white-space: nowrap;
+    position: relative;
+    
+    @media (max-width: 768px) {
+      padding: 10px 16px;
+      font-size: 14px;
+      min-width: 120px;
+      flex: 0 0 auto;
+    }
+    
+    &:hover {
+      color: $primary;
+      background: rgba($primary, 0.05);
+    }
+    
+    &.active {
+      color: white;
+      background: linear-gradient(135deg, $primary, $primary-dark);
+      font-weight: 600;
+      
+      .tab-badge {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+    
+    .tab-badge {
+      background: $gray-200;
+      color: $gray-700;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      border: 1px solid $gray-300;
+      transition: $transition;
+    }
+  }
 }
 
-.label {
-    font-weight: 600;
-    color: #444;
-    font-size: 1.1rem;
-    min-width: 180px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+// Tabs Content
+.tabs-content {
+  .tab-pane {
+    animation: fadeIn 0.3s ease;
+  }
 }
 
-.value {
-    flex: 1;
-    color: #555;
-    font-size: 1rem;
-    font-weight: 500;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Адаптивность */
-@media (max-width: 1024px) {
-    .product-specs-column {
-        padding: 16px;
+// Description Tab
+.description-content {
+  background: white;
+  border-radius: $border-radius;
+  padding: 24px;
+  box-shadow: $shadow;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+  
+  .description-header {
+    margin-bottom: 20px;
+    
+    .description-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: $gray-900;
+      margin: 0;
     }
-
-    h2 {
-        font-size: 1.6rem;
+  }
+  
+  .description-text {
+    p {
+      font-size: 15px;
+      line-height: 1.6;
+      color: $gray-700;
+      margin: 0;
+      
+      @media (max-width: 768px) {
+        font-size: 14px;
+      }
     }
-
-    .icon {
-        font-size: 1.5rem;
-    }
-
-    .label {
-        font-size: 1rem;
-    }
-
-    .value {
-        font-size: 0.95rem;
-    }
+  }
 }
 
-@media (max-width: 768px) {
-    .product-specs-column {
-        padding: 12px;
+// Features Tab
+.features-content {
+  background: white;
+  border-radius: $border-radius;
+  padding: 24px;
+  box-shadow: $shadow;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+  
+  .features-header {
+    margin-bottom: 24px;
+    
+    .features-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: $gray-900;
+      margin: 0 0 8px;
     }
+    
+    .features-subtitle {
+      font-size: 14px;
+      color: $gray-500;
+      margin: 0;
+    }
+  }
 
-    h2 {
-        font-size: 1.4rem;
+  .features-list {
+    .feature-item {
+      margin-bottom: 12px;
+      
+      &:last-child {
+        margin-bottom: 0;
+        
+        .feature-divider {
+          display: none;
+        }
+      }
+      
+      &.important {
+        .feature-name {
+          color: $primary;
+          font-weight: 600;
+        }
+        
+        .feature-index {
+          background: rgba($primary, 0.1);
+          color: $primary;
+        }
+      }
+      
+      .feature-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        
+        @media (max-width: 768px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+      }
+      
+      .feature-name-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+        
+        .feature-index {
+          font-size: 12px;
+          font-weight: 600;
+          color: $gray-500;
+          background: $gray-100;
+          padding: 4px 8px;
+          border-radius: 6px;
+          flex-shrink: 0;
+        }
+        
+        .feature-name {
+          font-size: 15px;
+          font-weight: 500;
+          color: $gray-800;
+          margin: 0;
+          line-height: 1.4;
+          word-break: break-word;
+        }
+      }
+      
+      .feature-value-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: flex-start;
+          padding-left: 44px; // Отступ для выравнивания с названием
+        }
+        
+        .feature-value {
+          font-size: 16px;
+          font-weight: 600;
+          color: $gray-900;
+          
+          @media (max-width: 768px) {
+            font-size: 15px;
+          }
+        }
+        
+        .feature-unit {
+          font-size: 13px;
+          color: $gray-500;
+          font-weight: 500;
+          background: $gray-100;
+          padding: 2px 8px;
+          border-radius: $border-radius-xs;
+        }
+      }
+      
+      .feature-divider {
+        height: 1px;
+        background: linear-gradient(90deg, 
+          transparent, 
+          rgba($gray-300, 0.5), 
+          transparent);
+      }
+      
+      &:hover {
+        .feature-name {
+          color: $primary;
+        }
+        
+        .feature-value {
+          color: $primary-dark;
+        }
+      }
     }
-
-    .icon {
-        font-size: 1.4rem;
+  }
+  
+  .empty-features {
+    text-align: center;
+    padding: 40px 20px;
+    background: $gray-50;
+    border-radius: $border-radius;
+    border: 1px dashed $gray-300;
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
     }
-
-    .label {
-        font-size: 0.95rem;
+    
+    h4 {
+      font-size: 18px;
+      color: $gray-700;
+      margin-bottom: 8px;
     }
-
-    .value {
-        font-size: 0.9rem;
+    
+    p {
+      font-size: 14px;
+      color: $gray-500;
+      max-width: 300px;
+      margin: 0 auto;
+      line-height: 1.5;
     }
+  }
 }
 
-@media (max-width: 480px) {
-    .product-specs-column {
-        padding: 10px;
-    }
-
-    h2 {
-        font-size: 1.3rem;
-    }
-
-    .icon {
-        font-size: 1.3rem;
-    }
-
-    .label {
-        font-size: 0.9rem;
-    }
-
-    .value {
-        font-size: 0.85rem;
-    }
-}
-
-
-
-
-/* Сетка отзывов */
-.reviews-grid {
-    display: grid;
-
-    gap: 1.5rem;
-    margin-top: 1rem;
+.reviews-container,
+.questions-container {
+  margin-top: 16px;
 }

@@ -6,35 +6,58 @@ import { Router, RouterLink } from '@angular/router';
   selector: 'app-category-section',
   imports: [CommonModule, RouterLink],
   templateUrl: './category-section.component.html',
-  styleUrl: './category-section.component.scss'
+  styleUrl: './category-section.component.scss',
 })
 export class CategorySectionComponent implements OnChanges {
-  
-  @Input() categories: any[] = [];  // входящий массив категорий
-  displayedCategories: any[] = [];   // категории, которые будут отображаться
-  showAllCategories: boolean = false;  // флаг для кнопки "Еще"
-  isMainPage: boolean = false;  // флаг для проверки, на главной ли мы странице
+  @Input() categories: any[] = [];
+  displayedCategories: any[] = [];
+  showAllCategories: boolean = false;
+  isMainPage: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['categories']) {
+    if (changes['categories'] && changes['categories'].currentValue) {
       this.updateDisplayedCategories();
     }
   }
 
   ngOnInit() {
     this.isMainPage = this.router.url === '/';
-    this.updateDisplayedCategories();
+    if (this.categories) {
+      this.updateDisplayedCategories();
+    }
   }
 
   updateDisplayedCategories() {
+    if (!this.categories || !Array.isArray(this.categories)) {
+      this.displayedCategories = [];
+      return;
+    }
+
     if (this.isMainPage) {
-      // На главной странице показываем только 2 строки по 5 категорий (10 карточек)
-      this.displayedCategories = this.categories.slice(0, this.showAllCategories ? this.categories.length : 10);
+      const maxCategories = this.showAllCategories ? this.categories.length : 12;
+      const categoriesToShow = this.categories.slice(0, maxCategories);
+      
+      this.displayedCategories = categoriesToShow.map((category, index) => {
+        if (!category) return null;
+        
+        return {
+          ...category,
+          showTags: category.subCategories?.length > 0,
+          index
+        };
+      }).filter(Boolean);
     } else {
-      // Для других страниц показываем все категории
-      this.displayedCategories = this.categories;
+      this.displayedCategories = this.categories.map((category, index) => {
+        if (!category) return null;
+        
+        return {
+          ...category,
+          showTags: true,
+          index
+        };
+      }).filter(Boolean);
     }
   }
 

@@ -1,0 +1,37 @@
+<div class="ticket-item" [class.selected]="isSelected" [class.unread]="ticket.unreadCount > 0">
+  <div class="ticket-header">
+    <div class="category-icon">{{ getCategoryIcon(ticket.category) }}</div>
+    <div class="ticket-info">
+      <div class="ticket-title">
+        <h4 class="subject">{{ ticket.subject }}</h4>
+        <span class="time">{{ formatTime(ticket.lastMessageTime) }}</span>
+      </div>
+      <div class="ticket-meta">
+        <span class="category">{{ ticket.category }}</span>
+        <span class="status" [style.background-color]="getStatusColor(ticket.status)">
+          {{ getStatusText(ticket.status) }}
+        </span>
+      </div>
+    </div>
+    <div class="ticket-badges">
+      <div class="unread-badge" *ngIf="ticket.unreadCount > 0">
+        {{ ticket.unreadCount }}
+      </div>
+      <div class="rating-badge" *ngIf="ticket.rating">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+        </svg>
+        {{ ticket.rating }}
+      </div>
+    </div>
+  </div>
+  
+  <div class="ticket-body">
+    <p class="last-message">{{ getLastMessagePreview(ticket.lastMessage) }}</p>
+    
+    <!-- <div class="agent-info" *ngIf="ticket.agent">
+      <img [src]="ticket.agent.avatar" [alt]="ticket.agent.name" class="agent-avatar" />
+      <span class="agent-name">{{ ticket.agent.name }}</span>
+    </div> -->
+  </div>
+</div>

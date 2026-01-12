@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { localStorageEnvironment, sessionStorageEnvironment } from '../../../environment';
+import {
+  localStorageEnvironment,
+  sessionStorageEnvironment,
+} from '../../../environment';
 import { HttpClient } from '@angular/common/http';
 
 export interface User {
@@ -11,7 +14,7 @@ export interface User {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private userSubject: BehaviorSubject<User | null>;
@@ -22,7 +25,9 @@ export class UserService {
       sessionStorage.getItem(sessionStorageEnvironment.user.key) ||
       localStorage.getItem(localStorageEnvironment.user.key);
 
-    this.userSubject = new BehaviorSubject<User | null>(savedUser ? JSON.parse(savedUser) : null);
+    this.userSubject = new BehaviorSubject<User | null>(
+      savedUser ? JSON.parse(savedUser) : null,
+    );
     this.user$ = this.userSubject.asObservable();
   }
 
@@ -32,7 +37,9 @@ export class UserService {
    * @returns ключ для выбранного хранилища
    */
   private getStorageKey(storageType: 'local' | 'session') {
-    return storageType === 'local' ? localStorageEnvironment.user.key : sessionStorageEnvironment.user.key;
+    return storageType === 'local'
+      ? localStorageEnvironment.user.key
+      : sessionStorageEnvironment.user.key;
   }
 
   /**
@@ -53,7 +60,11 @@ export class UserService {
    * @param storageType - где хранить: 'local' | 'session', по умолчанию localStorage
    * @param saveToStorage - сохранять ли в storage, по умолчанию true
    */
-  setUser(user: User | null, storageType: 'local' | 'session' = 'local', saveToStorage: boolean = true): void {
+  setUser(
+    user: User | null,
+    storageType: 'local' | 'session' = 'local',
+    saveToStorage: boolean = true,
+  ): void {
     this.userSubject.next(user);
     if (saveToStorage) {
       const storage = storageType === 'local' ? localStorage : sessionStorage;

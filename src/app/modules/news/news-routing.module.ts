@@ -4,12 +4,13 @@ import { NewsComponent } from './news.component';
 
 const routes: Routes = [
   {
-    path: '', component: NewsComponent,
-  }
+    path: '',
+    component: NewsComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class NewsRoutingModule { }
+export class NewsRoutingModule {}
