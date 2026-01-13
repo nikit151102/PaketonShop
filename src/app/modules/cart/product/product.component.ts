@@ -28,7 +28,7 @@ export interface Product {
   available?: boolean;
   reviews?: number;
   rating?: number;
-  productImageLink?: string;
+  productImageLinks?: any;
   discountPercentage?: number;
 }
 
