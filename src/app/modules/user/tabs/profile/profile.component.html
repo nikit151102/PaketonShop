@@ -10,8 +10,7 @@
         <div class="profile-sidebar">
             <div class="profile-card">
                 <div class="profile-avatar-container">
-                    <div class="profile-avatar"
-                        [style.background-image]="'url(' + (user?.avatarUrl || '/assets/images/default-avatar.png') + ')'">
+                    <div class="profile-avatar" [style.background-image]="'url(' + user?.avatarUrl + ')'">
                         <div class="avatar-edit" (click)="editAvatar()">
                             <svg width="20" height="20" viewBox="0 0 24 24">
                                 <path
@@ -20,9 +19,9 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="profile-loyalty-badge" *ngIf="user?.loyaltyProgramLevel">
+                    <!-- <div class="profile-loyalty-badge" *ngIf="user?.loyaltyProgramLevel">
                         Уровень {{ user.loyaltyProgramLevel }}
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="profile-info">

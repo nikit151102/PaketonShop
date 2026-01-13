@@ -11,7 +11,7 @@ export class ComparingService {
   constructor(private http: HttpClient) { }
 
   getComparing(): Observable<any> {
-    return this.http.post(`${environment.production}/api/Profile/CompareProducts`,{})
+    return this.http.get(`${environment.production}/api/Profile/CompareProducts`)
   }
 
   setCompareProduct(productId: string): Observable<any> {

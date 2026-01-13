@@ -85,6 +85,7 @@ export class ProfileComponent implements OnInit {
     // Логика изменения аватара
     console.log('Edit avatar');
     // Можно реализовать загрузку файла
+    
   }
 
   // Дополнительные методы для улучшения UX
