@@ -94,6 +94,12 @@ export class CategoriesComponent implements OnInit {
 
     const baseFilters = this.categoryId
       ? [
+         {
+      field: "Text",
+      values: [
+      ],
+      type: 0
+    },
         {
           field: 'ProductCategories.Id',
           values: [this.categoryId],
@@ -105,7 +111,7 @@ export class CategoriesComponent implements OnInit {
     const allFilters = [...baseFilters, ...this.appliedFilters];
 
     this.productsService
-      .getAll(allFilters, null, this.currentPage, this.pageSize)
+      .getAllSearch(allFilters, null, this.currentPage, this.pageSize)
       .subscribe({
         next: (res) => {
           if (this.currentPage === 0) {

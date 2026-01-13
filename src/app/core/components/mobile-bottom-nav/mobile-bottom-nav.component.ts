@@ -41,7 +41,7 @@ export class MobileBottomNavComponent {
 
     this.userId$.pipe(take(1)).subscribe((userId) => {
       if (userId) {
-        this.router.navigate(['/profile', userId]);
+        this.router.navigate(['/profile']);
         return;
       }
 
@@ -49,7 +49,7 @@ export class MobileBottomNavComponent {
         sessionStorageEnvironment.user.key,
       );
       if (userData && userData.id) {
-        this.router.navigate(['/profile', userData.id]);
+        this.router.navigate(['/profile']);
         return;
       }
 
@@ -62,7 +62,7 @@ export class MobileBottomNavComponent {
               sessionStorageEnvironment.user.key,
               data.data,
             );
-            this.router.navigate(['/profile', data.data.id]);
+            this.router.navigate(['/profile']);
           } else {
             this.authService.changeVisible(true);
           }
@@ -72,5 +72,25 @@ export class MobileBottomNavComponent {
 
   changeTab(tab: string) {
     this.activeTab = tab;
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
+
+    if (tab == 'favorites') {
+      if (!authToken) {
+        this.authService.changeVisible(true);
+        return;
+      } else {
+        this.router.navigate(['/profile/favorites']);
+      }
+    }
+    if (tab == 'cart') {
+      if (!authToken) {
+        this.authService.changeVisible(true);
+        return;
+      } else {
+        this.router.navigate(['/cart']);
+      }
+    }
   }
 }

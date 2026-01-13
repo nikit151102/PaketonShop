@@ -4,3 +4,9 @@
   margin-right: auto;
   box-sizing: border-box;
 }
+
+@media (min-width: 956px) {
+  app-mobile-bottom-nav {
+    display: none;
+  }
+}

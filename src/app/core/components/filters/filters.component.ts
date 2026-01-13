@@ -652,15 +652,16 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   emitFiltersChange() {
     const filters = this.activeFilters.map(filter => {
+      console.log('filterfilter',filter)
       if (filter.type === 'checkbox') {
         return {
-          field: filter.filterId,
+          field: filter.filterName,
           values: filter.values,
           type: 0
         };
       } else {
         return {
-          field: filter.filterId,
+          field: filter.filterName,
           min: filter.range?.min,
           max: filter.range?.max,
           type: 1

@@ -1,4 +1,4 @@
-<form class="modern-order-form" (ngSubmit)="onSubmit()">
+<form class="modern-order-form" >
   <!-- Новый заголовок с прогресс-баром -->
   <div class="form-header-section">
     <div class="header-content">
@@ -340,13 +340,13 @@
 
       <!-- Динамические компоненты доставки -->
       <div class="delivery-details-section">
-        <app-pickup-delivery *ngIf="formData.delivery === 'pickup'" (dataChange)="onDeliveryDataChange($event)">
+        <app-pickup-delivery *ngIf="formData.delivery === 'pickup'" (storeSelected)="onDeliveryDataChange('store', $event)">
         </app-pickup-delivery>
 
-        <app-transport-delivery *ngIf="formData.delivery === 'transport'" (dataChange)="onDeliveryDataChange($event)">
+        <app-transport-delivery *ngIf="formData.delivery === 'transport'" (addressSelected)="onDeliveryDataChange('transport', $event)">
         </app-transport-delivery>
 
-        <app-city-delivery *ngIf="formData.delivery === 'city'" (dataChange)="onDeliveryDataChange($event)">
+        <app-city-delivery *ngIf="formData.delivery === 'city'" (addressSelected)="onDeliveryDataChange('city', $event)">
         </app-city-delivery>
       </div>
     </div>

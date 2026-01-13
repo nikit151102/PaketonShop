@@ -11,6 +11,7 @@ import { StorageUtils } from '../../../../utils/storage.utils';
 import { memoryCacheEnvironment } from '../../../../environment';
 import { take } from 'rxjs';
 import { ComparingService } from '../../api/comparing.service';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-product',
@@ -35,6 +36,7 @@ export class ProductComponent implements OnInit {
     private router: Router,
     private productFavoriteService: ProductFavoriteService,
     private basketsService: BasketsService,
+    private productsService: ProductsService,
     private comparingService: ComparingService
   ) { }
 
@@ -287,8 +289,9 @@ export class ProductComponent implements OnInit {
 
   // Загружаем обновленные данные товара
   private loadUpdatedProductData(): void {
-    // Здесь нужен вызов API для обновления данных товара
-    // Пока просто обновляем UI через setTimeout
+this.productsService.getById(this.product.id).subscribe((values: any) => {
+      this.product = values.data;
+    });
     setTimeout(() => {
       this.checkProductInBaskets();
       this.hideBasketDetails();
@@ -308,27 +311,67 @@ export class ProductComponent implements OnInit {
     return totalPrice.toFixed(1);
   }
 
-  private updateBasket(count: number): void {
-    const basketId = this.activeBasketId;
-    if (!basketId) return console.error('Корзина не найдена');
+private updateBasket(count: number): void {
+  const basketId = this.activeBasketId;
+  if (!basketId) return console.error('Корзина не найдена');
 
-    this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count })
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          this.selectedQuantity = count;
-          this.inCart = true;
-          this.quantitySelectorVisible = true;
-          this.loadUpdatedProductData();
-        },
-        error: (err) => console.error('Ошибка при обновлении корзины', err),
-      });
-  }
+  this.basketsService
+    .addProduct({ productId: this.product.id, basketId, count })
+    .pipe(take(1))
+    .subscribe({
+      next: () => {
+        // Не устанавливаем selectedQuantity = count, потому что это количество для добавления
+        // selectedQuantity должен быть 1 при добавлении нового товара
+        this.selectedQuantity = 1; // Сбрасываем к 1
+        this.inCart = true;
+        this.quantitySelectorVisible = true;
+        this.loadUpdatedProductData();
+      },
+      error: (err) => console.error('Ошибка при обновлении корзины', err),
+    });
+}
 
-  increaseQty(): void {
-    this.updateBasket(this.selectedQuantity + 1);
+// Добавить 1 товар
+addOneToCart(): void {
+  const basketId = this.activeBasketId;
+  if (!basketId) return console.error('Корзина не найдена');
+
+  this.basketsService
+    .addProduct({ productId: this.product.id, basketId, count: 1 })
+    .pipe(take(1))
+    .subscribe({
+      next: () => {
+        this.loadUpdatedProductData();
+      },
+      error: (err) => console.error('Ошибка при добавлении товара', err),
+    });
+}
+
+// Установить точное количество
+setExactQuantity(quantity: number): void {
+  const basketId = this.activeBasketId;
+  if (!basketId || quantity <= 0) return;
+
+  this.basketsService
+    .addProduct({ productId: this.product.id, basketId, count: quantity })
+    .pipe(take(1))
+    .subscribe({
+      next: () => {
+        this.loadUpdatedProductData();
+      },
+      error: (err) => console.error('Ошибка при установке количества', err),
+    });
+}
+
+increaseQty(): void {
+  if (this.hasProductInBaskets()) {
+    // Если товар уже в корзине, увеличиваем количество на 1
+    this.updateActiveBasketQty(1);
+  } else {
+    // Если товара нет в корзине, добавляем 1 штуку
+    this.updateBasket(1);
   }
+}
 
   decreaseQty(): void {
     const newQty = this.selectedQuantity - 1;

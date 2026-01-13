@@ -34,7 +34,7 @@ interface DeliveryOption {
   styleUrl: './transport-delivery.component.scss'
 })
 export class TransportDeliveryComponent implements OnInit {
-  @Output() addressSelected = new EventEmitter<string>();
+  @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 
   // Состояния
@@ -178,7 +178,7 @@ export class TransportDeliveryComponent implements OnInit {
 
   private emitSelectedAddress(): void {
     if (this.selectedAddress) {
-      this.addressSelected.emit(this.selectedAddress.id);
+      this.addressSelected.emit(this.selectedAddress);
       this.emitDataChange();
     }
   }

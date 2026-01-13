@@ -25,7 +25,8 @@
         <!-- Форма оформления заказа -->
         <div class="order-form-container">
           <app-order-form [userBasketId]="activeBasketId" (orderCreated)="onOrderCreated($event)"
-            (orderUpdated)="onOrderUpdated($event)">
+            (orderUpdated)="onOrderUpdated($event)" (orderDelivery)="onOrderDelivery($event)" (orderCompany)="null" 
+            (formChanged)="onFormChanged($event)">
           </app-order-form>
         </div>
       </div>

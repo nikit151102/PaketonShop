@@ -30,7 +30,7 @@ export interface SearchRequest {
   providedIn: 'root',
 })
 export class ProductsService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = StorageUtils.getLocalStorageCache(
@@ -74,7 +74,26 @@ export class ProductsService {
       page: page,
       pageSize: pageSize,
     };
+    // /api/Entities/ProductInstanceSearch/Filter
+    return this.http.post<any>(
+      `${environment.production}/api/Entities/ProductInstance/Filter`,
+      requestBody,
+      { headers: this.getHeaders() },
+    );
+  }
 
+  getAllSearch(
+    filters: any[],
+    sort: any = null,
+    page: number = 0,
+    pageSize: number = 20,
+  ) {
+    const requestBody = {
+      filters: filters,
+      sort: sort,
+      page: page,
+      pageSize: pageSize,
+    };
     return this.http.post<any>(
       `${environment.production}/api/Entities/ProductInstanceSearch/Filter`,
       requestBody,

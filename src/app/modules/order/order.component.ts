@@ -182,6 +182,17 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
   }
 
+  onOrderDelivery(data: {
+    'type': string,
+    'id': string
+  }) { 
+    
+  }
+
+  onFormChanged(data:any){
+console.log('data---:',data)
+  }
+
   proceedToPayment(): void {
     if (!this.createdOrderId || this.isProcessing) return;
 

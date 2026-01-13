@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { User, UserService } from '../../../core/services/user.service';
 import { PickupDeliveryComponent } from './delivery/pickup-delivery/pickup-delivery.component';
 import { TransportDeliveryComponent } from './delivery/transport-delivery/transport-delivery.component';
@@ -23,13 +25,16 @@ export class OrderFormComponent implements OnInit {
   @Input() userBasketId: string | null = '';
   @Output() orderCreated = new EventEmitter<any>();
   @Output() orderUpdated = new EventEmitter<any>();
-
+  @Output() orderDelivery = new EventEmitter<any>();
+  @Output() orderCompany = new EventEmitter<any>();
+  @Output() formChanged = new EventEmitter<any>();
+  
   // Данные пользователя
   currentUserData: any = null;
   isEditing = false;
   isSubmitting = false;
   selectedCompanyId: string | null = null;
-
+  
   // Форма
   formData = {
     lastName: '',
@@ -43,6 +48,9 @@ export class OrderFormComponent implements OnInit {
     personType: 'fiz',
     delivery: 'pickup',
   };
+
+  // Для оптимизации отправки (дебаунс)
+  private formChangeSubject = new Subject<any>();
 
   companies: Company[] = [
     { id: 1, name: 'ООО "Пример"', inn: '0000000000' },
@@ -58,6 +66,33 @@ export class OrderFormComponent implements OnInit {
         this.prefillFormData(user);
       }
     });
+
+    // Подписываемся на изменения с дебаунсом
+    this.formChangeSubject
+      .pipe(
+        debounceTime(300), // Задержка 300 мс перед отправкой
+        distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+      )
+      .subscribe(formData => {
+        this.formChanged.emit(formData);
+      });
+  }
+
+
+  orderDeliveryData:any;
+
+  // Метод для отслеживания изменений в форме
+  onFormChange(): void {
+    const formDataCopy = { ...this.formData };
+    
+    // Добавляем ID выбранной компании если есть
+    const payload = {
+      ...formDataCopy,
+      selectedCompanyId: this.selectedCompanyId,
+      orderDeliveryData: this.orderDeliveryData
+    };
+    
+    this.formChangeSubject.next(payload);
   }
 
   prefillFormData(user: any) {
@@ -73,6 +108,9 @@ export class OrderFormComponent implements OnInit {
       personType: 'fiz',
       delivery: 'pickup',
     };
+    
+    // Отправляем начальные данные
+    setTimeout(() => this.onFormChange(), 0);
   }
 
   getInitials(): string {
@@ -86,10 +124,20 @@ export class OrderFormComponent implements OnInit {
 
   selectDelivery(type: string) {
     this.formData.delivery = type;
+    this.onFormChange();
   }
 
-  onDeliveryDataChange(data: any) {
-    // Обновляем данные конкретного типа доставки
+  onDeliveryDataChange(type: string, data: any) {
+    console.log('data',data)
+    this.orderDelivery.emit({
+      'type': type,
+      'id': data.id
+    });
+    this.orderDeliveryData = {
+      'type': type,
+      'id': data.id
+    }
+    this.onFormChange();
   }
 
   startEditing() {
@@ -105,57 +153,41 @@ export class OrderFormComponent implements OnInit {
     this.selectedCompanyId = companyId;
 
     if (companyId) {
-      // Можно обновить formData.personType если нужно
       this.formData.personType = 'jur';
-
-      // Загрузить детали выбранной компании
       this.loadCompanyDetails(companyId);
     }
+    
+    this.onFormChange();
   }
 
   onCompanyAdded(): void {
     console.log('Компания добавлена');
-    // Можно показать уведомление
+    this.onFormChange();
   }
 
   onCompanyEdited(company: any): void {
     console.log('Компания отредактирована:', company);
+    this.onFormChange();
   }
 
   onCompanyDeleted(companyId: string): void {
     console.log('Компания удалена:', companyId);
 
-    // Если удалена выбранная компания
     if (this.selectedCompanyId === companyId) {
       this.selectedCompanyId = null;
       this.formData.personType = 'fiz';
     }
+    
+    this.onFormChange();
   }
 
   private loadCompanyDetails(companyId: string): void {
     // Загрузка деталей компании для заполнения формы
-    // Можно реализовать если нужно
   }
-
-  onSubmit() {
-    if (!this.formData.agreement) return;
-
-    this.isSubmitting = true;
-
-    // Симуляция отправки формы
-    setTimeout(() => {
-      this.isSubmitting = false;
-      console.log('Заказ оформлен:', this.formData);
-      // Здесь будет реальная логика отправки
-    }, 2000);
-  }
-
-
 
   isAccordionOpen = false;
 
   saveChanges(): void {
-    // Сохранение данных
     this.currentUserData = {
       ...this.currentUserData,
       firstName: this.formData.firstName,
@@ -166,6 +198,7 @@ export class OrderFormComponent implements OnInit {
     };
     this.isEditing = false;
     this.isAccordionOpen = false;
+    this.onFormChange();
   }
 
   toggleAccordion(): void {
@@ -175,10 +208,9 @@ export class OrderFormComponent implements OnInit {
   removeCompany(index: number): void {
     if (this.companies.length > 1) {
       this.companies.splice(index, 1);
+      this.onFormChange();
     } else {
-      // Можно показать сообщение пользователю, что нельзя удалить последнюю компанию
       console.log('Нельзя удалить последнюю компанию');
-      // Или показать toast/snackbar сообщен
     }
   }
 }

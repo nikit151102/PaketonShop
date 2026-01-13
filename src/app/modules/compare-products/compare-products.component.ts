@@ -141,7 +141,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
             console.log('Первая категория:', this.selectedCategory);
           } else {
             console.warn('Нет данных для сравнения');
-            this.loadMockData(); // Загружаем мок-данные для демонстрации
           }
           
           this.isLoading = false;
