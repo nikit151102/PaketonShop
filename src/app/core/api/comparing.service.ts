@@ -10,21 +10,12 @@ export class ComparingService {
 
   constructor(private http: HttpClient) { }
 
-  getComparing(filters: {
-    "field": string,
-    "values": string[],
-    "type": number
-  }[] | [], page: number, pageSize: any): Observable<any> {
-    return this.http.post(`${environment.production}/api/Profile/Comparing/Filter`, {
-      "filters": filters,
-      "sorts": [],
-      "page": page,
-      "pageSize": pageSize
-    })
+  getComparing(): Observable<any> {
+    return this.http.post(`${environment.production}/api/Profile/CompareProducts`,{})
   }
 
   setCompareProduct(productId: string): Observable<any> {
-    return this.http.post(`${environment.production}/api/Entities/ProductInstance/CompareProducts`, [productId])
+    return this.http.post(`${environment.production}/api/Entities/ProductInstance/Comparing/${productId}`, [productId])
   }
 
   deleteCompareProduct(productId: string): Observable<any> {

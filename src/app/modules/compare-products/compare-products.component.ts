@@ -66,17 +66,6 @@ interface ComparisonCategory {
   properties: CategoryProperty[];
 }
 
-interface FilterRequest {
-  field: string;
-  values: string[];
-  type: number;
-}
-
-interface SortRequest {
-  field: string;
-  direction: string;
-}
-
 @Component({
   selector: 'app-compare-products',
   standalone: true,
@@ -109,13 +98,8 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
     this.hasData = false;
-    
-    const filters: FilterRequest[] = [];
-    const sorts: SortRequest[] = [];
-    const page = 0;
-    const pageSize = 20;
-    
-    this.comparingService.getComparing(filters, page, pageSize)
+  
+    this.comparingService.getComparing()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
