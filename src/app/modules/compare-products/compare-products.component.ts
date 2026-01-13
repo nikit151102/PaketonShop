@@ -108,8 +108,8 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
           // Проверяем разные возможные структуры ответа
           if (response && Array.isArray(response)) {
             this.comparisonData = response;
-          } else if (response?.data && Array.isArray(response.data)) {
-            this.comparisonData = response.data;
+          } else if (response?.tables) {
+            this.comparisonData = response.tables;
           } else if (response?.result && Array.isArray(response.result)) {
             this.comparisonData = response.result;
           } else {
