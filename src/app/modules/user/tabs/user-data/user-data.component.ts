@@ -714,6 +714,9 @@ export class UserDataComponent implements OnInit {
   private saveProfileData(): void {
     const formData = this.prepareFormData();
 
+    formData.avatarImageLink = formData.avatar;
+    delete formData.avatar;
+    
     this.userApiService.updateData(formData).subscribe({
       next: (res: any) => {
         this.isSubmitting = false;
