@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DeliveryOrderService } from '../../../../core/api/delivery-order.service';
 import { Subject, takeUntil, finalize } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 // Интерфейсы
 interface ProductPosition {
@@ -93,12 +94,12 @@ interface ApiResponse {
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss',
 })
 export class OrderHistoryComponent implements OnInit {
-  orders: Order[] = [];
+  orders: any[] = [];
   loading = false;
   error: string | null = null;
   
@@ -119,7 +120,7 @@ export class OrderHistoryComponent implements OnInit {
   
   // Состояния
   showFilters = false;
-  selectedOrder: Order | null = null;
+  selectedOrder: any | null = null;
   
   private destroy$ = new Subject<void>();
 

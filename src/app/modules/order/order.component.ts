@@ -84,13 +84,13 @@ export class OrderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          if (response.data?.products) {
-            this.basketProducts = response.data.products.map((p: any) => ({
-              id: p.id,
-              name: p.name || p.shortName || 'Товар',
-              price: p.price || p.retailPrice || 0,
-              qty: p.qty || p.count || 1,
-              imageUrl: p.imageUrl || null
+          if (response.data?.productPositions) {
+            this.basketProducts = response.data.productPositions.map((p: any) => ({
+              id: p.product.id,
+              name: p.product.name || p.product.shortName || 'Товар',
+              price: p.product.price || p.product.retailPrice || 0,
+              qty: p.product.qty || p.product.count || 1,
+              imageUrl: p.product.productImageLinks[0] || null
             }));
 
             // Рассчитываем скидку
