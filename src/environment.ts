@@ -1,7 +1,13 @@
 export const environment = {
-  // production: 'https://localhost:5311',
+  // production: 'https://localhost:5001',
   production: 'https://xn--80ajjteep7bg.xn--80akonecy.xn--p1ai/api',
   dev: '',
+  encryptionKey: '',
+  localStorageKeys: {
+    auth: 'auth_token',
+    deviceInfo: 'device_info',
+    city: 'user_city'
+  }
 };
 
 export const localStorageEnvironment = {

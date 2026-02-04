@@ -3,28 +3,17 @@
     <!-- Закрыть -->
     <div class="close-button" (click)="closePopUp()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M5 5L18 18M5 18L18 5"
-          stroke="#333334"
-          stroke-opacity="0.3"
-          stroke-width="1.4"
-          stroke-linecap="round"
-        />
+        <path d="M5 5L18 18M5 18L18 5" stroke="#333334" stroke-opacity="0.3" stroke-width="1.4"
+          stroke-linecap="round" />
       </svg>
     </div>
 
     <!-- Вкладки -->
     <div class="popup-tabs">
-      <button
-        [class.active]="authMode === 'login'"
-        (click)="switchMode('login')"
-      >
+      <button [class.active]="authMode === 'login'" (click)="switchMode('login')">
         Вход
       </button>
-      <button
-        [class.active]="authMode === 'register'"
-        (click)="switchMode('register')"
-      >
+      <button [class.active]="authMode === 'register'" (click)="switchMode('register')">
         Регистрация
       </button>
     </div>
@@ -34,8 +23,9 @@
       <!-- API Error Message -->
       <div *ngIf="formErrors['api']" class="api-error-message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <span>{{ formErrors['api'] }}</span>
       </div>
@@ -43,61 +33,54 @@
       <!-- Логин -->
       <div *ngIf="authMode === 'login'" class="form-slide">
         <div class="input-group" [class.invalid]="formErrors['email']">
-          <input
-            type="text"
-            id="email"
-            formControlName="email"
-            autocomplete="email"
-            placeholder=" "
-            (blur)="updateFormErrors()"
-          />
+          <input type="text" id="email" formControlName="email" autocomplete="email" placeholder=" "
+            (blur)="updateFormErrors()" />
           <label for="email">Email</label>
-          <div class="error-icon" *ngIf="formErrors['email']">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <div style="display: flex;">
+            <div class="error-icon" *ngIf="formErrors['email']">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="error-message" *ngIf="formErrors['email']">
+              {{ formErrors['email'] }}
+            </div>
           </div>
-          <div class="error-message" *ngIf="formErrors['email']">
-            {{ formErrors['email'] }}
-          </div>
+
         </div>
 
         <div class="input-group" [class.invalid]="formErrors['password']">
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            autocomplete="current-password"
-            placeholder=" "
-            (blur)="updateFormErrors()"
-          />
+          <input type="password" id="password" formControlName="password" autocomplete="current-password"
+            placeholder=" " (blur)="updateFormErrors()" />
           <label for="password">Пароль</label>
-          <div class="error-icon" *ngIf="formErrors['password']">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <div style="display: flex;">
+            <div class="error-icon" *ngIf="formErrors['password']">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="error-message" *ngIf="formErrors['password']">
+              {{ formErrors['password'] }}
+            </div>
           </div>
-          <div class="error-message" *ngIf="formErrors['password']">
-            {{ formErrors['password'] }}
-          </div>
+
           <div class="password-requirements" *ngIf="authForm.get('password')?.dirty">
             <div class="requirement" [class.valid]="authForm.get('password')?.value?.length >= 8">
               • Минимум 8 символов
             </div>
-            <div class="requirement" [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
+            <div class="requirement"
+              [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
               • Буквы и цифры
             </div>
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          class="submit-btn" 
-          [disabled]="isSubmitting || authForm.invalid"
-          [class.loading]="isSubmitting"
-        >
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting || authForm.invalid"
+          [class.loading]="isSubmitting">
           <span *ngIf="!isSubmitting">Войти</span>
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
         </button>
@@ -106,87 +89,78 @@
       <!-- Регистрация -->
       <div *ngIf="authMode === 'register'" class="form-slide">
         <div class="input-group" [class.invalid]="formErrors['email']">
-          <input
-            type="text"
-            id="regEmail"
-            formControlName="email"
-            autocomplete="email"
-            placeholder=" "
-            (blur)="updateFormErrors()"
-          />
+          <input type="text" id="regEmail" formControlName="email" autocomplete="email" placeholder=" "
+            (blur)="updateFormErrors()" />
           <label for="regEmail">Email</label>
-          <div class="error-icon" *ngIf="formErrors['email']">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <div style="display: flex;">
+            <div class="error-icon" *ngIf="formErrors['email']">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="error-message" *ngIf="formErrors['email']">
+              {{ formErrors['email'] }}
+            </div>
           </div>
-          <div class="error-message" *ngIf="formErrors['email']">
-            {{ formErrors['email'] }}
-          </div>
+
         </div>
 
         <div class="input-group" [class.invalid]="formErrors['password']">
-          <input
-            type="password"
-            id="regPassword"
-            formControlName="password"
-            autocomplete="new-password"
-            placeholder=" "
-            (blur)="updateFormErrors()"
-          />
+          <input type="password" id="regPassword" formControlName="password" autocomplete="new-password" placeholder=" "
+            (blur)="updateFormErrors()" />
           <label for="regPassword">Пароль</label>
-          <div class="error-icon" *ngIf="formErrors['password']">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="error-message" *ngIf="formErrors['password']">
-            {{ formErrors['password'] }}
+          <div style="display: flex;">
+            <div class="error-icon" *ngIf="formErrors['password']">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="error-message" *ngIf="formErrors['password']">
+              {{ formErrors['password'] }}
+            </div>
           </div>
           <div class="password-requirements">
             <div class="requirement" [class.valid]="authForm.get('password')?.value?.length >= 8">
               • Минимум 8 символов
             </div>
-            <div class="requirement" [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
+            <div class="requirement"
+              [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
               • Буквы и цифры
             </div>
           </div>
         </div>
 
         <div class="input-group" [class.invalid]="formErrors['confirmPassword']">
-          <input
-            type="password"
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            autocomplete="new-password"
-            placeholder=" "
-            (blur)="updateFormErrors()"
-          />
+          <input type="password" id="confirmPassword" formControlName="confirmPassword" autocomplete="new-password"
+            placeholder=" " (blur)="updateFormErrors()" />
           <label for="confirmPassword">Подтвердите пароль</label>
-          <div class="error-icon" *ngIf="formErrors['confirmPassword']">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" 
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="error-message" *ngIf="formErrors['confirmPassword']">
-            {{ formErrors['confirmPassword'] }}
+          <div style="display: flex;">
+            <div class="error-icon" *ngIf="formErrors['confirmPassword']">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="error-message" *ngIf="formErrors['confirmPassword']">
+              {{ formErrors['confirmPassword'] }}
+            </div>
           </div>
           <div class="password-match" *ngIf="authForm.get('confirmPassword')?.dirty && authForm.get('password')?.dirty">
-            <span class="match-indicator" [class.valid]="!formErrors['confirmPassword'] && authForm.get('confirmPassword')?.value">
-              {{ formErrors['confirmPassword'] ? '✗' : '✓' }} Пароли {{ formErrors['confirmPassword'] ? 'не совпадают' : 'совпадают' }}
+            <span class="match-indicator"
+              [class.valid]="!formErrors['confirmPassword'] && authForm.get('confirmPassword')?.value">
+              {{ formErrors['confirmPassword'] ? '✗' : '✓' }} Пароли {{ formErrors['confirmPassword'] ? 'не совпадают' :
+              'совпадают' }}
             </span>
           </div>
         </div>
 
-        <button 
-          type="submit" 
-          class="submit-btn" 
-          [disabled]="isSubmitting || authForm.invalid"
-          [class.loading]="isSubmitting"
-        >
+        <button type="submit" class="submit-btn" [disabled]="isSubmitting || authForm.invalid"
+          [class.loading]="isSubmitting">
           <span *ngIf="!isSubmitting">Зарегистрироваться</span>
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
         </button>

@@ -9,6 +9,7 @@ export interface City {
   name: string;
   population: number;
   subject: string;
+  id?: string; // Добавляем id для совместимости
 }
 
 export interface DistrictGroup {
@@ -19,8 +20,11 @@ export interface DistrictGroup {
 
 @Injectable({ providedIn: 'root' })
 export class LocationService {
+  getDeviceInfo() {
+    throw new Error('Method not implemented.');
+  }
   localStorage_city = 'pktn_userCity';
-  city$ = new BehaviorSubject<string | null>(null);
+  city$ = new BehaviorSubject<City | null>(null); // Изменено на City | null
   detectedCity$ = new BehaviorSubject<string | null>(null);
   showCityModal$ = new BehaviorSubject<boolean>(false);
   currentSession$ = new BehaviorSubject<string | null>(null);
@@ -37,10 +41,24 @@ export class LocationService {
       const data = await firstValueFrom(
         this.http.get<City[]>('/russian-cities.json'),
       );
-      this.cities = data;
+      // Добавляем id к городам для совместимости
+      this.cities = data.map((city, index) => ({
+        ...city,
+        id: `city_${index}` // Генерируем id если его нет
+      }));
       this.groupCities();
       this.detectUserCity();
     }
+  }
+
+  // Добавляем метод для получения всех городов
+  getAvailableCities(): City[] {
+    return this.cities;
+  }
+
+  // Добавляем метод для получения текущего города
+  getCurrentCity(): City | null {
+    return this.city$.value;
   }
 
   groupCities() {
@@ -68,7 +86,7 @@ export class LocationService {
   }
 
   setCity(city: City) {
-    this.city$.next(city.name);
+    this.city$.next(city);
     localStorage.setItem(this.localStorage_city, city.name);
     this.selectedDistrict = null;
     this.showCityModal$.next(false);
@@ -76,7 +94,15 @@ export class LocationService {
   }
 
   confirmCity() {
-    this.city$.next(this.detectedCity$.value);
+    const detectedCityName = this.detectedCity$.value;
+    if (detectedCityName) {
+      const foundCity = this.cities.find(city => 
+        city.name === detectedCityName
+      );
+      if (foundCity) {
+        this.city$.next(foundCity);
+      }
+    }
     this.showCityModal$.next(false);
     StorageUtils.setSessionStorage(this.localStorage_city, 'true');
   }
@@ -111,42 +137,34 @@ export class LocationService {
   }
 
   detectUserCity() {
-    const userCity = localStorage.getItem(this.localStorage_city);
-    if (navigator.geolocation && !userCity) {
+    const userCityName = localStorage.getItem(this.localStorage_city);
+    if (userCityName) {
+      const foundCity = this.cities.find(city => city.name === userCityName);
+      if (foundCity) {
+        this.city$.next(foundCity);
+        this.detectedCity$.next(userCityName);
+      }
+      this.currentSession$.next(
+        StorageUtils.getSessionStorage(this.localStorage_city),
+      );
+    } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) =>
           this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
         () => console.warn('Не удалось получить геолокацию'),
       );
-    } else {
-      this.currentSession$.next(
-        StorageUtils.getSessionStorage(this.localStorage_city),
-      );
-      this.detectedCity$.next(userCity);
-      this.city$.next(userCity);
     }
   }
 
-  // private async getCityFromCoords(lat: number, lon: number) {
-  //   try {
-  //     const res = await fetch(
-  //       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
-  //       {
-  //         headers: {
-  //           "User-Agent": "MyApp/1.0 (email@example.com)",
-  //           "Accept-Language": "ru",
-  //         },
-  //       }
-  //     );
-  //     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-  //     const data = await res.json();
-  //     this.detectedCity$.next(data.address.city || data.address.town || data.address.village);
-  //     this.showCityModal$.next(true);
-  //   } catch (err) {
-  //     console.error(err);
-  //     this.showCityModal$.next(true);
-  //   }
-  // }
+  // Метод для установки города по имени
+  setCityByName(cityName: string): boolean {
+    const foundCity = this.cities.find(city => city.name === cityName);
+    if (foundCity) {
+      this.setCity(foundCity);
+      return true;
+    }
+    return false;
+  }
 
   private async getCityFromCoords(lat: number, lon: number) {
     try {
@@ -171,11 +189,24 @@ export class LocationService {
       }
 
       const data = await res.json();
-
-      this.detectedCity$.next(
-        data.address?.city || data.address?.town || data.address?.village,
-      );
-      this.showCityModal$.next(true);
+      const cityName = data.address?.city || data.address?.town || data.address?.village;
+      
+      if (cityName) {
+        this.detectedCity$.next(cityName);
+        
+        // Пытаемся найти город в списке
+        const foundCity = this.cities.find(city => 
+          city.name.toLowerCase().includes(cityName.toLowerCase()) ||
+          cityName.toLowerCase().includes(city.name.toLowerCase())
+        );
+        
+        if (foundCity) {
+          this.city$.next(foundCity);
+          localStorage.setItem(this.localStorage_city, foundCity.name);
+        } else {
+          this.showCityModal$.next(true);
+        }
+      }
     } catch (err) {
       console.error(err);
       this.showCityModal$.next(true);

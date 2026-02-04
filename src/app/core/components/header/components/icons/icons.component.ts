@@ -3,7 +3,7 @@ import { AuthService } from '../../../../../modules/auth/auth.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { CommonModule } from '@angular/common';
 import { User, UserService } from '../../../../services/user.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable, map, take } from 'rxjs';
 import { UserApiService } from '../../../../api/user.service';
 import { StorageUtils } from '../../../../../../utils/storage.utils';
@@ -14,7 +14,7 @@ import {
 
 @Component({
   selector: 'app-icons',
-  imports: [CommonModule, NotificationsComponent, RouterLink],
+  imports: [CommonModule],
   templateUrl: './icons.component.html',
   styleUrl: './icons.component.scss',
 })
@@ -28,12 +28,13 @@ export class IconsComponent {
     map((user: User | null) => user?.id ?? null),
   );
 
-  getAuth() {
+  goToPage(page: string) {
+
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
     );
 
-    console.log('authToken',authToken)
+    console.log('authToken', authToken)
     if (!authToken) {
       this.authService.changeVisible(true);
       return;
@@ -41,7 +42,7 @@ export class IconsComponent {
 
     this.userId$.pipe(take(1)).subscribe((userId) => {
       if (userId) {
-        this.router.navigate(['/profile']);
+        this.router.navigate([page]);
         return;
       }
 
@@ -49,7 +50,7 @@ export class IconsComponent {
         sessionStorageEnvironment.user.key,
       );
       if (userData && userData.id) {
-        this.router.navigate(['/profile']);
+        this.router.navigate([page]);
         return;
       }
 
@@ -62,11 +63,13 @@ export class IconsComponent {
               sessionStorageEnvironment.user.key,
               data.data,
             );
-            this.router.navigate(['/profile']);
+            this.router.navigate([page]);
           } else {
             this.authService.changeVisible(true);
           }
         });
     });
+
+
   }
 }

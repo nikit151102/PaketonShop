@@ -87,9 +87,10 @@ export class OrderComponent implements OnInit, OnDestroy {
           if (response.data?.productPositions) {
             this.basketProducts = response.data.productPositions.map((p: any) => ({
               id: p.product.id,
-              name: p.product.name || p.product.shortName || 'Товар',
-              price: p.product.price || p.product.retailPrice || 0,
-              qty: p.product.qty || p.product.count || 1,
+              name: p.product.name || p.product.fullName || 'Товар',
+              price: p.price || 0,
+              priceSale: p.priceSale,
+              qty: p.count || 1,
               imageUrl: p.product.productImageLinks[0] || null
             }));
 

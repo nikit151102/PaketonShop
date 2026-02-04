@@ -2,49 +2,65 @@
 .popup-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
-  animation: fadeIn 0.25s ease;
-  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(3px);
+  padding: 16px;
 }
 
 /* Popup box */
 .popup {
   background: #fff;
-  padding: 55px;
-  border-radius: 24px;
-  width: 420px;
-  max-width: 95vw;
+  padding: 40px 32px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.08),
     0 0 0 1px rgba(255, 255, 255, 0.1);
   transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
+    transform 0.25s ease,
+    opacity 0.25s ease;
   overflow: hidden;
 
+  @media (max-width: 768px) {
+    padding: 32px 24px;
+    border-radius: 18px;
+    max-width: 380px;
+  }
+
   @media (max-width: 480px) {
-    width: 90vw;
-    padding: 30px 20px;
-    border-radius: 20px;
+    padding: 28px 20px;
+    border-radius: 16px;
+    max-width: 92vw;
+  }
+
+  @media (max-width: 360px) {
+    padding: 24px 16px;
+    border-radius: 14px;
+  }
+
+  form {
+    width: calc(100% - 50px);
   }
 }
 
 /* Close button */
 .close-button {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -55,7 +71,7 @@
   &:hover {
     background: #eaeaea;
     transform: rotate(90deg);
-    
+
     svg path {
       stroke: #327120;
       stroke-opacity: 1;
@@ -63,51 +79,58 @@
   }
 
   svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 }
 
 /* Tabs */
 .popup-tabs {
   display: flex;
-  gap: 4px;
-  margin-bottom: 32px;
-  width: 100%;
+  gap: 3px;
+  margin-bottom: 28px;
+  width: calc(100% - 50px);
   background: #f8f9fa;
-  padding: 4px;
-  border-radius: 16px;
+  padding: 3px;
+  border-radius: 14px;
   position: relative;
+
+  @media (max-width: 480px) {
+    margin-bottom: 24px;
+    border-radius: 12px;
+  }
 
   button {
     flex: 1;
-    padding: 14px 24px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 12px;
+    border-radius: 11px;
     background: transparent;
     cursor: pointer;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
     color: #666;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 1;
 
     &.active {
       color: #fff;
       background: linear-gradient(135deg, #327120, #4eb432);
-      box-shadow: 0 4px 12px rgba(50, 113, 32, 0.3);
+      box-shadow: 0 3px 8px rgba(50, 113, 32, 0.25);
     }
 
     &:hover:not(.active) {
       color: #327120;
-      background: rgba(50, 113, 32, 0.1);
+      background: rgba(50, 113, 32, 0.08);
+    }
+
+    @media (max-width: 480px) {
+      padding: 10px 16px;
+      font-size: 13px;
+      border-radius: 10px;
     }
   }
-}
-
-form {
-  width: 100%;
 }
 
 /* API Error */
@@ -115,17 +138,25 @@ form {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: #fee;
   border: 1px solid #fcc;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  margin-bottom: 18px;
   color: #d32f2f;
-  font-size: 14px;
-  animation: slideDown 0.3s ease;
+  font-size: 13px;
+  animation: slideDown 0.25s ease;
 
   svg {
     flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-bottom: 16px;
   }
 }
 
@@ -133,9 +164,13 @@ form {
 .form-slide {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   width: 100%;
-  animation: slideFade 0.4s ease forwards;
+  animation: slideFade 0.3s ease forwards;
+
+  @media (max-width: 480px) {
+    gap: 16px;
+  }
 }
 
 /* Input groups */
@@ -144,41 +179,49 @@ form {
   display: flex;
   flex-direction: column;
   opacity: 0;
-  animation: inputFadeIn 0.4s forwards;
+  animation: inputFadeIn 0.3s forwards;
 
-  &:nth-child(1) { animation-delay: 0.05s; }
-  &:nth-child(2) { animation-delay: 0.1s; }
-  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(1) {
+    animation-delay: 0.04s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.12s;
+  }
 
   &.invalid {
     input {
       border-color: #dc3545;
       background: #fff5f5;
-      
+
       &:focus {
         border-color: #dc3545;
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.08);
       }
     }
-    
+
     label {
       color: #dc3545;
     }
   }
 
   input {
-    margin-top: 14px;
-    padding: 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 14px;
-    font-size: 15px;
+    margin-top: 12px;
+    padding: 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 14px;
     outline: none;
     background-color: #fafafa;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:focus {
       border-color: #4eb432;
-      box-shadow: 0 0 0 3px rgba(78, 180, 50, 0.15);
+      box-shadow: 0 0 0 3px rgba(78, 180, 50, 0.12);
       background-color: #fff;
       transform: translateY(-1px);
     }
@@ -186,88 +229,116 @@ form {
     &::placeholder {
       color: transparent;
     }
+
+    @media (max-width: 480px) {
+      padding: 12px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
   }
 
   label {
     position: absolute;
     top: 0;
-    left: 16px;
+    left: 14px;
     transform: translateY(-50%);
-    font-size: 15px;
+    font-size: 14px;
     color: #888;
     pointer-events: none;
     transition: all 0.2s ease;
     background-color: transparent;
-    padding: 0 6px;
+    padding: 0 5px;
+
+    @media (max-width: 480px) {
+      font-size: 13px;
+      left: 12px;
+    }
   }
 
-  input:focus + label,
-  input:not(:placeholder-shown) + label {
+  input:focus+label,
+  input:not(:placeholder-shown)+label {
     top: 0;
-    left: 12px;
-    font-size: 13px;
+    left: 10px;
+    font-size: 12px;
     color: #327120;
     background-color: #fff;
     transform: translateY(0);
     font-weight: 500;
+
+    @media (max-width: 480px) {
+      font-size: 11px;
+      left: 8px;
+    }
   }
 
   .error-icon {
-    position: absolute;
-    right: 16px;
+    right: 14px;
     top: 50%;
     transform: translateY(20%);
     color: #dc3545;
   }
 
   .error-message {
-    font-size: 12px;
+    font-size: 11px;
     color: #dc3545;
-    margin-top: 6px;
-    padding-left: 4px;
+    margin-top: 5px;
+    padding-left: 3px;
     animation: fadeInUp 0.2s ease;
+
+    @media (max-width: 480px) {
+      font-size: 10px;
+    }
   }
 }
 
 /* Password requirements */
 .password-requirements {
-  margin-top: 8px;
-  padding: 12px;
+  margin-top: 6px;
+  padding: 10px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 3px solid #e0e0e0;
+  border-left: 2px solid #e0e0e0;
+
+  @media (max-width: 480px) {
+    padding: 8px;
+    font-size: 11px;
+  }
 
   .requirement {
-    font-size: 12px;
+    font-size: 11px;
     color: #888;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
 
     &.valid {
       color: #327120;
-      
+
       &::before {
         content: "✓";
         color: #327120;
         font-weight: bold;
       }
     }
+
+    @media (max-width: 480px) {
+      font-size: 10px;
+    }
   }
 }
 
 /* Password match indicator */
 .password-match {
-  margin-top: 8px;
+  margin-top: 6px;
 
   .match-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    padding: 4px 10px;
-    border-radius: 12px;
+    gap: 5px;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 10px;
     background: #f8f9fa;
     color: #888;
 
@@ -275,29 +346,34 @@ form {
       background: #e8f5e8;
       color: #327120;
     }
+
+    @media (max-width: 480px) {
+      font-size: 11px;
+      padding: 2px 6px;
+    }
   }
 }
 
 /* Submit button */
 .submit-btn {
   width: 100%;
-  padding: 16px;
+  padding: 14px;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #327120, #4eb432);
   color: #fff;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
-  margin-top: 10px;
+  margin-top: 8px;
 
   &:hover:not(:disabled) {
     background: linear-gradient(135deg, #2b641c, #45a02e);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(50, 113, 32, 0.3);
+    box-shadow: 0 6px 16px rgba(50, 113, 32, 0.25);
   }
 
   &:active:not(:disabled) {
@@ -313,6 +389,13 @@ form {
   &.loading {
     color: transparent;
   }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 12px;
+    margin-top: 6px;
+  }
 }
 
 /* Loading spinner */
@@ -321,8 +404,8 @@ form {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
@@ -333,8 +416,9 @@ form {
 @keyframes slideFade {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(15px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -350,8 +434,9 @@ form {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -361,8 +446,9 @@ form {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(3px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -372,8 +458,9 @@ form {
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -390,14 +477,52 @@ form {
 .input-group.valid {
   input {
     border-color: #4eb432;
-    
+
     &:focus {
       border-color: #4eb432;
-      box-shadow: 0 0 0 3px rgba(78, 180, 50, 0.1);
+      box-shadow: 0 0 0 3px rgba(78, 180, 50, 0.08);
     }
   }
-  
+
   label {
     color: #4eb432;
+  }
+}
+
+/* Для планшетов (портретная ориентация) */
+@media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+  .popup {
+    max-width: 400px;
+  }
+}
+
+/* Для планшетов (ландшафтная ориентация) и небольших десктопов */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .popup {
+    max-width: 440px;
+    padding: 36px 28px;
+  }
+}
+
+/* Для десктопов - нормальные размеры */
+@media (min-width: 1025px) {
+  .popup {
+    max-width: 440px;
+    padding: 36px 30px;
+
+    .popup-tabs button {
+      padding: 13px 22px;
+      font-size: 14.5px;
+    }
+
+    .input-group input {
+      padding: 15px;
+      font-size: 14.5px;
+    }
+
+    .submit-btn {
+      padding: 15px;
+      font-size: 15.5px;
+    }
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DeliveryOrderService } from '../../../../core/api/delivery-order.service';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { OrderStatusService } from '../../../../core/services/order-status.service';
 
 // Интерфейсы
 interface ProductPosition {
@@ -61,18 +62,18 @@ interface Order {
   id: string;
   orderDateTime: string;
   orderStatus: number;
-  productCount: number;
+  positionCount: number;
   totalCost: number;
   deliveryCost: number;
   orderCost: number;
   consultation: boolean;
-  
+
   address?: Address;
   deliveryType?: DeliveryType;
   partnerInstance?: PartnerInstance;
   productPlace?: ProductPlace;
   productPositions?: ProductPosition[];
-  
+
   // Дополнительные поля для UI
   statusText: string;
   statusColor: string;
@@ -102,29 +103,31 @@ export class OrderHistoryComponent implements OnInit {
   orders: any[] = [];
   loading = false;
   error: string | null = null;
-  
+
   // Пагинация
   currentPage = 0;
   pageSize = 10;
   totalPages = 0;
   totalOrders = 0;
-  
+
   // Фильтры
   searchTerm = '';
   statusFilter: 'all' | 'active' | 'completed' | 'cancelled' = 'all';
   dateFilter: 'all' | 'week' | 'month' | 'quarter' = 'all';
-  
+
   // Сортировка
   sortBy: 'date' | 'amount' | 'status' = 'date';
   sortDirection: 'asc' | 'desc' = 'desc';
-  
+
   // Состояния
   showFilters = false;
   selectedOrder: any | null = null;
-  
+
   private destroy$ = new Subject<void>();
 
-  constructor(private deliveryOrderService: DeliveryOrderService) {}
+  constructor(private deliveryOrderService: DeliveryOrderService,
+    private orderStatusService:OrderStatusService
+  ) { }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -155,33 +158,30 @@ export class OrderHistoryComponent implements OnInit {
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке заказов';
           console.error('Ошибка загрузки заказов:', err);
-          
-          // Для демонстрации - временные данные
-          this.orders = this.getMockOrders();
         }
       });
   }
 
   transformApiData(apiData: any[]): Order[] {
     return apiData.map(item => {
-      const statusInfo = this.getStatusInfo(item.orderStatus);
-      
+      const statusInfo = this.orderStatusService.getStatusInfo(item.orderStatus);
+
       return {
         id: item.id,
         orderDateTime: item.orderDateTime,
         orderStatus: item.orderStatus,
-        productCount: item.productCount,
+        positionCount: item.positionCount,
         totalCost: item.totalCost,
         deliveryCost: item.deliveryCost,
         orderCost: item.orderCost,
         consultation: item.consultation,
-        
+
         address: item.address,
         deliveryType: item.deliveryType,
         partnerInstance: item.partnerInstance,
         productPlace: item.productPlace,
         productPositions: item.productPositions || [],
-        
+
         statusText: statusInfo.text,
         statusColor: statusInfo.color,
         statusIcon: statusInfo.icon,
@@ -190,18 +190,7 @@ export class OrderHistoryComponent implements OnInit {
     });
   }
 
-  getStatusInfo(status: number): { text: string; color: string; icon: string } {
-    const statusMap: Record<number, { text: string; color: string; icon: string }> = {
-      0: { text: 'Новый', color: 'info', icon: '⏳' },
-      1: { text: 'В обработке', color: 'warning', icon: '🔄' },
-      2: { text: 'Подтвержден', color: 'primary', icon: '✅' },
-      3: { text: 'Доставляется', color: 'process', icon: '🚚' },
-      4: { text: 'Выполнен', color: 'success', icon: '🎉' },
-      5: { text: 'Отменен', color: 'error', icon: '❌' }
-    };
-    
-    return statusMap[status] || { text: 'Неизвестно', color: 'default', icon: '❓' };
-  }
+
 
   getFilteredOrders(): Order[] {
     let filtered = [...this.orders];
@@ -209,7 +198,7 @@ export class OrderHistoryComponent implements OnInit {
     // Поиск
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter(order =>
         order.id.toLowerCase().includes(term) ||
         (order.deliveryType?.shortName?.toLowerCase() || '').includes(term) ||
         (order.partnerInstance?.partner?.shortName?.toLowerCase() || '').includes(term)
@@ -238,7 +227,7 @@ export class OrderHistoryComponent implements OnInit {
       filtered = filtered.filter(order => {
         const orderDate = new Date(order.orderDateTime);
         const diffDays = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24));
-        
+
         switch (this.dateFilter) {
           case 'week': return diffDays <= 7;
           case 'month': return diffDays <= 30;
@@ -251,7 +240,7 @@ export class OrderHistoryComponent implements OnInit {
     // Сортировка
     filtered.sort((a, b) => {
       let aVal: any, bVal: any;
-      
+
       switch (this.sortBy) {
         case 'date':
           aVal = new Date(a.orderDateTime).getTime();
@@ -266,7 +255,7 @@ export class OrderHistoryComponent implements OnInit {
           bVal = b.orderStatus;
           break;
       }
-      
+
       return this.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
     });
 
@@ -338,15 +327,15 @@ export class OrderHistoryComponent implements OnInit {
     const maxVisiblePages = 5;
     let startPage = Math.max(0, this.currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(this.totalPages - 1, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(0, endPage - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   }
 
@@ -380,109 +369,4 @@ export class OrderHistoryComponent implements OnInit {
     return this.getFilteredOrders().filter(order => [0, 1, 2, 3].includes(order.orderStatus)).length;
   }
 
-  // Временные данные для демонстрации
-  private getMockOrders(): Order[] {
-    return [
-      {
-        id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        orderDateTime: '2025-07-12T14:30:00.000Z',
-        orderStatus: 4,
-        productCount: 3,
-        totalCost: 12490,
-        deliveryCost: 500,
-        orderCost: 11990,
-        consultation: true,
-        address: {
-          id: '1',
-          region: 'Московская область',
-          area: '',
-          city: 'Москва',
-          street: 'Ленина',
-          house: '42',
-          postIndex: '123456'
-        },
-        deliveryType: { shortName: 'Курьер', fullName: 'Доставка курьером' },
-        partnerInstance: { partner: { shortName: 'ООО Ромашка', fullName: 'Общество с ограниченной ответственностью "Ромашка"' } },
-        productPlace: { shortName: 'Склад 1', fullName: 'Основной склад', advantageList: ['Быстрая выдача', 'Наличие'] },
-        productPositions: [
-          {
-            id: '1',
-            product: {
-              id: '1',
-              shortName: 'Ноутбук ASUS',
-              fullName: 'Ноутбук ASUS VivoBook 15',
-              article: 'ASUS001',
-              manufacturer: 'ASUS',
-              productImageLinks: ['/assets/products/laptop.jpg'],
-              retailPrice: 45990,
-              retailPriceDest: 42990,
-              measurementUnit: { shortName: 'шт' }
-            },
-            count: 1,
-            price: 42990,
-            priceSale: 39990,
-            totalCost: 39990
-          }
-        ],
-        statusText: 'Выполнен',
-        statusColor: 'success',
-        statusIcon: '🎉',
-        isExpanded: false
-      },
-      {
-        id: '4fa85f64-5717-4562-b3fc-2c963f66afa7',
-        orderDateTime: '2025-08-01T10:15:00.000Z',
-        orderStatus: 2,
-        productCount: 2,
-        totalCost: 6890,
-        deliveryCost: 0,
-        orderCost: 6890,
-        consultation: false,
-        address: {
-          id: '2',
-          region: 'Ленинградская область',
-          area: '',
-          city: 'Санкт-Петербург',
-          street: 'Невский проспект',
-          house: '28',
-          postIndex: '190000'
-        },
-        deliveryType: { shortName: 'Самовывоз', fullName: 'Самовывоз со склада' },
-        partnerInstance: { partner: { shortName: 'ИП Иванов', fullName: 'Индивидуальный предприниматель Иванов И.И.' } },
-        productPlace: { shortName: 'ПВЗ', fullName: 'Пункт выдачи заказов', advantageList: ['Удобное расположение', 'До 22:00'] },
-        productPositions: [],
-        statusText: 'Подтвержден',
-        statusColor: 'primary',
-        statusIcon: '✅',
-        isExpanded: false
-      },
-      {
-        id: '5fa85f64-5717-4562-b3fc-2c963f66afa8',
-        orderDateTime: '2025-08-10T16:45:00.000Z',
-        orderStatus: 5,
-        productCount: 4,
-        totalCost: 9400,
-        deliveryCost: 300,
-        orderCost: 9100,
-        consultation: true,
-        address: {
-          id: '3',
-          region: 'Свердловская область',
-          area: '',
-          city: 'Екатеринбург',
-          street: 'Мира',
-          house: '15',
-          postIndex: '620000'
-        },
-        deliveryType: { shortName: 'Почта', fullName: 'Доставка почтой России' },
-        partnerInstance: { partner: { shortName: 'ООО Техно', fullName: 'Общество с ограниченной ответственностью "Техно"' } },
-        productPlace: { shortName: 'Склад 2', fullName: 'Дополнительный склад', advantageList: ['Низкие цены', 'Большой выбор'] },
-        productPositions: [],
-        statusText: 'Отменен',
-        statusColor: 'error',
-        statusIcon: '❌',
-        isExpanded: false
-      }
-    ];
-  }
 }

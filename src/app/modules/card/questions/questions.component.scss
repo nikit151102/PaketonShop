@@ -23,15 +23,14 @@ $gray-500: #6b7280;
 $gray-600: #4b5563;
 $gray-700: #374151;
 $gray-800: #1f2937;
-$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
-$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-$shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
-$shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-$radius-sm: 8px;
-$radius: 12px;
-$radius-lg: 16px;
-$radius-xl: 20px;
-$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+$shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 4px 15px rgba(0, 0, 0, 0.08);
+$radius-sm: 6px;
+$radius: 10px;
+$radius-lg: 14px;
+$radius-xl: 16px;
+$transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 $gradient: linear-gradient(135deg, $primary, $primary-dark);
 
 // Mixins
@@ -52,81 +51,145 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
   justify-content: center;
 }
 
-@mixin gradient-text {
-  background: $gradient;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
 // Main Container
 .questions-module {
   margin: 0 auto;
-  padding: 0 16px 40px;
+  padding: 0 12px 24px;
+  
+  // Планшеты
+  @media (max-width: 1024px) {
+    padding: 0 10px 20px;
+  }
+  
+  // Мобильные
+  @media (max-width: 768px) {
+    padding: 0 8px 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0 6px 12px;
+  }
 }
 
 // Module Header
 .module-header {
   @include card;
-  padding: 24px 32px;
-  margin-bottom: 32px;
-  border-left: 4px solid $primary;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  border-left: 3px solid $primary;
+  
+  // Планшеты
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
   
   .header-main {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
     
     .title-section {
       display: flex;
       align-items: flex-start;
-      gap: 16px;
+      gap: 12px;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+      }
       
       .title-icon {
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
         color: $primary;
-        margin-top: 4px;
+        margin-top: 2px;
+        
+        @media (max-width: 768px) {
+          margin: 0 auto;
+        }
+        
+        @media (max-width: 480px) {
+          width: 32px;
+          height: 32px;
+        }
       }
       
       .module-title {
-        margin: 0 0 8px;
-        font-size: 20px;
+        margin: 0 0 4px;
+        font-size: 18px;
         font-weight: 700;
         color: $dark;
         line-height: 1.2;
+        
+        @media (max-width: 768px) {
+          font-size: 16px;
+        }
+        
+        @media (max-width: 480px) {
+          font-size: 15px;
+        }
       }
       
       .module-subtitle {
         margin: 0;
-        font-size: 15px;
+        font-size: 13px;
         color: $gray-500;
-        line-height: 1.5;
-        max-width: 500px;
+        line-height: 1.4;
+        max-width: 400px;
+        
+        @media (max-width: 768px) {
+          font-size: 12px;
+        }
+        
+        @media (max-width: 480px) {
+          font-size: 11px;
+          line-height: 1.3;
+        }
       }
     }
     
     .stats-badge {
       background: $gradient;
       color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
+      padding: 6px 12px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-width: 80px;
+      min-width: 60px;
       
       .stats-count {
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 700;
         line-height: 1;
+        
+        @media (max-width: 480px) {
+          font-size: 16px;
+        }
       }
       
       .stats-label {
-        font-size: 13px;
+        font-size: 11px;
         opacity: 0.9;
-        margin-top: 4px;
+        margin-top: 2px;
+        
+        @media (max-width: 480px) {
+          font-size: 10px;
+        }
       }
     }
   }
@@ -138,25 +201,43 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
     .ask-question-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
+      gap: 6px;
+      padding: 10px 16px;
       background: $gradient;
       color: white;
       border: none;
       border-radius: $radius;
-      font-weight: 600;
-      font-size: 15px;
+      font-weight: 500;
+      font-size: 13px;
       cursor: pointer;
       transition: $transition;
+      white-space: nowrap;
+      
+      @media (max-width: 768px) {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 8px;
+        font-size: 11.5px;
+      }
       
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
       }
       
       svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
+        
+        @media (max-width: 480px) {
+          width: 12px;
+          height: 12px;
+        }
       }
     }
   }
@@ -165,19 +246,33 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
 // Loading State
 .loading-state {
   @include card;
-  padding: 60px 32px;
+  padding: 40px 20px;
   text-align: center;
+  
+  @media (max-width: 768px) {
+    padding: 32px 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 24px 12px;
+  }
   
   .loading-content {
     .spinner-wrapper {
-      margin: 0 auto 20px;
-      width: 60px;
-      height: 60px;
+      margin: 0 auto 16px;
+      width: 48px;
+      height: 48px;
+      
+      @media (max-width: 480px) {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
+      }
       
       .spinner {
         width: 100%;
         height: 100%;
-        border: 3px solid $gray-200;
+        border: 2px solid $gray-200;
         border-top-color: $primary;
         border-radius: 50%;
         animation: spin 1s linear infinite;
@@ -186,9 +281,17 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
     
     .loading-text {
       margin: 0;
-      font-size: 16px;
+      font-size: 14px;
       color: $gray-600;
       font-weight: 500;
+      
+      @media (max-width: 768px) {
+        font-size: 13px;
+      }
+      
+      @media (max-width: 480px) {
+        font-size: 12px;
+      }
     }
   }
 }
@@ -196,70 +299,131 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
 // Error State
 .error-state {
   @include card;
-  padding: 32px;
-  border-left: 4px solid $danger;
+  padding: 20px;
+  border-left: 3px solid $danger;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
   
   .error-content {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 16px;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px;
+    }
     
     .error-icon {
       flex-shrink: 0;
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       background: rgba($danger, 0.1);
       border-radius: 50%;
       @include flex-center;
       color: $danger;
       
+      @media (max-width: 768px) {
+        margin: 0 auto;
+      }
+      
+      @media (max-width: 480px) {
+        width: 36px;
+        height: 36px;
+      }
+      
       svg {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
+        
+        @media (max-width: 480px) {
+          width: 18px;
+          height: 18px;
+        }
       }
     }
     
     .error-details {
       flex: 1;
       
+      @media (max-width: 768px) {
+        text-align: center;
+      }
+      
       h3 {
-        margin: 0 0 8px;
-        font-size: 18px;
+        margin: 0 0 6px;
+        font-size: 16px;
         color: $dark;
         font-weight: 600;
+        
+        @media (max-width: 768px) {
+          font-size: 15px;
+        }
+        
+        @media (max-width: 480px) {
+          font-size: 14px;
+        }
       }
       
       p {
-        margin: 0 0 16px;
+        margin: 0 0 12px;
         color: $gray-600;
-        font-size: 14px;
-        line-height: 1.5;
+        font-size: 13px;
+        line-height: 1.4;
+        
+        @media (max-width: 768px) {
+          font-size: 12px;
+        }
+        
+        @media (max-width: 480px) {
+          font-size: 11.5px;
+        }
       }
     }
     
     .retry-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
+      gap: 6px;
+      padding: 8px 16px;
       background: $gradient;
       color: white;
       border: none;
       border-radius: $radius;
       font-weight: 500;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       transition: $transition;
       white-space: nowrap;
       
+      @media (max-width: 768px) {
+        padding: 7px 14px;
+        font-size: 12px;
+      }
+      
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 6px 12px;
+        font-size: 11.5px;
+      }
+      
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
       }
       
       svg {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
+        
+        @media (max-width: 480px) {
+          width: 12px;
+          height: 12px;
+        }
       }
     }
   }
@@ -267,8 +431,12 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
 
 // Question Form
 .question-form-section {
-  margin-bottom: 32px;
-  animation: slideUp 0.4s ease;
+  margin-bottom: 20px;
+  animation: slideUp 0.3s ease;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
   
   .form-card {
     @include card;
@@ -279,28 +447,50 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 24px 32px;
+      padding: 16px 20px;
       background: linear-gradient(90deg, rgba($primary, 0.05), rgba($primary-dark, 0.05));
       border-bottom: 1px solid $gray-200;
       
+      @media (max-width: 768px) {
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      @media (max-width: 480px) {
+        padding: 12px 14px;
+      }
+      
       .form-title-section {
         .form-title {
-          margin: 0 0 8px;
-          font-size: 20px;
+          margin: 0 0 4px;
+          font-size: 16px;
           font-weight: 600;
           color: $dark;
+          
+          @media (max-width: 768px) {
+            font-size: 15px;
+          }
+          
+          @media (max-width: 480px) {
+            font-size: 14px;
+          }
         }
         
         .form-subtitle {
           margin: 0;
-          font-size: 14px;
+          font-size: 12px;
           color: $gray-500;
+          
+          @media (max-width: 480px) {
+            font-size: 11px;
+          }
         }
       }
       
       .close-form-btn {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
         border-radius: $radius-sm;
         border: none;
         background: white;
@@ -309,76 +499,120 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         cursor: pointer;
         transition: $transition;
         
+        @media (max-width: 768px) {
+          align-self: flex-end;
+          width: 28px;
+          height: 28px;
+        }
+        
         &:hover {
           background: $gray-100;
           color: $dark;
         }
         
         svg {
-          width: 20px;
-          height: 20px;
+          width: 16px;
+          height: 16px;
+          
+          @media (max-width: 480px) {
+            width: 14px;
+            height: 14px;
+          }
         }
       }
     }
     
     .form-body {
-      padding: 32px;
+      padding: 20px;
+      
+      @media (max-width: 768px) {
+        padding: 16px;
+      }
       
       .form-group {
-        margin-bottom: 24px;
+        margin-bottom: 16px;
         
         .form-label {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 12px;
+          margin-bottom: 8px;
           font-weight: 500;
           color: $gray-700;
-          font-size: 14px;
+          font-size: 13px;
+          
+          @media (max-width: 480px) {
+            font-size: 12px;
+          }
           
           .char-count {
-            font-size: 13px;
+            font-size: 11px;
             color: $gray-500;
+            
+            @media (max-width: 480px) {
+              font-size: 10px;
+            }
           }
         }
         
         .form-textarea {
           width: 100%;
-          padding: 16px;
-          border: 2px solid $gray-200;
+          padding: 12px;
+          border: 1px solid $gray-200;
           border-radius: $radius;
-          font-size: 15px;
+          font-size: 13px;
           font-family: inherit;
           color: $dark;
           background: white;
           resize: vertical;
-          min-height: 120px;
+          min-height: 100px;
           transition: $transition;
+          
+          @media (max-width: 768px) {
+            font-size: 12.5px;
+            padding: 10px;
+            min-height: 80px;
+          }
           
           &:focus {
             outline: none;
             border-color: $primary;
-            box-shadow: 0 0 0 3px rgba($primary, 0.1);
+            box-shadow: 0 0 0 2px rgba($primary, 0.1);
           }
           
           &::placeholder {
             color: $gray-400;
+            font-size: 13px;
+            
+            @media (max-width: 768px) {
+              font-size: 12px;
+            }
           }
         }
         
         .form-hint {
           display: flex;
           align-items: center;
-          gap: 8px;
-          margin-top: 12px;
-          font-size: 13px;
+          gap: 6px;
+          margin-top: 8px;
+          font-size: 11px;
           color: $gray-500;
           
+          @media (max-width: 480px) {
+            font-size: 10px;
+            gap: 4px;
+          }
+          
           svg {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             color: $info;
             flex-shrink: 0;
+            
+            @media (max-width: 480px) {
+              width: 10px;
+              height: 10px;
+            }
           }
         }
       }
@@ -387,8 +621,12 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         .option-toggle {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
           cursor: pointer;
+          
+          @media (max-width: 480px) {
+            gap: 10px;
+          }
           
           .toggle-input {
             display: none;
@@ -397,29 +635,40 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               background: $success;
               
               .toggle-dot {
-                transform: translateX(20px);
+                transform: translateX(16px);
               }
             }
           }
           
           .toggle-slider {
             position: relative;
-            width: 44px;
-            height: 24px;
+            width: 40px;
+            height: 20px;
             background: $gray-300;
-            border-radius: 12px;
+            border-radius: 10px;
             transition: $transition;
+            flex-shrink: 0;
+            
+            @media (max-width: 480px) {
+              width: 36px;
+              height: 18px;
+            }
             
             .toggle-dot {
               position: absolute;
-              width: 20px;
-              height: 20px;
+              width: 16px;
+              height: 16px;
               background: white;
               border-radius: 50%;
               top: 2px;
               left: 2px;
-              transition: transform 0.3s ease;
+              transition: transform 0.2s ease;
               box-shadow: $shadow-sm;
+              
+              @media (max-width: 480px) {
+                width: 14px;
+                height: 14px;
+              }
             }
           }
           
@@ -431,13 +680,21 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               font-weight: 500;
               color: $dark;
               margin-bottom: 2px;
-              font-size: 14px;
+              font-size: 13px;
+              
+              @media (max-width: 480px) {
+                font-size: 12px;
+              }
             }
             
             .option-description {
               display: block;
-              font-size: 13px;
+              font-size: 11px;
               color: $gray-500;
+              
+              @media (max-width: 480px) {
+                font-size: 10px;
+              }
             }
           }
         }
@@ -447,21 +704,37 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
     .form-footer {
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
-      padding: 24px 32px;
+      gap: 10px;
+      padding: 16px 20px;
       background: $gray-100;
       border-top: 1px solid $gray-200;
       
+      @media (max-width: 768px) {
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      @media (max-width: 480px) {
+        padding: 12px 14px;
+      }
+      
       .btn-secondary {
-        padding: 12px 24px;
+        padding: 10px 16px;
         background: white;
         color: $gray-700;
-        border: 2px solid $gray-300;
+        border: 1px solid $gray-300;
         border-radius: $radius;
         font-weight: 500;
-        font-size: 14px;
+        font-size: 13px;
         cursor: pointer;
         transition: $transition;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: center;
+          font-size: 12px;
+        }
         
         &:hover:not(:disabled) {
           background: $gray-100;
@@ -477,21 +750,27 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
       .btn-primary {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 28px;
+        gap: 6px;
+        padding: 10px 20px;
         background: $gradient;
         color: white;
         border: none;
         border-radius: $radius;
-        font-weight: 600;
-        font-size: 15px;
+        font-weight: 500;
+        font-size: 13px;
         cursor: pointer;
         transition: $transition;
         position: relative;
         
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: center;
+          font-size: 12px;
+        }
+        
         &:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
         
         &:disabled {
@@ -501,8 +780,8 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         
         &.loading {
           .btn-spinner {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
@@ -517,8 +796,12 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
 // Questions List
 .questions-list {
   .question-item {
-    margin-bottom: 24px;
-    animation: fadeIn 0.5s ease;
+    margin-bottom: 16px;
+    animation: fadeIn 0.3s ease;
+    
+    @media (max-width: 768px) {
+      margin-bottom: 12px;
+    }
     
     &.featured {
       .question-card {
@@ -529,27 +812,52 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
     
     .question-card {
       @include card;
-      padding: 24px;
+      padding: 16px;
+      
+      @media (max-width: 768px) {
+        padding: 14px;
+      }
+      
+      @media (max-width: 480px) {
+        padding: 12px;
+      }
       
       .question-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
+        
+        @media (max-width: 768px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
         
         .user-info {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
+          
+          @media (max-width: 480px) {
+            gap: 10px;
+          }
           
           .user-avatar {
             position: relative;
-            width: 56px;
-            height: 56px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            flex-shrink: 0;
+            
+            @media (max-width: 480px) {
+              width: 40px;
+              height: 40px;
+            }
             
             &.anonymous {
               &::after {
@@ -563,7 +871,7 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
                 color: $gray-600;
                 @include flex-center;
                 font-weight: 700;
-                font-size: 20px;
+                font-size: 16px;
               }
               
               img {
@@ -579,18 +887,18 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
             
             .avatar-status {
               position: absolute;
-              bottom: -2px;
-              right: -2px;
-              width: 20px;
-              height: 20px;
+              bottom: -1px;
+              right: -1px;
+              width: 16px;
+              height: 16px;
               background: $success;
-              border: 2px solid white;
+              border: 1px solid white;
               border-radius: 50%;
               @include flex-center;
               
               svg {
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
                 color: white;
               }
             }
@@ -601,14 +909,22 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               display: block;
               font-weight: 600;
               color: $dark;
-              margin-bottom: 4px;
-              font-size: 16px;
+              margin-bottom: 2px;
+              font-size: 14px;
+              
+              @media (max-width: 480px) {
+                font-size: 13px;
+              }
             }
             
             .user-date {
               display: block;
-              font-size: 13px;
+              font-size: 11px;
               color: $gray-500;
+              
+              @media (max-width: 480px) {
+                font-size: 10px;
+              }
             }
           }
         }
@@ -616,17 +932,31 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         .question-badge {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 12px;
+          gap: 4px;
+          padding: 4px 8px;
           background: rgba($success, 0.1);
           color: $success;
-          border-radius: 20px;
-          font-size: 12px;
+          border-radius: 12px;
+          font-size: 10px;
           font-weight: 600;
           
+          @media (max-width: 768px) {
+            align-self: flex-start;
+          }
+          
+          @media (max-width: 480px) {
+            font-size: 9px;
+            padding: 3px 6px;
+          }
+          
           svg {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
+            
+            @media (max-width: 480px) {
+              width: 8px;
+              height: 8px;
+            }
           }
         }
       }
@@ -634,11 +964,16 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
       .question-body {
         .question-text {
           font-size: 13px;
-          line-height: 1.6;
+          line-height: 1.5;
           color: $gray-800;
-          margin-bottom: 20px;
-          padding-bottom: 20px;
+          margin-bottom: 12px;
+          padding-bottom: 12px;
           border-bottom: 1px solid $gray-200;
+          
+          @media (max-width: 480px) {
+            font-size: 12.5px;
+            line-height: 1.4;
+          }
         }
         
         .question-actions {
@@ -646,12 +981,18 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
           justify-content: space-between;
           align-items: center;
           
+          @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+          }
+          
           .rating-widget {
             display: flex;
             align-items: center;
             background: $gray-100;
-            border-radius: 20px;
-            padding: 4px;
+            border-radius: 16px;
+            padding: 2px;
             
             &.disabled .rating-btn {
               cursor: not-allowed;
@@ -671,16 +1012,21 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
             .rating-btn {
               display: flex;
               align-items: center;
-              gap: 6px;
-              padding: 6px 12px;
+              gap: 4px;
+              padding: 4px 10px;
               background: transparent;
               border: none;
-              border-radius: 16px;
+              border-radius: 14px;
               font-weight: 500;
-              font-size: 14px;
+              font-size: 12px;
               color: $gray-600;
               cursor: pointer;
               transition: $transition;
+              
+              @media (max-width: 480px) {
+                font-size: 11px;
+                padding: 3px 8px;
+              }
               
               &:hover:not(:disabled) {
                 background: white;
@@ -689,8 +1035,13 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               }
               
               .rating-icon {
-                width: 16px;
-                height: 16px;
+                width: 14px;
+                height: 14px;
+                
+                @media (max-width: 480px) {
+                  width: 12px;
+                  height: 12px;
+                }
               }
               
               .rating-count {
@@ -700,25 +1051,31 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
             
             .rating-separator {
               width: 1px;
-              height: 20px;
+              height: 16px;
               background: $gray-300;
-              margin: 0 4px;
+              margin: 0 2px;
             }
           }
           
           .action-reply {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
+            gap: 4px;
+            padding: 6px 12px;
             background: transparent;
             color: $primary;
             border: 1px solid $primary;
             border-radius: $radius;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: $transition;
+            
+            @media (max-width: 768px) {
+              width: 100%;
+              justify-content: center;
+              font-size: 11px;
+            }
             
             &:hover {
               background: $primary;
@@ -726,36 +1083,61 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
             }
             
             svg {
-              width: 14px;
-              height: 14px;
+              width: 12px;
+              height: 12px;
+              
+              @media (max-width: 480px) {
+                width: 10px;
+                height: 10px;
+              }
             }
           }
         }
       }
       
       .answer-section {
-        margin-top: 24px;
-        padding-top: 24px;
-        border-top: 2px solid $gray-200;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid $gray-200;
+        
+        @media (max-width: 480px) {
+          margin-top: 12px;
+          padding-top: 12px;
+        }
         
         .answer-card {
           background: $light;
           border-radius: $radius;
-          padding: 20px;
+          padding: 14px;
+          
+          @media (max-width: 480px) {
+            padding: 12px;
+          }
           
           .answer-header {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-bottom: 12px;
+            
+            @media (max-width: 480px) {
+              gap: 10px;
+              margin-bottom: 10px;
+            }
             
             .brand-avatar {
-              width: 48px;
-              height: 48px;
+              width: 40px;
+              height: 40px;
               border-radius: 50%;
               overflow: hidden;
               border: 2px solid white;
               box-shadow: $shadow-sm;
+              flex-shrink: 0;
+              
+              @media (max-width: 480px) {
+                width: 36px;
+                height: 36px;
+              }
               
               img {
                 width: 100%;
@@ -770,61 +1152,90 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               .brand-info {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                margin-bottom: 4px;
+                gap: 6px;
+                margin-bottom: 2px;
                 
                 .brand-name {
                   font-weight: 600;
                   color: $dark;
-                  font-size: 15px;
+                  font-size: 13px;
+                  
+                  @media (max-width: 480px) {
+                    font-size: 12.5px;
+                  }
                 }
                 
                 .brand-badge {
                   display: inline-flex;
                   align-items: center;
-                  gap: 4px;
-                  padding: 2px 8px;
+                  gap: 3px;
+                  padding: 1px 6px;
                   background: rgba($warning, 0.1);
                   color: $warning;
-                  border-radius: 12px;
-                  font-size: 11px;
+                  border-radius: 10px;
+                  font-size: 10px;
                   font-weight: 600;
+                  white-space: nowrap;
+                  
+                  @media (max-width: 480px) {
+                    font-size: 9px;
+                    padding: 1px 4px;
+                  }
                   
                   svg {
-                    width: 10px;
-                    height: 10px;
+                    width: 8px;
+                    height: 8px;
+                    
+                    @media (max-width: 480px) {
+                      width: 7px;
+                      height: 7px;
+                    }
                   }
                 }
               }
               
               .answer-date {
-                font-size: 13px;
+                font-size: 11px;
                 color: $gray-500;
+                
+                @media (max-width: 480px) {
+                  font-size: 10px;
+                }
               }
             }
           }
           
           .answer-text {
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 1.5;
             color: $gray-800;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            
+            @media (max-width: 480px) {
+              font-size: 12.5px;
+              line-height: 1.4;
+            }
           }
           
           .answer-actions {
             .answer-helpful {
               display: inline-flex;
               align-items: center;
-              gap: 6px;
-              padding: 6px 12px;
+              gap: 4px;
+              padding: 4px 10px;
               background: transparent;
               color: $gray-600;
               border: 1px solid $gray-300;
-              border-radius: 20px;
-              font-size: 13px;
+              border-radius: 16px;
+              font-size: 11px;
               font-weight: 500;
               cursor: pointer;
               transition: $transition;
+              
+              @media (max-width: 480px) {
+                font-size: 10px;
+                padding: 3px 8px;
+              }
               
               &:hover {
                 background: $gray-100;
@@ -833,8 +1244,13 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
               }
               
               svg {
-                width: 12px;
-                height: 12px;
+                width: 10px;
+                height: 10px;
+                
+                @media (max-width: 480px) {
+                  width: 9px;
+                  height: 9px;
+                }
               }
             }
           }
@@ -845,75 +1261,124 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
   
   .empty-state {
     @include card;
-    padding: 60px 40px;
+    padding: 40px 20px;
     text-align: center;
     
+    @media (max-width: 768px) {
+      padding: 32px 16px;
+    }
+    
+    @media (max-width: 480px) {
+      padding: 24px 12px;
+    }
+    
     .empty-illustration {
-      margin: 0 auto 24px;
-      width: 160px;
-      height: 160px;
+      margin: 0 auto 16px;
+      width: 120px;
+      height: 120px;
       
-      svg {
-        width: 100%;
-        height: 100%;
+      @media (max-width: 480px) {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 12px;
       }
     }
     
     .empty-content {
-      max-width: 400px;
+      max-width: 300px;
       margin: 0 auto;
       
       h3 {
-        margin: 0 0 12px;
-        font-size: 20px;
+        margin: 0 0 8px;
+        font-size: 16px;
         color: $dark;
         font-weight: 600;
+        
+        @media (max-width: 480px) {
+          font-size: 15px;
+        }
       }
       
       p {
-        margin: 0 0 24px;
+        margin: 0 0 16px;
         color: $gray-600;
-        font-size: 15px;
-        line-height: 1.5;
+        font-size: 13px;
+        line-height: 1.4;
+        
+        @media (max-width: 480px) {
+          font-size: 12px;
+          line-height: 1.3;
+        }
       }
       
       .empty-action-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
+        gap: 6px;
+        padding: 8px 16px;
         background: $gradient;
         color: white;
         border: none;
         border-radius: $radius;
         font-weight: 500;
-        font-size: 15px;
+        font-size: 13px;
         cursor: pointer;
         transition: $transition;
         
+        @media (max-width: 768px) {
+          padding: 7px 14px;
+          font-size: 12px;
+        }
+        
+        @media (max-width: 480px) {
+          width: 100%;
+          justify-content: center;
+          padding: 6px 12px;
+          font-size: 11.5px;
+        }
+        
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
         
         svg {
-          width: 16px;
-          height: 16px;
+          width: 14px;
+          height: 14px;
+          
+          @media (max-width: 480px) {
+            width: 12px;
+            height: 12px;
+          }
         }
       }
     }
   }
   
   .questions-pagination {
-    margin-top: 40px;
+    margin-top: 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    
+    @media (max-width: 768px) {
+      margin-top: 20px;
+      gap: 12px;
+    }
+    
+    @media (max-width: 480px) {
+      margin-top: 16px;
+      gap: 10px;
+    }
     
     .pagination-info {
-      font-size: 14px;
+      font-size: 12px;
       color: $gray-500;
+      
+      @media (max-width: 480px) {
+        font-size: 11px;
+      }
     }
     
     .load-more-container {
@@ -921,17 +1386,29 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 12px 32px;
+        gap: 6px;
+        padding: 10px 20px;
         background: white;
         color: $gray-700;
-        border: 2px solid $gray-300;
+        border: 1px solid $gray-300;
         border-radius: $radius;
         font-weight: 500;
-        font-size: 15px;
+        font-size: 13px;
         cursor: pointer;
         transition: $transition;
-        min-width: 160px;
+        min-width: 140px;
+        
+        @media (max-width: 768px) {
+          padding: 8px 16px;
+          font-size: 12px;
+          min-width: 120px;
+        }
+        
+        @media (max-width: 480px) {
+          padding: 6px 12px;
+          font-size: 11.5px;
+          min-width: 100px;
+        }
         
         &:hover:not(:disabled) {
           background: $gray-100;
@@ -953,8 +1430,13 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         }
         
         svg {
-          width: 16px;
-          height: 16px;
+          width: 14px;
+          height: 14px;
+          
+          @media (max-width: 480px) {
+            width: 12px;
+            height: 12px;
+          }
         }
       }
     }
@@ -963,16 +1445,21 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
       .back-to-top-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
+        gap: 6px;
+        padding: 6px 12px;
         background: transparent;
         color: $gray-600;
         border: 1px solid $gray-300;
         border-radius: $radius;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 500;
         cursor: pointer;
         transition: $transition;
+        
+        @media (max-width: 480px) {
+          font-size: 10px;
+          padding: 5px 10px;
+        }
         
         &:hover {
           background: $gray-100;
@@ -981,8 +1468,13 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
         }
         
         svg {
-          width: 14px;
-          height: 14px;
+          width: 12px;
+          height: 12px;
+          
+          @media (max-width: 480px) {
+            width: 10px;
+            height: 10px;
+          }
         }
       }
     }
@@ -1011,7 +1503,7 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -1019,102 +1511,65 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
   }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
+// Дополнительные адаптивные правила
+@media (max-width: 320px) {
   .questions-module {
-    padding: 0 12px 32px;
+    padding: 0 4px 10px;
   }
   
   .module-header {
-    padding: 20px 24px;
+    padding: 10px 12px;
     
-    .header-main {
-      flex-direction: column;
-      gap: 20px;
-      
-      .title-section {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-        
-        .title-icon {
-          margin: 0 auto;
-        }
+    .header-main .title-section {
+      .module-title {
+        font-size: 14px;
       }
       
-      .stats-badge {
-        align-self: center;
-      }
-    }
-  }
-  
-  .error-state .error-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 16px;
-    
-    .error-details {
-      text-align: center;
-    }
-  }
-  
-  .question-form-section .form-card {
-    .form-header {
-      flex-direction: column;
-      gap: 16px;
-      text-align: center;
-      
-      .close-form-btn {
-        align-self: flex-end;
+      .module-subtitle {
+        font-size: 10px;
       }
     }
     
-    .form-footer {
-      flex-direction: column;
-      
-      .btn-secondary,
-      .btn-primary {
-        width: 100%;
-        justify-content: center;
-      }
+    .header-actions .ask-question-btn {
+      font-size: 11px;
     }
-  }
-  
-  .questions-list .question-item .question-card {
-    .question-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-      
-      .question-badge {
-        align-self: flex-start;
-      }
-    }
-    
-    .question-body .question-actions {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 16px;
-      
-      .action-reply {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
-  
-  .questions-pagination {
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .module-header .header-actions .ask-question-btn {
-    width: 100%;
-    justify-content: center;
   }
   
   .question-item .question-card {
-    padding: 20px 16px;
+    padding: 10px;
+    
+    .question-header .user-info {
+      .user-avatar {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .user-details .user-name {
+        font-size: 12px;
+      }
+    }
+    
+    .question-body .question-text {
+      font-size: 12px;
+    }
+  }
+}
+
+// Для ландшафтной ориентации на мобильных
+@media (max-height: 500px) and (orientation: landscape) {
+  .questions-list .question-item {
+    margin-bottom: 8px;
+    
+    .question-card {
+      padding: 10px;
+    }
+  }
+  
+  .question-form-section {
+    margin-bottom: 12px;
+    
+    .form-card .form-body {
+      padding: 12px;
+    }
   }
 }

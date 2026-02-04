@@ -81,7 +81,7 @@ export class BasketsService {
   ): Observable<ApiResponse<{ id: string; name: string; count: number }>> {
     return this.http.post<
       ApiResponse<{ id: string; name: string; count: number }>
-    >(`${this.baseUrl}/AddProduct`, dto);
+    >(`${this.baseUrl}/ChangeProductCount`, dto);
   }
 
   /**

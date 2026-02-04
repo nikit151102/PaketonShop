@@ -1,49 +1,75 @@
 .footer {
   background: #101820;
   color: #e6e6e6;
-  padding: 1.5rem 1.5rem 1rem;
-  border-radius: 20px;
-  margin-top: 15px;
+  padding: 1.2rem 1rem 0.8rem;
+  border-radius: 16px;
+  margin-top: 12px;
 
   &__container {
     max-width: 1400px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 
     @media (min-width: 768px) {
       flex-direction: row;
       justify-content: space-between;
+      gap: 1.2rem;
+    }
+
+    @media (max-width: 767px) {
+      gap: 1.2rem;
     }
   }
 
   &__column {
     flex: 1;
+    min-width: 0; /* Для правильного сжатия на мобильных */
 
     h3 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
       color: #fff;
+      font-weight: 600;
+
+      @media (max-width: 480px) {
+        font-size: 0.95rem;
+        margin-bottom: 0.6rem;
+      }
     }
 
     p {
-      margin: 0.4rem 0;
-      font-size: 0.95rem;
+      margin: 0.3rem 0;
+      font-size: 0.85rem;
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      align-items: flex-start;
+      gap: 0.4rem;
+      line-height: 1.4;
 
       i {
         color: #00aaff;
+        font-size: 0.9rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
       }
 
       a {
         color: #e6e6e6;
         text-decoration: none;
+        word-break: break-all;
 
         &:hover {
           color: #00aaff;
+        }
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.8rem;
+        gap: 0.3rem;
+        
+        i {
+          font-size: 0.85rem;
         }
       }
     }
@@ -52,42 +78,151 @@
   &__nav {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
 
     a {
       text-decoration: none;
       color: #ccc;
-      font-size: 0.95rem;
-      transition: color 0.3s;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+      padding: 0.1rem 0;
 
       &:hover {
         color: #00aaff;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.8rem;
       }
     }
   }
 
   &__socials {
-    margin-top: 1rem;
+    margin-top: 0.8rem;
     display: flex;
-    gap: 1rem;
+    gap: 0.8rem;
+
+    @media (max-width: 480px) {
+      margin-top: 0.6rem;
+      gap: 0.7rem;
+    }
 
     a {
-      font-size: 1.4rem;
+      font-size: 1.1rem;
       color: #e6e6e6;
-      transition: color 0.3s;
+      transition: all 0.2s;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
 
       &:hover {
         color: #00aaff;
+        background: rgba(0, 170, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1rem;
+        width: 26px;
+        height: 26px;
       }
     }
   }
 
   &__bottom {
     text-align: center;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 0.85rem;
-    color: #999;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.75rem;
+    color: #888;
+    line-height: 1.3;
+
+    @media (max-width: 480px) {
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      font-size: 0.7rem;
+    }
+  }
+}
+
+/* Для планшетов в портретной ориентации */
+@media (min-width: 481px) and (max-width: 767px) {
+  .footer {
+    padding: 1rem 1rem 0.7rem;
+    
+    &__container {
+      flex-wrap: wrap;
+      flex-direction: row;
+    }
+    
+    &__column {
+      flex: 1 1 calc(50% - 0.6rem);
+      min-width: calc(50% - 0.6rem);
+      
+      &:last-child {
+        flex: 1 1 100%;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+  .footer {
+    padding: 0.8rem 0.8rem 0.6rem;
+    border-radius: 14px;
+    margin-top: 10px;
+    
+    &__container {
+      gap: 1rem;
+    }
+    
+    &__column h3 {
+      font-size: 0.9rem;
+    }
+    
+    &__column p {
+      font-size: 0.75rem;
+    }
+    
+    &__nav a {
+      font-size: 0.75rem;
+    }
+    
+    &__socials a {
+      width: 24px;
+      height: 24px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+/* Для горизонтальной ориентации на мобильных */
+@media (max-height: 500px) and (orientation: landscape) {
+  .footer {
+    padding: 0.8rem 1rem 0.6rem;
+    
+    &__container {
+      flex-direction: row;
+      gap: 1rem;
+    }
+    
+    &__column {
+      flex: 1;
+    }
+  }
+}
+
+/* Для темной темы (если нужно) */
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background: #0c1219;
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 }

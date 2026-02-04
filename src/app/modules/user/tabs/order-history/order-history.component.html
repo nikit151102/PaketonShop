@@ -280,9 +280,9 @@
               <path
                 d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
             </svg>
-            <span>{{ order.productCount }} товар{{ order.productCount % 10 === 1 && order.productCount % 100 !== 11 ? ''
-              : order.productCount % 10 >= 2 && order.productCount % 10 <= 4 && (order.productCount % 100 < 10 ||
-                order.productCount % 100>= 20) ? 'а' : 'ов' }}</span>
+            <span>{{ order.positionCount }} товар{{ order.positionCount % 10 === 1 && order.positionCount % 100 !== 11 ? ''
+              : order.positionCount % 10 >= 2 && order.positionCount % 10 <= 4 && (order.positionCount % 100 < 10 ||
+                order.positionCount % 100>= 20) ? 'а' : 'ов' }}</span>
           </div>
 
           <div class="summary-item">
@@ -340,7 +340,7 @@
                     <img *ngIf="position.product.productImageLinks[0]" [src]="position.product.productImageLinks[0]"
                       [alt]="position.product.shortName">
                     <div *ngIf="!position.product.productImageLinks[0]" class="image-placeholder">
-                      {{ position.product.shortName?.substring(0, 2) || '??' }}
+                      {{ position.product.shortName.substring(0, 2) || '??' }}
                     </div>
                   </ng-container>
                 </div>

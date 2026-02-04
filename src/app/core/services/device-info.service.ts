@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from, of, forkJoin, fromEvent, merge } from 'rxjs';
 import { map, catchError, startWith } from 'rxjs/operators';
+import * as CryptoJS from 'crypto-js'; 
 
 export interface DeviceInfo {
   userAgent: string;
@@ -83,6 +84,7 @@ export interface DeviceInfo {
 })
 export class DeviceInfoService {
   private isBrowser: boolean;
+private readonly ENCRYPTION_KEY = 'your-secret-key-here';
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -487,5 +489,129 @@ export class DeviceInfoService {
     }
     
     return { supported: false };
+  }
+
+
+  
+  /**
+   * Зашифровать данные устройства
+   */
+  encryptDeviceInfo(deviceInfo: DeviceInfo): string {
+    const jsonString = JSON.stringify(deviceInfo);
+    const encrypted = CryptoJS.AES.encrypt(
+      jsonString, 
+      this.ENCRYPTION_KEY
+    ).toString();
+    return encrypted;
+  }
+
+  /**
+   * Расшифровать данные устройства
+   */
+  decryptDeviceInfo(encryptedData: string): DeviceInfo {
+    const decrypted = CryptoJS.AES.decrypt(
+      encryptedData,
+      this.ENCRYPTION_KEY
+    );
+    const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(jsonString);
+  }
+
+  /**
+   * Получить и зашифровать информацию об устройстве
+   */
+  async getEncryptedDeviceInfo(): Promise<string> {
+    const deviceInfo = await this.getAllInfo();
+    return this.encryptDeviceInfo(deviceInfo);
+  }
+
+  /**
+   * Определить город по IP
+   */
+  async detectCityByIP(): Promise<string> {
+    try {
+      const ipInfo = await this.getIPInfo();
+      
+      if (ipInfo && ipInfo.city) {
+        return ipInfo.city;
+      }
+      
+      // Если сервис не вернул город, пробуем другие способы
+      if (this.isBrowser) {
+        // Используем геолокацию, если пользователь разрешил
+        try {
+          const location = await this.getLocation();
+          if(location)
+          return await this.getCityByCoordinates(location.latitude, location.longitude);
+        } catch (error) {
+          console.warn('Geolocation not available for city detection');
+        }
+      }
+      
+      return 'Unknown';
+    } catch (error) {
+      console.error('Error detecting city:', error);
+      return 'Unknown';
+    }
+  }
+
+  /**
+   * Определить город по координатам
+   */
+  private async getCityByCoordinates(lat: number, lng: number): Promise<string> {
+    try {
+      // Используем Nominatim (OpenStreetMap) для обратного геокодирования
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+      const response: any = await this.http.get(url).toPromise();
+      
+      return response.address?.city || 
+             response.address?.town || 
+             response.address?.village || 
+             'Unknown';
+    } catch (error) {
+      console.error('Error getting city by coordinates:', error);
+      return 'Unknown';
+    }
+  }
+
+  /**
+   * Получить полную информацию с городом
+   */
+  async getCompleteDeviceInfo(): Promise<any> {
+    const deviceInfo = await this.getAllInfo();
+    const city = await this.detectCityByIP();
+    
+    return {
+      ...deviceInfo,
+      detectedCity: city,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * Получить минимизированную информацию для заголовков
+   */
+  async getMinimalDeviceInfo(): Promise<any> {
+    if (!this.isBrowser) {
+      return {
+        isBrowser: false,
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    const browserInfo = this.getBrowserInfo();
+    const osInfo = this.getOSInfo();
+    const screenInfo = this.getScreenInfo();
+    const city = await this.detectCityByIP();
+
+    return {
+      browser: browserInfo.name,
+      os: osInfo.name,
+      screen: `${screenInfo.width}x${screenInfo.height}`,
+      isMobile: browserInfo.isMobile,
+      timezone: this.getTimeInfo().timezone,
+      city: city,
+      timestamp: new Date().toISOString()
+    };
   }
 }

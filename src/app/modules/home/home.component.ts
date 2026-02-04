@@ -1,7 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CarouselBannerComponent } from './components/carousel-banner/carousel-banner.component';
-import { SalesProductsComponent } from './components/sales-products/sales-products.component';
-import { GroupsSectionComponent } from './components/groups-section/groups-section.component';
 import { CategorySectionComponent } from '../../core/components/category-section/category-section.component';
 import { CategoryService } from '../../core/services/category.service';
 import { ProductComponent } from '../../core/components/product/product.component';
@@ -19,8 +17,6 @@ import { CompareCommonBtnComponent } from '../../core/components/compare-common-
     CarouselBannerComponent,
     CategorySectionComponent,
     ProductComponent,
-    SalesProductsComponent,
-    GroupsSectionComponent,
     BusinessBlockComponent,
     CompareCommonBtnComponent
   ],

@@ -60,7 +60,6 @@ interface Notification {
     CommonModule,
     PartnerDetailComponent,
     PartnerFormComponent,
-    DatePipe
   ],
   templateUrl: './partner-cards.component.html',
   styleUrls: ['./partner-cards.component.scss']

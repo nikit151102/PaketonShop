@@ -12,6 +12,7 @@ import { memoryCacheEnvironment } from '../../../../environment';
 import { take } from 'rxjs';
 import { ComparingService } from '../../api/comparing.service';
 import { ProductsService } from '../../services/products.service';
+import { AuthService } from '../../../modules/auth/auth.service';
 
 @Component({
   selector: 'app-product',
@@ -23,6 +24,8 @@ export class ProductComponent implements OnInit {
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
   @Input() product!: any;
+
+  isUserBasket: boolean = false;
   city$!: typeof this.locationService.city$;
   inCart: boolean = false;
   hovered = true;
@@ -37,9 +40,9 @@ export class ProductComponent implements OnInit {
     private productFavoriteService: ProductFavoriteService,
     private basketsService: BasketsService,
     private productsService: ProductsService,
-    private comparingService: ComparingService
+    private comparingService: ComparingService,
+    private authService:AuthService
   ) { }
-
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
     this.checkProductInBaskets();
@@ -51,9 +54,11 @@ export class ProductComponent implements OnInit {
     );
 
     if (!baskets || !Array.isArray(baskets)) {
+      this.isUserBasket = false;
       return null;
     }
 
+    this.isUserBasket = true;
     const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
 
     return activeBasket?.id ?? null;
@@ -68,6 +73,7 @@ export class ProductComponent implements OnInit {
 
   // Проверяем, есть ли товар в активной корзине
   isInActiveBasket(): boolean {
+    
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return false;
 
@@ -169,6 +175,11 @@ export class ProductComponent implements OnInit {
 
   // Добавляем товар в активную корзину
   addToActiveBasket(): void {
+
+    if (this.isUserBasket == false) {
+      return;
+    }
+
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId) {
       console.error('Активная корзина не найдена');
@@ -289,7 +300,7 @@ export class ProductComponent implements OnInit {
 
   // Загружаем обновленные данные товара
   private loadUpdatedProductData(): void {
-this.productsService.getById(this.product.id).subscribe((values: any) => {
+    this.productsService.getById(this.product.id).subscribe((values: any) => {
       this.product = values.data;
     });
     setTimeout(() => {
@@ -298,7 +309,7 @@ this.productsService.getById(this.product.id).subscribe((values: any) => {
     }, 300);
   }
 
-  getPrice(city: string | null): number {
+  getPrice(city: any | null): number {
     if (city === 'Барнаул') {
       return this.product.retailPrice;
     } else {
@@ -306,72 +317,77 @@ this.productsService.getById(this.product.id).subscribe((values: any) => {
     }
   }
 
-  getTotalPrice(city: string | null): string {
+  getTotalPrice(city: any): string {
     const totalPrice = this.getPrice(city) * this.selectedQuantity;
     return totalPrice.toFixed(1);
   }
 
-private updateBasket(count: number): void {
-  const basketId = this.activeBasketId;
-  if (!basketId) return console.error('Корзина не найдена');
+  private updateBasket(count: number): void {
+    const basketId = this.activeBasketId;
+    if (!basketId) return console.error('Корзина не найдена');
 
-  this.basketsService
-    .addProduct({ productId: this.product.id, basketId, count })
-    .pipe(take(1))
-    .subscribe({
-      next: () => {
-        // Не устанавливаем selectedQuantity = count, потому что это количество для добавления
-        // selectedQuantity должен быть 1 при добавлении нового товара
-        this.selectedQuantity = 1; // Сбрасываем к 1
-        this.inCart = true;
-        this.quantitySelectorVisible = true;
-        this.loadUpdatedProductData();
-      },
-      error: (err) => console.error('Ошибка при обновлении корзины', err),
-    });
-}
-
-// Добавить 1 товар
-addOneToCart(): void {
-  const basketId = this.activeBasketId;
-  if (!basketId) return console.error('Корзина не найдена');
-
-  this.basketsService
-    .addProduct({ productId: this.product.id, basketId, count: 1 })
-    .pipe(take(1))
-    .subscribe({
-      next: () => {
-        this.loadUpdatedProductData();
-      },
-      error: (err) => console.error('Ошибка при добавлении товара', err),
-    });
-}
-
-// Установить точное количество
-setExactQuantity(quantity: number): void {
-  const basketId = this.activeBasketId;
-  if (!basketId || quantity <= 0) return;
-
-  this.basketsService
-    .addProduct({ productId: this.product.id, basketId, count: quantity })
-    .pipe(take(1))
-    .subscribe({
-      next: () => {
-        this.loadUpdatedProductData();
-      },
-      error: (err) => console.error('Ошибка при установке количества', err),
-    });
-}
-
-increaseQty(): void {
-  if (this.hasProductInBaskets()) {
-    // Если товар уже в корзине, увеличиваем количество на 1
-    this.updateActiveBasketQty(1);
-  } else {
-    // Если товара нет в корзине, добавляем 1 штуку
-    this.updateBasket(1);
+    this.basketsService
+      .addProduct({ productId: this.product.id, basketId, count })
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          // Не устанавливаем selectedQuantity = count, потому что это количество для добавления
+          // selectedQuantity должен быть 1 при добавлении нового товара
+          this.selectedQuantity = 1; // Сбрасываем к 1
+          this.inCart = true;
+          this.quantitySelectorVisible = true;
+          this.loadUpdatedProductData();
+        },
+        error: (err) => console.error('Ошибка при обновлении корзины', err),
+      });
   }
-}
+
+  // Добавить 1 товар
+  addOneToCart(): void {
+
+    if (this.isUserBasket == false) {
+      return;
+    }
+
+    const basketId = this.activeBasketId;
+    if (!basketId) return console.error('Корзина не найдена');
+
+    this.basketsService
+      .addProduct({ productId: this.product.id, basketId, count: 1 })
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.loadUpdatedProductData();
+        },
+        error: (err) => console.error('Ошибка при добавлении товара', err),
+      });
+  }
+
+  // Установить точное количество
+  setExactQuantity(quantity: number): void {
+    const basketId = this.activeBasketId;
+    if (!basketId || quantity <= 0) return;
+
+    this.basketsService
+      .addProduct({ productId: this.product.id, basketId, count: quantity })
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.loadUpdatedProductData();
+        },
+        error: (err) => console.error('Ошибка при установке количества', err),
+      });
+  }
+
+  increaseQty(): void {
+    if (this.hasProductInBaskets()) {
+      // Если товар уже в корзине, увеличиваем количество на 1
+      this.updateActiveBasketQty(1);
+    } else {
+      // Если товара нет в корзине, добавляем 1 штуку
+      this.updateBasket(1);
+    }
+  }
 
   decreaseQty(): void {
     const newQty = this.selectedQuantity - 1;
@@ -428,13 +444,26 @@ increaseQty(): void {
     this.router.navigate(['/product', this.product.id]);
   }
 
-  toggleFavorite(event: MouseEvent) {
-    event.stopImmediatePropagation();
-    event.preventDefault();
-    this.productFavoriteService
-      .addToFavorites(this.product.id)
-      .subscribe((value: any) => { });
-  }
+ toggleFavorite(event: MouseEvent) {
+  event.stopImmediatePropagation();
+  event.preventDefault();
+  
+  this.productFavoriteService
+    .addToFavorites(this.product.id)
+    .subscribe({
+      next: (value: any) => {
+        console.log('Добавлено в избранное:', value);
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          console.error('Пользователь не авторизован');
+        this.authService.changeVisible(true);
+        } else {
+          console.error('Произошла ошибка:', error);
+        }
+      }
+    });
+}
 
   toggleCompare(event: MouseEvent) {
     event.stopImmediatePropagation();
@@ -446,7 +475,14 @@ increaseQty(): void {
 
     serviceCall.subscribe({
       next: () => this.product.compareProduct = !this.product.compareProduct,
-      error: (err) => console.error('Ошибка сравнения:', err)
+      error: (error) => {
+        if (error.status === 401) {
+          console.error('Пользователь не авторизован');
+        this.authService.changeVisible(true);
+        } else {
+          console.error('Произошла ошибка:', error);
+        }
+      }
     });
   }
 

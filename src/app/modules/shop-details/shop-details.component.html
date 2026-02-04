@@ -274,7 +274,7 @@
                             <h4 class="similar-name">{{ similarShop.fullName || similarShop.shortName }}</h4>
                             <div class="similar-address">{{ productPlaceService.getFullAddress(similarShop) }}</div>
                             <div class="similar-hours">
-                                {{ productPlaceService.getTodaySchedule(similarShop)?.isOpen ? 'Открыто сейчас' :
+                                {{ productPlaceService.getTodaySchedule(similarShop).isOpen ? 'Открыто сейчас' :
                                 'Закрыто' }}
                             </div>
                         </div>

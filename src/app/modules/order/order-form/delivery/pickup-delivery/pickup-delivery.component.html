@@ -48,7 +48,7 @@
         <div class="store-details">
           <div class="detail-item">
             <span class="detail-label">Город:</span>
-            <span class="detail-value">{{ selectedStore.address?.city }}</span>
+            <span class="detail-value">{{ selectedStore.address.city }}</span>
           </div>
         </div>
       </div>
@@ -366,7 +366,7 @@
            (click)="selectStore(store)">
         <div class="map-store-info">
           <h5>{{ store.shortName }}</h5>
-          <p>{{ store.address?.street }}, {{ store.address?.house }}</p>
+          <p>{{ store.address.street }}, {{ store.address.house }}</p>
           <div class="map-store-details">
             <span class="map-store-status" [class.open]="isStoreOpen(store)">
               {{ isStoreOpen(store) ? 'Открыто' : 'Закрыто' }}

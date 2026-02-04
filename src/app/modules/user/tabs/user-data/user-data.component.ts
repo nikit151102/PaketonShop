@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { LoyaltyComponent } from './loyalty/loyalty.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../../../core/services/user.service';
@@ -17,7 +16,6 @@ import { PartnerCardsComponent } from '../../components/partner-cards/partner-ca
     FormsModule,
     ReactiveFormsModule,
     PartnerCardsComponent,
-    LoyaltyComponent,
   ],
   templateUrl: './user-data.component.html',
   styleUrls: ['./user-data.component.scss'],

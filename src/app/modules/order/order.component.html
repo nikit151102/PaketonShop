@@ -17,7 +17,7 @@
             <div class="order-progress">
               <span class="order-count">{{ getUniqueProductsCount() }} товар{{ getUniqueProductsCount() | plural
                 }}</span>
-              <span class="order-total">{{ getProductsTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
+              <span class="order-total">{{ getProductsTotal() | currency:'RUB':'symbol':'1.2-2' }}</span>
             </div>
           </div>
         </div>
@@ -42,12 +42,15 @@
                   d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
               </svg>
               <h3>Ваша корзина</h3>
-              <span class="cart-count">{{ getTotalProductsCount() }}</span>
+              <span class="cart-count">{{ getUniqueProductsCount() }}</span>
             </div>
 
             <!-- Список товаров -->
             <div class="mini-cart-items">
-              <div class="mini-cart-item" *ngFor="let product of basketProducts">
+              <div class="mini-cart-item" *ngFor="let product of basketProducts; let i= index">
+                <div>
+                  {{i+1}}
+                </div>
                 <div class="product-image">
                   <div class="image-placeholder">
                     {{ product.name.charAt(0).toUpperCase() }}
@@ -57,11 +60,11 @@
                   <span class="product-name">{{ product.name }}</span>
                   <div class="product-info">
                     <span class="product-qty">{{ product.qty }} шт.</span>
-                    <span class="product-unit">× {{ product.price | currency:'RUB':'symbol':'1.0-0' }}</span>
+                    <span class="product-unit">× {{ product.priceSale | currency:'RUB':'symbol':'1.2-2' }}</span>
                   </div>
                 </div>
                 <div class="product-total">
-                  {{ (product.price * product.qty) | currency:'RUB':'symbol':'1.0-0' }}
+                  {{ (product.priceSale * product.qty) | currency:'RUB':'symbol':'1.2-2' }}
                 </div>
               </div>
             </div>
@@ -77,12 +80,12 @@
             <div class="receipt-items">
               <div class="receipt-row">
                 <span class="receipt-label">Товары:</span>
-                <span class="receipt-value">{{ getProductsTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="receipt-value">{{ getProductsTotal() | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="receipt-row">
                 <span class="receipt-label">Доставка:</span>
-                <span class="receipt-value">{{ getDeliveryCost() | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="receipt-value">{{ getDeliveryCost() | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="receipt-row discount" *ngIf="discount > 0">
@@ -93,7 +96,7 @@
                   </svg>
                   Скидка:
                 </span>
-                <span class="receipt-value">-{{ discount | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="receipt-value">-{{ discount | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="receipt-divider"></div>
@@ -101,7 +104,7 @@
               <div class="receipt-row total">
                 <span class="receipt-label">Итого к оплате:</span>
                 <span class="receipt-value total-amount">
-                  {{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}
+                  {{ getOrderTotal() | currency:'RUB':'symbol':'1.2-2' }}
                 </span>
               </div>
             </div>
@@ -169,9 +172,10 @@
                 <span class="btn-text">
                   {{ isProcessing ? 'Обработка...' : 'Перейти к оплате' }}
                 </span>
+                <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.2-2' }}</span>
+            
               </span>
-              <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
-            </button>
+              </button>
 
             <p class="action-hint">
               Нажимая кнопку, вы соглашаетесь с условиями

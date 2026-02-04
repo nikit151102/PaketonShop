@@ -6,12 +6,17 @@
   padding: 20px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
+  /* Мобильные и планшеты */
   @media (max-width: 768px) {
     padding: 16px;
   }
 
   @media (max-width: 480px) {
     padding: 12px;
+  }
+
+  @media (max-width: 360px) {
+    padding: 10px;
   }
 
   // Хлебные крошки
@@ -24,16 +29,30 @@
     padding: 16px 0;
     border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 
+    /* Планшеты */
+    @media (max-width: 1024px) {
+      margin-bottom: 25px;
+      padding: 14px 0;
+    }
+
     @media (max-width: 768px) {
       margin-bottom: 20px;
       padding: 12px 0;
       font-size: 14px;
     }
 
+    /* Мобильные */
     @media (max-width: 480px) {
       margin-bottom: 16px;
       gap: 6px;
       font-size: 12px;
+      padding: 10px 0;
+    }
+
+    @media (max-width: 360px) {
+      gap: 4px;
+      font-size: 11px;
+      margin-bottom: 14px;
     }
 
     .breadcrumb-link {
@@ -45,9 +64,21 @@
       padding: 4px 8px;
       border-radius: 6px;
 
+      /* Планшеты */
+      @media (max-width: 768px) {
+        font-size: 13px;
+        padding: 3px 6px;
+      }
+
+      /* Мобильные */
       @media (max-width: 480px) {
         font-size: 12px;
-        padding: 3px 6px;
+        padding: 2px 5px;
+      }
+
+      @media (max-width: 360px) {
+        font-size: 11px;
+        padding: 2px 4px;
       }
 
       &:hover {
@@ -65,15 +96,32 @@
       background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
       border-radius: 6px;
 
+      /* Планшеты */
+      @media (max-width: 768px) {
+        font-size: 13px;
+        padding: 3px 6px;
+      }
+
+      /* Мобильные */
       @media (max-width: 480px) {
         font-size: 12px;
-        padding: 3px 6px;
+        padding: 2px 5px;
+      }
+
+      @media (max-width: 360px) {
+        font-size: 11px;
+        padding: 2px 4px;
       }
     }
 
     .separator {
       color: #9ca3af;
       font-size: 12px;
+
+      /* Планшеты и мобильные */
+      @media (max-width: 768px) {
+        font-size: 11px;
+      }
 
       @media (max-width: 480px) {
         font-size: 10px;
@@ -87,8 +135,19 @@
     align-items: flex-start;
     gap: 0px;
 
+    /* Планшеты */
+    @media (max-width: 1024px) {
+      gap: 25px;
+    }
+
+    @media (max-width: 878px) {
+      gap: 20px;
+    }
+
+    /* Мобильные */
     @media (max-width: 740px) {
       flex-direction: column;
+      gap: 20px;
     }
 
     @media (max-width: 480px) {
@@ -104,14 +163,26 @@
       border-radius: 20px;
       overflow: hidden;
 
+      /* Планшеты */
       @media (max-width: 1200px) {
         position: sticky;
         top: 103px;
       }
 
+      @media (max-width: 878px) {
+        flex: 0 0 45%;
+        max-width: 45%;
+        padding: 0;
+      }
+
+      /* Мобильные */
       @media (max-width: 740px) {
         position: relative;
         top: 0px;
+        flex: 0 0 100%;
+        max-width: 100%;
+        padding: 0;
+        order: 1;
       }
 
       @media (max-width: 768px) {
@@ -129,11 +200,14 @@
       gap: 16px;
       width: 100%;
 
+      /* Планшеты */
       @media (max-width: 878px) {
         gap: 20px;
         width: 55%;
+        order: 2;
       }
 
+      /* Мобильные */
       @media (max-width: 738px) {
         width: 100%;
       }
@@ -152,17 +226,27 @@
         color: #1f2937;
         letter-spacing: -0.5px;
 
+        /* Планшеты */
         @media (max-width: 1024px) {
           font-size: 28px;
+          line-height: 1.3;
         }
 
         @media (max-width: 768px) {
           font-size: 24px;
           margin-bottom: 12px;
+          line-height: 1.3;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           font-size: 22px;
+          line-height: 1.3;
+        }
+
+        @media (max-width: 360px) {
+          font-size: 20px;
+          line-height: 1.3;
         }
       }
 
@@ -173,10 +257,12 @@
         flex-wrap: wrap;
         gap: 12px;
 
+        /* Планшеты */
         @media (max-width: 768px) {
           gap: 10px;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           flex-direction: column;
           align-items: flex-start;
@@ -193,9 +279,23 @@
           border: 1px solid rgba(226, 232, 240, 0.8);
           transition: all 0.3s ease;
 
+          /* Планшеты */
+          @media (max-width: 768px) {
+            padding: 9px 12px;
+            gap: 8px;
+          }
+
+          /* Мобильные */
           @media (max-width: 480px) {
             padding: 8px 12px;
             gap: 8px;
+            width: 100%;
+            justify-content: space-between;
+          }
+
+          @media (max-width: 360px) {
+            padding: 6px 10px;
+            gap: 6px;
           }
 
           &:hover {
@@ -208,8 +308,13 @@
             color: #6b7280;
             font-weight: 500;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 12px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 11px;
             }
           }
 
@@ -219,8 +324,13 @@
             color: #1f2937;
             font-family: 'Courier New', monospace;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 12px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 11px;
             }
           }
 
@@ -237,9 +347,21 @@
             justify-content: center;
             transition: all 0.3s ease;
 
+            /* Планшеты */
+            @media (max-width: 768px) {
+              width: 32px;
+              height: 32px;
+            }
+
+            /* Мобильные */
             @media (max-width: 480px) {
               width: 30px;
               height: 30px;
+            }
+
+            @media (max-width: 360px) {
+              width: 28px;
+              height: 28px;
             }
 
             &:hover {
@@ -255,9 +377,15 @@
               width: 16px;
               height: 16px;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 width: 14px;
                 height: 14px;
+              }
+
+              @media (max-width: 360px) {
+                width: 12px;
+                height: 12px;
               }
             }
           }
@@ -274,9 +402,22 @@
             gap: 4px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
+            /* Планшеты */
+            @media (max-width: 768px) {
+              padding: 5px 10px;
+              font-size: 11px;
+            }
+
+            /* Мобильные */
             @media (max-width: 480px) {
               padding: 5px 10px;
               font-size: 11px;
+              align-self: flex-start;
+            }
+
+            @media (max-width: 360px) {
+              padding: 4px 8px;
+              font-size: 10px;
             }
 
             &.favorite {
@@ -294,17 +435,13 @@
       gap: 16px;
       width: 100%;
 
-
+      /* Планшеты */
       @media (max-width: 1300px) {
         flex-direction: column;
-      }
-
-      @media (max-width: 1200px) {
         gap: 30px;
       }
 
       @media (max-width: 1024px) {
-        flex-direction: column;
         gap: 30px;
       }
 
@@ -312,22 +449,37 @@
         gap: 24px;
       }
 
+      /* Мобильные */
       @media (max-width: 480px) {
         gap: 20px;
+      }
+
+      @media (max-width: 360px) {
+        gap: 16px;
       }
     }
 
     // Левая колонка (информация)
     .info-section {
-      flex: 1 1 60%; // Более гибкий подход
-      min-width: 0; // Важно для корректной работы flex-shrink
+      flex: 1 1 60%;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 16px;
 
+      /* Планшеты */
+      @media (max-width: 1024px) {
+        gap: 20px;
+      }
+
+      @media (max-width: 768px) {
+        gap: 18px;
+      }
+
+      /* Мобильные */
       @media (max-width: 480px) {
         flex: 1 1 100%;
-        gap: 20px;
+        gap: 16px;
       }
 
       .price-section {
@@ -337,14 +489,21 @@
         border: 1px solid rgba(102, 126, 234, 0.1);
         box-shadow: 0 4px 20px rgba(102, 126, 234, 0.08);
 
+        /* Планшеты */
         @media (max-width: 768px) {
           padding: 20px;
           border-radius: 14px;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           padding: 16px;
           border-radius: 12px;
+        }
+
+        @media (max-width: 360px) {
+          padding: 14px;
+          border-radius: 10px;
         }
 
         .price-main {
@@ -353,10 +512,12 @@
           gap: 8px;
           margin-bottom: 16px;
 
+          /* Мобильные */
           @media (max-width: 480px) {
             flex-direction: column;
             align-items: flex-start;
             gap: 4px;
+            margin-bottom: 12px;
           }
 
           .price-value {
@@ -366,12 +527,18 @@
             line-height: 1;
             text-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
 
+            /* Планшеты */
             @media (max-width: 768px) {
               font-size: 32px;
             }
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 28px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 26px;
             }
           }
 
@@ -380,12 +547,18 @@
             color: #6b7280;
             font-weight: 500;
 
+            /* Планшеты */
             @media (max-width: 768px) {
               font-size: 14px;
             }
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 13px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 12px;
             }
           }
         }
@@ -394,48 +567,6 @@
           display: flex;
           flex-direction: column;
           gap: 12px;
-
-          .price-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-
-            &:not(:last-child) {
-              border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-            }
-
-            @media (max-width: 480px) {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 4px;
-              padding: 6px 0;
-            }
-
-            .price-label {
-              font-size: 14px;
-              color: #6b7280;
-              font-weight: 500;
-
-              @media (max-width: 480px) {
-                font-size: 13px;
-              }
-            }
-
-            .price-wholesale {
-              font-size: 18px;
-              font-weight: 700;
-              color: #1f2937;
-
-              @media (max-width: 768px) {
-                font-size: 16px;
-              }
-
-              @media (max-width: 480px) {
-                font-size: 15px;
-              }
-            }
-          }
 
           .pack-info {
             display: flex;
@@ -447,6 +578,7 @@
             border: 1px solid rgba(226, 232, 240, 0.8);
             margin-top: 8px;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               padding: 8px 12px;
               flex-direction: column;
@@ -459,8 +591,13 @@
               color: #6b7280;
               font-weight: 500;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 font-size: 13px;
+              }
+
+              @media (max-width: 360px) {
+                font-size: 12px;
               }
             }
 
@@ -472,9 +609,15 @@
               padding: 4px 12px;
               border-radius: 8px;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 font-size: 14px;
                 padding: 3px 10px;
+              }
+
+              @media (max-width: 360px) {
+                font-size: 13px;
+                padding: 2px 8px;
               }
             }
           }
@@ -489,15 +632,24 @@
         position: relative;
         padding-left: 20px;
 
+        /* Планшеты */
         @media (max-width: 768px) {
           font-size: 16px;
           padding-left: 16px;
           margin-bottom: 12px;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           font-size: 15px;
           padding-left: 14px;
+          margin-bottom: 10px;
+        }
+
+        @media (max-width: 360px) {
+          font-size: 14px;
+          padding-left: 12px;
+          margin-bottom: 8px;
         }
 
         &::before {
@@ -512,96 +664,22 @@
           border-radius: 2px;
           box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 
+          /* Мобильные */
           @media (max-width: 480px) {
             width: 3px;
             height: 16px;
           }
+
+          @media (max-width: 360px) {
+            width: 2px;
+            height: 14px;
+          }
         }
       }
 
-      .specs-section {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-
-        @media (max-width: 768px) {
-          padding: 20px;
-          border-radius: 14px;
-        }
-
-        @media (max-width: 480px) {
-          padding: 16px;
-          border-radius: 12px;
-        }
-
-        .specs-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 12px;
-
-          @media (max-width: 768px) {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          }
-
-          @media (max-width: 480px) {
-            grid-template-columns: 1fr;
-            gap: 8px;
-          }
-
-          .spec-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-            transition: all 0.3s ease;
-
-            @media (max-width: 480px) {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 4px;
-              padding: 10px 0;
-            }
-
-            &:hover {
-              background: rgba(0, 0, 0, 0.02);
-              padding-left: 8px;
-              padding-right: 8px;
-              border-radius: 8px;
-            }
-
-            &:last-child {
-              border-bottom: none;
-            }
-
-            .spec-label {
-              font-size: 14px;
-              color: #6b7280;
-              font-weight: 500;
-
-              @media (max-width: 480px) {
-                font-size: 13px;
-              }
-            }
-
-            .spec-value {
-              font-size: 14px;
-              font-weight: 600;
-              color: #1f2937;
-              text-align: right;
-              max-width: 180px;
-              word-break: break-word;
-
-              @media (max-width: 480px) {
-                text-align: left;
-                max-width: 100%;
-                font-size: 13px;
-              }
-            }
-          }
-        }
+      // Блок с информацией о корзинах
+      .basket-info-section {
+        margin-top: 8px;
       }
 
       .availability-section {
@@ -611,12 +689,18 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         overflow: hidden;
 
+        /* Планшеты */
         @media (max-width: 768px) {
           border-radius: 14px;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           border-radius: 12px;
+        }
+
+        @media (max-width: 360px) {
+          border-radius: 10px;
         }
 
         .availability-header {
@@ -628,15 +712,21 @@
           transition: all 0.3s ease;
           background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
 
+          /* Планшеты */
           @media (max-width: 768px) {
             padding: 16px;
           }
 
+          /* Мобильные */
           @media (max-width: 480px) {
             padding: 14px;
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
+          }
+
+          @media (max-width: 360px) {
+            padding: 12px;
           }
 
           &:hover {
@@ -657,9 +747,15 @@
             padding: 6px 12px;
             border-radius: 8px;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 13px;
               padding: 4px 8px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 12px;
+              padding: 3px 6px;
             }
 
             &:hover {
@@ -692,30 +788,18 @@
             max-height: 350px;
             overflow-y: auto;
 
+            /* Планшеты */
             @media (max-width: 768px) {
               padding: 0 16px 16px;
             }
 
+            /* Мобильные */
             @media (max-width: 480px) {
               padding: 0 14px 14px;
             }
 
-            &::-webkit-scrollbar {
-              width: 6px;
-            }
-
-            &::-webkit-scrollbar-track {
-              background: rgba(226, 232, 240, 0.3);
-              border-radius: 3px;
-            }
-
-            &::-webkit-scrollbar-thumb {
-              background: rgba(102, 126, 234, 0.4);
-              border-radius: 3px;
-
-              &:hover {
-                background: rgba(102, 126, 234, 0.6);
-              }
+            @media (max-width: 360px) {
+              padding: 0 12px 12px;
             }
 
             .store-item {
@@ -723,8 +807,13 @@
               border-bottom: 1px solid rgba(226, 232, 240, 0.6);
               transition: all 0.3s ease;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 padding: 12px 8px;
+              }
+
+              @media (max-width: 360px) {
+                padding: 10px 6px;
               }
 
               &:hover {
@@ -742,6 +831,7 @@
                 align-items: center;
                 gap: 12px;
 
+                /* Мобильные */
                 @media (max-width: 480px) {
                   flex-direction: column;
                   align-items: flex-start;
@@ -755,9 +845,14 @@
                   flex: 1;
                   line-height: 1.4;
 
+                  /* Мобильные */
                   @media (max-width: 480px) {
                     font-size: 13px;
                     width: 100%;
+                  }
+
+                  @media (max-width: 360px) {
+                    font-size: 12px;
                   }
                 }
 
@@ -767,6 +862,7 @@
                   gap: 12px;
                   flex-shrink: 0;
 
+                  /* Мобильные */
                   @media (max-width: 480px) {
                     width: 100%;
                     justify-content: space-between;
@@ -780,9 +876,15 @@
                     white-space: nowrap;
                     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
+                    /* Мобильные */
                     @media (max-width: 480px) {
                       padding: 4px 10px;
                       font-size: 11px;
+                    }
+
+                    @media (max-width: 360px) {
+                      padding: 3px 8px;
+                      font-size: 10px;
                     }
 
                     &.in-stock {
@@ -803,9 +905,15 @@
                     min-width: 70px;
                     text-align: right;
 
+                    /* Мобильные */
                     @media (max-width: 480px) {
                       font-size: 12px;
                       min-width: 60px;
+                    }
+
+                    @media (max-width: 360px) {
+                      font-size: 11px;
+                      min-width: 50px;
                     }
                   }
                 }
@@ -822,6 +930,7 @@
       max-width: 450px;
       min-width: 320px;
 
+      /* Планшеты */
       @media (max-width: 1200px) {
         max-width: 400px;
         min-width: 300px;
@@ -833,6 +942,11 @@
         flex: 1 1 100%;
       }
 
+      @media (max-width: 768px) {
+        min-width: auto;
+      }
+
+      /* Мобильные */
       @media (max-width: 480px) {
         min-width: auto;
       }
@@ -848,8 +962,10 @@
         position: sticky;
         top: 20px;
 
+        /* Планшеты */
         @media (max-width: 1024px) {
           position: static;
+          top: auto;
         }
 
         @media (max-width: 768px) {
@@ -857,9 +973,15 @@
           border-radius: 16px;
         }
 
+        /* Мобильные */
         @media (max-width: 480px) {
           padding: 20px;
           border-radius: 14px;
+        }
+
+        @media (max-width: 360px) {
+          padding: 16px;
+          border-radius: 12px;
         }
 
         // Общая сумма
@@ -873,16 +995,45 @@
           margin-bottom: 24px;
           border: 1px solid rgba(102, 126, 234, 0.1);
 
+          /* Мобильные */
+          @media (max-width: 480px) {
+            padding: 14px;
+            margin-bottom: 20px;
+          }
+
+          @media (max-width: 360px) {
+            padding: 12px;
+            margin-bottom: 16px;
+          }
+
           .total-label {
             font-size: 16px;
             font-weight: 600;
             color: #4b5563;
+
+            /* Мобильные */
+            @media (max-width: 480px) {
+              font-size: 15px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 14px;
+            }
           }
 
           .total-value {
             font-size: 22px;
             font-weight: 800;
             color: #10b981;
+
+            /* Мобильные */
+            @media (max-width: 480px) {
+              font-size: 20px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 18px;
+            }
           }
         }
 
@@ -890,8 +1041,13 @@
         .quantity-selector-wrapper {
           margin-bottom: 28px;
 
+          /* Мобильные */
           @media (max-width: 480px) {
             margin-bottom: 20px;
+          }
+
+          @media (max-width: 360px) {
+            margin-bottom: 16px;
           }
 
           .quantity-label {
@@ -902,9 +1058,15 @@
             margin-bottom: 14px;
             letter-spacing: 0.5px;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 13px;
               margin-bottom: 12px;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 12px;
+              margin-bottom: 10px;
             }
           }
 
@@ -913,8 +1075,13 @@
             align-items: center;
             gap: 12px;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               gap: 10px;
+            }
+
+            @media (max-width: 360px) {
+              gap: 8px;
             }
 
             .quantity-btn {
@@ -933,17 +1100,26 @@
               justify-content: center;
               box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
+              /* Планшеты */
               @media (max-width: 768px) {
                 width: 42px;
                 height: 42px;
                 font-size: 20px;
               }
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 width: 38px;
                 height: 38px;
                 font-size: 18px;
                 border-radius: 10px;
+              }
+
+              @media (max-width: 360px) {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                border-radius: 8px;
               }
 
               &:hover:not(:disabled) {
@@ -977,15 +1153,23 @@
               background: rgba(248, 250, 252, 0.8);
               font-family: 'Courier New', monospace;
 
+              /* Планшеты */
               @media (max-width: 768px) {
                 height: 42px;
                 font-size: 16px;
               }
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 height: 38px;
                 font-size: 15px;
                 border-radius: 10px;
+              }
+
+              @media (max-width: 360px) {
+                height: 36px;
+                font-size: 14px;
+                border-radius: 8px;
               }
 
               &:focus {
@@ -1007,9 +1191,15 @@
           gap: 14px;
           margin-bottom: 24px;
 
+          /* Мобильные */
           @media (max-width: 480px) {
             gap: 12px;
             margin-bottom: 20px;
+          }
+
+          @media (max-width: 360px) {
+            gap: 10px;
+            margin-bottom: 16px;
           }
 
           button {
@@ -1028,17 +1218,26 @@
             position: relative;
             overflow: hidden;
 
+            /* Планшеты */
             @media (max-width: 768px) {
               padding: 16px;
               font-size: 15px;
               border-radius: 12px;
             }
 
+            /* Мобильные */
             @media (max-width: 480px) {
               padding: 14px;
               font-size: 14px;
               border-radius: 10px;
               gap: 10px;
+            }
+
+            @media (max-width: 360px) {
+              padding: 12px;
+              font-size: 13px;
+              border-radius: 8px;
+              gap: 8px;
             }
 
             &:hover {
@@ -1054,9 +1253,15 @@
               height: 20px;
               transition: transform 0.3s ease;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 width: 18px;
                 height: 18px;
+              }
+
+              @media (max-width: 360px) {
+                width: 16px;
+                height: 16px;
               }
             }
 
@@ -1122,8 +1327,15 @@
               align-items: center;
               justify-content: center;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 width: 45px;
+                border-radius: 10px;
+              }
+
+              @media (max-width: 360px) {
+                width: 40px;
+                border-radius: 8px;
               }
 
               &:hover {
@@ -1134,6 +1346,12 @@
               svg {
                 width: 16px;
                 height: 16px;
+
+                /* Мобильные */
+                @media (max-width: 360px) {
+                  width: 14px;
+                  height: 14px;
+                }
               }
             }
 
@@ -1149,12 +1367,34 @@
               padding: 8px 0;
               border: 1px solid rgba(226, 232, 240, 0.8);
 
+              /* Мобильные */
+              @media (max-width: 480px) {
+                min-width: 180px;
+                border-radius: 10px;
+              }
+
+              @media (max-width: 360px) {
+                min-width: 160px;
+                border-radius: 8px;
+              }
+
               .basket-item {
                 padding: 12px 16px;
                 cursor: pointer;
                 transition: all 0.2s ease;
                 font-size: 14px;
                 color: #4b5563;
+
+                /* Мобильные */
+                @media (max-width: 480px) {
+                  padding: 10px 14px;
+                  font-size: 13px;
+                }
+
+                @media (max-width: 360px) {
+                  padding: 8px 12px;
+                  font-size: 12px;
+                }
 
                 &:hover {
                   background: rgba(102, 126, 234, 0.05);
@@ -1167,6 +1407,17 @@
                 font-size: 14px;
                 color: #9ca3af;
                 padding: 16px;
+
+                /* Мобильные */
+                @media (max-width: 480px) {
+                  font-size: 13px;
+                  padding: 14px;
+                }
+
+                @media (max-width: 360px) {
+                  font-size: 12px;
+                  padding: 12px;
+                }
               }
             }
           }
@@ -1175,6 +1426,15 @@
           .cart-controls {
             display: flex;
             gap: 12px;
+
+            /* Мобильные */
+            @media (max-width: 480px) {
+              gap: 10px;
+            }
+
+            @media (max-width: 360px) {
+              gap: 8px;
+            }
 
             button {
               flex: 1;
@@ -1189,9 +1449,15 @@
           padding-top: 24px;
           border-top: 1px solid rgba(226, 232, 240, 0.6);
 
+          /* Мобильные */
           @media (max-width: 480px) {
             gap: 12px;
             padding-top: 20px;
+          }
+
+          @media (max-width: 360px) {
+            gap: 10px;
+            padding-top: 16px;
           }
 
           .info-item {
@@ -1205,10 +1471,17 @@
             transition: all 0.3s ease;
             background: rgba(248, 250, 252, 0.8);
 
+            /* Мобильные */
             @media (max-width: 480px) {
               gap: 12px;
               padding: 8px;
               font-size: 13px;
+            }
+
+            @media (max-width: 360px) {
+              gap: 10px;
+              padding: 6px;
+              font-size: 12px;
             }
 
             &:hover {
@@ -1223,15 +1496,26 @@
               color: #667eea;
               flex-shrink: 0;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 width: 18px;
                 height: 18px;
+              }
+
+              @media (max-width: 360px) {
+                width: 16px;
+                height: 16px;
               }
             }
 
             span {
               font-weight: 500;
               line-height: 1.4;
+
+              /* Мобильные */
+              @media (max-width: 360px) {
+                line-height: 1.3;
+              }
             }
           }
         }
@@ -1274,14 +1558,21 @@
   overflow: hidden;
   margin-bottom: 24px;
 
+  /* Планшеты */
   @media (max-width: 768px) {
     border-radius: 14px;
     margin-bottom: 20px;
   }
 
+  /* Мобильные */
   @media (max-width: 480px) {
     border-radius: 12px;
     margin-bottom: 16px;
+  }
+
+  @media (max-width: 360px) {
+    border-radius: 10px;
+    margin-bottom: 14px;
   }
 
   .basket-info-header {
@@ -1293,15 +1584,22 @@
     transition: all 0.3s ease;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
 
+    /* Планшеты */
     @media (max-width: 768px) {
       padding: 16px;
     }
 
+    /* Мобильные */
     @media (max-width: 480px) {
       padding: 14px;
       flex-direction: column;
       align-items: flex-start;
       gap: 8px;
+    }
+
+    @media (max-width: 360px) {
+      padding: 12px;
+      gap: 6px;
     }
 
     &:hover {
@@ -1322,9 +1620,15 @@
       padding: 6px 12px;
       border-radius: 8px;
 
+      /* Мобильные */
       @media (max-width: 480px) {
         font-size: 13px;
         padding: 4px 8px;
+      }
+
+      @media (max-width: 360px) {
+        font-size: 12px;
+        padding: 3px 6px;
       }
 
       &:hover {
@@ -1357,12 +1661,18 @@
       max-height: 350px;
       overflow-y: auto;
 
+      /* Планшеты */
       @media (max-width: 768px) {
         padding: 0 16px 16px;
       }
 
+      /* Мобильные */
       @media (max-width: 480px) {
         padding: 0 14px 14px;
+      }
+
+      @media (max-width: 360px) {
+        padding: 0 12px 12px;
       }
 
       &::-webkit-scrollbar {
@@ -1392,11 +1702,17 @@
         align-items: center;
         gap: 12px;
 
+        /* Мобильные */
         @media (max-width: 480px) {
           padding: 12px 8px;
           flex-direction: column;
           align-items: flex-start;
           gap: 8px;
+        }
+
+        @media (max-width: 360px) {
+          padding: 10px 6px;
+          gap: 6px;
         }
 
         &:hover {
@@ -1415,11 +1731,16 @@
           flex: 1;
           gap: 12px;
 
+          /* Мобильные */
           @media (max-width: 480px) {
             width: 100%;
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
+          }
+
+          @media (max-width: 360px) {
+            gap: 6px;
           }
 
           .basket-name {
@@ -1430,13 +1751,25 @@
             align-items: center;
             gap: 8px;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               font-size: 13px;
               width: 100%;
+              flex-wrap: wrap;
+            }
+
+            @media (max-width: 360px) {
+              font-size: 12px;
+              gap: 6px;
             }
 
             .basket-icon {
               font-size: 16px;
+
+              /* Мобильные */
+              @media (max-width: 360px) {
+                font-size: 14px;
+              }
             }
 
             .active-badge {
@@ -1446,6 +1779,17 @@
               padding: 2px 8px;
               border-radius: 10px;
               font-weight: 600;
+
+              /* Мобильные */
+              @media (max-width: 480px) {
+                font-size: 10px;
+                padding: 1px 6px;
+              }
+
+              @media (max-width: 360px) {
+                font-size: 9px;
+                padding: 1px 4px;
+              }
             }
           }
 
@@ -1455,6 +1799,7 @@
             gap: 12px;
             flex-shrink: 0;
 
+            /* Мобильные */
             @media (max-width: 480px) {
               width: 100%;
               justify-content: space-between;
@@ -1466,8 +1811,15 @@
               font-size: 14px;
               min-width: 50px;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 font-size: 13px;
+                min-width: 40px;
+              }
+
+              @media (max-width: 360px) {
+                font-size: 12px;
+                min-width: 30px;
               }
             }
 
@@ -1478,9 +1830,16 @@
               min-width: 70px;
               text-align: right;
 
+              /* Мобильные */
               @media (max-width: 480px) {
                 font-size: 13px;
                 text-align: left;
+                min-width: 60px;
+              }
+
+              @media (max-width: 360px) {
+                font-size: 12px;
+                min-width: 50px;
               }
             }
           }
@@ -1491,9 +1850,14 @@
           gap: 4px;
           flex-shrink: 0;
 
+          /* Мобильные */
           @media (max-width: 480px) {
             width: 100%;
             justify-content: flex-end;
+          }
+
+          @media (max-width: 360px) {
+            gap: 3px;
           }
 
           .mini-btn {
@@ -1507,6 +1871,14 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+
+            /* Мобильные */
+            @media (max-width: 360px) {
+              width: 26px;
+              height: 26px;
+              font-size: 11px;
+              border-radius: 5px;
+            }
 
             &.minus {
               background: #fecaca;
@@ -1555,6 +1927,18 @@
       border-radius: 8px;
       margin-left: 8px;
       font-weight: 600;
+
+      /* Мобильные */
+      @media (max-width: 480px) {
+        font-size: 10px;
+        padding: 1px 4px;
+        margin-left: 4px;
+      }
+
+      @media (max-width: 360px) {
+        font-size: 9px;
+        padding: 1px 3px;
+      }
     }
   }
 }
@@ -1586,5 +1970,60 @@
   to {
     transform: translateX(100%);
     opacity: 0;
+  }
+}
+
+/* Специальные адаптивные правила для планшетов */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .product-card {
+    .product-main {
+      .gallery-section {
+        flex: 0 0 48%;
+        max-width: 48%;
+      }
+      
+      .product-content {
+        width: 52%;
+      }
+    }
+  }
+}
+
+/* Специальные адаптивные правила для мобильных в ландшафтной ориентации */
+@media (max-height: 500px) and (orientation: landscape) {
+  .product-card {
+    padding: 10px;
+    
+    .product-main {
+      flex-direction: row;
+      gap: 15px;
+      
+      .gallery-section {
+        flex: 0 0 40%;
+      }
+      
+      .product-content {
+        width: 60%;
+      }
+    }
+  }
+}
+
+/* Улучшение для очень узких экранов */
+@media (max-width: 320px) {
+  .product-card {
+    padding: 8px;
+    
+    .breadcrumbs {
+      font-size: 10px;
+    }
+    
+    .product-header .product-title {
+      font-size: 18px;
+    }
+    
+    .actions-section .actions-card {
+      padding: 12px;
+    }
   }
 }
