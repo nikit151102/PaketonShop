@@ -1,0 +1,1002 @@
+// Variables - Modern Color Palette
+$primary-color: #327120;
+$primary-light: rgba(50, 113, 32, 0.1);
+$primary-dark: #285a1a;
+$gradient-primary: linear-gradient(135deg, $primary-color, $primary-dark);
+$success-color: #00c853;
+$error-color: #ff4757;
+$warning-color: #ffaa00;
+$info-color: #2d9cdb;
+
+// Compact Gray Scale
+$gray-50: #f8f9fa;
+$gray-100: #f1f3f5;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #adb5bd;
+$gray-500: #6c757d;
+$gray-600: #495057;
+$gray-700: #343a40;
+$gray-800: #212529;
+$gray-900: #121416;
+
+// Compact Spacing
+$spacing-xs: 0.25rem;  // 4px
+$spacing-sm: 0.5rem;   // 8px
+$spacing-md: 0.75rem;  // 12px
+$spacing-lg: 1rem;     // 16px
+$spacing-xl: 1.25rem;  // 20px
+$spacing-2xl: 1.5rem;  // 24px
+$spacing-3xl: 1.75rem; // 28px
+$spacing-4xl: 2rem;    // 32px
+
+// Compact Font Sizes
+$font-xs: 0.75rem;     // 12px
+$font-sm: 0.8125rem;   // 13px
+$font-base: 0.875rem;  // 14px
+$font-md: 0.9375rem;   // 15px
+$font-lg: 1rem;        // 16px
+$font-xl: 1.125rem;    // 18px
+$font-2xl: 1.25rem;    // 20px
+$font-3xl: 1.5rem;     // 24px
+
+// Shadows
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+// Main Wrapper
+.business-account-wrapper {
+  min-height: 100vh;
+  background: $gray-50;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: $font-base;
+  line-height: 1.4;
+
+  // Success Overlay - Compact
+  .success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: $spacing-lg;
+
+    .success-modal {
+      background: white;
+      border-radius: 16px;
+      padding: $spacing-2xl;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: $shadow-xl;
+
+      .success-content {
+        .success-icon-wrapper {
+          width: 64px;
+          height: 64px;
+          background: $gradient-primary;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto $spacing-xl;
+
+          .success-icon {
+            font-size: $font-3xl;
+            color: white;
+            font-weight: bold;
+          }
+        }
+
+        h2 {
+          font-size: $font-2xl;
+          font-weight: 600;
+          color: $gray-900;
+          margin-bottom: $spacing-md;
+        }
+
+        .success-message {
+          color: $gray-600;
+          font-size: $font-base;
+          margin-bottom: $spacing-xl;
+        }
+
+        .success-actions {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-md;
+
+          .btn-success-primary {
+            background: $gradient-primary;
+            color: white;
+            border: none;
+            padding: $spacing-md $spacing-lg;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: $font-base;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: $spacing-sm;
+
+            &:hover {
+              transform: translateY(-1px);
+              box-shadow: $shadow-md;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Main Container
+  .business-account-container {
+    margin: 0 auto;
+    padding: $spacing-lg;
+
+    // Header - Compact
+    .account-header {
+      background: $gradient-primary;
+      border-radius: 12px;
+      padding: $spacing-xl $spacing-2xl;
+      margin-bottom: $spacing-xl;
+      color: white;
+      box-shadow: $shadow-md;
+
+      .header-content {
+        .header-title {
+          font-size: $font-2xl;
+          font-weight: 600;
+          margin-bottom: $spacing-xs;
+        }
+
+        .header-subtitle {
+          font-size: $font-base;
+          opacity: 0.9;
+        }
+      }
+    }
+
+    // Progress Steps - Compact
+    .progress-steps-modern {
+      margin-bottom: $spacing-xl;
+
+      .steps-track {
+        height: 2px;
+        background: $gray-300;
+        border-radius: 1px;
+        position: relative;
+        margin: 0 40px;
+
+        .steps-indicator {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: $gradient-primary;
+          border-radius: 1px;
+          transition: width 0.3s ease;
+        }
+      }
+
+      .steps-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: -20px;
+
+        .step-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          cursor: pointer;
+
+          .step-marker {
+            width: 40px;
+            height: 40px;
+            z-index: 1;
+            border: 2px solid $gray-300;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: $shadow-sm;
+
+            .step-number {
+              font-size: $font-md;
+              font-weight: 600;
+              color: $gray-600;
+            }
+
+            .step-check {
+              display: none;
+              width: 16px;
+              height: 16px;
+            }
+          }
+
+          .step-label {
+            margin-top: $spacing-sm;
+            font-size: $font-sm;
+            color: $gray-600;
+            font-weight: 500;
+            text-align: center;
+            max-width: 80px;
+          }
+
+          &.active {
+            .step-marker {
+              border-color: $primary-color;
+              background: $primary-color;
+
+              .step-number {
+                color: white;
+              }
+            }
+
+            .step-label {
+              color: $primary-color;
+              font-weight: 600;
+            }
+          }
+
+          &.completed {
+            .step-marker {
+              background: $primary-color;
+              border-color: $primary-color;
+
+              .step-number {
+                display: none;
+              }
+
+              .step-check {
+                display: block;
+                color: white;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Error Alert - Compact
+    .error-alert {
+      background: rgba($error-color, 0.05);
+      border: 1px solid rgba($error-color, 0.2);
+      border-radius: 8px;
+      padding: $spacing-md $spacing-lg;
+      margin-bottom: $spacing-xl;
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      animation: fadeIn 0.3s ease;
+
+      .alert-icon {
+        color: $error-color;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+      }
+
+      .alert-message {
+        flex: 1;
+        color: $error-color;
+        font-weight: 500;
+        font-size: $font-base;
+      }
+
+      .alert-close {
+        background: none;
+        border: none;
+        color: $error-color;
+        cursor: pointer;
+        padding: $spacing-xs;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    // Step Card - Compact
+    .step-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: $shadow-lg;
+      overflow: hidden;
+      margin-bottom: $spacing-xl;
+
+      .card-header {
+        background: linear-gradient(135deg, rgba($primary-color, 0.05), rgba($primary-color, 0.02));
+        padding: $spacing-lg $spacing-xl;
+        display: flex;
+        align-items: center;
+        gap: $spacing-lg;
+        border-bottom: 1px solid $gray-200;
+
+        .header-icon {
+          font-size: $font-2xl;
+          width: 48px;
+          height: 48px;
+          background: white;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: $shadow-sm;
+        }
+
+        .header-text {
+          h2 {
+            font-size: $font-xl;
+            font-weight: 600;
+            color: $gray-900;
+            margin-bottom: $spacing-xs;
+          }
+
+          p {
+            color: $gray-600;
+            font-size: $font-sm;
+          }
+        }
+      }
+    }
+
+    // Form Styles - Compact
+    .user-form, .company-form {
+      padding: $spacing-xl;
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: $spacing-lg;
+      }
+
+      .form-section {
+        margin-bottom: $spacing-xl;
+
+        .section-title {
+          font-size: $font-lg;
+          font-weight: 600;
+          color: $gray-800;
+          margin-bottom: $spacing-lg;
+          padding-bottom: $spacing-sm;
+          border-bottom: 2px solid $gray-200;
+        }
+      }
+
+      .form-group {
+        margin-bottom: $spacing-lg;
+
+        .form-label {
+          display: block;
+          margin-bottom: $spacing-xs;
+          font-weight: 500;
+          color: $gray-700;
+          font-size: $font-sm;
+
+          .required {
+            color: $error-color;
+            margin-left: 2px;
+          }
+        }
+
+        .input-with-icon {
+          position: relative;
+
+          svg {
+            position: absolute;
+            left: $spacing-md;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $gray-500;
+            width: 16px;
+            height: 16px;
+          }
+
+          .form-input {
+            padding-left: $spacing-3xl;
+          }
+        }
+
+        .phone-input {
+          display: flex;
+          align-items: center;
+
+          .country-code {
+            padding: $spacing-md;
+            background: $gray-100;
+            border: 1px solid $gray-300;
+            border-right: none;
+            color: $gray-700;
+            font-weight: 500;
+            font-size: $font-base;
+            border-radius: 6px 0 0 6px;
+          }
+
+          .form-input {
+            border-radius: 0 6px 6px 0;
+            border-left: none;
+          }
+        }
+
+        .form-input {
+          width: 100%;
+          padding: $spacing-md;
+          border: 1px solid $gray-300;
+          border-radius: 6px;
+          font-size: $font-base;
+          color: $gray-800;
+          background: white;
+          transition: all 0.2s ease;
+
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+          }
+
+          &::placeholder {
+            color: $gray-400;
+          }
+        }
+
+        .checkbox-container {
+          display: flex;
+          align-items: flex-start;
+          gap: $spacing-sm;
+
+          .checkbox-input {
+            margin-top: 3px;
+          }
+
+          .checkbox-text {
+            font-size: $font-sm;
+            color: $gray-600;
+            line-height: 1.4;
+
+            .text-link {
+              color: $primary-color;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+
+        // Password Strength - Compact
+        .password-strength {
+          margin-top: $spacing-sm;
+
+          .strength-indicator {
+            display: flex;
+            gap: 2px;
+            margin-bottom: $spacing-xs;
+
+            .strength-segment {
+              flex: 1;
+              height: 4px;
+              background: $gray-200;
+              border-radius: 2px;
+
+              &.active {
+                &:nth-child(1) { background: $error-color; }
+                &:nth-child(2) { background: $warning-color; }
+                &:nth-child(3) { background: $info-color; }
+                &:nth-child(4) { background: $success-color; }
+                &:nth-child(5) { background: $primary-color; }
+              }
+            }
+          }
+
+          .strength-label {
+            font-size: $font-xs;
+            color: $gray-500;
+          }
+        }
+
+        .error-message {
+          font-size: $font-xs;
+          color: $error-color;
+          margin-top: $spacing-xs;
+        }
+      }
+    }
+
+    // Type Selector - Compact
+    .type-selector {
+      .type-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: $spacing-md;
+
+        .type-card {
+          border: 1px solid $gray-300;
+          border-radius: 8px;
+          padding: $spacing-lg;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: white;
+          display: flex;
+          align-items: center;
+          gap: $spacing-md;
+
+          &:hover {
+            border-color: $primary-color;
+            box-shadow: $shadow-sm;
+          }
+
+          &.active {
+            border-color: $primary-color;
+            background: rgba($primary-color, 0.05);
+          }
+
+          .type-icon {
+            font-size: $font-xl;
+            width: 40px;
+            height: 40px;
+            background: $gray-100;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .type-content {
+            flex: 1;
+
+            .type-title {
+              font-size: $font-base;
+              font-weight: 600;
+              color: $gray-800;
+              margin-bottom: 2px;
+            }
+
+            .type-subtitle {
+              font-size: $font-xs;
+              color: $gray-500;
+            }
+          }
+
+          .type-check {
+            color: $primary-color;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
+
+    // Documents Section - Compact
+    .documents-section {
+      padding: $spacing-lg $spacing-xl;
+      border-bottom: 1px solid $gray-200;
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $spacing-lg;
+
+        .section-title {
+          font-size: $font-lg;
+          font-weight: 600;
+          color: $gray-800;
+        }
+
+        .section-badge {
+          background: rgba($primary-color, 0.1);
+          color: $primary-color;
+          padding: $spacing-xs $spacing-md;
+          border-radius: 12px;
+          font-size: $font-xs;
+          font-weight: 600;
+        }
+      }
+
+      .documents-list {
+        .document-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: $spacing-md;
+          border: 1px solid $gray-300;
+          border-radius: 8px;
+          margin-bottom: $spacing-sm;
+          background: white;
+          transition: all 0.2s ease;
+
+          &:hover {
+            border-color: $primary-color;
+          }
+
+          &.uploaded {
+            border-color: $success-color;
+            background: rgba($success-color, 0.02);
+          }
+
+          .document-info {
+            display: flex;
+            align-items: center;
+            gap: $spacing-md;
+
+            .document-icon {
+              font-size: $font-lg;
+              width: 36px;
+              height: 36px;
+              background: $gray-100;
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .document-details {
+              .document-title {
+                font-size: $font-base;
+                font-weight: 500;
+                color: $gray-800;
+                margin-bottom: 2px;
+              }
+
+              .document-status {
+                font-size: $font-xs;
+                color: $gray-500;
+                display: flex;
+                align-items: center;
+                gap: $spacing-xs;
+
+                .status-dot {
+                  width: 6px;
+                  height: 6px;
+                  background: $gray-300;
+                  border-radius: 50%;
+
+                  &.uploaded {
+                    background: $success-color;
+                  }
+                }
+              }
+            }
+          }
+
+          .document-actions {
+            display: flex;
+            align-items: center;
+            gap: $spacing-md;
+
+            .file-preview {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+
+              .file-name {
+                font-size: $font-xs;
+                color: $gray-700;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              .file-size {
+                font-size: $font-xs;
+                color: $gray-500;
+              }
+            }
+
+            .action-buttons {
+              display: flex;
+              gap: $spacing-xs;
+
+              .btn-upload {
+                background: $primary-color;
+                color: white;
+                border: none;
+                padding: $spacing-sm $spacing-md;
+                border-radius: 6px;
+                font-size: $font-sm;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  background: $primary-dark;
+                }
+
+                &.reupload {
+                  background: $warning-color;
+
+                  &:hover {
+                    background: darken($warning-color, 10%);
+                  }
+                }
+              }
+
+              .btn-remove {
+                background: transparent;
+                border: 1px solid $gray-300;
+                color: $gray-600;
+                padding: $spacing-sm;
+                border-radius: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                  background: $gray-100;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Upload Summary - Compact
+    .upload-summary {
+      padding: $spacing-lg $spacing-xl;
+      background: $gray-50;
+
+      .summary-card {
+        background: white;
+        border: 1px solid $gray-300;
+        border-radius: 8px;
+        padding: $spacing-lg;
+
+        .summary-header {
+          display: flex;
+          align-items: center;
+          gap: $spacing-sm;
+          margin-bottom: $spacing-lg;
+          padding-bottom: $spacing-md;
+          border-bottom: 1px solid $gray-200;
+
+          h4 {
+            font-size: $font-base;
+            font-weight: 600;
+            color: $gray-800;
+            margin: 0;
+          }
+
+          svg {
+            color: $primary-color;
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        .summary-stats {
+          .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: $spacing-sm 0;
+            border-bottom: 1px solid $gray-100;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .stat-label {
+              color: $gray-600;
+              font-size: $font-sm;
+            }
+
+            .stat-value {
+              color: $gray-800;
+              font-weight: 600;
+              font-size: $font-sm;
+            }
+          }
+        }
+      }
+    }
+
+    // Step Navigation - Compact
+    .step-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: $spacing-lg;
+      background: white;
+      border-radius: 12px;
+      box-shadow: $shadow-md;
+      margin-top: $spacing-xl;
+
+      .btn-nav {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        padding: $spacing-md $spacing-lg;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: $font-base;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        &.prev {
+          background: transparent;
+          color: $gray-600;
+          border: 1px solid $gray-300;
+
+          &:hover:not(:disabled) {
+            background: $gray-100;
+          }
+        }
+
+        &.next {
+          background: $primary-color;
+          color: white;
+
+          &:hover:not(:disabled) {
+            background: $primary-dark;
+          }
+        }
+
+        &.submit {
+          background: $primary-color;
+          color: white;
+          padding: $spacing-md $spacing-xl;
+          font-weight: 600;
+
+          &:hover:not(:disabled) {
+            background: $primary-dark;
+          }
+        }
+      }
+
+      .step-counter {
+        font-size: $font-sm;
+        color: $gray-500;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .business-account-wrapper {
+    .business-account-container {
+      padding: $spacing-md;
+
+      .account-header {
+        padding: $spacing-lg;
+        margin-bottom: $spacing-lg;
+
+        .header-content {
+          .header-title {
+            font-size: $font-xl;
+          }
+
+          .header-subtitle {
+            font-size: $font-sm;
+          }
+        }
+      }
+
+      .progress-steps-modern {
+        .steps-container {
+          .step-item {
+            .step-label {
+              display: none;
+            }
+          }
+        }
+      }
+
+      .step-card {
+        .card-header {
+          padding: $spacing-md $spacing-lg;
+          flex-direction: column;
+          text-align: center;
+          gap: $spacing-md;
+
+          .header-icon {
+            width: 40px;
+            height: 40px;
+            font-size: $font-lg;
+          }
+
+          .header-text {
+            h2 {
+              font-size: $font-lg;
+            }
+
+            p {
+              font-size: $font-sm;
+            }
+          }
+        }
+      }
+
+      .user-form, .company-form {
+        padding: $spacing-lg;
+
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: $spacing-md;
+        }
+
+        .form-section {
+          margin-bottom: $spacing-lg;
+
+          .section-title {
+            font-size: $font-md;
+            margin-bottom: $spacing-md;
+          }
+        }
+      }
+
+      .documents-section {
+        padding: $spacing-md;
+
+        .document-item {
+          flex-direction: column;
+          align-items: stretch;
+          gap: $spacing-md;
+
+          .document-actions {
+            .file-preview {
+              align-items: flex-start;
+            }
+
+            .action-buttons {
+              width: 100%;
+
+              .btn-upload {
+                flex: 1;
+              }
+            }
+          }
+        }
+      }
+
+      .step-navigation {
+        flex-direction: column;
+        gap: $spacing-md;
+        padding: $spacing-md;
+
+        .step-counter {
+          order: -1;
+        }
+
+        .btn-nav {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}

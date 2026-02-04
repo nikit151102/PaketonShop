@@ -1,0 +1,596 @@
+<div class="business-account-wrapper">
+  <!-- Success Message -->
+  <div class="success-overlay" *ngIf="success">
+    <div class="success-modal">
+      <div class="success-content">
+        <div class="success-icon-wrapper">
+          <div class="success-icon">✓</div>
+        </div>
+        <h2>Регистрация завершена!</h2>
+        <p class="success-message">Ваш бизнес-аккаунт успешно создан. Проверка документов займет до 24 часов.</p>
+        <div class="success-actions">
+          <a routerLink="/dashboard" class="btn-success-primary">
+            Перейти в личный кабинет
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
+            </svg>
+          </a>
+          <!-- <button class="btn-success-secondary" (click)="resetAllForms()">Создать еще один аккаунт</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="business-account-container" *ngIf="!success">
+    <!-- Header -->
+    <div class="account-header">
+      <div class="header-content">
+        <h1 class="header-title">Регистрация бизнес-аккаунта</h1>
+        <p class="header-subtitle">Создайте профессиональный аккаунт для управления вашим бизнесом</p>
+      </div>
+      <div class="header-decoration">
+        <div class="decoration-circle"></div>
+        <div class="decoration-wave"></div>
+      </div>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps-modern">
+      <div class="steps-track">
+        <div class="steps-indicator" [style.width]="((currentStep - 1) / (totalSteps - 1)) * 100 + '%'"></div>
+      </div>
+      <div class="steps-container">
+        <div class="step-item" 
+             *ngFor="let step of [1, 2, 3]; let i = index"
+             [class.active]="currentStep === i + 1"
+             [class.completed]="getStepStatus(i + 1) === 'completed'"
+             (click)="goToStep(i + 1)">
+          <div class="step-marker">
+            <span class="step-number">{{ i + 1 }}</span>
+            <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" *ngIf="getStepStatus(i + 1) === 'completed'">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="step-label">{{ getStepTitle(i + 1) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Notification -->
+    <div class="error-alert" *ngIf="error" @fadeIn>
+      <div class="alert-content">
+        <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
+        </svg>
+        <div class="alert-message">{{ error }}</div>
+        <button class="alert-close" (click)="error = null">
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step Content -->
+    <div class="step-wrapper" @slideIn>
+      <!-- Step 1: User Registration -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <div class="step-card">
+          <div class="card-header">
+            <div class="header-icon">👤</div>
+            <div class="header-text">
+              <h2>Создание пользователя</h2>
+              <p>Основная информация для доступа к аккаунту</p>
+            </div>
+          </div>
+          
+          <form [formGroup]="userForm" class="user-form">
+            <div class="form-grid">
+              <!-- Email -->
+              <div class="form-group" [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                <label class="form-label">
+                  <span>Email адрес</span>
+                  <span class="required">*</span>
+                </label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#327120"/>
+                  </svg>
+                  <input type="email" 
+                         formControlName="email"
+                         placeholder="your@email.com"
+                         class="form-input">
+                </div>
+                <div class="error-message" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                  {{ userForm.get('email')?.errors?.['required'] ? 'Введите email' : 'Неверный формат email' }}
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="form-group" [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+                <label class="form-label">
+                  <span>Пароль</span>
+                  <span class="required">*</span>
+                </label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#327120"/>
+                  </svg>
+                  <input type="password" 
+                         formControlName="password"
+                         placeholder="Минимум 8 символов"
+                         class="form-input">
+                </div>
+                
+                <!-- Password Strength -->
+                <div class="password-strength" *ngIf="userForm.get('password')?.value">
+                  <div class="strength-indicator">
+                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 1"></div>
+                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 2"></div>
+                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 3"></div>
+                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 4"></div>
+                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 5"></div>
+                  </div>
+                  <div class="strength-label">
+                    Надежность: <strong>{{ checkPasswordStrength(userForm.get('password')?.value).message }}</strong>
+                  </div>
+                </div>
+                
+                <div class="error-message" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+                  <div *ngIf="userForm.get('password')?.errors?.['required']">Введите пароль</div>
+                  <div *ngIf="userForm.get('password')?.errors?.['minlength']">Минимум 8 символов</div>
+                  <div *ngIf="userForm.get('password')?.errors?.['pattern']">Буквы и цифры</div>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="form-group" [class.error]="(userForm.get('confirmPassword')?.invalid || userForm.errors?.['mismatch']) && userForm.get('confirmPassword')?.touched">
+                <label class="form-label">
+                  <span>Подтверждение пароля</span>
+                  <span class="required">*</span>
+                </label>
+                <div class="input-with-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
+                  </svg>
+                  <input type="password" 
+                         formControlName="confirmPassword"
+                         placeholder="Повторите пароль"
+                         class="form-input">
+                </div>
+                <div class="error-message" *ngIf="userForm.get('confirmPassword')?.invalid && userForm.get('confirmPassword')?.touched">
+                  {{ userForm.errors?.['mismatch'] ? 'Пароли не совпадают' : 'Подтвердите пароль' }}
+                </div>
+              </div>
+
+              <!-- Name Fields -->
+              <div class="form-group double">
+                <label class="form-label">
+                  <span>Фамилия и имя</span>
+                  <span class="required">*</span>
+                </label>
+                <div class="double-inputs">
+                  <div class="input-wrapper" [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+                    <input type="text" 
+                           formControlName="lastName"
+                           placeholder="Иванов"
+                           class="form-input">
+                  </div>
+                  <div class="input-wrapper" [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+                    <input type="text" 
+                           formControlName="firstName"
+                           placeholder="Иван"
+                           class="form-input">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="form-group" [class.error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                <label class="form-label">
+                  <span>Телефон</span>
+                  <span class="required">*</span>
+                </label>
+                <div class="phone-input">
+                  <span class="country-code">+7</span>
+                  <input type="tel" 
+                         formControlName="phoneNumber"
+                         placeholder="(999) 999-99-99"
+                         class="form-input">
+                </div>
+                <div class="error-message" *ngIf="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                  Введите корректный номер телефона
+                </div>
+              </div>
+
+              <!-- Terms -->
+              <div class="form-group terms-group" [class.error]="userForm.get('agreeToTerms')?.invalid && userForm.get('agreeToTerms')?.touched">
+                <label class="checkbox-container">
+                  <input type="checkbox" 
+                         formControlName="agreeToTerms"
+                         class="checkbox-input">
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">
+                    Я соглашаюсь с 
+                    <a href="#" class="text-link">условиями использования</a> 
+                    и 
+                    <a href="#" class="text-link">политикой конфиденциальности</a>
+                  </span>
+                </label>
+                <div class="error-message" *ngIf="userForm.get('agreeToTerms')?.invalid && userForm.get('agreeToTerms')?.touched">
+                  Необходимо согласие с условиями
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 2: Company Information -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <div class="step-card">
+          <div class="card-header">
+            <div class="header-icon">🏢</div>
+            <div class="header-text">
+              <h2>Информация о компании</h2>
+              <p>Основные данные вашего бизнеса</p>
+            </div>
+          </div>
+          
+          <form [formGroup]="companyForm" class="company-form">
+            <!-- Partner Type -->
+            <div class="form-section">
+              <h3 class="section-title">Тип организации</h3>
+              <div class="type-selector">
+                <div class="loading-overlay" *ngIf="isLoading">
+                  <div class="spinner"></div>
+                  <span>Загрузка...</span>
+                </div>
+                
+                <div class="type-cards">
+                  <div class="type-card" 
+                       *ngFor="let type of partnerTypes"
+                       [class.active]="companyForm.get('partnerTypeId')?.value === type.id"
+                       (click)="selectPartnerType(type)">
+                    <div class="type-icon">{{ type.code === 1 ? '🏢' : '👤' }}</div>
+                    <div class="type-content">
+                      <div class="type-title">{{ type.fullName }}</div>
+                      <div class="type-subtitle">{{ type.shortName }}</div>
+                    </div>
+                    <div class="type-check" *ngIf="companyForm.get('partnerTypeId')?.value === type.id">
+                      <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="error-message" *ngIf="companyForm.get('partnerTypeId')?.invalid && companyForm.get('partnerTypeId')?.touched">
+                Выберите тип организации
+              </div>
+            </div>
+
+            <!-- Company Details -->
+            <div class="form-section">
+              <h3 class="section-title">Основные данные</h3>
+              <div class="form-grid">
+                <div class="form-group" [class.error]="companyForm.get('fullName')?.invalid && companyForm.get('fullName')?.touched">
+                  <label class="form-label">
+                    <span>Полное название</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="fullName"
+                         [placeholder]="getFullNamePlaceholder()"
+                         class="form-input">
+                </div>
+
+                <div class="form-group" [class.error]="companyForm.get('shortName')?.invalid && companyForm.get('shortName')?.touched">
+                  <label class="form-label">
+                    <span>Краткое название</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="shortName"
+                         [placeholder]="getShortNamePlaceholder()"
+                         class="form-input">
+                </div>
+
+                <div class="form-group" [class.error]="companyForm.get('workDirection')?.invalid && companyForm.get('workDirection')?.touched">
+                  <label class="form-label">
+                    <span>Сфера деятельности</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="workDirection"
+                         placeholder="Например: IT-услуги"
+                         class="form-input">
+                </div>
+              </div>
+            </div>
+
+            <!-- Legal Details -->
+            <div class="form-section">
+              <h3 class="section-title">Юридические реквизиты</h3>
+              <div class="form-grid">
+                <div class="form-group" [class.error]="companyForm.get('inn')?.invalid && companyForm.get('inn')?.touched">
+                  <label class="form-label">
+                    <span>ИНН</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="inn"
+                         placeholder="10 или 12 цифр"
+                         class="form-input">
+                </div>
+
+                <div class="form-group" [class.error]="companyForm.get('ogrn')?.invalid && companyForm.get('ogrn')?.touched">
+                  <label class="form-label">
+                    <span>{{ selectedPartnerType?.code === 1 ? 'ОГРН' : 'ОГРНИП' }}</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="ogrn"
+                         [placeholder]="getOgrnPlaceholder()"
+                         class="form-input">
+                </div>
+
+                <div class="form-group" [class.error]="companyForm.get('kpp')?.invalid && companyForm.get('kpp')?.touched" 
+                     *ngIf="selectedPartnerType?.code === 1">
+                  <label class="form-label">
+                    <span>КПП</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" 
+                         formControlName="kpp"
+                         placeholder="9 цифр"
+                         class="form-input">
+                </div>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-section">
+              <h3 class="section-title">Юридический адрес</h3>
+              <div formGroupName="address">
+                <div class="form-grid">
+                  <div class="form-group" [class.error]="companyForm.get('address.country')?.invalid && companyForm.get('address.country')?.touched">
+                    <label class="form-label">
+                      <span>Страна</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="country"
+                           placeholder="Россия"
+                           class="form-input">
+                  </div>
+
+                  <div class="form-group" [class.error]="companyForm.get('address.region')?.invalid && companyForm.get('address.region')?.touched">
+                    <label class="form-label">
+                      <span>Регион</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="region"
+                           placeholder="Московская область"
+                           class="form-input">
+                  </div>
+
+                  <div class="form-group" [class.error]="companyForm.get('address.city')?.invalid && companyForm.get('address.city')?.touched">
+                    <label class="form-label">
+                      <span>Город</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="city"
+                           placeholder="Москва"
+                           class="form-input">
+                  </div>
+
+                  <div class="form-group" [class.error]="companyForm.get('address.street')?.invalid && companyForm.get('address.street')?.touched">
+                    <label class="form-label">
+                      <span>Улица</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="street"
+                           placeholder="Ленина"
+                           class="form-input">
+                  </div>
+
+                  <div class="form-group" [class.error]="companyForm.get('address.house')?.invalid && companyForm.get('address.house')?.touched">
+                    <label class="form-label">
+                      <span>Дом</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="house"
+                           placeholder="10"
+                           class="form-input">
+                  </div>
+
+                  <div class="form-group" [class.error]="companyForm.get('address.postIndex')?.invalid && companyForm.get('address.postIndex')?.touched">
+                    <label class="form-label">
+                      <span>Индекс</span>
+                      <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           formControlName="postIndex"
+                           placeholder="101000"
+                           class="form-input">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 3: Documents Upload -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <div class="step-card">
+          <div class="card-header">
+            <div class="header-icon">📄</div>
+            <div class="header-text">
+              <h2>Загрузка документов</h2>
+              <p>{{ selectedPartnerType?.code === 1 ? 'Пакет документов для ООО' : 'Пакет документов для ИП' }}</p>
+            </div>
+          </div>
+
+          <!-- Required Documents -->
+          <div class="documents-section">
+            <div class="section-header">
+              <h3 class="section-title">Обязательные документы</h3>
+              <div class="section-badge">{{ getUploadedRequiredDocumentsCount() }}/{{ getRequiredDocuments().length }}</div>
+            </div>
+            
+            <div class="documents-list">
+              <div class="document-item" 
+                   *ngFor="let doc of getRequiredDocuments()"
+                   [class.uploaded]="isDocumentUploaded(doc.id)">
+                <div class="document-info">
+                  <div class="document-icon">
+                    {{ getFileIcon(getUploadedDocument(doc.id)?.fileType || '') || '📎' }}
+                  </div>
+                  <div class="document-details">
+                    <div class="document-title">{{ doc.name }}</div>
+                    <div class="document-status">
+                      <span class="status-dot" [class.uploaded]="isDocumentUploaded(doc.id)"></span>
+                      {{ isDocumentUploaded(doc.id) ? 'Загружено' : 'Не загружено' }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="document-actions">
+                  <div class="file-preview" *ngIf="getUploadedDocument(doc.id) as uploadedDoc">
+                    <span class="file-name">{{ uploadedDoc.fileName }}</span>
+                    <span class="file-size">{{ formatFileSize(uploadedDoc.fileSize) }}</span>
+                  </div>
+                  
+                  <div class="action-buttons">
+                    <label class="btn-upload" [class.reupload]="isDocumentUploaded(doc.id)">
+                      <input type="file" 
+                             (change)="onFileSelected($event, doc.id)"
+                             accept=".pdf,.jpg,.jpeg,.png"
+                             hidden>
+                      <span>{{ isDocumentUploaded(doc.id) ? 'Заменить' : 'Загрузить' }}</span>
+                    </label>
+                    
+                    <button class="btn-remove" 
+                            *ngIf="isDocumentUploaded(doc.id)"
+                            (click)="removeDocument(doc.id)">
+                      <svg width="16" height="16" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional Documents -->
+          <div class="documents-section optional" *ngIf="getOptionalDocuments().length > 0">
+            <div class="section-header">
+              <h3 class="section-title">Дополнительные документы</h3>
+              <div class="section-badge optional">{{ getUploadedOptionalDocumentsCount() }}/{{ getOptionalDocuments().length }}</div>
+            </div>
+            
+            <div class="documents-list">
+              <div class="document-item optional" 
+                   *ngFor="let doc of getOptionalDocuments()"
+                   [class.uploaded]="isDocumentUploaded(doc.id)">
+                <div class="document-info">
+                  <div class="document-icon">📎</div>
+                  <div class="document-details">
+                    <div class="document-title">{{ doc.name }}</div>
+                    <div class="document-status optional">
+                      {{ isDocumentUploaded(doc.id) ? 'Загружено' : 'По желанию' }}
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="document-actions">
+                  <label class="btn-upload optional">
+                    <input type="file" 
+                           (change)="onFileSelected($event, doc.id)"
+                           accept=".pdf,.jpg,.jpeg,.png"
+                           hidden>
+                    <span>Загрузить</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="upload-summary">
+            <div class="summary-card">
+              <div class="summary-header">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
+                </svg>
+                <h4>Сводка по документам</h4>
+              </div>
+              <div class="summary-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Обязательные:</span>
+                  <span class="stat-value">{{ getUploadedRequiredDocumentsCount() }}/{{ getRequiredDocuments().length }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Дополнительные:</span>
+                  <span class="stat-value">{{ getUploadedOptionalDocumentsCount() }}/{{ getOptionalDocuments().length }}</span>
+                </div>
+                <div class="stat-item total">
+                  <span class="stat-label">Всего файлов:</span>
+                  <span class="stat-value">{{ uploadedDocuments.length }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="step-navigation">
+      <button type="button" 
+              class="btn-nav prev"
+              *ngIf="currentStep > 1"
+              (click)="prevStep()">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" fill="currentColor"/>
+        </svg>
+        Назад
+      </button>
+      
+      <div class="step-counter">
+        Шаг {{ currentStep }} из {{ totalSteps }}
+      </div>
+      
+      <button type="button" 
+              class="btn-nav next"
+              *ngIf="currentStep < totalSteps"
+              (click)="nextStep()"
+              [disabled]="!validateCurrentStep()">
+        Далее
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" fill="currentColor"/>
+        </svg>
+      </button>
+      
+      <button type="button" 
+              class="btn-nav submit"
+              *ngIf="currentStep === totalSteps"
+              (click)="submitBusinessAccount()"
+              [disabled]="isSubmitting || !validateCurrentStep()">
+        <span class="btn-content">
+          <span class="btn-text">{{ isSubmitting ? 'Отправка...' : 'Завершить регистрацию' }}</span>
+          <span class="btn-spinner" *ngIf="isSubmitting"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,32 +1,36 @@
-<div class="minimal-grid">
-  <div *ngFor="let category of displayedCategories" class="minimal-card"
-    [routerLink]="category.subCategories?.length > 0 ? ['/category', category.id] : ['/products', category.id]">
-    <div class="content-container">
-      <h3 class="category-title">{{ category.name }}</h3>
-    </div>
+<!-- category-section.component.html -->
+<div class="category-section" [class.show-all]="showAllCategories || !isMainPage">
+  <div class="grid-container" [class.collapsed]="!showAllCategories && isMainPage && hasMoreCategories">
+    <div *ngFor="let category of displayedCategories; let i = index" class="category-card"
+      [routerLink]="category.subCategories?.length > 0 ? ['/category', category.id] : ['/products', category.id]"
+      [style.--index]="i" [class.has-subcategories]="category.subCategories?.length > 0">
+      <div class="card-content">
+        <h3 class="category-name">{{ category.name }}</h3>
+      </div>
+      <div class="card-image">
+        <img [src]="getFirstImage(category?.imageInstanceLinks[0]) || './assets/default-category.jpg'"
+          [alt]="category.name" loading="lazy" class="category-img" />
+        <div class="image-gradient"></div>
 
-    <div class="image-container">
-      <img [src]="category?.imageInstanceLinks[0]" [alt]="category.name" loading="lazy" class="category-image" />
-      <div class="image-overlay"></div>
-    </div>
-
-    <!-- <div class="content-container">
-      <h3 class="category-title">{{ category.name }}</h3>
-      
-      <div *ngIf="category.showTags && category.subCategories?.length" class="subcategories">
-        <div class="tags">
-          <span class="tag" *ngFor="let sub of category.subCategories.slice(0, 2)">
-            {{ sub.name }}
-          </span>
-          <span *ngIf="category.subCategories.length > 2" class="more">
-            +{{ category.subCategories.length - 2 }}
-          </span>
+        <!-- Бейдж с количеством подкатегорий -->
+        <div *ngIf="category.subCategories?.length > 0" class="subcategory-badge">
+          <span class="badge-count">{{ category.subCategories.length }}</span>
+          <span class="badge-text">подкатегорий</span>
         </div>
       </div>
-    </div> -->
+
+
+    </div>
+  </div>
+
+  <!-- Кнопка с анимацией -->
+  <div class="more-categories">
+    <button class="more-btn" (click)="toggleDisplay()" [class.expanded]="showAllCategories">
+      <span class="btn-text">{{ showAllCategories ? "Скрыть" : "Показать ещё" }}</span>
+      <svg class="btn-icon" [class.rotated]="showAllCategories" width="20" height="20" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+      </svg>
+      <div class="btn-wave"></div>
+    </button>
   </div>
 </div>
-
-<button *ngIf="isMainPage && categories.length > 12" class="more-btn" (click)="toggleDisplay()">
-  <span>{{ showAllCategories ? "Свернуть" : "Показать ещё" }}</span>
-</button>

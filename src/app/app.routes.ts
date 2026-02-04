@@ -90,4 +90,12 @@ export const routes: Routes = [
         (m) => m.CompareProductsComponent,
       ),
   },
+    {
+    path: 'BusinessAccountRegistration',
+    loadComponent: () =>
+      import('./modules/business-account-registration/business-account-registration.component').then(
+        (m) => m.BusinessAccountRegistrationComponent,
+      ),
+  },
+  
 ];
