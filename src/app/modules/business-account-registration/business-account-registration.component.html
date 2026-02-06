@@ -1,596 +1,1007 @@
-<div class="business-account-wrapper">
-  <!-- Success Message -->
-  <div class="success-overlay" *ngIf="success">
-    <div class="success-modal">
-      <div class="success-content">
-        <div class="success-icon-wrapper">
-          <div class="success-icon">✓</div>
+<div class="modern-business-registration">
+  <!-- Success State -->
+  @if (success) {
+  <div class="success-state" @fadeIn>
+    <div class="success-content">
+      <div class="success-visual">
+        <div class="confetti-container">
+          @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+          <div class="confetti" [style]="getConfettiStyle(i)"></div>
+          }
         </div>
-        <h2>Регистрация завершена!</h2>
-        <p class="success-message">Ваш бизнес-аккаунт успешно создан. Проверка документов займет до 24 часов.</p>
+        <div class="success-icon-animated">
+          <svg class="checkmark" viewBox="0 0 52 52">
+            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+          </svg>
+        </div>
+      </div>
+      <div class="success-details">
+        <h2>Готово! 🎉</h2>
+        <p class="success-message">Ваш бизнес-аккаунт создан и отправлен на проверку</p>
+
+        <div class="success-info-cards">
+          <div class="info-card">
+            <div class="info-icon">⏱️</div>
+            <div class="info-content">
+              <div class="info-title">Время проверки</div>
+              <div class="info-value">до 24 часов</div>
+            </div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">📧</div>
+            <div class="info-content">
+              <div class="info-title">Уведомления</div>
+              <div class="info-value">придут на email</div>
+            </div>
+          </div>
+        </div>
+
         <div class="success-actions">
-          <a routerLink="/dashboard" class="btn-success-primary">
-            Перейти в личный кабинет
-            <svg width="16" height="16" viewBox="0 0 24 24">
-              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor"/>
+          <a routerLink="/dashboard" class="btn-gradient">
+            <span>Перейти в кабинет</span>
+            <svg viewBox="0 0 24 24">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
             </svg>
           </a>
-          <!-- <button class="btn-success-secondary" (click)="resetAllForms()">Создать еще один аккаунт</button> -->
+          <button class="btn-outline" (click)="createAnother()">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Создать еще аккаунт
+          </button>
         </div>
       </div>
     </div>
   </div>
+  }
 
-  <!-- Main Container -->
-  <div class="business-account-container" *ngIf="!success">
-    <!-- Header -->
-    <div class="account-header">
-      <div class="header-content">
-        <h1 class="header-title">Регистрация бизнес-аккаунта</h1>
-        <p class="header-subtitle">Создайте профессиональный аккаунт для управления вашим бизнесом</p>
-      </div>
-      <div class="header-decoration">
-        <div class="decoration-circle"></div>
-        <div class="decoration-wave"></div>
-      </div>
-    </div>
+  <!-- Main Registration Flow -->
+  @if (!success) {
+  <div class="registration-container">
+    <!-- Header with Progress -->
+    <header class="registration-header">
+      <div class="header-top">
+        <a href="/" class="logo">
+          <svg viewBox="0 0 40 40">
+            <path
+              d="M20 0C9 0 0 9 0 20s9 20 20 20 20-9 20-20S31 0 20 0zm0 36c-8.8 0-16-7.2-16-16S11.2 4 20 4s16 7.2 16 16-7.2 16-16 16z" />
+            <path
+              d="M20 10c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" />
+          </svg>
+          <span>BusinessPro</span>
+        </a>
 
-    <!-- Progress Steps -->
-    <div class="progress-steps-modern">
-      <div class="steps-track">
-        <div class="steps-indicator" [style.width]="((currentStep - 1) / (totalSteps - 1)) * 100 + '%'"></div>
-      </div>
-      <div class="steps-container">
-        <div class="step-item" 
-             *ngFor="let step of [1, 2, 3]; let i = index"
-             [class.active]="currentStep === i + 1"
-             [class.completed]="getStepStatus(i + 1) === 'completed'"
-             (click)="goToStep(i + 1)">
-          <div class="step-marker">
-            <span class="step-number">{{ i + 1 }}</span>
-            <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" *ngIf="getStepStatus(i + 1) === 'completed'">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/>
-            </svg>
+        <div class="user-progress">
+          <div class="progress-info">
+            <div class="progress-label">Прогресс регистрации</div>
+            <div class="progress-percent">{{ getProgressPercentage() }}%</div>
           </div>
-          <div class="step-label">{{ getStepTitle(i + 1) }}</div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-main">
+        <div class="header-content">
+          <div class="step-indicator">
+            <div class="step-badge">Шаг {{ currentStep }} из {{ totalSteps }}</div>
+            <h1>{{ getCurrentStepTitle() }}</h1>
+          </div>
+
+          <div class="step-nav-tabs">
+            @for (step of [1,2,3]; track step) {
+            <button class="step-tab" [class.active]="currentStep === step"
+              [class.completed]="getStepStatus(step) === 'completed'" (click)="goToStep(step)">
+              <div class="tab-icon">
+                @if (getStepStatus(step) === 'completed') {
+                <svg viewBox="0 0 20 20">
+                  <path
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                </svg>
+                } @else {
+                {{ step }}
+                }
+              </div>
+              <div class="tab-label">
+                <div class="tab-title">{{ getStepTitle(step) }}</div>
+                <div class="tab-subtitle">{{ getStepSubtitle(step) }}</div>
+              </div>
+              <div class="tab-line"></div>
+            </button>
+            }
+          </div>
+        </div>
+
+        <div class="header-help">
+          <button class="help-btn" (click)="toggleHelp()">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+            </svg>
+            Помощь
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Help Panel -->
+    @if (showHelp) {
+    <div class="help-panel" @slideDown>
+      <div class="help-header">
+        <h3>Помощь по текущему шагу</h3>
+        <button class="close-help" (click)="toggleHelp()">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+      </div>
+      <div class="help-content">
+        <div class="help-tip">
+          <div class="tip-icon">💡</div>
+          <p>{{ getCurrentStepHelp() }}</p>
         </div>
       </div>
     </div>
+    }
 
-    <!-- Error Notification -->
-    <div class="error-alert" *ngIf="error" @fadeIn>
-      <div class="alert-content">
-        <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="currentColor"/>
-        </svg>
-        <div class="alert-message">{{ error }}</div>
-        <button class="alert-close" (click)="error = null">
-          <svg width="16" height="16" viewBox="0 0 24 24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+    <!-- Error Toast -->
+    @if (error) {
+    <div class="error-toast" @slideDown>
+      <div class="toast-content">
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+        </div>
+        <div class="toast-message">{{ error }}</div>
+        <button class="toast-close" (click)="error = null">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
           </svg>
         </button>
       </div>
     </div>
+    }
 
-    <!-- Step Content -->
-    <div class="step-wrapper" @slideIn>
-      <!-- Step 1: User Registration -->
-      <div class="step-content" *ngIf="currentStep === 1">
-        <div class="step-card">
-          <div class="card-header">
-            <div class="header-icon">👤</div>
-            <div class="header-text">
-              <h2>Создание пользователя</h2>
-              <p>Основная информация для доступа к аккаунту</p>
+    <!-- Main Content -->
+    <main class="registration-main">
+      <div class="step-container" @fadeSlide>
+        <!-- Step 1: User Info -->
+        @if (currentStep === 1) {
+        <div class="step-user-info">
+          <div class="step-intro">
+            <div class="intro-icon">👤</div>
+            <div class="intro-content">
+              <h2>Создание учетной записи</h2>
+              <p>Заполните основную информацию для доступа к системе</p>
             </div>
           </div>
-          
-          <form [formGroup]="userForm" class="user-form">
-            <div class="form-grid">
-              <!-- Email -->
-              <div class="form-group" [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-                <label class="form-label">
-                  <span>Email адрес</span>
-                  <span class="required">*</span>
-                </label>
-                <div class="input-with-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#327120"/>
-                  </svg>
-                  <input type="email" 
-                         formControlName="email"
-                         placeholder="your@email.com"
-                         class="form-input">
-                </div>
-                <div class="error-message" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
-                  {{ userForm.get('email')?.errors?.['required'] ? 'Введите email' : 'Неверный формат email' }}
-                </div>
-              </div>
 
-              <!-- Password -->
-              <div class="form-group" [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
-                <label class="form-label">
-                  <span>Пароль</span>
-                  <span class="required">*</span>
-                </label>
-                <div class="input-with-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" fill="#327120"/>
-                  </svg>
-                  <input type="password" 
-                         formControlName="password"
-                         placeholder="Минимум 8 символов"
-                         class="form-input">
-                </div>
-                
-                <!-- Password Strength -->
-                <div class="password-strength" *ngIf="userForm.get('password')?.value">
-                  <div class="strength-indicator">
-                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 1"></div>
-                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 2"></div>
-                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 3"></div>
-                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 4"></div>
-                    <div class="strength-segment" [class.active]="checkPasswordStrength(userForm.get('password')?.value).strength >= 5"></div>
+          <form [formGroup]="userForm" class="modern-form">
+            <div class="form-section">
+              <div class="section-header">
+                <h3>Контактная информация</h3>
+                <div class="section-tooltip">
+                  <div class="tooltip-trigger">
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                    </svg>
                   </div>
-                  <div class="strength-label">
-                    Надежность: <strong>{{ checkPasswordStrength(userForm.get('password')?.value).message }}</strong>
-                  </div>
-                </div>
-                
-                <div class="error-message" *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched">
-                  <div *ngIf="userForm.get('password')?.errors?.['required']">Введите пароль</div>
-                  <div *ngIf="userForm.get('password')?.errors?.['minlength']">Минимум 8 символов</div>
-                  <div *ngIf="userForm.get('password')?.errors?.['pattern']">Буквы и цифры</div>
-                </div>
-              </div>
-
-              <!-- Confirm Password -->
-              <div class="form-group" [class.error]="(userForm.get('confirmPassword')?.invalid || userForm.errors?.['mismatch']) && userForm.get('confirmPassword')?.touched">
-                <label class="form-label">
-                  <span>Подтверждение пароля</span>
-                  <span class="required">*</span>
-                </label>
-                <div class="input-with-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
-                  </svg>
-                  <input type="password" 
-                         formControlName="confirmPassword"
-                         placeholder="Повторите пароль"
-                         class="form-input">
-                </div>
-                <div class="error-message" *ngIf="userForm.get('confirmPassword')?.invalid && userForm.get('confirmPassword')?.touched">
-                  {{ userForm.errors?.['mismatch'] ? 'Пароли не совпадают' : 'Подтвердите пароль' }}
-                </div>
-              </div>
-
-              <!-- Name Fields -->
-              <div class="form-group double">
-                <label class="form-label">
-                  <span>Фамилия и имя</span>
-                  <span class="required">*</span>
-                </label>
-                <div class="double-inputs">
-                  <div class="input-wrapper" [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
-                    <input type="text" 
-                           formControlName="lastName"
-                           placeholder="Иванов"
-                           class="form-input">
-                  </div>
-                  <div class="input-wrapper" [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
-                    <input type="text" 
-                           formControlName="firstName"
-                           placeholder="Иван"
-                           class="form-input">
+                  <div class="tooltip-content">
+                    Эта информация будет использоваться для входа в систему и восстановления доступа
                   </div>
                 </div>
               </div>
 
-              <!-- Phone -->
-              <div class="form-group" [class.error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
-                <label class="form-label">
-                  <span>Телефон</span>
-                  <span class="required">*</span>
-                </label>
-                <div class="phone-input">
-                  <span class="country-code">+7</span>
-                  <input type="tel" 
-                         formControlName="phoneNumber"
-                         placeholder="(999) 999-99-99"
-                         class="form-input">
+              <div class="form-grid">
+                <div class="form-group"
+                  [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                  <label class="form-label">
+                    <span>Email адрес</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-with-validation">
+                    <input type="email" formControlName="email" placeholder="your.email@company.com"
+                      class="modern-input"
+                      [class.invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+                    @if (userForm.get('email')?.valid && userForm.get('email')?.touched) {
+                    <div class="validation-success">
+                      <svg viewBox="0 0 20 20">
+                        <path
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                      </svg>
+                    </div>
+                    }
+                  </div>
+                  @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+                  <div class="error-message">
+                    {{ getEmailErrorMessage() }}
+                  </div>
+                  }
                 </div>
-                <div class="error-message" *ngIf="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
-                  Введите корректный номер телефона
+
+                <div class="form-group"
+                  [class.error]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                  <label class="form-label">
+                    <span>Телефон</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="phone-input-group">
+                    <div class="country-selector">
+                      <span>+7</span>
+                      <svg viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                      </svg>
+                    </div>
+                    <input type="tel" formControlName="phoneNumber" placeholder="(999) 999-99-99"
+                      class="modern-input phone"
+                      [class.invalid]="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Terms -->
-              <div class="form-group terms-group" [class.error]="userForm.get('agreeToTerms')?.invalid && userForm.get('agreeToTerms')?.touched">
-                <label class="checkbox-container">
-                  <input type="checkbox" 
-                         formControlName="agreeToTerms"
-                         class="checkbox-input">
-                  <span class="checkbox-custom"></span>
+            <div class="form-section">
+              <div class="section-header">
+                <h3>Персональные данные</h3>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group"
+                  [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched">
+                  <label class="form-label">
+                    <span>Фамилия</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" formControlName="lastName" placeholder="Иванов" class="modern-input">
+                </div>
+
+                <div class="form-group"
+                  [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched">
+                  <label class="form-label">
+                    <span>Имя</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input type="text" formControlName="firstName" placeholder="Иван" class="modern-input">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-header">
+                <h3>Защита аккаунта</h3>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group"
+                  [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched">
+                  <label class="form-label">
+                    <span>Пароль</span>
+                    <span class="required">*</span>
+                    <div class="password-strength-indicator" [class]="'strength-' + getPasswordStrengthLevel()">
+                      <div class="strength-bar"></div>
+                      <div class="strength-bar"></div>
+                      <div class="strength-bar"></div>
+                      <div class="strength-bar"></div>
+                    </div>
+                  </label>
+                  <div class="password-input-wrapper">
+                    <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                      placeholder="Создайте надежный пароль" class="modern-input" (input)="onPasswordChange()">
+                    <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
+                      @if (showPassword) {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                      </svg>
+                      } @else {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                      </svg>
+                      }
+                    </button>
+                  </div>
+                  <div class="password-hints">
+                    @if (passwordStrength.hints.length > 0) {
+                    <div class="hints-list">
+                      @for (hint of passwordStrength.hints; track hint) {
+                      <div class="hint-item" [class.valid]="hint.valid">
+                        <span class="hint-icon">
+                          @if (hint.valid) {
+                          ✓
+                          } @else {
+                          •
+                          }
+                        </span>
+                        {{ hint.message }}
+                      </div>
+                      }
+                    </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="form-group"
+                  [class.error]="(userForm.get('confirmPassword')?.invalid || userForm.errors?.['mismatch']) && userForm.get('confirmPassword')?.touched">
+                  <label class="form-label">
+                    <span>Подтверждение пароля</span>
+                    <span class="required">*</span>
+                  </label>
+                  <input [type]="showConfirmPassword ? 'text' : 'password'" formControlName="confirmPassword"
+                    placeholder="Повторите пароль" class="modern-input">
+                  <div class="password-match" [class.match]="passwordsMatch()"
+                    [class.mismatch]="!passwordsMatch() && userForm.get('confirmPassword')?.touched">
+                    {{ getPasswordMatchMessage() }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section terms">
+              <div class="modern-checkbox">
+                <input type="checkbox" id="agreeToTerms" formControlName="agreeToTerms" class="checkbox-input">
+                <label for="agreeToTerms" class="checkbox-label">
+                  <div class="checkbox-box">
+                    <svg viewBox="0 0 20 20">
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                    </svg>
+                  </div>
                   <span class="checkbox-text">
-                    Я соглашаюсь с 
-                    <a href="#" class="text-link">условиями использования</a> 
-                    и 
-                    <a href="#" class="text-link">политикой конфиденциальности</a>
+                    Я соглашаюсь с
+                    <a href="#" class="link">Условиями использования</a>
+                    и
+                    <a href="#" class="link">Политикой конфиденциальности</a>
                   </span>
                 </label>
-                <div class="error-message" *ngIf="userForm.get('agreeToTerms')?.invalid && userForm.get('agreeToTerms')?.touched">
-                  Необходимо согласие с условиями
-                </div>
               </div>
+              @if (userForm.get('agreeToTerms')?.invalid && userForm.get('agreeToTerms')?.touched) {
+              <div class="error-message">
+                Необходимо согласие с условиями
+              </div>
+              }
             </div>
           </form>
         </div>
-      </div>
+        }
 
-      <!-- Step 2: Company Information -->
-      <div class="step-content" *ngIf="currentStep === 2">
-        <div class="step-card">
-          <div class="card-header">
-            <div class="header-icon">🏢</div>
-            <div class="header-text">
+        <!-- Step 2: Company Info -->
+        @if (currentStep === 2) {
+        <div class="step-company-info">
+          <div class="step-intro">
+            <div class="intro-icon">🏢</div>
+            <div class="intro-content">
               <h2>Информация о компании</h2>
-              <p>Основные данные вашего бизнеса</p>
+              <p>Укажите данные вашей организации для верификации</p>
             </div>
           </div>
-          
-          <form [formGroup]="companyForm" class="company-form">
-            <!-- Partner Type -->
+
+          <form [formGroup]="companyForm" class="modern-form">
+            <!-- Organization Type Selection -->
             <div class="form-section">
-              <h3 class="section-title">Тип организации</h3>
-              <div class="type-selector">
-                <div class="loading-overlay" *ngIf="isLoading">
-                  <div class="spinner"></div>
-                  <span>Загрузка...</span>
-                </div>
-                
-                <div class="type-cards">
-                  <div class="type-card" 
-                       *ngFor="let type of partnerTypes"
-                       [class.active]="companyForm.get('partnerTypeId')?.value === type.id"
-                       (click)="selectPartnerType(type)">
-                    <div class="type-icon">{{ type.code === 1 ? '🏢' : '👤' }}</div>
-                    <div class="type-content">
-                      <div class="type-title">{{ type.fullName }}</div>
-                      <div class="type-subtitle">{{ type.shortName }}</div>
-                    </div>
-                    <div class="type-check" *ngIf="companyForm.get('partnerTypeId')?.value === type.id">
-                      <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
-                      </svg>
-                    </div>
+              <div class="section-header">
+                <h3>Тип организации</h3>
+                <div class="section-tooltip">
+                  <div class="tooltip-trigger">
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                    </svg>
+                  </div>
+                  <div class="tooltip-content">
+                    Выберите правовую форму вашего бизнеса. От этого зависит набор необходимых документов
                   </div>
                 </div>
               </div>
-              
-              <div class="error-message" *ngIf="companyForm.get('partnerTypeId')?.invalid && companyForm.get('partnerTypeId')?.touched">
-                Выберите тип организации
+
+              <div class="org-type-cards">
+                @for (type of partnerTypes; track type.id) {
+                <div class="org-type-card" [class.active]="companyForm.get('partnerTypeId')?.value === type.id"
+                  (click)="selectPartnerType(type)">
+                  <div class="type-visual">
+                    <div class="type-icon-bg">
+                      @if (type.code === 1) {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M14 6V4h-4v2h4zM4 8v11h16V8H4zm16-2c1.11 0 2 .89 2 2v11c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2l.01-11c0-1.11.88-2 1.99-2h4V4c0-1.11.89-2 2-2h4c1.11 0 2 .89 2 2v2h4z" />
+                      </svg>
+                      } @else {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                      }
+                    </div>
+                  </div>
+                  <div class="type-content">
+                    <div class="type-name">{{ type.shortName }}</div>
+                    <div class="type-description">{{ type.fullName }}</div>
+                  </div>
+                  <div class="type-selected">
+                    <div class="selected-indicator"></div>
+                  </div>
+                </div>
+                }
               </div>
             </div>
 
             <!-- Company Details -->
             <div class="form-section">
-              <h3 class="section-title">Основные данные</h3>
+              <div class="section-header">
+                <h3>Основная информация</h3>
+              </div>
+
               <div class="form-grid">
-                <div class="form-group" [class.error]="companyForm.get('fullName')?.invalid && companyForm.get('fullName')?.touched">
+                <div class="form-group"
+                  [class.error]="companyForm.get('fullName')?.invalid && companyForm.get('fullName')?.touched">
                   <label class="form-label">
-                    <span>Полное название</span>
+                    <span>Полное наименование</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="fullName"
-                         [placeholder]="getFullNamePlaceholder()"
-                         class="form-input">
+                  <input type="text" formControlName="fullName" [placeholder]="getFullNamePlaceholder()"
+                    class="modern-input">
                 </div>
 
-                <div class="form-group" [class.error]="companyForm.get('shortName')?.invalid && companyForm.get('shortName')?.touched">
+                <div class="form-group"
+                  [class.error]="companyForm.get('shortName')?.invalid && companyForm.get('shortName')?.touched">
                   <label class="form-label">
-                    <span>Краткое название</span>
+                    <span>Краткое наименование</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="shortName"
-                         [placeholder]="getShortNamePlaceholder()"
-                         class="form-input">
+                  <input type="text" formControlName="shortName" [placeholder]="getShortNamePlaceholder()"
+                    class="modern-input">
                 </div>
 
-                <div class="form-group" [class.error]="companyForm.get('workDirection')?.invalid && companyForm.get('workDirection')?.touched">
+                <div class="form-group"
+                  [class.error]="companyForm.get('workDirection')?.invalid && companyForm.get('workDirection')?.touched">
                   <label class="form-label">
                     <span>Сфера деятельности</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="workDirection"
-                         placeholder="Например: IT-услуги"
-                         class="form-input">
+                  <input type="text" formControlName="workDirection"
+                    placeholder="Например: IT-услуги, розничная торговля" class="modern-input">
                 </div>
               </div>
             </div>
 
             <!-- Legal Details -->
             <div class="form-section">
-              <h3 class="section-title">Юридические реквизиты</h3>
+              <div class="section-header">
+                <h3>Юридические реквизиты</h3>
+                <div class="section-tooltip">
+                  <div class="tooltip-trigger">
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                    </svg>
+                  </div>
+                  <div class="tooltip-content">
+                    Эти данные необходимы для юридической проверки компании. Убедитесь в их корректности
+                  </div>
+                </div>
+              </div>
+
               <div class="form-grid">
-                <div class="form-group" [class.error]="companyForm.get('inn')?.invalid && companyForm.get('inn')?.touched">
+                <div class="form-group"
+                  [class.error]="companyForm.get('inn')?.invalid && companyForm.get('inn')?.touched">
                   <label class="form-label">
                     <span>ИНН</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="inn"
-                         placeholder="10 или 12 цифр"
-                         class="form-input">
+                  <input type="text" formControlName="inn"
+                    [placeholder]="selectedPartnerType?.code === 1 ? '10 цифр' : '12 цифр'" class="modern-input">
                 </div>
 
-                <div class="form-group" [class.error]="companyForm.get('ogrn')?.invalid && companyForm.get('ogrn')?.touched">
+                <div class="form-group"
+                  [class.error]="companyForm.get('ogrn')?.invalid && companyForm.get('ogrn')?.touched">
                   <label class="form-label">
                     <span>{{ selectedPartnerType?.code === 1 ? 'ОГРН' : 'ОГРНИП' }}</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="ogrn"
-                         [placeholder]="getOgrnPlaceholder()"
-                         class="form-input">
+                  <input type="text" formControlName="ogrn" [placeholder]="getOgrnPlaceholder()" class="modern-input">
                 </div>
 
-                <div class="form-group" [class.error]="companyForm.get('kpp')?.invalid && companyForm.get('kpp')?.touched" 
-                     *ngIf="selectedPartnerType?.code === 1">
+                @if (selectedPartnerType?.code === 1) {
+                <div class="form-group"
+                  [class.error]="companyForm.get('kpp')?.invalid && companyForm.get('kpp')?.touched">
                   <label class="form-label">
                     <span>КПП</span>
                     <span class="required">*</span>
                   </label>
-                  <input type="text" 
-                         formControlName="kpp"
-                         placeholder="9 цифр"
-                         class="form-input">
+                  <input type="text" formControlName="kpp" placeholder="9 цифр" class="modern-input">
                 </div>
+                }
               </div>
             </div>
 
             <!-- Address -->
             <div class="form-section">
-              <h3 class="section-title">Юридический адрес</h3>
-              <div formGroupName="address">
+              <div class="section-header">
+                <h3>Юридический адрес</h3>
+              </div>
+
+              <div class="address-form" formGroupName="address">
                 <div class="form-grid">
-                  <div class="form-group" [class.error]="companyForm.get('address.country')?.invalid && companyForm.get('address.country')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.country')?.invalid && companyForm.get('address.country')?.touched">
                     <label class="form-label">
                       <span>Страна</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="country"
-                           placeholder="Россия"
-                           class="form-input">
+                    <input type="text" formControlName="country" placeholder="Россия" class="modern-input">
                   </div>
 
-                  <div class="form-group" [class.error]="companyForm.get('address.region')?.invalid && companyForm.get('address.region')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.region')?.invalid && companyForm.get('address.region')?.touched">
                     <label class="form-label">
-                      <span>Регион</span>
+                      <span>Регион/Область</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="region"
-                           placeholder="Московская область"
-                           class="form-input">
+                    <input type="text" formControlName="region" placeholder="Московская область" class="modern-input">
                   </div>
 
-                  <div class="form-group" [class.error]="companyForm.get('address.city')?.invalid && companyForm.get('address.city')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.city')?.invalid && companyForm.get('address.city')?.touched">
                     <label class="form-label">
                       <span>Город</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="city"
-                           placeholder="Москва"
-                           class="form-input">
+                    <input type="text" formControlName="city" placeholder="Москва" class="modern-input">
                   </div>
 
-                  <div class="form-group" [class.error]="companyForm.get('address.street')?.invalid && companyForm.get('address.street')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.street')?.invalid && companyForm.get('address.street')?.touched">
                     <label class="form-label">
                       <span>Улица</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="street"
-                           placeholder="Ленина"
-                           class="form-input">
+                    <input type="text" formControlName="street" placeholder="ул. Ленина" class="modern-input">
                   </div>
 
-                  <div class="form-group" [class.error]="companyForm.get('address.house')?.invalid && companyForm.get('address.house')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.house')?.invalid && companyForm.get('address.house')?.touched">
                     <label class="form-label">
                       <span>Дом</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="house"
-                           placeholder="10"
-                           class="form-input">
+                    <input type="text" formControlName="house" placeholder="10" class="modern-input">
                   </div>
 
-                  <div class="form-group" [class.error]="companyForm.get('address.postIndex')?.invalid && companyForm.get('address.postIndex')?.touched">
+                  <div class="form-group"
+                    [class.error]="companyForm.get('address.postIndex')?.invalid && companyForm.get('address.postIndex')?.touched">
                     <label class="form-label">
-                      <span>Индекс</span>
+                      <span>Почтовый индекс</span>
                       <span class="required">*</span>
                     </label>
-                    <input type="text" 
-                           formControlName="postIndex"
-                           placeholder="101000"
-                           class="form-input">
+                    <input type="text" formControlName="postIndex" placeholder="101000" class="modern-input">
                   </div>
                 </div>
               </div>
             </div>
           </form>
         </div>
-      </div>
+        }
 
-      <!-- Step 3: Documents Upload -->
-      <div class="step-content" *ngIf="currentStep === 3">
-        <div class="step-card">
-          <div class="card-header">
-            <div class="header-icon">📄</div>
-            <div class="header-text">
+        <!-- Step 3: Documents -->
+        @if (currentStep === 3) {
+        <div class="step-documents">
+          <div class="step-intro">
+            <div class="intro-icon">📁</div>
+            <div class="intro-content">
               <h2>Загрузка документов</h2>
               <p>{{ selectedPartnerType?.code === 1 ? 'Пакет документов для ООО' : 'Пакет документов для ИП' }}</p>
             </div>
           </div>
 
-          <!-- Required Documents -->
-          <div class="documents-section">
-            <div class="section-header">
-              <h3 class="section-title">Обязательные документы</h3>
-              <div class="section-badge">{{ getUploadedRequiredDocumentsCount() }}/{{ getRequiredDocuments().length }}</div>
+          <!-- Upload Methods -->
+          <div class="upload-methods">
+            <div class="method-tabs">
+              <button class="method-tab" [class.active]="uploadMethod === 'single'" (click)="uploadMethod = 'single'">
+                <div class="tab-icon">📄</div>
+                <div class="tab-content">
+                  <div class="tab-title">Поштучная загрузка</div>
+                  <div class="tab-description">Загрузите каждый документ отдельно</div>
+                </div>
+              </button>
+
+              <button class="method-tab" [class.active]="uploadMethod === 'cloud'" (click)="uploadMethod = 'cloud'">
+                <div class="tab-icon">☁️</div>
+                <div class="tab-content">
+                  <div class="tab-title">Ссылка на облако</div>
+                  <div class="tab-description">Предоставьте доступ к папке</div>
+                </div>
+              </button>
+
+              <button class="method-tab" [class.active]="uploadMethod === 'archive'" (click)="uploadMethod = 'archive'">
+                <div class="tab-icon">🗜️</div>
+                <div class="tab-content">
+                  <div class="tab-title">Архив документов</div>
+                  <div class="tab-description">Загрузите все документы одним архивом</div>
+                </div>
+              </button>
             </div>
-            
-            <div class="documents-list">
-              <div class="document-item" 
-                   *ngFor="let doc of getRequiredDocuments()"
-                   [class.uploaded]="isDocumentUploaded(doc.id)">
-                <div class="document-info">
-                  <div class="document-icon">
-                    {{ getFileIcon(getUploadedDocument(doc.id)?.fileType || '') || '📎' }}
-                  </div>
-                  <div class="document-details">
-                    <div class="document-title">{{ doc.name }}</div>
-                    <div class="document-status">
-                      <span class="status-dot" [class.uploaded]="isDocumentUploaded(doc.id)"></span>
-                      {{ isDocumentUploaded(doc.id) ? 'Загружено' : 'Не загружено' }}
+
+            <!-- Single Upload Method -->
+            @if (uploadMethod === 'single') {
+            <div class="single-upload-section">
+              <div class="documents-checklist">
+                <div class="checklist-header">
+                  <h3>Необходимые документы</h3>
+                  <div class="checklist-progress">
+                    <span class="progress-text">
+                      {{ getUploadedRequiredDocumentsCount() }} из {{ getRequiredDocuments().length }}
+                    </span>
+                    <div class="progress-circle">
+                      <svg width="40" height="40">
+                        <circle cx="20" cy="20" r="18" stroke-width="3" fill="transparent" class="progress-bg" />
+                        <circle cx="20" cy="20" r="18" stroke-width="3" fill="transparent"
+                          [style.stroke-dasharray]="2 * 3.14 * 18"
+                          [style.stroke-dashoffset]="2 * 3.14 * 18 * (1 - getUploadedRequiredDocumentsCount() / getRequiredDocuments().length)"
+                          class="progress-fill" />
+                      </svg>
+                      <span class="progress-percent">
+                        {{ getUploadedRequiredPercentage() }}%
+                      </span>
                     </div>
                   </div>
                 </div>
-                
-                <div class="document-actions">
-                  <div class="file-preview" *ngIf="getUploadedDocument(doc.id) as uploadedDoc">
-                    <span class="file-name">{{ uploadedDoc.fileName }}</span>
-                    <span class="file-size">{{ formatFileSize(uploadedDoc.fileSize) }}</span>
+
+                <div class="checklist-items">
+                  @for (doc of getRequiredDocuments(); track doc.id) {
+                  <div class="checklist-item" [class.uploaded]="isDocumentUploaded(doc.id)">
+                    <div class="item-checkbox">
+                      <input type="checkbox" [id]="'doc-' + doc.id" [checked]="isDocumentUploaded(doc.id)"
+                        (change)="toggleDocumentUpload(doc.id, $event)">
+                      <label [for]="'doc-' + doc.id" class="checkbox-visual">
+                        <svg viewBox="0 0 20 20">
+                          <path
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                        </svg>
+                      </label>
+                    </div>
+
+                    <div class="item-content">
+                      <div class="item-header">
+                        <div class="item-title">
+                          {{ doc.name }}
+                          @if (isDocumentUploaded(doc.id)) {
+                          <span class="uploaded-badge">Загружено</span>
+                          }
+                        </div>
+                        <div class="item-actions">
+                          @if (isDocumentUploaded(doc.id)) {
+                          <button class="action-btn view" (click)="viewDocument(doc.id)">
+                            <svg viewBox="0 0 24 24">
+                              <path
+                                d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                            </svg>
+                          </button>
+                          <button class="action-btn replace" (click)="replaceDocument(doc.id)">
+                            <svg viewBox="0 0 24 24">
+                              <path
+                                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                            </svg>
+                          </button>
+                          <button class="action-btn delete" (click)="removeDocument(doc.id)">
+                            <svg viewBox="0 0 24 24">
+                              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                            </svg>
+                          </button>
+                          } @else {
+                          <label class="upload-file-btn">
+                            <input type="file" (change)="onFileSelected($event, doc.id)"
+                              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" hidden>
+                            <svg viewBox="0 0 24 24">
+                              <path
+                                d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                            </svg>
+                            Загрузить
+                          </label>
+                          }
+                        </div>
+                      </div>
+
+                      @if (isDocumentUploaded(doc.id) && getUploadedDocument(doc.id)) {
+                      <div class="item-preview">
+                        <div class="preview-info">
+                          <div class="file-name">{{ getUploadedDocument(doc.id)?.fileName }}</div>
+                          <div class="file-meta">
+                            <span class="file-size">{{ formatFileSize(getUploadedDocument(doc.id)!.fileSize) }}</span>
+                            <span class="file-type">{{ getFileType(getUploadedDocument(doc.id)!.fileType) }}</span>
+                          </div>
+                        </div>
+                      </div>
+                      }
+                    </div>
                   </div>
-                  
-                  <div class="action-buttons">
-                    <label class="btn-upload" [class.reupload]="isDocumentUploaded(doc.id)">
-                      <input type="file" 
-                             (change)="onFileSelected($event, doc.id)"
-                             accept=".pdf,.jpg,.jpeg,.png"
-                             hidden>
-                      <span>{{ isDocumentUploaded(doc.id) ? 'Заменить' : 'Загрузить' }}</span>
-                    </label>
-                    
-                    <button class="btn-remove" 
-                            *ngIf="isDocumentUploaded(doc.id)"
-                            (click)="removeDocument(doc.id)">
-                      <svg width="16" height="16" viewBox="0 0 24 24">
-                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+                  }
+                </div>
+              </div>
+
+              <!-- Optional Documents -->
+              @if (getOptionalDocuments().length > 0) {
+              <div class="optional-documents">
+                <div class="optional-header">
+                  <h4>Дополнительные документы (необязательно)</h4>
+                  <div class="optional-count">
+                    {{ getUploadedOptionalDocumentsCount() }} / {{ getOptionalDocuments().length }}
+                  </div>
+                </div>
+
+                <div class="optional-grid">
+                  @for (doc of getOptionalDocuments(); track doc.id) {
+                  <div class="optional-card" [class.uploaded]="isDocumentUploaded(doc.id)">
+                    <div class="optional-content">
+                      <div class="optional-icon">📎</div>
+                      <div class="optional-info">
+                        <div class="optional-name">{{ doc.name }}</div>
+                        <div class="optional-status">
+                          @if (isDocumentUploaded(doc.id)) {
+                          <span class="status-uploaded">Загружено</span>
+                          } @else {
+                          <span class="status-optional">Опционально</span>
+                          }
+                        </div>
+                      </div>
+                    </div>
+
+                    <label class="optional-upload-btn">
+                      <input type="file" (change)="onFileSelected($event, doc.id)"
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" hidden>
+                      @if (isDocumentUploaded(doc.id)) {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
                       </svg>
+                      Заменить
+                      } @else {
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                      </svg>
+                      Загрузить
+                      }
+                    </label>
+                  </div>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+            }
+
+            <!-- Cloud Link Method -->
+            @if (uploadMethod === 'cloud') {
+            <div class="cloud-upload-section">
+              <div class="cloud-upload-card">
+                <div class="cloud-icon">☁️</div>
+                <div class="cloud-content">
+                  <h3>Предоставьте доступ к облачному хранилищу</h3>
+                  <p class="cloud-description">
+                    Создайте папку с документами в вашем облачном хранилище и предоставьте доступ по ссылке
+                  </p>
+
+                  <div class="cloud-providers">
+                    <div class="providers-list">
+                      <button class="provider-btn" [class.active]="selectedProvider === 'yandex'"
+                        (click)="selectedProvider = 'yandex'">
+                        <div class="provider-icon">Я</div>
+                        <span>Яндекс.Диск</span>
+                      </button>
+                      <button class="provider-btn" [class.active]="selectedProvider === 'google'"
+                        (click)="selectedProvider = 'google'">
+                        <div class="provider-icon">G</div>
+                        <span>Google Drive</span>
+                      </button>
+                      <button class="provider-btn" [class.active]="selectedProvider === 'dropbox'"
+                        (click)="selectedProvider = 'dropbox'">
+                        <div class="provider-icon">D</div>
+                        <span>Dropbox</span>
+                      </button>
+                      <button class="provider-btn" [class.active]="selectedProvider === 'other'"
+                        (click)="selectedProvider = 'other'">
+                        <div class="provider-icon">+</div>
+                        <span>Другое</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="cloud-link-input">
+                    <input type="url" [(ngModel)]="cloudLink" placeholder="https://disk.yandex.ru/d/..."
+                      class="modern-input">
+                    <button class="btn-gradient" (click)="validateCloudLink()">
+                      Проверить доступ
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Optional Documents -->
-          <div class="documents-section optional" *ngIf="getOptionalDocuments().length > 0">
-            <div class="section-header">
-              <h3 class="section-title">Дополнительные документы</h3>
-              <div class="section-badge optional">{{ getUploadedOptionalDocumentsCount() }}/{{ getOptionalDocuments().length }}</div>
-            </div>
-            
-            <div class="documents-list">
-              <div class="document-item optional" 
-                   *ngFor="let doc of getOptionalDocuments()"
-                   [class.uploaded]="isDocumentUploaded(doc.id)">
-                <div class="document-info">
-                  <div class="document-icon">📎</div>
-                  <div class="document-details">
-                    <div class="document-title">{{ doc.name }}</div>
-                    <div class="document-status optional">
-                      {{ isDocumentUploaded(doc.id) ? 'Загружено' : 'По желанию' }}
+                  <div class="cloud-tips">
+                    <div class="tip">
+                      <div class="tip-icon">🔗</div>
+                      <div class="tip-text">Создайте ссылку с доступом на просмотр</div>
+                    </div>
+                    <div class="tip">
+                      <div class="tip-icon">📁</div>
+                      <div class="tip-text">Поместите все документы в одну папку</div>
+                    </div>
+                    <div class="tip">
+                      <div class="tip-icon">🔒</div>
+                      <div class="tip-text">Убедитесь, что доступ открыт для просмотра</div>
                     </div>
                   </div>
                 </div>
-                
-                <div class="document-actions">
-                  <label class="btn-upload optional">
-                    <input type="file" 
-                           (change)="onFileSelected($event, doc.id)"
-                           accept=".pdf,.jpg,.jpeg,.png"
-                           hidden>
-                    <span>Загрузить</span>
-                  </label>
+              </div>
+            </div>
+            }
+
+            <!-- Archive Method -->
+            @if (uploadMethod === 'archive') {
+            <div class="archive-upload-section">
+              <div class="archive-upload-card">
+                <div class="archive-icon">🗜️</div>
+                <div class="archive-content">
+                  <h3>Загрузите архив с документами</h3>
+                  <p class="archive-description">
+                    Создайте ZIP-архив со всеми необходимыми документами и загрузите его одним файлом
+                  </p>
+
+                  <div class="archive-dropzone" [class.active]="isDragOver" (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)" (drop)="onArchiveDrop($event)">
+                    <div class="dropzone-content">
+                      <svg viewBox="0 0 24 24" class="dropzone-icon">
+                        <path
+                          d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                      </svg>
+                      <p class="dropzone-text">
+                        Перетащите архив сюда или <span class="browse-link">выберите файл</span>
+                      </p>
+                      <p class="dropzone-hint">Поддерживаются: ZIP, RAR (макс. 50 МБ)</p>
+                    </div>
+                    <input type="file" #archiveInput (change)="onArchiveSelected($event)" accept=".zip,.rar" hidden>
+                  </div>
+
+                  @if (archiveFile) {
+                  <div class="archive-preview">
+                    <div class="preview-header">
+                      <div class="preview-info">
+                        <div class="file-name">{{ archiveFile.name }}</div>
+                        <div class="file-meta">
+                          <span class="file-size">{{ formatFileSize(archiveFile.size) }}</span>
+                          <span class="file-type">ZIP архив</span>
+                        </div>
+                      </div>
+                      <button class="remove-archive" (click)="removeArchive()">
+                        <svg viewBox="0 0 24 24">
+                          <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div class="archive-contents">
+                      <div class="contents-header">
+                        <h4>Содержимое архива:</h4>
+                        <div class="contents-count">{{ getArchiveFilesCount() }} файлов</div>
+                      </div>
+                      <div class="contents-list">
+                        @for (file of getArchiveFiles(); track file.name) {
+                        <div class="archive-file">
+                          <span class="file-icon">📄</span>
+                          <span class="file-name">{{ file.name }}</span>
+                          <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                        </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  }
                 </div>
               </div>
             </div>
+            }
           </div>
 
-          <!-- Summary -->
+          <!-- Upload Summary -->
           <div class="upload-summary">
             <div class="summary-card">
               <div class="summary-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#327120"/>
-                </svg>
-                <h4>Сводка по документам</h4>
+                <h3>Сводка по документам</h3>
+                <div class="summary-status" [class.complete]="validateDocumentsStep()">
+                  @if (validateDocumentsStep()) {
+                  <span class="status-icon">✓</span>
+                  Готово
+                  } @else {
+                  <span class="status-icon">!</span>
+                  Требуются документы
+                  }
+                </div>
               </div>
+
               <div class="summary-stats">
-                <div class="stat-item">
-                  <span class="stat-label">Обязательные:</span>
-                  <span class="stat-value">{{ getUploadedRequiredDocumentsCount() }}/{{ getRequiredDocuments().length }}</span>
+                <div class="stat">
+                  <div class="stat-value">{{ getUploadedRequiredDocumentsCount() }}</div>
+                  <div class="stat-label">Обязательные</div>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-label">Дополнительные:</span>
-                  <span class="stat-value">{{ getUploadedOptionalDocumentsCount() }}/{{ getOptionalDocuments().length }}</span>
+                <div class="stat">
+                  <div class="stat-value">{{ getUploadedOptionalDocumentsCount() }}</div>
+                  <div class="stat-label">Дополнительные</div>
                 </div>
-                <div class="stat-item total">
-                  <span class="stat-label">Всего файлов:</span>
-                  <span class="stat-value">{{ uploadedDocuments.length }}</span>
+                <div class="stat">
+                  <div class="stat-value">{{ uploadedDocuments.length }}</div>
+                  <div class="stat-label">Всего файлов</div>
                 </div>
+                <div class="stat">
+                  <div class="stat-value">{{ formatFileSize(getTotalUploadSize()) }}</div>
+                  <div class="stat-label">Общий размер</div>
+                </div>
+              </div>
+
+              <div class="summary-actions">
+                <button class="btn-outline" (click)="downloadChecklist()">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                  </svg>
+                  Скачать список документов
+                </button>
               </div>
             </div>
           </div>
         </div>
+        }
       </div>
-    </div>
+    </main>
 
-    <!-- Navigation -->
-    <div class="step-navigation">
-      <button type="button" 
-              class="btn-nav prev"
-              *ngIf="currentStep > 1"
-              (click)="prevStep()">
-        <svg width="16" height="16" viewBox="0 0 24 24">
-          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" fill="currentColor"/>
-        </svg>
-        Назад
-      </button>
-      
-      <div class="step-counter">
-        Шаг {{ currentStep }} из {{ totalSteps }}
+    <!-- Navigation Footer -->
+    <footer class="registration-footer">
+      <div class="footer-left">
+        @if (currentStep > 1) {
+        <button class="btn-outline" (click)="prevStep()">
+          <svg viewBox="0 0 24 24">
+            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+          </svg>
+          Назад
+        </button>
+        }
       </div>
-      
-      <button type="button" 
-              class="btn-nav next"
-              *ngIf="currentStep < totalSteps"
-              (click)="nextStep()"
-              [disabled]="!validateCurrentStep()">
-        Далее
-        <svg width="16" height="16" viewBox="0 0 24 24">
-          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" fill="currentColor"/>
-        </svg>
-      </button>
-      
-      <button type="button" 
-              class="btn-nav submit"
-              *ngIf="currentStep === totalSteps"
-              (click)="submitBusinessAccount()"
-              [disabled]="isSubmitting || !validateCurrentStep()">
-        <span class="btn-content">
-          <span class="btn-text">{{ isSubmitting ? 'Отправка...' : 'Завершить регистрацию' }}</span>
-          <span class="btn-spinner" *ngIf="isSubmitting"></span>
-        </span>
-      </button>
-    </div>
+
+      <div class="footer-center">
+        <div class="step-guide">
+          <div class="guide-text">{{ getStepGuideText() }}</div>
+          <div class="guide-hint" *ngIf="getStepHint()">
+            💡 {{ getStepHint() }}
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        @if (currentStep < totalSteps) { <button class="btn-gradient" (click)="nextStep()">
+          <!-- [disabled]="!validateCurrentStep()" -->
+          Продолжить
+          <svg viewBox="0 0 24 24">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+          </svg>
+          </button>
+          } @else {
+          <button class="btn-success" (click)="submitBusinessAccount()"
+            [disabled]="isSubmitting || !validateDocumentsStep()">
+            <span class="btn-content">
+              @if (!isSubmitting) {
+              <span>Завершить регистрацию</span>
+              } @else {
+              <span>Отправка...</span>
+              <span class="spinner"></span>
+              }
+            </span>
+          </button>
+          }
+      </div>
+    </footer>
   </div>
+  }
 </div>
