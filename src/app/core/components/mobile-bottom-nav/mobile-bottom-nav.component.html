@@ -1,71 +1,139 @@
 <div class="bottom-nav">
-  <button
-    class="nav-item"
-    [routerLink]="''"
-    [class.active]="activeTab === 'home'"
-    (click)="changeTab('home')"
-  >
+  <button class="nav-item" [routerLink]="''" [class.active]="activeTab === 'home' && !isMenuOpen"
+    (click)="changeTab('home')">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3 10L12 3L21 10V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10Z" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M9 21V15H15V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M3 10L12 3L21 10V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10Z" stroke="currentColor"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M9 21V15H15V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
     </svg>
     <span>Главная</span>
   </button>
 
-  <button
-    class="nav-item"
-    [class.active]="activeTab === 'favorites'"
-    (click)="changeTab('favorites')"
-  >
+  <button class="nav-item" [class.active]="activeTab === 'favorites'" (click)="changeTab('favorites')">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" 
-            fill="currentColor" fill-opacity="0.8"/>
+      <path
+        d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z"
+        fill="currentColor" fill-opacity="0.8" />
     </svg>
     <span>Избранное</span>
   </button>
 
-  <button
-    class="nav-item cart-item"
-    [routerLink]="'cart'"
-    [class.active]="activeTab === 'cart'"
-    (click)="changeTab('cart')"
-  >
+  <!-- Центральная круглая кнопка меню -->
+  <div class="menu-button-wrapper">
+    <button class="menu-button" [class.active]="isMenuOpen" (click)="toggleMenu()" (click)="$event.stopPropagation()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          [attr.transform]="isMenuOpen ? 'rotate(45 12 12)' : 'none'" class="line-1" />
+        <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          [attr.opacity]="isMenuOpen ? '0' : '1'" class="line-2" />
+        <path d="M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          [attr.transform]="isMenuOpen ? 'rotate(-45 12 12)' : 'none'" class="line-3" />
+      </svg>
+      <span class="menu-label">Меню</span>
+    </button>
+  </div>
+
+  <button class="nav-item cart-item" [routerLink]="'cart'" [class.active]="activeTab === 'cart'"
+    (click)="changeTab('cart')">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path
+        d="M6.29977 5H21L19 12H7.37671M20 16H8L6 3H3M9 20C9 20.5523 8.55228 21 8 21C7.44772 21 7 20.5523 7 20C7 19.4477 7.44772 19 8 19C8.55228 19 9 19.4477 9 20ZM20 20C20 20.5523 19.5523 21 19 21C18.4477 21 18 20.5523 18 20C18 19.4477 18.4477 19 19 19C19.5523 19 20 19.4477 20 20Z"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
     <span>Корзина</span>
-    <!-- <span class="cart-badge" *ngIf="cartCount$ | async as count">{{count}}</span> -->
   </button>
 
-  <!-- <button
-    class="nav-item"
-    [routerLink]="'notifications'"
-    [class.active]="activeTab === 'notifications'"
-    (click)="changeTab('notifications')"
-  >
+  <button class="nav-item" [class.active]="activeTab === 'profile'" (click)="getAuth()">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C10.8954 2 10 2.89543 10 4V4.29171C7.0448 5.12733 5 7.8284 5 11V15L3 17V18H21V17L19 15V11C19 7.8284 16.9552 5.12733 14 4.29171V4C14 2.89543 13.1046 2 12 2Z" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M9 20C9 21.1046 9.89543 22 11 22H13C14.1046 22 15 21.1046 15 20" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    <span>Уведомления</span>
-    <span class="notification-badge" *ngIf="notificationCount$ | async as count">{{count}}</span>
-  </button> -->
-
-  <button
-    class="nav-item"
-    [class.active]="activeTab === 'profile'"
-    (click)="getAuth()"
-  >
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M20 22C20 17.5817 16.4183 14 12 14C7.58172 14 4 17.5817 4 22" 
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path
+        d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M20 22C20 17.5817 16.4183 14 12 14C7.58172 14 4 17.5817 4 22" stroke="currentColor" stroke-width="1.5"
+        stroke-linecap="round" />
     </svg>
     <span>Профиль</span>
   </button>
+</div>
+
+<!-- Выдвижное меню -->
+<div class="menu-overlay" *ngIf="isMenuOpen" (click)="closeMenu()">
+  <div class="menu-content" (click)="$event.stopPropagation()">
+    <div class="menu-header">
+      <h3>Меню</h3>
+      <button class="menu-close" (click)="closeMenu()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="menu-list">
+      <button *ngFor="let item of menuItems; let i = index" class="menu-list-item" [class.divider]="i === 3"
+        (click)="navigateTo(item.link)">
+        <span class="menu-item-icon" [innerHTML]="item.icon"></span>
+        <span class="menu-item-text">{{item.label}}</span>
+        <span class="menu-item-arrow">›</span>
+      </button>
+    </div>
+
+    <div class="menu-footer">
+      <div class="social-links">
+        <a href="https://t.me/ваш_канал" target="_blank" class="social-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.144.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.022c.242-.213-.054-.333-.373-.121l-6.869 4.326-2.96-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.196 1.006.128.832.953z" />
+          </svg>
+          Telegram
+        </a>
+        <a href="https://vk.com/ваша_страница" target="_blank" class="social-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 16.169c-1.849.75-3.173.236-3.513 2.155-.418 2.317.835 3.2 1.777 3.2.847 0 1.454-.652 2.626-1.087 1.128-.419 2.24.314 2.24.314l.418.209-1.354 4.985s-.383 1.258-1.538 1.066c-1.155-.192-4.982-1.219-4.982-1.219-2.861 1.066-4.269 1.066-5.089.838-.82-.229-1.618-1.713-1.618-1.713s.611-.359 1.354-.613c.744-.254 1.618-.33 2.145-.726.527-.396.685-1.155.685-1.155s-3.513-.776-3.898-3.12c-.385-2.344 1.54-3.395 1.54-3.395s-1.028-1.713.127-3.395c1.155-1.682 2.626-1.505 3.769-1.066 1.143.44 1.777 1.066 1.777 1.066s.383-1.57 1.834-2.344c1.45-.775 2.496-.611 2.496-.611z" />
+          </svg>
+          VK
+        </a>
+        <a href="#" class="social-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.441 16.892c-1.102.618-2.511.864-4.441.864-1.933 0-3.345-.248-4.441-.864-1.098-.618-1.652-1.455-1.652-2.508 0-1.053.554-1.891 1.652-2.508 1.096-.618 2.508-.864 4.441-.864 1.93 0 3.339.248 4.441.864 1.102.618 1.652 1.455 1.652 2.508 0 1.053-.55 1.891-1.652 2.508zm-2.033-4.73c.94.94 1.426 2.09 1.426 3.448 0 .387-.03.762-.088 1.127-.059.364-.155.7-.287 1.006-.133.307-.313.564-.542.773-.229.208-.516.312-.86.312-.344 0-.631-.104-.86-.312-.229-.209-.409-.466-.542-.773-.132-.307-.228-.642-.287-1.006-.058-.365-.088-.74-.088-1.127 0-1.358.486-2.508 1.426-3.448.94-.94 2.09-1.41 3.448-1.41 1.358 0 2.508.47 3.448 1.41.94.94 1.41 2.09 1.41 3.448 0 .387-.03.762-.088 1.127-.059.364-.155.7-.287 1.006-.133.307-.313.564-.542.773-.229.208-.516.312-.86.312-.344 0-.631-.104-.86-.312-.229-.209-.409-.466-.542-.773-.132-.307-.228-.642-.287-1.006-.058-.365-.088-.74-.088-1.127 0-1.358-.47-2.508-1.41-3.448-.94-.94-2.09-1.41-3.448-1.41-1.358 0-2.508.47-3.448 1.41z" />
+          </svg>
+          MAX
+        </a>
+      </div>
+      <div class="contact-info">
+        <div class="phone-numbers">
+          <a href="tel:+73852555861" class="phone-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            +7 (3852) 555-861
+          </a>
+          <a href="tel:+73852555862" class="phone-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            +7 (3852) 555-862
+          </a>
+          <a href="tel:+73852555863" class="phone-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            +7 (3852) 555-863
+          </a>
+          <a href="tel:+79050845188" class="phone-link mobile">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
+              <path d="M17 2H7C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4C19 2.89543 18.1046 2 17 2Z" 
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 18H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            +7 905 084 51 88
+          </a>
+        </div>
+        <div class="working-hours">
+          <p>Ежедневно с 9:00 до 17:00 по времени Барнаула</p>
+          <p class="whatsapp-note">Есть WhatsApp: <a href="https://wa.me/79050845188" target="_blank" class="whatsapp-link">написать</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

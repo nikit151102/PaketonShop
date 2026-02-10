@@ -30,7 +30,7 @@
   align-items: center;
   gap: 16px;
 
-  @media (max-width: 699px) {
+  @media (max-width: 956px) {
     width: 100%;
     padding: 10 0;
     justify-content: space-between;
@@ -39,12 +39,12 @@
   app-logo {
     display: none;
 
-    @media (max-width: 699px) {
+    @media (max-width: 956px) {
       display: block;
     }
   }
 
-  @media (max-width: 699px) {
+  @media (max-width: 956px) {
     app-menu {
       display: none;
     }
@@ -56,7 +56,7 @@
   align-items: center;
   gap: 16px;
 
-  @media (max-width: 950px) {
+  @media (max-width: 956px) {
     display: none;
   }
 }
@@ -98,7 +98,7 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
   border-radius: 0 0 20px 20px;
 
-  @media (max-width: 699px) {
+  @media (max-width: 956px) {
     app-logo {
       display: none;
     }

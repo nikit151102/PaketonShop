@@ -31,21 +31,22 @@
   border-radius: 10px;
   transition: all 0.2s ease;
   min-width: 56px;
+  z-index: 1002;
 
   &:hover {
-    color: #3b82f6;
-    background: rgba(59, 130, 246, 0.06);
+    color: #327220;
+    background: rgba(50, 114, 32, 0.06);
     transform: translateY(-1px);
   }
 
   &.active {
-    color: #3b82f6;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.04));
+    color: #327220;
+    background: linear-gradient(135deg, rgba(50, 114, 32, 0.12), rgba(50, 114, 32, 0.04));
     transform: translateY(-2px);
 
     svg {
       transform: scale(1.08);
-      filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.25));
+      filter: drop-shadow(0 2px 4px rgba(50, 114, 32, 0.25));
     }
 
     span {
@@ -70,38 +71,401 @@
   }
 }
 
-// Бейджи
-.cart-badge,
-.notification-badge {
-  position: absolute;
-  top: -2px;
-  right: 2px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+// Центральная кнопка меню
+.menu-button-wrapper {
+  position: relative;
+  z-index: 1003;
+}
+
+.menu-button {
+  position: relative;
+  bottom: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #327220, #2a611b);
+  border: none;
   color: white;
-  font-size: 9px;
-  font-weight: 700;
-  min-width: 14px;
-  height: 14px;
-  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(50, 114, 32, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1003;
+
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(50, 114, 32, 0.4);
+  }
+
+  &.active {
+    transform: translateY(-2px) rotate(180deg);
+    background: linear-gradient(135deg, #327220, #2a611b);
+    box-shadow: 0 6px 20px rgba(50, 114, 32, 0.5);
+    
+    svg {
+      transform: rotate(45deg);
+    }
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    path {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      stroke: white;
+    }
+  }
+
+  .menu-label {
+    position: absolute;
+    bottom: -18px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #327220;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+  }
+
+  &.active .menu-label {
+    color: #327220;
+  }
+}
+
+// Выдвижное меню
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+
+
+.menu-content {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  background: white;
+  border-radius: 24px;
+  padding: 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  z-index: 1;
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #327220;
+    margin: 0;
+  }
+}
+
+.menu-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 2px;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
-  border: 1.5px solid rgba(255, 255, 255, 0.98);
-}
+  transition: all 0.2s ease;
 
-.notification-badge {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25);
-}
-
-@keyframes badge-pulse {
-  0%, 100% {
-    transform: scale(1);
+  &:hover {
+    background: #e5e7eb;
+    color: #374151;
   }
-  50% {
-    transform: scale(1.05);
+}
+
+.menu-list {
+  padding: 8px 0;
+}
+
+.menu-list-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 10px;
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: #f9fafb;
+    color: #327220;
+  }
+
+  &:active {
+    background: #f3f4f6;
+  }
+
+  &.divider {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 8px;
+    padding-top: 24px;
+  }
+}
+
+.menu-item-icon {
+  font-size: 20px;
+  margin-right: 16px;
+  width: 24px;
+  text-align: center;
+  color: #327220;
+}
+
+.menu-item-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.menu-item-arrow {
+  color: #327220;
+  font-size: 16px;
+  font-weight: bold;
+  opacity: 0.8;
+}
+
+// ... остальные стили остаются такими же ...
+
+.menu-footer {
+  padding: 20px 24px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 24px 24px;
+
+  .social-links {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+    
+    .social-link {
+      font-size: 14px;
+      color: #327220;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(50, 114, 32, 0.08);
+
+      &:hover {
+        color: #2a611b;
+        background: rgba(50, 114, 32, 0.12);
+        transform: translateY(-1px);
+      }
+
+      svg {
+        fill: #327220;
+        transition: fill 0.2s ease;
+      }
+
+      &:hover svg {
+        fill: #2a611b;
+      }
+    }
+  }
+
+  .contact-info {
+    .phone-numbers {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      
+      .phone-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #327220;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 10px 14px;
+        background: white;
+        border-radius: 10px;
+        border: 1px solid rgba(50, 114, 32, 0.2);
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba(50, 114, 32, 0.08);
+          border-color: #327220;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(50, 114, 32, 0.15);
+        }
+        
+        &.mobile {
+          background: linear-gradient(135deg, rgba(50, 114, 32, 0.1), rgba(50, 114, 32, 0.05));
+          border: 1px solid rgba(50, 114, 32, 0.3);
+        }
+        
+        .phone-icon {
+          width: 16px;
+          height: 16px;
+          fill: #327220;
+        }
+      }
+    }
+    
+    .working-hours {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      
+      p {
+        margin: 8px 0;
+        font-size: 14px;
+        color: #6b7280;
+        
+        &:first-child {
+          font-weight: 500;
+          color: #4b5563;
+        }
+      }
+      
+      .whatsapp-note {
+        font-size: 13px;
+        color: #6b7280;
+        
+        .whatsapp-link {
+          color: #327220;
+          text-decoration: none;
+          font-weight: 500;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: rgba(50, 114, 32, 0.1);
+          
+          &:hover {
+            background: rgba(50, 114, 32, 0.2);
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Адаптивность для телефонов
+@media (max-width: 360px) {
+  .menu-footer {
+    padding: 16px 20px 20px;
+    
+    .social-links {
+      flex-wrap: wrap;
+      gap: 12px;
+      
+      .social-link {
+        flex: 1;
+        min-width: 100px;
+        justify-content: center;
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+    }
+    
+    .contact-info {
+      .phone-numbers {
+        .phone-link {
+          font-size: 14px;
+          padding: 8px 12px;
+        }
+      }
+      
+      .working-hours {
+        p {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+// Для планшетов
+@media (min-width: 768px) and (max-width: 956px) {
+  .menu-footer {
+    .phone-numbers {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      
+      .phone-link {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Для десктопов
+@media (min-width: 956px) {
+  .menu-footer {
+    .phone-numbers {
+      .phone-link {
+        font-size: 16px;
+        padding: 12px 16px;
+      }
+    }
+  }
+}
+
+
+// Анимации
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 }
 
@@ -138,15 +502,49 @@
       font-size: 9px;
     }
   }
-  
-  .cart-badge,
-  .notification-badge {
-    top: -3px;
-    right: 1px;
-    font-size: 8px;
-    min-width: 12px;
-    height: 12px;
-    border-radius: 6px;
+
+  .menu-button {
+    width: 50px;
+    height: 50px;
+    bottom: 14px;
+    
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+    
+    .menu-label {
+      font-size: 9px;
+      bottom: -16px;
+    }
+  }
+
+  .menu-content {
+    padding: 0;
+    border-radius: 20px;
+    width: calc(100% - 24px);
+  }
+
+  .menu-header {
+    padding: 16px 20px;
+  }
+
+  .menu-list-item {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .menu-item-icon {
+    font-size: 18px;
+    margin-right: 12px;
+  }
+
+  .menu-item-text {
+    font-size: 14px;
+  }
+
+  .menu-footer {
+    padding: 16px 20px 20px;
   }
 }
 
@@ -173,15 +571,167 @@
       }
     }
   }
+
+  .menu-button {
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    
+    svg {
+      width: 26px;
+      height: 26px;
+    }
+    
+    .menu-label {
+      font-size: 11px;
+      bottom: -20px;
+    }
+  }
+
+  .menu-content {
+    max-width: 500px;
+  }
+
+  .menu-header {
+    padding: 24px 32px;
+  }
+
+  .menu-list-item {
+    padding: 16px 24px;
+    font-size: 17px;
+  }
+
+  .menu-item-text {
+    font-size: 15px;
+  }
+
+  .menu-footer {
+    padding: 24px 32px 32px;
+  }
 }
 
 @media (min-width: 956px) {
   .bottom-nav {
     position: relative;
-    max-width: 380px;
+    max-width: 480px;
     margin: 0 auto;
     border-radius: 18px;
     margin-bottom: 18px;
     padding: 10px 0;
   }
+
+  .menu-button {
+    bottom: 18px;
+  }
+
+  .menu-content {
+    max-width: 500px;
+    bottom: 90px;
+  }
+}
+
+// Бейджи
+.cart-badge,
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: 2px;
+  background: linear-gradient(135deg, #327220, #2a611b);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  box-shadow: 0 1px 3px rgba(50, 114, 32, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.98);
+}
+
+.notification-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25);
+}
+
+
+
+.menu-item-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #327220;
+  }
+}
+
+.menu-list-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: #f9fafb;
+    color: #327220;
+    
+    .menu-item-icon svg {
+      color: #327220;
+    }
+  }
+
+  &:active {
+    background: #f3f4f6;
+  }
+}
+
+
+
+
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: #DFE9EB;
+}
+
+*::-webkit-scrollbar-track:hover {
+  background-color: #B8C0C2;
+}
+
+*::-webkit-scrollbar-track:active {
+  background-color: #B8C0C2;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 7px;
+  background-color: #397524;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #62A34B;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background-color: #62A34B;
 }

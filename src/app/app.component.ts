@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { BasketsService } from './core/api/baskets.service';
 import { StorageUtils } from '../utils/storage.utils';
 import { memoryCacheEnvironment } from '../environment';
+import { ScrollStateService } from './core/services/scroll-state.service';
 
 @Component({
   selector: 'app-root',
@@ -28,12 +29,18 @@ export class AppComponent {
   title = 'PaketonShop';
   isMobile: boolean = false;
 
-  constructor(private basketsService: BasketsService) {}
+  constructor(private basketsService: BasketsService, private scrollStateService: ScrollStateService) { }
+
+  @HostListener('window:beforeunload')
+  onBeforeUnload(): void {
+    // Очищаем при закрытии вкладки
+    this.scrollStateService.clearHomeState();
+  }
 
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.isMobile = window.innerWidth <= 950; // Примерная граница для мобильных устройств
-   console.log('isMobile', this.isMobile);
+    console.log('isMobile', this.isMobile);
   }
 
   ngOnInit() {

@@ -6,6 +6,37 @@ import { HttpClient } from '@angular/common/http';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations'; // Добавьте этот импорт
+
+// Добавьте константу с анимациями
+const animations = [
+  trigger('fadeSlide', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateY(20px)' }),
+      animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
+    ]),
+    transition(':leave', [
+      animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0, transform: 'translateY(20px)' }))
+    ])
+  ]),
+  trigger('fadeIn', [
+    transition(':enter', [
+      style({ opacity: 0 }),
+      animate('500ms ease-in', style({ opacity: 1 }))
+    ])
+  ]),
+  trigger('slideDown', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }),
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
+    ]),
+    transition(':leave', [
+      animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)', height: 0 }))
+    ])
+  ])
+];
+
+
 interface BusinessAccountData {
   user: {
     email: string;
@@ -55,7 +86,8 @@ interface PartnerType {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
   templateUrl: './business-account-registration.component.html',
-  styleUrls: ['./business-account-registration.component.scss']
+  styleUrls: ['./business-account-registration.component.scss'],
+  animations: animations
 })
 export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   currentStep = 1;
@@ -72,56 +104,93 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   cloudLink = '';
   archiveFile: File | null = null;
   isDragOver = false;
-  
+
   // Forms
   userForm: FormGroup;
   companyForm: FormGroup;
-  
+
   // Data
   accountData: BusinessAccountData = {
     user: {} as any,
     company: {} as any,
     documents: []
   };
-  
+
   partnerTypes: PartnerType[] = [];
   selectedPartnerType: PartnerType | null = null;
-  
+
   // Company registration date
   companyRegistrationDate: Date | null = null;
-  
+
   // Document types - Updated based on requirements
-  documentTypes = [
-    // Для ООО
-    { id: 1, name: 'Решение единственного учредителя о создании ООО', requiredFor: [1], optionalFor: [] },
-    { id: 2, name: 'Протокол собрания участников (если учредителей несколько)', requiredFor: [1], optionalFor: [] },
-    { id: 3, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
-    { id: 4, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
-    { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
-    { id: 6, name: 'Свидетельство ОГРН (для регистраций до 2017 г.)', requiredFor: [1], optionalFor: [1], condition: 'before2017' },
-    { id: 7, name: 'Свидетельство ИНН/КПП (для регистраций до 2017 г.)', requiredFor: [1], optionalFor: [1], condition: 'before2017' },
-    { id: 8, name: 'Лист записи ЕГРИП (для регистраций после 2017 г.)', requiredFor: [2], optionalFor: [2], condition: 'after2017' },
-    { id: 9, name: 'Свидетельство ОГРНИП (для регистраций до 2017 г.)', requiredFor: [2], optionalFor: [2], condition: 'before2017' },
-    { id: 10, name: 'Свидетельство ИНН (для регистраций до 2027 г.)', requiredFor: [2], optionalFor: [2], condition: 'before2027' },
-    { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
-  ];
+documentTypes: any = [
+  // Для ООО - обязательные
+  { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
+  { id: 3, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
+  { id: 4, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
+  { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
   
+  // Для ООО - необязательные (только если регистрация до 2017)
+  { 
+    id: 6, 
+    name: 'Свидетельство ОГРН', 
+    requiredFor: [], 
+    optionalFor: [1], 
+    condition: 'before2017' 
+  },
+  { 
+    id: 7, 
+    name: 'Свидетельство ИНН/КПП', 
+    requiredFor: [], 
+    optionalFor: [1], 
+    condition: 'before2017' 
+  },
+  
+  // Для ИП (регистрация до 2017)
+  { 
+    id: 8, 
+    name: 'Свидетельство ОГРНИП (для регистраций до 2017 г.)', 
+    requiredFor: [], 
+    optionalFor: [2], 
+    condition: 'before2017' 
+  },
+  { 
+    id: 9, 
+    name: 'Свидетельство ИНН', 
+    requiredFor: [], 
+    optionalFor: [2], 
+    condition: 'before2027' 
+  },
+  
+  // Для ИП (регистрация с 2017 и позже)
+  { 
+    id: 10, 
+    name: 'Лист записи ЕГРИП', 
+    requiredFor: [], 
+    optionalFor: [2], 
+    condition: 'after2017' 
+  },
+  
+  // Обязательные для всех
+  { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
+];
+
   // Uploaded files
   uploadedDocuments: DocumentData[] = [];
-  
+
   // Progress tracking
   progress = {
     step1: false,
     step2: false,
     step3: false
   };
-  
+
   // Password strength
   passwordStrength = {
     level: 0,
     hints: [] as { message: string; valid: boolean }[]
   };
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -141,6 +210,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
 
   private createUserForm(): FormGroup {
     return this.fb.group({
@@ -167,7 +237,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       inn: ['', [Validators.required, Validators.pattern(/^\d{10}$|^\d{12}$/)]],
       ogrn: ['', [Validators.required, Validators.pattern(/^\d{13}$|^\d{15}$/)]],
       kpp: ['', this.kppValidator],
-      registrationDate: ['', Validators.required],
+      registrationDate: [''],
       address: this.fb.group({
         country: ['Россия', Validators.required],
         region: ['', Validators.required],
@@ -188,7 +258,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   private phoneValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const cleanValue = value.replace(/\D/g, '');
     return cleanValue.length >= 10 ? null : { invalidPhone: true };
   }
@@ -196,7 +266,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   private kppValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const regex = /^\d{9}$/;
     return regex.test(value) ? null : { invalidKpp: true };
   }
@@ -236,7 +306,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   private updateKppValidation(): void {
     const kppControl = this.companyForm.get('kpp');
-    
+
     if (this.selectedPartnerType?.code === 1) {
       kppControl?.setValidators([Validators.required, this.kppValidator]);
     } else {
@@ -247,58 +317,69 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   private checkDocumentCondition(document: any): boolean {
-    if (!document.condition || !this.companyRegistrationDate) return true;
-    
+    if (!document.condition || !this.companyRegistrationDate) {
+      // Если даты нет, документ не требуется (для свидетельств)
+      return false;
+    }
+
     const registrationYear = this.companyRegistrationDate.getFullYear();
-    const registrationMonth = this.companyRegistrationDate.getMonth();
-    
+    const registrationMonth = this.companyRegistrationDate.getMonth(); // 0 = январь
+
     switch (document.condition) {
       case 'before2017':
-        return registrationYear < 2017 || 
-              (registrationYear === 2017 && registrationMonth < 0); // Январь 2017
-      
+        return registrationYear < 2017;
+
       case 'after2017':
-        return registrationYear > 2017 || 
-              (registrationYear === 2017 && registrationMonth >= 0);
-      
+        return registrationYear >= 2017;
+
       case 'before2027':
-        return registrationYear < 2027 || 
-              (registrationYear === 2027 && registrationMonth < 0);
-      
+        return registrationYear < 2027;
+
       default:
         return true;
     }
   }
 
-  getRequiredDocuments(): any[] {
-    if (!this.selectedPartnerType || !this.companyRegistrationDate) return [];
-    
-    return this.documentTypes.filter(doc => {
-      const isForPartnerType = doc.requiredFor.includes(this.selectedPartnerType!.code);
-      const hasCondition = doc.condition;
-      
-      if (!isForPartnerType) return false;
-      
-      if (hasCondition) {
-        return this.checkDocumentCondition(doc);
-      }
-      
-      return true;
-    });
+  todayDate(): string {
+    return new Date().toISOString().split('T')[0];
   }
+
+  getRequiredDocuments(): any[] {
+  if (!this.selectedPartnerType) return [];
+  
+  return this.documentTypes.filter((doc: any) => {
+    // Проверяем, что документ нужен для текущего типа партнера
+    const isForPartnerType = doc.requiredFor.includes(this.selectedPartnerType!.code);
+    
+    if (!isForPartnerType) return false;
+    
+    // Если нет даты регистрации, показываем документы, у которых нет condition
+    if (!this.companyRegistrationDate && doc.condition) {
+      return false;
+    }
+    
+    // Если есть дата, проверяем условия
+    if (doc.condition && this.companyRegistrationDate) {
+      return this.checkDocumentCondition(doc);
+    }
+    
+    // Документы без условий всегда показываем
+    return true;
+  });
+}
 
   getOptionalDocuments(): any[] {
     if (!this.selectedPartnerType) return [];
-    
-    return this.documentTypes.filter(doc => {
+
+    return this.documentTypes.filter((doc: any) => {
       const isForPartnerType = doc.optionalFor.includes(this.selectedPartnerType!.code);
-      
+
       if (!isForPartnerType) return false;
-      
+
       if (doc.condition) {
         return this.checkDocumentCondition(doc);
       }
-      
+
       return true;
     });
   }
@@ -320,7 +401,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }
 
     this.saveCurrentStepData();
-    
+
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
       this.scrollToTop();
@@ -356,11 +437,11 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   validateDocumentsStep(): boolean {
     if (!this.selectedPartnerType || !this.companyRegistrationDate) return false;
-    
+
     if (this.uploadMethod === 'single') {
       const requiredDocs = this.getRequiredDocuments();
-      
-      return requiredDocs.every(requiredDoc => 
+
+      return requiredDocs.every(requiredDoc =>
         this.uploadedDocuments.some(doc => doc.type === requiredDoc.id)
       );
     } else if (this.uploadMethod === 'cloud') {
@@ -368,7 +449,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     } else if (this.uploadMethod === 'archive') {
       return !!this.archiveFile;
     }
-    
+
     return false;
   }
 
@@ -406,7 +487,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   // UI Helpers
   getCurrentStepTitle(): string {
-    switch(this.currentStep) {
+    switch (this.currentStep) {
       case 1: return 'Создание пользователя';
       case 2: return 'Информация о компании';
       case 3: return 'Загрузка документов';
@@ -415,7 +496,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepTitle(step: number): string {
-    switch(step) {
+    switch (step) {
       case 1: return 'Пользователь';
       case 2: return 'Компания';
       case 3: return 'Документы';
@@ -424,7 +505,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepSubtitle(step: number): string {
-    switch(step) {
+    switch (step) {
       case 1: return 'Контактные данные';
       case 2: return 'Реквизиты организации';
       case 3: return 'Верификация';
@@ -441,7 +522,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepGuideText(): string {
-    switch(this.currentStep) {
+    switch (this.currentStep) {
       case 1: return 'Заполните все поля для создания учетной записи';
       case 2: return 'Укажите точные данные вашей компании';
       case 3: return 'Загрузите необходимые документы одним из способов';
@@ -450,7 +531,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepHint(): string {
-    switch(this.currentStep) {
+    switch (this.currentStep) {
       case 1: return 'Используйте надежный пароль с буквами, цифрами и символами';
       case 2: return 'Данные должны совпадать с юридическими документами';
       case 3: return 'Рекомендуем загружать документы поштучно для лучшего контроля';
@@ -459,7 +540,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getCurrentStepHelp(): string {
-    switch(this.currentStep) {
+    switch (this.currentStep) {
       case 1: return 'Заполните точные контактные данные. Это важно для восстановления доступа и получения уведомлений.';
       case 2: return 'Убедитесь, что юридические данные совпадают с документами. Это ускорит проверку.';
       case 3: return 'Выберите удобный способ загрузки документов. Поштучная загрузка позволяет контролировать каждый файл.';
@@ -488,14 +569,14 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   updatePasswordStrength(password: string): void {
     this.passwordStrength.hints = [];
-    
+
     if (!password) {
       this.passwordStrength.level = 0;
       return;
     }
 
     let level = 0;
-    
+
     // Length check
     if (password.length >= 8) {
       level++;
@@ -589,7 +670,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   getPasswordMatchMessage(): string {
     if (!this.userForm.get('confirmPassword')?.touched) return '';
-    
+
     if (this.passwordsMatch()) {
       return 'Пароли совпадают';
     } else {
@@ -635,7 +716,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    
+
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!allowedTypes.includes(file.type)) {
       this.error = 'Разрешены только файлы PDF, JPEG, PNG и Word';
@@ -656,7 +737,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     };
 
     const existingIndex = this.uploadedDocuments.findIndex(doc => doc.type === documentTypeId);
-    
+
     if (existingIndex >= 0) {
       this.uploadedDocuments[existingIndex] = document;
     } else {
@@ -664,9 +745,9 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }
 
     this.accountData.documents = this.uploadedDocuments;
-    
+
     input.value = '';
-    
+
     this.error = null;
   }
 
@@ -676,7 +757,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getDocumentName(typeId: number): string {
-    const docType = this.documentTypes.find(doc => doc.id === typeId);
+    const docType = this.documentTypes.find((doc: any) => doc.id === typeId);
     return docType?.name || `Документ ${typeId}`;
   }
 
@@ -723,13 +804,13 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getUploadedRequiredDocumentsCount(): number {
-    return this.uploadedDocuments.filter(doc => 
+    return this.uploadedDocuments.filter(doc =>
       this.getRequiredDocuments().some(rd => rd.id === doc.type)
     ).length;
   }
 
   getUploadedOptionalDocumentsCount(): number {
-    return this.uploadedDocuments.filter(doc => 
+    return this.uploadedDocuments.filter(doc =>
       this.getOptionalDocuments().some(od => od.id === doc.type)
     ).length;
   }
@@ -771,7 +852,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   onArchiveDrop(event: DragEvent): void {
     event.preventDefault();
     this.isDragOver = false;
-    
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleArchiveFile(files[0]);
@@ -789,10 +870,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     const allowedTypes = ['application/zip', 'application/x-rar-compressed'];
     const allowedExtensions = ['.zip', '.rar'];
     const fileName = file.name.toLowerCase();
-    
+
     const isTypeValid = allowedTypes.includes(file.type);
     const isExtensionValid = allowedExtensions.some(ext => fileName.endsWith(ext));
-    
+
     if (!isTypeValid && !isExtensionValid) {
       this.error = 'Поддерживаются только ZIP и RAR архивы';
       return;
@@ -867,7 +948,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   getConfettiStyle(index: number): any {
     const colors = ['#327120', '#10b981', '#06b6d4', '#f59e0b', '#ef4444'];
     const color = colors[index % colors.length];
-    
+
     return {
       left: `${Math.random() * 100}%`,
       animationDelay: `${Math.random() * 2}s`,
@@ -881,7 +962,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   getUploadedRequiredPercentage(): number {
     const requiredDocsCount = this.getRequiredDocuments().length;
     if (requiredDocsCount === 0) return 0;
-    
+
     const uploadedCount = this.getUploadedRequiredDocumentsCount();
     return Math.round((uploadedCount / requiredDocsCount) * 100);
   }
@@ -925,7 +1006,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           this.success = true;
           this.progress.step3 = true;
-          
+
           setTimeout(() => {
             this.resetAllForms();
           }, 3000);

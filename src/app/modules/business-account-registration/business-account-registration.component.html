@@ -518,6 +518,23 @@
                   <input type="text" formControlName="kpp" placeholder="9 цифр" class="modern-input">
                 </div>
                 }
+
+                <div class="form-group"
+                  [class.error]="companyForm.get('registrationDate')?.invalid && companyForm.get('registrationDate')?.touched">
+                  <label class="form-label">
+                    <span>Дата регистрации</span>
+                    <span class="field-hint-text">(рекомендуется указать)</span>
+                  </label>
+                  <input type="date" formControlName="registrationDate" class="modern-input" [max]="todayDate()">
+                  <div class="field-hint">
+                    Укажите для точного определения необходимых документов
+                  </div>
+                  @if (!companyForm.get('registrationDate')?.value) {
+                  <div class="warning-message">
+                    ⚠️ Без даты регистрации будут запрошены все возможные документы
+                  </div>
+                  }
+                </div>
               </div>
             </div>
 

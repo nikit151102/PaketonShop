@@ -5,6 +5,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./modules/home/home.component').then((m) => m.HomeComponent),
+    data: { reuse: true }
   },
   {
     path: 'profile',
@@ -91,7 +92,7 @@ export const routes: Routes = [
       ),
   },
     {
-    path: 'BusinessAccountRegistration',
+    path: 'register-business',
     loadComponent: () =>
       import('./modules/business-account-registration/business-account-registration.component').then(
         (m) => m.BusinessAccountRegistrationComponent,

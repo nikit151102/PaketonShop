@@ -1,5 +1,5 @@
 import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouteReuseStrategy } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   HTTP_INTERCEPTORS,
@@ -12,6 +12,7 @@ import localeRuExtra from '@angular/common/locales/extra/ru';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse-strategy';
 
 // Регистрируем русскую локаль
 registerLocaleData(localeRu, 'ru', localeRuExtra);
@@ -32,5 +33,11 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
+
+    // Регистрируем кастомную стратегию повторного использования маршрутов
+    {
+      provide: RouteReuseStrategy,
+      useClass: CustomRouteReuseStrategy
+    }
   ],
 };

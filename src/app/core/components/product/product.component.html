@@ -23,12 +23,6 @@
     <h4>{{ product.fullName }}</h4>
     <span id="article">артикул: {{ product.article }}</span>
 
-    <!-- 🔹 наличие и упаковка -->
-    <div class="extra-info">
-      <span class="stock" *ngIf="product.remains?.length > 0">В наличии: {{ product.remains[0].quantity }} упак.</span>
-      <span class="pack" *ngIf="product.packCount">В упаковке: {{ product.packCount }} шт.</span>
-    </div>
-
     <div class="price-block">
       <span class="main-price"> {{ getPrice(city$ | async) }} ₽ </span>
       <!-- getPrice(city$ | async) -->
@@ -41,6 +35,12 @@
       </span>
     </div>
 
+        <!-- 🔹 наличие и упаковка -->
+    <div class="extra-info">
+      <span class="stock" *ngIf="product.remains?.length > 0">В наличии: {{ product.remains[0].quantity }} упак.</span>
+      <span class="pack" *ngIf="product.packCount">В упаковке: {{ product.packCount }} шт.</span>
+    </div>
+    
     <!-- Основной контрол управления для активной корзины -->
     <div class="cart-control-section">
       <!-- Если товар уже в активной корзине - показываем контролы -->
