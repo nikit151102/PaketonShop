@@ -12,7 +12,6 @@ import localeRuExtra from '@angular/common/locales/extra/ru';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
-import { CustomRouteReuseStrategy } from './core/strategies/custom-route-reuse-strategy';
 
 // Регистрируем русскую локаль
 registerLocaleData(localeRu, 'ru', localeRuExtra);
@@ -34,10 +33,5 @@ export const appConfig: ApplicationConfig = {
       multi: true,
     },
 
-    // Регистрируем кастомную стратегию повторного использования маршрутов
-    {
-      provide: RouteReuseStrategy,
-      useClass: CustomRouteReuseStrategy
-    }
   ],
 };

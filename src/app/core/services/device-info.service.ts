@@ -2,9 +2,9 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, of, forkJoin, fromEvent, merge } from 'rxjs';
-import { map, catchError, startWith } from 'rxjs/operators';
-import * as CryptoJS from 'crypto-js'; 
+import { Observable, from, of, forkJoin, fromEvent, merge, BehaviorSubject } from 'rxjs';
+import { map, catchError, startWith, take } from 'rxjs/operators';
+import * as CryptoJS from 'crypto-js';
 
 export interface DeviceInfo {
   userAgent: string;
@@ -84,7 +84,22 @@ export interface DeviceInfo {
 })
 export class DeviceInfoService {
   private isBrowser: boolean;
-private readonly ENCRYPTION_KEY = 'your-secret-key-here';
+  private ipInfo: DeviceInfo['ip'] | null = null;
+  private ipPromise: Promise<DeviceInfo['ip']> | null = null;
+  private cityInfo: string | null = null;
+  private cityPromise: Promise<string> | null = null;
+  private readonly ENCRYPTION_KEY = 'your-secret-key-here';
+  
+  // BehaviorSubject для отслеживания состояния загрузки
+  private ipLoadedSubject = new BehaviorSubject<boolean>(false);
+  private cityLoadedSubject = new BehaviorSubject<boolean>(false);
+  
+  // Время последней загрузки для троттлинга
+  private lastIPLoadTime: number = 0;
+  private lastCityLoadTime: number = 0;
+  
+  // Минимальный интервал между запросами (30 минут)
+  private readonly MIN_LOAD_INTERVAL = 30 * 60 * 1000;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -96,7 +111,7 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
   /**
    * Получить всю информацию об устройстве и пользователе
    */
-  async getAllInfo(): Promise<DeviceInfo> {
+  async getAllInfo(includeIP: boolean = false, includeCity: boolean = false): Promise<DeviceInfo> {
     const info: any = {
       userAgent: this.getUserAgent(),
       browser: this.getBrowserInfo(),
@@ -108,11 +123,26 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
       storage: this.getStorageInfo()
     };
 
-    // IP информация (асинхронно)
-    try {
-      info.ip = await this.getIPInfo();
-    } catch (error) {
-      console.warn('IP info not available:', error);
+    // IP информация только если явно запрошено
+    if (includeIP) {
+      try {
+        info.ip = await this.getIPInfo();
+      } catch (error) {
+        console.warn('IP info not available:', error);
+        info.ip = { ip: 'unknown' };
+      }
+    }
+
+    // Город по IP только если явно запрошено
+    if (includeCity && info.ip && info.ip.ip !== 'unknown' && info.ip.ip !== 'not-loaded') {
+      try {
+        const city = await this.detectCityByIP();
+        if (city !== 'Unknown') {
+          info.ip.city = city;
+        }
+      } catch (error) {
+        console.warn('City detection failed:', error);
+      }
     }
 
     // Информация о батарее (асинхронно, если доступно)
@@ -130,8 +160,8 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
   /**
    * Получить всю информацию в виде Observable
    */
-  getAllInfoObservable(): Observable<DeviceInfo> {
-    return from(this.getAllInfo());
+  getAllInfoObservable(includeIP: boolean = false, includeCity: boolean = false): Observable<DeviceInfo> {
+    return from(this.getAllInfo(includeIP, includeCity));
   }
 
   /**
@@ -248,7 +278,7 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
     const chromeMatch = ua.match(/Chrome\/([\d.]+)/);
     const firefoxMatch = ua.match(/Firefox\/([\d.]+)/);
     const safariMatch = ua.match(/Version\/([\d.]+).*Safari/);
-    
+
     browser.version = chromeMatch?.[1] || firefoxMatch?.[1] || safariMatch?.[1] || 'Unknown';
 
     // Мобильное устройство
@@ -332,9 +362,9 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
       };
     }
 
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
+    const connection = (navigator as any).connection ||
+      (navigator as any).mozConnection ||
+      (navigator as any).webkitConnection;
 
     return {
       online: navigator.onLine,
@@ -385,45 +415,92 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
     };
   }
 
-  private async getIPInfo(): Promise<DeviceInfo['ip']> {
+  private async getIPInfo(): Promise<any> {
+    // Если информация уже есть в кэше - возвращаем её
+    if (this.ipInfo) {
+      return this.ipInfo;
+    }
+
+    // Если запрос уже выполняется - возвращаем его результат
+    if (this.ipPromise) {
+      return this.ipPromise;
+    }
+
+    // Проверяем троттлинг (если прошло меньше MIN_LOAD_INTERVAL с последней загрузки)
+    const now = Date.now();
+    if (now - this.lastIPLoadTime < this.MIN_LOAD_INTERVAL && this.lastIPLoadTime > 0) {
+      return { ip: 'throttled', reason: 'load_too_soon' };
+    }
+
     if (!this.isBrowser) {
       return { ip: 'unknown' };
     }
 
-    try {
-      // Попробуем несколько сервисов по очереди
-      const services = [
-        'https://api.ipify.org?format=json',
-        'https://ipapi.co/json/',
-        'https://api.my-ip.io/v2/ip.json'
-      ];
+    // Создаем промис для запроса IP
+    this.ipPromise = new Promise(async (resolve, reject) => {
+      try {
+        this.lastIPLoadTime = Date.now();
+        
+        // Попробуем несколько сервисов по очереди
+        const services = [
+          'https://api.ipify.org?format=json',
+          'https://ipapi.co/json/',
+          'https://api.my-ip.io/v2/ip.json'
+        ];
 
-      for (const service of services) {
-        try {
-          const response: any = await this.http.get(service).toPromise();
-          
-          if (service.includes('ipify')) {
-            return { ip: response.ip };
-          } else if (service.includes('ipapi')) {
-            return {
-              ip: response.ip,
-              city: response.city,
-              country: response.country_name,
-              isp: response.org
-            };
-          } else if (service.includes('my-ip')) {
-            return { ip: response.ip };
+        for (const service of services) {
+          try {
+            const response: any = await this.http.get(service, { 
+              headers: { 'Accept': 'application/json' }
+            }).toPromise();
+
+            let ipInfo: DeviceInfo['ip'];
+
+            if (service.includes('ipify')) {
+              ipInfo = { ip: response.ip };
+            } else if (service.includes('ipapi')) {
+              ipInfo = {
+                ip: response.ip,
+                city: response.city,
+                country: response.country_name,
+                isp: response.org
+              };
+              // Если получили город от сервиса, сохраняем его
+              if (response.city && !this.cityInfo) {
+                this.cityInfo = response.city;
+                this.cityLoadedSubject.next(true);
+              }
+            } else if (service.includes('my-ip')) {
+              ipInfo = { ip: response.ip };
+            }
+
+            // Сохраняем в кэш
+            this.ipInfo = ipInfo;
+            this.ipLoadedSubject.next(true);
+            resolve(ipInfo);
+            return;
+          } catch (error) {
+            console.debug(`IP service ${service} failed:`, error);
+            continue; // Пробуем следующий сервис
           }
-        } catch (error) {
-          continue; // Пробуем следующий сервис
         }
+
+        const unknownIp = { ip: 'unknown' };
+        this.ipInfo = unknownIp;
+        this.ipLoadedSubject.next(true);
+        resolve(unknownIp);
+      } catch (error) {
+        console.error('Error getting IP info:', error);
+        const unknownIp = { ip: 'unknown', error: true };
+        this.ipInfo = unknownIp;
+        this.ipLoadedSubject.next(true);
+        resolve(unknownIp);
+      } finally {
+        this.ipPromise = null;
       }
-      
-      return { ip: 'unknown' };
-    } catch (error) {
-      console.error('Error getting IP info:', error);
-      return { ip: 'unknown' };
-    }
+    });
+
+    return this.ipPromise;
   }
 
   private async getBatteryInfo(): Promise<DeviceInfo['battery']> {
@@ -478,7 +555,7 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
 
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-    
+
     if (gl && gl instanceof WebGLRenderingContext) {
       const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
       return {
@@ -487,19 +564,17 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
         vendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'unknown'
       };
     }
-    
+
     return { supported: false };
   }
 
-
-  
   /**
    * Зашифровать данные устройства
    */
   encryptDeviceInfo(deviceInfo: DeviceInfo): string {
     const jsonString = JSON.stringify(deviceInfo);
     const encrypted = CryptoJS.AES.encrypt(
-      jsonString, 
+      jsonString,
       this.ENCRYPTION_KEY
     ).toString();
     return encrypted;
@@ -520,8 +595,8 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
   /**
    * Получить и зашифровать информацию об устройстве
    */
-  async getEncryptedDeviceInfo(): Promise<string> {
-    const deviceInfo = await this.getAllInfo();
+  async getEncryptedDeviceInfo(includeIP: boolean = false, includeCity: boolean = false): Promise<string> {
+    const deviceInfo = await this.getAllInfo(includeIP, includeCity);
     return this.encryptDeviceInfo(deviceInfo);
   }
 
@@ -529,30 +604,67 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
    * Определить город по IP
    */
   async detectCityByIP(): Promise<string> {
-    try {
-      const ipInfo = await this.getIPInfo();
-      
-      if (ipInfo && ipInfo.city) {
-        return ipInfo.city;
-      }
-      
-      // Если сервис не вернул город, пробуем другие способы
-      if (this.isBrowser) {
-        // Используем геолокацию, если пользователь разрешил
-        try {
-          const location = await this.getLocation();
-          if(location)
-          return await this.getCityByCoordinates(location.latitude, location.longitude);
-        } catch (error) {
-          console.warn('Geolocation not available for city detection');
-        }
-      }
-      
-      return 'Unknown';
-    } catch (error) {
-      console.error('Error detecting city:', error);
-      return 'Unknown';
+    // Если город уже есть в кэше - возвращаем его
+    if (this.cityInfo) {
+      return this.cityInfo;
     }
+
+    // Если запрос уже выполняется - возвращаем его результат
+    if (this.cityPromise) {
+      return this.cityPromise;
+    }
+
+    // Проверяем троттлинг
+    const now = Date.now();
+    if (now - this.lastCityLoadTime < this.MIN_LOAD_INTERVAL && this.lastCityLoadTime > 0) {
+      return 'throttled';
+    }
+
+    this.cityPromise = new Promise(async (resolve, reject) => {
+      try {
+        this.lastCityLoadTime = Date.now();
+        
+        // Сначала получаем IP информацию
+        const ipInfo = await this.getIPInfo();
+        
+        // Если IP сервис уже вернул город, используем его
+        if (ipInfo && ipInfo.city) {
+          this.cityInfo = ipInfo.city;
+          this.cityLoadedSubject.next(true);
+          resolve(ipInfo.city);
+          return;
+        }
+
+        // Если нет города в IP информации, пробуем геолокацию
+        if (this.isBrowser) {
+          try {
+            const location = await this.getLocation();
+            if (location) {
+              const city = await this.getCityByCoordinates(location.latitude, location.longitude);
+              this.cityInfo = city;
+              this.cityLoadedSubject.next(true);
+              resolve(city);
+              return;
+            }
+          } catch (geoError) {
+            console.warn('Geolocation not available for city detection:', geoError);
+          }
+        }
+
+        this.cityInfo = 'Unknown';
+        this.cityLoadedSubject.next(true);
+        resolve('Unknown');
+      } catch (error) {
+        console.error('Error detecting city:', error);
+        this.cityInfo = 'Unknown';
+        this.cityLoadedSubject.next(true);
+        resolve('Unknown');
+      } finally {
+        this.cityPromise = null;
+      }
+    });
+
+    return this.cityPromise;
   }
 
   /**
@@ -562,12 +674,17 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
     try {
       // Используем Nominatim (OpenStreetMap) для обратного геокодирования
       const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-      const response: any = await this.http.get(url).toPromise();
-      
-      return response.address?.city || 
-             response.address?.town || 
-             response.address?.village || 
-             'Unknown';
+      const response: any = await this.http.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'YourAppName/1.0'
+        }
+      }).toPromise();
+
+      return response.address?.city ||
+        response.address?.town ||
+        response.address?.village ||
+        'Unknown';
     } catch (error) {
       console.error('Error getting city by coordinates:', error);
       return 'Unknown';
@@ -579,7 +696,11 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
    */
   async getCompleteDeviceInfo(): Promise<any> {
     const deviceInfo = await this.getAllInfo();
-    const city = await this.detectCityByIP();
+    // Город загружаем только если нужен
+    let city = 'Unknown';
+    if (this.cityInfo) {
+      city = this.cityInfo;
+    }
     
     return {
       ...deviceInfo,
@@ -591,7 +712,7 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
   /**
    * Получить минимизированную информацию для заголовков
    */
-  async getMinimalDeviceInfo(): Promise<any> {
+  async getMinimalDeviceInfo(includeCity: boolean = false): Promise<any> {
     if (!this.isBrowser) {
       return {
         isBrowser: false,
@@ -602,7 +723,11 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
     const browserInfo = this.getBrowserInfo();
     const osInfo = this.getOSInfo();
     const screenInfo = this.getScreenInfo();
-    const city = await this.detectCityByIP();
+    
+    let city = 'Unknown';
+    if (includeCity && this.cityInfo) {
+      city = this.cityInfo;
+    }
 
     return {
       browser: browserInfo.name,
@@ -613,5 +738,111 @@ private readonly ENCRYPTION_KEY = 'your-secret-key-here';
       city: city,
       timestamp: new Date().toISOString()
     };
+  }
+
+  /**
+   * Явный метод для получения только IP информации
+   */
+  async getIPInfoOnly(): Promise<DeviceInfo['ip']> {
+    return this.getIPInfo();
+  }
+
+  /**
+   * Получить информацию о геолокации без IP
+   */
+  async getLocationOnly(): Promise<DeviceInfo['location']> {
+    return this.getLocation();
+  }
+
+  /**
+   * Очистить кэш IP информации
+   */
+  clearIPCache(): void {
+    this.ipInfo = null;
+    this.ipPromise = null;
+    this.ipLoadedSubject.next(false);
+  }
+
+  /**
+   * Очистить кэш города
+   */
+  clearCityCache(): void {
+    this.cityInfo = null;
+    this.cityPromise = null;
+    this.cityLoadedSubject.next(false);
+  }
+
+  /**
+   * Инициализировать загрузку IP (один раз при старте приложения)
+   */
+  async initializeIP(force: boolean = false): Promise<void> {
+    // Если уже загружено и не форсируем - ничего не делаем
+    if (this.ipInfo && !force) {
+      return;
+    }
+
+    try {
+      await this.getIPInfo();
+    } catch (error) {
+      console.error('Failed to initialize IP:', error);
+    }
+  }
+
+  /**
+   * Инициализировать загрузку города (один раз при старте приложения)
+   */
+  async initializeCity(force: boolean = false): Promise<void> {
+    // Если уже загружено и не форсируем - ничего не делаем
+    if (this.cityInfo && !force) {
+      return;
+    }
+
+    try {
+      await this.detectCityByIP();
+    } catch (error) {
+      console.error('Failed to initialize city:', error);
+    }
+  }
+
+  /**
+   * Получить Observable для отслеживания загрузки IP
+   */
+  getIPLoadedObservable(): Observable<boolean> {
+    return this.ipLoadedSubject.asObservable();
+  }
+
+  /**
+   * Получить Observable для отслеживания загрузки города
+   */
+  getCityLoadedObservable(): Observable<boolean> {
+    return this.cityLoadedSubject.asObservable();
+  }
+
+  /**
+   * Проверить, загружена ли IP информация
+   */
+  isIPLoaded(): boolean {
+    return !!this.ipInfo;
+  }
+
+  /**
+   * Проверить, загружена ли информация о городе
+   */
+  isCityLoaded(): boolean {
+    return !!this.cityInfo;
+  }
+
+  /**
+   * Получить IP из кэша (без загрузки)
+   */
+  getCachedIP(): DeviceInfo['ip'] | null {
+    return this.ipInfo;
+  }
+
+  /**
+   * Получить город из кэша (без загрузки)
+   */
+  getCachedCity(): string | null {
+    return this.cityInfo;
   }
 }

@@ -23,11 +23,11 @@
     <button class="menu-button" [class.active]="isMenuOpen" (click)="toggleMenu()" (click)="$event.stopPropagation()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          [attr.transform]="isMenuOpen ? 'rotate(45 12 12)' : 'none'" class="line-1" />
+  [attr.transform]="isMenuOpen ? 'rotate(45 12 12)' : null" class="line-1" />
         <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           [attr.opacity]="isMenuOpen ? '0' : '1'" class="line-2" />
-        <path d="M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          [attr.transform]="isMenuOpen ? 'rotate(-45 12 12)' : 'none'" class="line-3" />
+       <path d="M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+  [attr.transform]="isMenuOpen ? 'rotate(-45 12 12)' : null" class="line-3" />
       </svg>
       <span class="menu-label">Меню</span>
     </button>
