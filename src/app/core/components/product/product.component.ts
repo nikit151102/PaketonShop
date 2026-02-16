@@ -46,12 +46,14 @@ export class ProductComponent implements OnInit {
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
     this.checkProductInBaskets();
+    this.filterBaskets 
   }
 
   private get activeBasketId(): string | null {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
+    console.log('basket',baskets)
 
     if (!baskets || !Array.isArray(baskets)) {
       this.isUserBasket = false;
@@ -68,6 +70,7 @@ export class ProductComponent implements OnInit {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
+    this.filteredBaskets = baskets;
     return baskets;
   }
 
@@ -147,31 +150,6 @@ export class ProductComponent implements OnInit {
     this.showBasketPopup = !this.showBasketPopup;
   }
 
-  // Показываем детали по корзинам
-  showBasketDetails(event: MouseEvent): void {
-    event.stopPropagation();
-    this.showBasketDetailPopup = true;
-  }
-
-  hideBasketDetails(): void {
-    this.showBasketDetailPopup = false;
-  }
-
-  selectBasket(basket: any): void {
-    this.basketsService
-      .addProduct({ productId: this.product.id, basketId: basket.id, count: 1 })
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          this.inCart = true;
-          this.quantitySelectorVisible = true;
-          this.showBasketPopup = false;
-          this.loadUpdatedProductData();
-        },
-        error: (err) =>
-          console.error('Ошибка при добавлении товара в корзину:', err),
-      });
-  }
 
   // Добавляем товар в активную корзину
   addToActiveBasket(): void {
@@ -492,5 +470,90 @@ export class ProductComponent implements OnInit {
 
   closeQuickView() {
     this.showQuickView = false;
+  }
+
+
+
+
+
+
+
+
+
+
+
+    // baskets: any[] = [];
+  filteredBaskets: any[] = [];
+  selectedBasketId: string | null = null;
+  // showBasketPopup = false;
+  // showBasketDetailPopup = false;
+  currentProduct: any = null;
+
+  // Поиск корзин
+  filterBaskets(event: any) {
+    const searchTerm = event.target.value.toLowerCase();
+    this.filteredBaskets = this.baskets.filter((basket: any) => 
+      basket.name.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Выбор корзины
+  selectBasket(basket: any) {
+    this.selectedBasketId = basket.id;
+    console.log('Выбрана корзина:', basket);
+    // Здесь ваш код добавления товара в корзину
+    this.closeBasketPopup();
+    
+    // Показываем уведомление об успехе
+    this.showSuccessNotification(`Товар добавлен в "${basket.name}"`);
+  }
+
+  // Показать детали корзины
+  showBasketDetails(event: Event, basket: any) {
+    event.stopPropagation();
+    // this.currentProduct = this.getCurrentProduct(); // Получите текущий товар
+    this.showBasketDetailPopup = true;
+    this.showBasketPopup = false;
+  }
+
+  // Создать новую корзину
+  createNewBasket() {
+    console.log('Создание новой корзины');
+    // Здесь ваш код создания корзины
+    this.closeBasketPopup();
+  }
+
+  // Уведомление об успехе
+  showSuccessNotification(message: string) {
+    // Используйте ваш компонент уведомлений или простой alert
+    const notification = document.createElement('div');
+    notification.className = 'success-toast';
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-color);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+  }
+
+  // Закрытие попапов
+  closeBasketPopup() {
+    this.showBasketPopup = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  hideBasketDetails() {
+    this.showBasketDetailPopup = false;
+    document.body.style.overflow = 'auto';
   }
 }
