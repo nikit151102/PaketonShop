@@ -189,4 +189,5 @@ export class UserDataService {
   getUserData$(): Observable<UserData> {
     return this.userData.asObservable();
   }
+
 }

@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, HostListener, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../modules/auth/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { User, UserService } from '../../services/user.service';
 import { Observable, map, take } from 'rxjs';
 import { StorageUtils } from '../../../../utils/storage.utils';

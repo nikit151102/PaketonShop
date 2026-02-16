@@ -12,7 +12,7 @@ import { memoryCacheEnvironment } from '../../../../environment';
 import { take } from 'rxjs';
 import { ComparingService } from '../../api/comparing.service';
 import { ProductsService } from '../../services/products.service';
-import { AuthService } from '../../../modules/auth/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-product',

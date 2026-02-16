@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import {
   AbstractControl,
   FormBuilder,

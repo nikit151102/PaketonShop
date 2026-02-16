@@ -467,7 +467,6 @@ export class UserDataComponent implements OnInit {
     return 'Неверное значение';
   }
 
-  // Обновите prepareFormData для телефона
   private prepareFormData(): any {
     const formValue = this.userForm.value;
 

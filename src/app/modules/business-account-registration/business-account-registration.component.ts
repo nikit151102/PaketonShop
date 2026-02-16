@@ -1,12 +1,19 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { finalize, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { finalize, map, switchMap, takeUntil } from 'rxjs/operators';
+import { of, Subject } from 'rxjs';
 
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations'; // Добавьте этот импорт
+import { AuthService } from '../../core/services/auth.service';
+import { StorageUtils } from '../../../utils/storage.utils';
+import { localStorageEnvironment } from '../../../environment';
+import { UserApiService } from '../../core/api/user.service';
+import { UserService } from '../../core/services/user.service';
+import { PartnerService } from '../../core/api/partner.service';
+import { WholesaleOrderService } from '../../core/api/wholesale-order.service';
 
 // Добавьте константу с анимациями
 const animations = [
@@ -36,13 +43,14 @@ const animations = [
   ])
 ];
 
-
 interface BusinessAccountData {
   user: {
     email: string;
     password: string;
     firstName: string;
     lastName: string;
+    middleName: string;
+    birthday: string;
     phoneNumber: string;
   };
   company: {
@@ -123,57 +131,57 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   companyRegistrationDate: Date | null = null;
 
   // Document types - Updated based on requirements
-documentTypes: any = [
-  // Для ООО - обязательные
-  { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
-  { id: 3, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
-  { id: 4, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
-  { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
-  
-  // Для ООО - необязательные (только если регистрация до 2017)
-  { 
-    id: 6, 
-    name: 'Свидетельство ОГРН', 
-    requiredFor: [], 
-    optionalFor: [1], 
-    condition: 'before2017' 
-  },
-  { 
-    id: 7, 
-    name: 'Свидетельство ИНН/КПП', 
-    requiredFor: [], 
-    optionalFor: [1], 
-    condition: 'before2017' 
-  },
-  
-  // Для ИП (регистрация до 2017)
-  { 
-    id: 8, 
-    name: 'Свидетельство ОГРНИП (для регистраций до 2017 г.)', 
-    requiredFor: [], 
-    optionalFor: [2], 
-    condition: 'before2017' 
-  },
-  { 
-    id: 9, 
-    name: 'Свидетельство ИНН', 
-    requiredFor: [], 
-    optionalFor: [2], 
-    condition: 'before2027' 
-  },
-  
-  // Для ИП (регистрация с 2017 и позже)
-  { 
-    id: 10, 
-    name: 'Лист записи ЕГРИП', 
-    requiredFor: [], 
-    optionalFor: [2], 
-    condition: 'after2017' 
-  },
-  
-  // Обязательные для всех
-  { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
-];
+  documentTypes: any = [
+    // Для ООО - обязательные
+    { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
+    { id: 3, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
+    { id: 4, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
+    { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
+
+    // Для ООО - необязательные (только если регистрация до 2017)
+    {
+      id: 6,
+      name: 'Свидетельство ОГРН',
+      requiredFor: [],
+      optionalFor: [1],
+      condition: 'before2017'
+    },
+    {
+      id: 7,
+      name: 'Свидетельство ИНН/КПП',
+      requiredFor: [],
+      optionalFor: [1],
+      condition: 'before2017'
+    },
+
+    // Для ИП (регистрация до 2017)
+    {
+      id: 8,
+      name: 'Свидетельство ОГРНИП (для регистраций до 2017 г.)',
+      requiredFor: [],
+      optionalFor: [2],
+      condition: 'before2017'
+    },
+    {
+      id: 9,
+      name: 'Свидетельство ИНН',
+      requiredFor: [],
+      optionalFor: [2],
+      condition: 'before2027'
+    },
+
+    // Для ИП (регистрация с 2017 и позже)
+    {
+      id: 10,
+      name: 'Лист записи ЕГРИП',
+      requiredFor: [],
+      optionalFor: [2],
+      condition: 'after2017'
+    },
+
+    // Обязательные для всех
+    { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
+  ];
 
   // Uploaded files
   uploadedDocuments: DocumentData[] = [];
@@ -195,7 +203,13 @@ documentTypes: any = [
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private userApiService: UserApiService,
+    private userService: UserService,
+    private router: Router,
+    private authService: AuthService,
+    private partnerService: PartnerService,
+    private wholesaleOrderService: WholesaleOrderService
   ) {
     this.userForm = this.createUserForm();
     this.companyForm = this.createCompanyForm();
@@ -223,6 +237,8 @@ documentTypes: any = [
       confirmPassword: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
+      middleName: [''],
+      birthday: [''],
       phoneNumber: ['', [Validators.required, this.phoneValidator]],
       agreeToTerms: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
@@ -345,28 +361,28 @@ documentTypes: any = [
   }
 
   getRequiredDocuments(): any[] {
-  if (!this.selectedPartnerType) return [];
-  
-  return this.documentTypes.filter((doc: any) => {
-    // Проверяем, что документ нужен для текущего типа партнера
-    const isForPartnerType = doc.requiredFor.includes(this.selectedPartnerType!.code);
-    
-    if (!isForPartnerType) return false;
-    
-    // Если нет даты регистрации, показываем документы, у которых нет condition
-    if (!this.companyRegistrationDate && doc.condition) {
-      return false;
-    }
-    
-    // Если есть дата, проверяем условия
-    if (doc.condition && this.companyRegistrationDate) {
-      return this.checkDocumentCondition(doc);
-    }
-    
-    // Документы без условий всегда показываем
-    return true;
-  });
-}
+    if (!this.selectedPartnerType) return [];
+
+    return this.documentTypes.filter((doc: any) => {
+      // Проверяем, что документ нужен для текущего типа партнера
+      const isForPartnerType = doc.requiredFor.includes(this.selectedPartnerType!.code);
+
+      if (!isForPartnerType) return false;
+
+      // Если нет даты регистрации, показываем документы, у которых нет condition
+      if (!this.companyRegistrationDate && doc.condition) {
+        return false;
+      }
+
+      // Если есть дата, проверяем условия
+      if (doc.condition && this.companyRegistrationDate) {
+        return this.checkDocumentCondition(doc);
+      }
+
+      // Документы без условий всегда показываем
+      return true;
+    });
+  }
 
   getOptionalDocuments(): any[] {
     if (!this.selectedPartnerType) return [];
@@ -470,19 +486,33 @@ documentTypes: any = [
     switch (this.currentStep) {
       case 1:
         this.accountData.user = this.userForm.value;
+
+        this.userForm.markAsPristine();
         this.progress.step1 = true;
+
         break;
       case 2:
+        const formData = this.companyForm.value;
         this.accountData.company = {
-          ...this.companyForm.value,
+          ...formData,
           registrationDate: this.companyRegistrationDate
         };
+
         this.progress.step2 = true;
         break;
       case 3:
         this.progress.step3 = true;
         break;
     }
+  }
+
+  getCurrentStepDescription(): any {
+    const descriptions: any = {
+      1: 'Расскажите о себе и своем бизнесе',
+      2: 'Выберите оптимальные условия сотрудничества',
+      3: 'Подтвердите данные и получите доступ'
+    };
+    return descriptions[this.currentStep] || '';
   }
 
   // UI Helpers
@@ -977,45 +1007,148 @@ documentTypes: any = [
     this.isSubmitting = true;
     this.error = null;
 
-    const formData = new FormData();
+    // Обновляем данные пользователя из формы
+    this.accountData.user = this.userForm.value;
 
-    formData.append('user', JSON.stringify(this.accountData.user));
-    formData.append('company', JSON.stringify(this.accountData.company));
+    // Регистрируем пользователя
+    const registerData = {
+      email: this.accountData.user.email,
+      password: this.accountData.user.password,
+      isEmailSend: 'false',
+    };
 
-    if (this.uploadMethod === 'single') {
-      this.accountData.documents.forEach((doc, index) => {
-        formData.append(`documents[${index}].type`, doc.type.toString());
-        formData.append(`documents[${index}].file`, doc.file, doc.fileName);
-      });
-    } else if (this.uploadMethod === 'cloud') {
-      formData.append('cloudLink', this.cloudLink);
-      formData.append('cloudProvider', this.selectedProvider);
-    } else if (this.uploadMethod === 'archive' && this.archiveFile) {
-      formData.append('archive', this.archiveFile, this.archiveFile.name);
-    }
+    this.authService.register(registerData).pipe(
+      // После успешной регистрации сохраняем токен и обновляем данные пользователя
+      switchMap((response) => {
+        StorageUtils.setLocalStorageCache(
+          localStorageEnvironment.auth.key,
+          response.data.token,
+          localStorageEnvironment.auth.ttl,
+        );
 
-    formData.append('uploadMethod', this.uploadMethod);
+        const userFormData = {
+          firstName: this.accountData.user.firstName,
+          lastName: this.accountData.user.lastName,
+          middleName: this.accountData.user.middleName,
+          birthday: this.accountData.user.birthday,
+          phoneName: this.accountData.user.phoneNumber,
+          email: this.accountData.user.email
+        };
 
-    const apiUrl = '/api/business-account/register';
+        // Обновляем данные пользователя и затем получаем обновленные данные
+        return this.userApiService.updateData(userFormData).pipe(
+          switchMap(() => this.userApiService.getData())
+        );
+      }),
+      // После получения данных пользователя создаем партнера
+      switchMap((userData) => {
+        this.userService.setUser(userData.data, 'session', true);
+        this.userForm.markAsPristine();
 
-    this.http.post(apiUrl, formData)
-      .pipe(
-        finalize(() => this.isSubmitting = false)
-      )
-      .subscribe({
-        next: (response: any) => {
-          this.success = true;
-          this.progress.step3 = true;
+        const userInstance = userData.data;
 
-          setTimeout(() => {
-            this.resetAllForms();
-          }, 3000);
-        },
-        error: (err) => {
-          this.error = err.error?.message || 'Произошла ошибка при регистрации. Попробуйте еще раз.';
-          console.error('Registration error:', err);
+        const formCompanyFormData = this.companyForm.value;
+        const partnerCreateDTO = {
+          fullName: formCompanyFormData.fullName,
+          shortName: formCompanyFormData.shortName,
+          inn: formCompanyFormData.inn,
+          ogrn: formCompanyFormData.ogrn,
+          kpp: formCompanyFormData.kpp,
+          address: {
+            country: this.accountData.company.address.country,
+            region: this.accountData.company.address.region,
+            city: this.accountData.company.address.city,
+            street: this.accountData.company.address.street,
+            house: this.accountData.company.address.house
+          }
+        };
+
+        const newPartner: any = {
+          partnerCreateDTO: partnerCreateDTO
+        };
+
+        // Создаем партнера и возвращаем результат вместе с userInstance
+        return this.partnerService.setPartnerUser(newPartner).pipe(
+          map((partnerResponse) => ({
+            userInstance,
+            partnerInstance: partnerResponse.data
+          }))
+        );
+      }),
+      // После создания партнера создаем заказ
+      switchMap(({ userInstance, partnerInstance }) => {
+        return this.wholesaleOrderService.createOrder({
+          beginDateTime: null,
+          endDateTime: null,
+          partnerInstanceId: partnerInstance.id,
+          userInstanceId: userInstance.id
+        }).pipe(
+          map((orderResponse) => ({
+            userInstance,
+            partnerInstance,
+            orderId: orderResponse.data.id // предполагаем, что id заказа приходит в ответе
+          }))
+        );
+      }),
+      // После создания заказа загружаем документы
+      switchMap(({ userInstance, partnerInstance, orderId }) => {
+        // Если есть документы для загрузки
+        if (this.accountData.documents?.length > 0) {
+          let files: File[] = [];
+
+          if (this.uploadMethod === 'single') {
+            // Собираем все файлы из documents
+            files = this.accountData.documents
+              .filter(doc => doc.file) // отфильтровываем документы без файлов
+              .map(doc => doc.file);
+          } else if (this.uploadMethod === 'archive' && this.archiveFile) {
+            files = [this.archiveFile];
+          }
+
+          // Если есть файлы для загрузки
+          if (files.length > 0) {
+            return this.wholesaleOrderService.addDocuments(orderId, files).pipe(
+              map(() => ({
+                userInstance,
+                partnerInstance,
+                orderId
+              }))
+            );
+          }
         }
-      });
+
+        // Если документов нет или метод загрузки 'cloud'
+        // Возвращаем тот же объект без загрузки документов
+        return of({ userInstance, partnerInstance, orderId });
+      })
+    ).subscribe({
+      next: (result) => {
+        this.isSubmitting = false;
+
+        // Если метод загрузки 'cloud', нужно обработать cloudLink отдельно
+        if (this.uploadMethod === 'cloud' && this.cloudLink) {
+          // Здесь логика для сохранения cloudLink
+          console.log('Cloud link:', this.cloudLink, 'Provider:', this.selectedProvider);
+          // Возможно, нужно отправить cloudLink отдельным запросом
+          // this.wholesaleOrderService.addCloudLink(result.orderId, this.cloudLink, this.selectedProvider).subscribe(...)
+        }
+
+
+        // Например, редирект на страницу успеха
+        // this.router.navigate(['/success'], { queryParams: { orderId: result.orderId } });
+
+        // Или показать уведомление
+        // this.notificationService.showSuccess('Компания успешно зарегистрирована');
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.error = error.message || 'Произошла ошибка при регистрации';
+        console.error('Ошибка при регистрации:', error);
+
+        // Показать уведомление об ошибке
+        // this.notificationService.showError(this.error);
+      }
+    });
   }
 
   private resetAllForms(): void {

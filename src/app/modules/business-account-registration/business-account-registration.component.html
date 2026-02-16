@@ -62,15 +62,19 @@
     <!-- Header with Progress -->
     <header class="registration-header">
       <div class="header-top">
-        <a href="/" class="logo">
-          <svg viewBox="0 0 40 40">
-            <path
-              d="M20 0C9 0 0 9 0 20s9 20 20 20 20-9 20-20S31 0 20 0zm0 36c-8.8 0-16-7.2-16-16S11.2 4 20 4s16 7.2 16 16-7.2 16-16 16z" />
-            <path
-              d="M20 10c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" />
-          </svg>
-          <span>BusinessPro</span>
-        </a>
+
+        <h1>
+          Бизнес-партнер: <span class="gradient-text">пакет "Профессиональный"</span>
+        </h1>
+        <div class="discount-badge">
+          <div class="discount-info">
+            <span class="discount-label">Ваша скидка:</span>
+            <span class="discount-value">20%</span>
+          </div>
+          <div class="discount-hint">Заполните данные, чтобы зафиксировать скидку</div>
+        </div>
+
+
 
         <div class="user-progress">
           <div class="progress-info">
@@ -87,7 +91,16 @@
         <div class="header-content">
           <div class="step-indicator">
             <div class="step-badge">Шаг {{ currentStep }} из {{ totalSteps }}</div>
-            <h1>{{ getCurrentStepTitle() }}</h1>
+            <div class="header-actions">
+
+              <button class="help-btn" (click)="toggleHelp()">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+                </svg>
+                Помощь
+              </button>
+            </div>
           </div>
 
           <div class="step-nav-tabs">
@@ -112,16 +125,6 @@
             </button>
             }
           </div>
-        </div>
-
-        <div class="header-help">
-          <button class="help-btn" (click)="toggleHelp()">
-            <svg viewBox="0 0 24 24">
-              <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
-            </svg>
-            Помощь
-          </button>
         </div>
       </div>
     </header>
@@ -270,6 +273,23 @@
                   </label>
                   <input type="text" formControlName="firstName" placeholder="Иван" class="modern-input">
                 </div>
+
+                <div class="form-group"
+                  [class.error]="userForm.get('middleName')?.invalid && userForm.get('middleName')?.touched">
+                  <label class="form-label">
+                    <span>Отчество</span>
+                  </label>
+                  <input type="text" formControlName="middleName" placeholder="Иванович" class="modern-input">
+                </div>
+
+                <div class="form-group"
+                  [class.error]="userForm.get('birthday')?.invalid && userForm.get('birthday')?.touched">
+                  <label class="form-label">
+                    <span>Дата рождения</span>
+                  </label>
+                  <input type="date" formControlName="birthday" placeholder="дд.мм.гггг" class="modern-input">
+                </div>
+
               </div>
             </div>
 

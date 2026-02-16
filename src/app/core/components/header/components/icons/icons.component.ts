@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AuthService } from '../../../../../modules/auth/auth.service';
+import { AuthService } from '../../../../services/auth.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { CommonModule } from '@angular/common';
 import { User, UserService } from '../../../../services/user.service';
