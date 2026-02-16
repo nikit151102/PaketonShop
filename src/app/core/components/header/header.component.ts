@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -24,25 +24,34 @@ import { City, LocationService } from '../location/location.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   mobileMenuOpen = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
     public locationService: LocationService,
-  ) {}
+  ) { }
 
   city$!: typeof this.locationService.city$;
   detectedCity$!: typeof this.locationService.detectedCity$;
   showCityModal$!: typeof this.locationService.showCityModal$;
   currentSession$!: typeof this.locationService.currentSession$;
-  async ngOnInit() {
-    await this.locationService.init();
-    this.city$ = this.locationService.city$;
-    this.detectedCity$ = this.locationService.detectedCity$;
-    this.currentSession$ = this.locationService.currentSession$;
-  }
+
+cityName: string = '';
+
+async ngOnInit() {
+  await this.locationService.init();
+  
+  this.city$ = this.locationService.city$; 
+  
+  this.city$.subscribe(city => {
+    this.cityName = city?.name || '';
+  });
+  
+  this.detectedCity$ = this.locationService.detectedCity$;
+  this.currentSession$ = this.locationService.currentSession$;
+}
 
   openCityListModal() {
     this.locationService.openCityListModal();
