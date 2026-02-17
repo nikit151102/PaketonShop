@@ -53,7 +53,6 @@ export class ProductComponent implements OnInit {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
-    console.log('basket',baskets)
 
     if (!baskets || !Array.isArray(baskets)) {
       this.isUserBasket = false;
