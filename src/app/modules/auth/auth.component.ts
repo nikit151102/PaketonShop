@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import {
   AbstractControl,
@@ -29,7 +29,8 @@ export class AuthComponent implements OnInit, OnDestroy {
   authForm: FormGroup;
   isSubmitting: boolean = false;
   authMode: 'login' | 'register' = 'login';
-  
+  isRedirecting = computed(() => this.authService.isRedirectingToProfile())
+
   // Error messages
   formErrors: any = {};
   validationMessages = {
@@ -99,7 +100,7 @@ export class AuthComponent implements OnInit, OnDestroy {
       if (this.authMode === 'register') {
         const password = formGroup.get('password')?.value;
         const confirmPassword = formGroup.get('confirmPassword')?.value;
-        
+
         if (password && confirmPassword && password !== confirmPassword) {
           return { passwordMismatch: true };
         }
@@ -129,10 +130,10 @@ export class AuthComponent implements OnInit, OnDestroy {
   // Update error messages
   updateFormErrors(): void {
     this.formErrors = {};
-    
+
     Object.keys(this.authForm.controls).forEach(field => {
       const control = this.authForm.get(field);
-      
+
       if (control && control.invalid && (control.dirty || control.touched)) {
         const messages = this.validationMessages[field as keyof typeof this.validationMessages];
         if (messages) {
@@ -186,7 +187,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         isEmailSend: 'false',
       };
       delete data.confirmPassword;
-      
+
       this.authService.register(data).subscribe({
         next: (res) => {
           this.handleRegistrationSuccess(res);
@@ -211,7 +212,10 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.userApiService.getData().subscribe((data) => {
       this.userService.setUser(data.data, 'session', true);
       this.closePopUp();
-      this.router.navigate(['/profile']);
+      console.log('isRedirecting', this.isRedirecting())
+      if (this.isRedirecting() == true) {
+        this.router.navigate(['/profile']);
+      }
     });
   }
 
@@ -223,7 +227,7 @@ export class AuthComponent implements OnInit, OnDestroy {
       password: '',
       confirmPassword: ''
     });
-    
+
     // Show success toast or message
     console.log('Registration successful! Please login.');
   }
@@ -250,7 +254,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.authForm.reset();
     this.formErrors = {};
     this.isSubmitting = false;
-    
+
     // Reset validators based on mode
     if (this.authMode === 'login') {
       this.authForm.get('confirmPassword')?.clearValidators();

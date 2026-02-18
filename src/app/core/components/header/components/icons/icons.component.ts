@@ -34,8 +34,8 @@ export class IconsComponent {
       localStorageEnvironment.auth.key,
     );
 
-    console.log('authToken', authToken)
     if (!authToken) {
+      this.authService.setRedirectingToProfile(true);
       this.authService.changeVisible(true);
       return;
     }

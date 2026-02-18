@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
@@ -39,11 +39,23 @@ export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'auth_user';
 
-  constructor(private http: HttpClient) {}
+  public isRedirectingToProfile = signal<boolean>(true);
+
+  setRedirectingToProfile(value: boolean) {
+    this.isRedirectingToProfile.set(value);
+  }
+
+  get redirectingToProfile(): boolean {
+    return this.isRedirectingToProfile();
+  }
+
+  constructor(private http: HttpClient) { }
 
   changeVisible(value: boolean) {
     this.visibleSubject.next(value);
   }
+
+
 
   // Авторизация пользователя
   login(

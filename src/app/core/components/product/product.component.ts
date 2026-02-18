@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, computed, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from '../../pipes/clear-url';
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { ProductFavoriteService } from '../../api/product-favorite.service';
 import { BasketsService } from '../../api/baskets.service';
 import { StorageUtils } from '../../../../utils/storage.utils';
-import { memoryCacheEnvironment } from '../../../../environment';
+import { localStorageEnvironment, memoryCacheEnvironment } from '../../../../environment';
 import { take } from 'rxjs';
 import { ComparingService } from '../../api/comparing.service';
 import { ProductsService } from '../../services/products.service';
@@ -33,6 +33,7 @@ export class ProductComponent implements OnInit {
   selectedQuantity = 1;
   quantitySelectorVisible = false;
   showBasketDetailPopup = false;
+  isRedirecting = computed(() => this.authService.isRedirectingToProfile())
 
   constructor(
     public locationService: LocationService,
@@ -41,12 +42,13 @@ export class ProductComponent implements OnInit {
     private basketsService: BasketsService,
     private productsService: ProductsService,
     private comparingService: ComparingService,
-    private authService:AuthService
+    private authService: AuthService
   ) { }
+
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
     this.checkProductInBaskets();
-    this.filterBaskets 
+    this.filterBaskets
   }
 
   private get activeBasketId(): string | null {
@@ -75,7 +77,7 @@ export class ProductComponent implements OnInit {
 
   // Проверяем, есть ли товар в активной корзине
   isInActiveBasket(): boolean {
-    
+
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return false;
 
@@ -319,10 +321,20 @@ export class ProductComponent implements OnInit {
       });
   }
 
-  // Добавить 1 товар
   addOneToCart(): void {
 
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
+
+    if (!authToken) {
+      this.authService.setRedirectingToProfile(false);
+      this.authService.changeVisible(true);
+      return;
+    }
+
     if (this.isUserBasket == false) {
+      this.authService.changeVisible(true);
       return;
     }
 
@@ -421,26 +433,26 @@ export class ProductComponent implements OnInit {
     this.router.navigate(['/product', this.product.id]);
   }
 
- toggleFavorite(event: MouseEvent) {
-  event.stopImmediatePropagation();
-  event.preventDefault();
-  
-  this.productFavoriteService
-    .addToFavorites(this.product.id)
-    .subscribe({
-      next: (value: any) => {
-        console.log('Добавлено в избранное:', value);
-      },
-      error: (error) => {
-        if (error.status === 401) {
-          console.error('Пользователь не авторизован');
-        this.authService.changeVisible(true);
-        } else {
-          console.error('Произошла ошибка:', error);
+  toggleFavorite(event: MouseEvent) {
+    event.stopImmediatePropagation();
+    event.preventDefault();
+
+    this.productFavoriteService
+      .addToFavorites(this.product.id)
+      .subscribe({
+        next: (value: any) => {
+          console.log('Добавлено в избранное:', value);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            console.error('Пользователь не авторизован');
+            this.authService.changeVisible(true);
+          } else {
+            console.error('Произошла ошибка:', error);
+          }
         }
-      }
-    });
-}
+      });
+  }
 
   toggleCompare(event: MouseEvent) {
     event.stopImmediatePropagation();
@@ -455,7 +467,7 @@ export class ProductComponent implements OnInit {
       error: (error) => {
         if (error.status === 401) {
           console.error('Пользователь не авторизован');
-        this.authService.changeVisible(true);
+          this.authService.changeVisible(true);
         } else {
           console.error('Произошла ошибка:', error);
         }
@@ -481,7 +493,7 @@ export class ProductComponent implements OnInit {
 
 
 
-    // baskets: any[] = [];
+  // baskets: any[] = [];
   filteredBaskets: any[] = [];
   selectedBasketId: string | null = null;
   // showBasketPopup = false;
@@ -491,7 +503,7 @@ export class ProductComponent implements OnInit {
   // Поиск корзин
   filterBaskets(event: any) {
     const searchTerm = event.target.value.toLowerCase();
-    this.filteredBaskets = this.baskets.filter((basket: any) => 
+    this.filteredBaskets = this.baskets.filter((basket: any) =>
       basket.name.toLowerCase().includes(searchTerm)
     );
   }
@@ -502,7 +514,7 @@ export class ProductComponent implements OnInit {
     console.log('Выбрана корзина:', basket);
     // Здесь ваш код добавления товара в корзину
     this.closeBasketPopup();
-    
+
     // Показываем уведомление об успехе
     this.showSuccessNotification(`Товар добавлен в "${basket.name}"`);
   }
