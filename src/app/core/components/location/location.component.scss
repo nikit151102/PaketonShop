@@ -1,187 +1,1582 @@
-/* Модалка */
-.city-modal {
+// Основные цвета
+$primary: #327120;
+$primary-light: #4a9e2f;
+$primary-dark: #255a16;
+$primary-soft: rgba(50, 113, 32, 0.08);
+$primary-bg: rgba(50, 113, 32, 0.03);
+
+$text-primary: #1a1a1a;
+$text-secondary: #666666;
+$text-tertiary: #999999;
+
+$bg-light: #ffffff;
+$bg-gray: #f8f9fa;
+$border-color: #eaeef2;
+$shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+$shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.12);
+
+// Анимации
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+// Общие стили
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 10px;
+  padding: 12px;
+  animation: fadeIn 0.3s ease;
 }
 
-.city-modal-content {
-  background: #fff;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 1000px;
+.modal-container {
+  background: $bg-light;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 800px;
   max-height: 90vh;
-  overflow-y: auto;
-  padding: 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  box-shadow: $shadow-lg;
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
 
-  @media (max-width: 768px) {
-    padding: 10px;
+  &.city-modal {
+    max-width: 720px;
+  }
+
+  &.store-modal {
+    max-width: 680px;
   }
 }
 
-.city-modal-content h3 {
-  text-align: center;
-  color: #2575fc;
-  margin-bottom: 20px;
-}
-
-/* Контейнер селектора */
-.city-selector {
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid $border-color;
   display: flex;
-  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  background: $bg-light;
+
+  .header-content {
+    flex: 1;
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 2px;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-subtitle {
+      font-size: 14px;
+      color: $text-secondary;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: $bg-gray;
+    color: $text-secondary;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+
+    &:hover {
+      background: $primary-soft;
+      color: $primary;
+      transform: rotate(90deg);
+    }
+  }
 }
 
-.district-list {
+// Поиск
+.search-wrapper {
+  padding: 16px 24px;
+  position: relative;
+
+  .search-icon {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-input {
+    width: -webkit-fill-available;
+    padding: 12px 16px 12px 44px;
+    border: 2px solid $border-color;
+    border-radius: 50px;
+    font-size: 15px;
+    transition: all 0.2s;
+    background: $bg-light;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 4px rgba(50, 113, 32, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-tertiary;
+      font-size: 14px;
+    }
+  }
+
+  .search-hint {
+    position: absolute;
+    left: 40px;
+    right: 24px;
+    top: 100%;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 4px;
+    box-shadow: $shadow;
+    z-index: 10;
+    text-align: center;
+    color: $text-secondary;
+    font-size: 13px;
+  }
+}
+
+// Популярные города
+.popular-cities {
+  padding: 0 24px 16px;
+
+  .popular-header {
+    margin-bottom: 10px;
+
+    .popular-title {
+      font-size: 13px;
+      color: $text-tertiary;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  .popular-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .popular-city-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid $border-color;
+      border-radius: 30px;
+      background: $bg-light;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: $text-primary;
+
+      svg {
+        flex-shrink: 0;
+      }
+
+      &:hover {
+        border-color: $primary;
+        background: $primary-bg;
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+      }
+    }
+  }
+}
+
+// Селектор города
+.city-selector {
   flex: 1;
-  border-right: 1px solid #eee;
-  max-height: 70vh;
+  display: flex;
+  overflow: hidden;
+  min-height: 380px;
+}
+
+// Панели
+.districts-panel,
+.cities-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $bg-light;
+
+  .panel-header {
+    padding: 0 24px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .panel-title {
+      font-weight: 600;
+      color: $text-primary;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .panel-count {
+      background: $primary-soft;
+      color: $primary;
+      padding: 3px 8px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+  }
+}
+
+.districts-list,
+.cities-list {
+  flex: 1;
   overflow-y: auto;
+  padding: 0 24px 24px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $bg-gray;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 10px;
+
+    &:hover {
+      background: $text-tertiary;
+    }
+  }
 }
 
-.district-list ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.district-item {
-  padding: 12px 16px;
+.district-btn {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  background: $bg-light;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   cursor: pointer;
-  border-radius: 10px;
-  transition: 0.2s;
+  transition: all 0.2s;
+  text-align: left;
+  font-size: 15px;
+  color: $text-primary;
+
+  &.selected {
+    border-color: $primary;
+    background: $primary-bg;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-bg;
+    transform: translateX(4px);
+    box-shadow: $shadow-sm;
+
+    .city-count {
+      background: $primary;
+      color: white;
+    }
+  }
+
+  .district-name {
+    font-weight: 500;
+  }
+
+  .district-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .city-count {
+      background: $bg-gray;
+      color: $text-secondary;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .arrow-icon {
+      opacity: 0.5;
+      transition: all 0.2s;
+    }
+  }
+
+  &:hover .arrow-icon {
+    opacity: 1;
+    transform: translateX(4px);
+  }
 }
 
-.district-item:hover {
-  background: #eef4ff;
-  color: #2575fc;
-  font-weight: 600;
-}
+.city-btn {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border: 1px solid $border-color;
+  border-radius: 16px;
+  background: $bg-light;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
 
-/* Панель городов */
-.city-list-panel {
-  flex: 2;
-  max-height: 70vh;
-  overflow-y: auto;
+  &.selected {
+    border-color: $primary;
+    background: $primary-bg;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-bg;
+    transform: translateX(4px);
+    box-shadow: $shadow-sm;
+
+    .arrow-icon {
+      opacity: 1;
+      transform: translateX(4px);
+    }
+  }
+
+  .city-info {
+    flex: 1;
+
+    .city-name {
+      display: block;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .city-population {
+      font-size: 12px;
+      color: $text-tertiary;
+    }
+  }
+
+  .city-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .store-count {
+      background: $primary-soft;
+      color: $primary;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .arrow-icon {
+      opacity: 0.5;
+      transition: all 0.2s;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
 .back-btn {
-  margin-bottom: 10px;
-  background: #eee;
+  margin: 0 24px 12px;
+  padding: 10px 14px;
   border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
+  background: $bg-gray;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: $primary;
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: $primary-soft;
+    gap: 8px;
+  }
 }
 
-.back-btn:hover {
-  background: #ddd;
+.detected-city {
+  margin: 12px 24px 20px;
+  padding: 14px 16px;
+  border: 1px dashed $border-color;
+  border-radius: 14px;
+  background: $primary-bg;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.available {
+    border-color: $primary;
+    background: $primary-soft;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-soft;
+    transform: translateY(-2px);
+    box-shadow: $shadow;
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  .detected-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .detected-label {
+      font-size: 11px;
+      color: $text-tertiary;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .detected-city-name {
+      color: $primary;
+      font-weight: 600;
+      font-size: 15px;
+    }
+  }
+
+  .detected-badge {
+    background: $primary;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+  }
 }
 
-.city-list-panel h4 {
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: $text-tertiary;
+  font-size: 14px;
+
+  svg {
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+}
+
+// Модалка магазинов
+.stores-stats {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  background: $primary-bg;
+  border-bottom: 1px solid $border-color;
+
+  .stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    background: $bg-light;
+    border-radius: 12px;
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: $primary;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: $text-secondary;
+    }
+  }
+}
+
+.store-search {
+  padding: 16px 24px 8px;
+}
+
+.stores-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stores-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $bg-gray;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 10px;
+
+    &:hover {
+      background: $text-tertiary;
+    }
+  }
+
+  &.with-detail {
+    padding-top: 0;
+  }
+}
+
+.selection-indicator {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: $primary-soft;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    color: $primary;
+    font-weight: 500;
+    font-size: 13px;
+  }
+}
+
+.stores-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0 12px;
+
+  h4 {
+    font-size: 14px;
+    color: $text-secondary;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .stores-count {
+    background: $bg-gray;
+    color: $text-tertiary;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+  }
+}
+
+.store-card {
+  width: 100%;
+  padding: 16px;
   margin-bottom: 10px;
-  color: #2575fc;
-}
-
-/* Города */
-.city-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.city-item {
-  padding: 8px 12px;
-  margin-bottom: 4px;
-  border-radius: 8px;
+  border: 1px solid $border-color;
+  border-radius: 18px;
+  background: $bg-light;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.3s;
+  text-align: left;
+
+  &:hover {
+    border-color: $primary;
+    box-shadow: $shadow;
+    transform: translateY(-2px);
+
+    .store-icon {
+      background: $primary;
+      
+      svg path {
+        fill: white;
+      }
+    }
+
+    .store-select-icon svg {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  &.selected {
+    border-color: $primary;
+    background: $primary-bg;
+
+    .store-icon {
+      background: $primary;
+      
+      svg path {
+        fill: white;
+      }
+    }
+  }
+
+  &.detail-view {
+    border: 2px solid $primary;
+    margin-bottom: 4px;
+  }
+
+  .store-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: $primary-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+
+    svg {
+      width: 26px;
+      height: 26px;
+
+      path {
+        transition: fill 0.3s;
+      }
+    }
+  }
+
+  .store-details {
+    flex: 1;
+    min-width: 0;
+
+    .store-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0 0 4px;
+      line-height: 1.3;
+    }
+
+    .store-address {
+      font-size: 13px;
+      color: $text-secondary;
+      margin: 0 0 6px;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+
+      .store-distance {
+        color: $primary;
+        font-weight: 500;
+      }
+    }
+
+    .store-schedule {
+      font-size: 12px;
+      background: $primary-bg;
+      padding: 4px 10px;
+      border-radius: 16px;
+      display: inline-block;
+
+      .schedule-today {
+        color: $primary;
+
+        &.open-now {
+          color: $primary-dark;
+          font-weight: 600;
+        }
+      }
+
+      &.closed {
+        background: #f5f5f5;
+        
+        .schedule-today.closed {
+          color: #999;
+        }
+      }
+    }
+
+    .store-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+
+      .feature-tag {
+        background: $bg-gray;
+        color: $text-secondary;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .store-select-icon {
+    svg {
+      opacity: 0.3;
+      transition: all 0.3s;
+      width: 22px;
+      height: 22px;
+    }
+  }
 }
 
-.city-item:hover {
-  background: #eef4ff;
+.selected-store-detail {
+  padding: 0 0 20px;
+  
+  .selected-store-hint {
+    text-align: center;
+    font-size: 12px;
+    color: $text-tertiary;
+    margin-top: 4px;
+    
+    span {
+      background: $bg-gray;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+  }
 }
 
-/* Показать ещё */
-.show-more {
-  margin-top: 8px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  background: #2575fc;
-  color: #fff;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: 0.2s;
+.empty-stores {
+  text-align: center;
+  padding: 40px 16px;
+
+  svg {
+    margin-bottom: 12px;
+    opacity: 0.5;
+    width: 56px;
+    height: 56px;
+  }
+
+  p {
+    color: $text-tertiary;
+    font-size: 15px;
+    margin: 0;
+  }
 }
 
-.show-more:hover {
-  background: #1e5fd8;
+.store-actions {
+  padding: 16px 24px 20px;
+  border-top: 1px solid $border-color;
+  background: $bg-light;
+
+  .skip-btn {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid $primary;
+    border-radius: 14px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: $primary;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    svg {
+      width: 18px;
+      height: 18px;
+
+      path {
+        transition: fill 0.3s;
+      }
+    }
+
+    &:hover {
+      background: $primary;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: $shadow;
+
+      svg path {
+        fill: white;
+      }
+    }
+
+    &.active {
+      background: $primary;
+      color: white;
+
+      svg path {
+        fill: white;
+      }
+    }
+
+    &.address-btn {
+      border-color: $primary;
+      background: $primary;
+      color: white;
+
+      svg path {
+        fill: white;
+      }
+
+      &:hover {
+        background: $primary-dark;
+        border-color: $primary-dark;
+      }
+    }
+  }
 }
 
-/* Адаптив для мобильных */
+// Загрузка
+.loading-spinner {
+  padding: 40px 16px;
+  text-align: center;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $primary-soft;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+// Модалка адреса
+.address-modal {
+  max-width: 500px !important;
+}
+
+.delivery-hint {
+  padding: 12px 24px;
+  background: $primary-soft;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid $border-color;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 13px;
+    color: $primary;
+    font-weight: 500;
+  }
+}
+
+.address-form {
+  padding: 24px;
+
+  .form-group {
+    margin-bottom: 16px;
+    position: relative;
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-primary;
+      margin-bottom: 6px;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid $border-color;
+    border-radius: 14px;
+    font-size: 15px;
+    transition: all 0.2s;
+    background: $bg-light;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 4px rgba(50, 113, 32, 0.1);
+    }
+
+    &::placeholder {
+      color: $text-tertiary;
+      font-size: 14px;
+    }
+
+    &:disabled {
+      background: $bg-gray;
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &.error {
+      border-color: #dc3545;
+      
+      &:focus {
+        box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+      }
+    }
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .address-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: $bg-light;
+    border: 1px solid $border-color;
+    border-radius: 14px;
+    margin-top: 4px;
+    box-shadow: $shadow;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+
+    .suggestion-btn {
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+
+      &:hover {
+        background: $primary-bg;
+        color: $primary;
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid $border-color;
+      }
+    }
+  }
+
+  .saved-addresses {
+    margin: 20px 0;
+
+    label {
+      font-size: 13px;
+      color: $text-tertiary;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .address-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .saved-address-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid $border-color;
+        border-radius: 12px;
+        background: $bg-light;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+        text-align: left;
+        font-size: 14px;
+
+        svg {
+          flex-shrink: 0;
+        }
+
+        span {
+          flex: 1;
+          color: $text-primary;
+        }
+
+        &:hover {
+          border-color: $primary;
+          background: $primary-bg;
+        }
+      }
+    }
+  }
+
+  .address-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+
+    .cancel-btn,
+    .save-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .cancel-btn {
+      border: 2px solid $border-color;
+      background: transparent;
+      color: $text-secondary;
+
+      &:hover {
+        border-color: $text-tertiary;
+        background: $bg-gray;
+      }
+    }
+
+    .save-btn {
+      border: none;
+      background: $primary;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover:not(:disabled) {
+        background: $primary-dark;
+        transform: translateY(-2px);
+        box-shadow: $shadow;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Быстрая панель локации
+.location-quick-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  background: $bg-light;
+  border-bottom: 1px solid $border-color;
+
+  .location-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid $border-color;
+    border-radius: 30px;
+    background: $bg-light;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: $text-primary;
+
+    svg {
+      flex-shrink: 0;
+      color: $primary;
+    }
+
+    &:hover {
+      border-color: $primary;
+      background: $primary-bg;
+      transform: translateY(-1px);
+      box-shadow: $shadow-sm;
+    }
+  }
+}
+
+// Адаптив для планшетов
+@media (max-width: 1024px) {
+  .modal-container {
+    max-width: 680px;
+  }
+}
+
+// Адаптив для мобильных
 @media (max-width: 768px) {
+  .modal-overlay {
+    padding: 8px;
+  }
+
+  .modal-container {
+    border-radius: 18px;
+    max-height: 70vh;
+
+    &.city-modal,
+    &.store-modal {
+      max-width: 100%;
+    }
+  }
+
+  .modal-header {
+    padding: 14px 18px;
+
+    .header-content {
+      .modal-title {
+        font-size: 18px;
+      }
+
+      .modal-subtitle {
+        font-size: 13px;
+      }
+    }
+
+    .close-btn {
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+    }
+  }
+
+  .search-wrapper {
+    padding: 12px 18px;
+
+    .search-icon {
+      left: 32px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .search-input {
+      padding: 10px 12px 10px 40px;
+      font-size: 14px;
+
+      &::placeholder {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .popular-cities {
+    padding: 0 18px 12px;
+
+    .popular-list {
+      .popular-city-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
+  }
+
   .city-selector {
+    min-height: 350px;
     flex-direction: column;
   }
 
-  .district-list {
-    border-right: none;
+  .districts-panel,
+  .cities-panel {
+    .panel-header {
+      padding: 0 18px 10px;
+    }
   }
 
-  .city-list-panel {
-    max-height: none;
+  .districts-list,
+  .cities-list {
+    padding: 0 18px 18px;
+  }
+
+  .district-btn,
+  .city-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+    margin-bottom: 6px;
+    border-radius: 14px;
+  }
+
+  .city-btn {
+    .city-info {
+      .city-name {
+        font-size: 14px;
+      }
+
+      .city-population {
+        font-size: 11px;
+      }
+    }
+  }
+
+  .back-btn {
+    margin: 0 18px 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .detected-city {
+    margin: 8px 18px 16px;
+    padding: 10px 12px;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .detected-info {
+      .detected-label {
+        font-size: 10px;
+      }
+
+      .detected-city-name {
+        font-size: 14px;
+      }
+    }
+
+    .detected-badge {
+      padding: 3px 8px;
+      font-size: 10px;
+    }
+  }
+
+  // Модалка магазинов на мобильных
+  .stores-stats {
+    padding: 12px 18px;
+    gap: 8px;
+
+    .stat-item {
+      padding: 6px;
+
+      .stat-value {
+        font-size: 16px;
+      }
+
+      .stat-label {
+        font-size: 10px;
+      }
+    }
+  }
+
+  .stores-list {
+    padding: 12px 18px;
+  }
+
+  .store-card {
+    padding: 14px;
+    gap: 12px;
+
+    .store-icon {
+      width: 42px;
+      height: 42px;
+
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+
+    .store-details {
+      .store-name {
+        font-size: 14px;
+      }
+
+      .store-address {
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+
+      .store-schedule {
+        font-size: 11px;
+        padding: 3px 8px;
+      }
+
+      .store-features {
+        .feature-tag {
+          font-size: 9px;
+          padding: 2px 6px;
+        }
+      }
+    }
+
+    .store-select-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .empty-stores {
+    padding: 30px 12px;
+
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .store-actions {
+    padding: 12px 18px 16px;
+
+    .skip-btn {
+      padding: 12px;
+      font-size: 14px;
+      gap: 8px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  .loading-spinner {
+    padding: 30px 12px;
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  // Модалка адреса
+  .address-form {
+    padding: 18px;
+
+    .form-row {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .address-suggestions {
+      max-height: 150px;
+    }
+
+    .saved-addresses {
+      .address-list {
+        .saved-address-btn {
+          padding: 8px 10px;
+          font-size: 13px;
+        }
+      }
+    }
+
+    .address-actions {
+      flex-direction: column;
+
+      .cancel-btn,
+      .save-btn {
+        width: 100%;
+      }
+    }
+  }
+
+  .delivery-hint {
+    padding: 10px 18px;
+    font-size: 12px;
+  }
+
+  .location-quick-bar {
+    padding: 6px 12px;
+
+    .location-badge {
+      padding: 4px 10px;
+      font-size: 12px;
+    }
   }
 }
 
-.city-search {
-  width: 100%;
-  padding: 8px 2px;
-  margin-bottom: 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  outline: none;
-  transition: 0.2s;
+// Адаптив для маленьких телефонов
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 4px;
+  }
+
+  .modal-container {
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 12px 16px;
+
+    .header-content {
+      .modal-title {
+        font-size: 16px;
+      }
+
+      .modal-subtitle {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .search-wrapper {
+    padding: 10px 16px;
+
+    .search-input {
+      padding: 9px 10px 9px 36px;
+      font-size: 13px;
+    }
+  }
+
+  .popular-cities {
+    .popular-list {
+      .popular-city-btn {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .district-btn,
+  .city-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+
+  .store-card {
+    .store-icon {
+      width: 38px;
+      height: 38px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .stores-stats {
+    flex-wrap: wrap;
+
+    .stat-item {
+      min-width: calc(33.33% - 8px);
+    }
+  }
+
+  .address-form {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
 }
 
-.city-search:focus {
-  border-color: #2575fc;
-  box-shadow: 0 0 5px rgba(37, 117, 252, 0.3);
-}
+// Адаптив для очень маленьких экранов
+@media (max-width: 360px) {
+  .store-card {
+    flex-wrap: wrap;
+    
+    .store-icon {
+      width: 36px;
+      height: 36px;
+    }
 
-/* Остальной стиль остается как у тебя */
-.city-item {
-  padding: 8px 12px;
-  margin-bottom: 4px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
+    .store-details {
+      width: calc(100% - 70px);
+    }
+  }
 
-.city-item:hover {
-  background: #eef4ff;
-}
-
-.back-btn {
-  margin-bottom: 10px;
-  background: #eee;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.back-btn:hover {
-  background: #ddd;
+  .store-actions {
+    .skip-btn {
+      font-size: 13px;
+      padding: 10px;
+    }
+  }
 }

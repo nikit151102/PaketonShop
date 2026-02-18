@@ -22,7 +22,7 @@ export class ProductPlaceService {
   
   // BehaviorSubjects для хранения данных
   private productPlacesSubject = new BehaviorSubject<ProductPlace[]>([]);
-  private selectedStoreSubject = new BehaviorSubject<ProductPlace | null>(null);
+  public selectedStoreSubject = new BehaviorSubject<ProductPlace | null>(null);
   private loadingSubject = new BehaviorSubject<boolean>(false);
   
   // Observable для подписок

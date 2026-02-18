@@ -1,44 +1,423 @@
-<div class="city-modal" *ngIf="showCityModal$ | async">
-  <div class="city-modal-content">
-    <input
-      type="text"
-      placeholder="Поиск области или города..."
-      [(ngModel)]="locationService.citySearch"
-      (input)="onSearchChange()"
-      class="city-search"
-    />
+<div class="modal-overlay" *ngIf="showCityModal$ | async" (click)="locationService.showCityModal$.next(false)">
+  <div class="modal-container city-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-content">
+        <h2 class="modal-title">Выберите ваш город</h2>
+        <p class="modal-subtitle">Для показа наличия и доставки</p>
+      </div>
+      <button class="close-btn" (click)="locationService.showCityModal$.next(false)">×</button>
+    </div>
+
+    <div class="search-wrapper">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-0.59 4.23-1.57L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+          fill="#327120" />
+      </svg>
+      <input type="text" placeholder="Поиск области или города..." [(ngModel)]="locationService.citySearch"
+        (input)="onSearchChange()" class="search-input" />
+      
+      <!-- Индикатор поиска -->
+      <div class="search-hint" *ngIf="locationService.citySearch && filteredDistricts().length === 0 && filteredCities().length === 0">
+        <span>Ничего не найдено. Попробуйте изменить запрос</span>
+      </div>
+    </div>
+
+    <!-- Быстрый выбор популярных городов -->
+    <div class="popular-cities" *ngIf="!locationService.citySearch">
+      <div class="popular-header">
+        <span class="popular-title">Популярные города</span>
+      </div>
+      <div class="popular-list">
+        <button *ngFor="let city of getPopularCities()" (click)="setCity(city)" class="popular-city-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#327120" fill-opacity="0.2"/>
+            <circle cx="12" cy="9" r="3" fill="#327120"/>
+          </svg>
+          <span>{{ city.name }}</span>
+        </button>
+      </div>
+    </div>
 
     <div class="city-selector">
-      <div class="district-list" *ngIf="!locationService.selectedDistrict">
-        <ul>
-          <li
-            *ngFor="let district of filteredDistricts()"
-            (click)="locationService.selectedDistrict = district"
-            class="district-item"
-          >
-            {{ district.name }}
-          </li>
-        </ul>
+      <!-- Список областей -->
+      <div class="districts-panel" *ngIf="!locationService.selectedDistrict">
+        <div class="panel-header">
+          <span class="panel-title">Области</span>
+          <span class="panel-count">{{ filteredDistricts().length }}</span>
+        </div>
+        <div class="districts-list">
+          <button *ngFor="let district of filteredDistricts()" (click)="locationService.selectedDistrict = district"
+            class="district-btn" [class.selected]="isDistrictSelected(district)">
+            <span class="district-name">{{ district.name }}</span>
+            <div class="district-meta">
+              <span class="city-count">{{ district.cities.length }}</span>
+              <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6V18Z" fill="#327120"/>
+              </svg>
+            </div>
+          </button>
+          <div class="empty-state" *ngIf="filteredDistricts().length === 0">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#ccc">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <p>Ничего не найдено</p>
+          </div>
+        </div>
       </div>
 
-      <div class="city-list-panel" *ngIf="locationService.selectedDistrict">
-        <button
-          class="back-btn"
-          (click)="locationService.selectedDistrict = null"
-        >
-          ← Назад
+      <!-- Список городов выбранной области -->
+      <div class="cities-panel" *ngIf="locationService.selectedDistrict">
+        <button class="back-btn" (click)="locationService.selectedDistrict = null">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z" fill="#327120" />
+          </svg>
+          Назад к областям
         </button>
-        <h4>{{ locationService.selectedDistrict.name }}</h4>
-        <ul class="city-list">
-          <li
-            *ngFor="let c of filteredCities()"
-            (click)="setCity(c)"
-            class="city-item"
-          >
-            {{ c.name }}
-          </li>
-        </ul>
+
+        <div class="panel-header">
+          <span class="panel-title">{{ locationService.selectedDistrict.name }}</span>
+          <span class="panel-count">{{ filteredCities().length }}</span>
+        </div>
+
+        <div class="cities-list">
+          <button *ngFor="let city of filteredCities()" (click)="setCity(city)" class="city-btn"
+            [class.selected]="isCitySelected(city)">
+            <div class="city-info">
+              <span class="city-name">{{ city.name }}</span>
+              <!-- <span class="city-population" *ngIf="city.population">население: {{ formatPopulation(city.population) }}</span> -->
+            </div>
+            <div class="city-meta">
+              <span class="store-count" *ngIf="getStoreCountForCity(city) as count">{{ count }} магаз.</span>
+              <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 4L10.59 5.41L16.17 11H4V13H16.17L10.59 18.59L12 20L20 12L12 4Z" fill="#327120" />
+              </svg>
+            </div>
+          </button>
+          <div class="empty-state" *ngIf="filteredCities().length === 0">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#ccc">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <p>Города не найдены</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detected-city" *ngIf="detectedCity$ | async as detected" (click)="useDetectedCity()" [class.available]="isDetectedCityAvailable()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7ZM12 11.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5Z"
+          fill="#327120" />
+      </svg>
+      <div class="detected-info">
+        <span class="detected-label">Использовать</span>
+        <span class="detected-city-name">{{ detected }}</span>
+      </div>
+      <span class="detected-badge" *ngIf="isDetectedCityAvailable()">доступно</span>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка выбора магазина -->
+<div class="modal-overlay" *ngIf="showStoreModal$ | async" (click)="locationService.closeStoreModal()">
+  <div class="modal-container store-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-content">
+        <h2 class="modal-title">Выберите магазин</h2>
+        <p class="modal-subtitle">в городе {{ (city$ | async)?.name }}</p>
+      </div>
+      <button class="close-btn" (click)="locationService.closeStoreModal()">×</button>
+    </div>
+
+    <!-- Статистика по магазинам -->
+    <div class="stores-stats" *ngIf="(storesLoading$ | async) === false && filteredStores.length > 0">
+      <div class="stat-item">
+        <span class="stat-value">{{ filteredStores.length }}</span>
+        <span class="stat-label">магазинов</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ getOpenStoresCount() }}</span>
+        <span class="stat-label">открыто</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ getWorkingTodayCount() }}</span>
+        <span class="stat-label">работают сегодня</span>
+      </div>
+    </div>
+
+    <!-- Поиск по магазинам -->
+    <div class="search-wrapper store-search" *ngIf="(storesLoading$ | async) === false && filteredStores.length > 0">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-0.59 4.23-1.57L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"
+          fill="#327120" />
+      </svg>
+      <input type="text" placeholder="Поиск магазина по названию или адресу..." 
+        [(ngModel)]="storeSearchTerm" (input)="filterStores()" class="search-input" />
+    </div>
+
+    <div class="stores-container" *ngIf="(storesLoading$ | async) === false; else loading">
+      <div class="stores-list">
+        <!-- Индикатор выбранного режима "все магазины" -->
+        <div class="selection-indicator" *ngIf="isShowAllStores()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              fill="#327120" />
+          </svg>
+          <span>Показаны товары из всех магазинов города</span>
+        </div>
+
+        <!-- Детальный просмотр выбранного магазина (если выбран конкретный) -->
+        <div class="selected-store-detail" *ngIf="selectedStore$ | async as selectedStore">
+          <div class="store-card selected detail-view" (click)="setStore(selectedStore)">
+            <div class="store-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 7V3H2V21H22V7H12ZM6 19H4V17H6V19ZM6 15H4V13H6V15ZM6 11H4V9H6V11ZM6 7H4V5H6V7ZM10 19H8V17H10V19ZM10 15H8V13H10V15ZM10 11H8V9H10V11ZM10 7H8V5H10V7ZM20 19H12V17H14V15H12V13H14V11H12V9H20V19ZM18 11H16V13H18V11ZM18 15H16V17H18V15Z"
+                  fill="#327120" />
+              </svg>
+            </div>
+
+            <div class="store-details">
+              <h3 class="store-name">{{ selectedStore.fullName }}</h3>
+              <p class="store-address" *ngIf="selectedStore.address">
+                {{ selectedStore.address.street }}, {{ selectedStore.address.house }}
+              </p>
+
+              <div class="store-schedule" *ngIf="getTodaySchedule(selectedStore) as schedule">
+                <span class="schedule-today">
+                  Сегодня {{ schedule.dayName }}: {{ schedule.openTime }} - {{ schedule.closeTime }}
+                </span>
+              </div>
+              <div class="store-schedule closed" *ngIf="!getTodaySchedule(selectedStore)">
+                <span class="schedule-today closed">Сегодня закрыто</span>
+              </div>
+
+              <div class="store-features" *ngIf="selectedStore.features">
+                <span class="feature-tag" *ngIf="selectedStore.features.pickup">Самовывоз</span>
+                <span class="feature-tag" *ngIf="selectedStore.features.delivery">Доставка</span>
+                <span class="feature-tag" *ngIf="selectedStore.features.parking">Парковка</span>
+              </div>
+            </div>
+
+            <div class="store-select-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                  fill="#327120" />
+              </svg>
+            </div>
+          </div>
+          <div class="selected-store-hint">
+            <span>Выбранный магазин (нажмите для выбора)</span>
+          </div>
+        </div>
+
+        <!-- Заголовок списка магазинов -->
+        <div class="stores-section-header" *ngIf="filteredAndSearchedStores.length > 0">
+          <h4>Доступные магазины</h4>
+          <span class="stores-count">{{ filteredAndSearchedStores.length }}</span>
+        </div>
+
+        <button *ngFor="let store of filteredAndSearchedStores" (click)="setStore(store)" class="store-card"
+          [class.selected]="isStoreSelected(store)">
+          <div class="store-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 7V3H2V21H22V7H12ZM6 19H4V17H6V19ZM6 15H4V13H6V15ZM6 11H4V9H6V11ZM6 7H4V5H6V7ZM10 19H8V17H10V19ZM10 15H8V13H10V15ZM10 11H8V9H10V11ZM10 7H8V5H10V7ZM20 19H12V17H14V15H12V13H14V11H12V9H20V19ZM18 11H16V13H18V11ZM18 15H16V17H18V15Z"
+                fill="#327120" />
+            </svg>
+          </div>
+
+          <div class="store-details">
+            <h3 class="store-name">{{ store.fullName }}</h3>
+            <p class="store-address" *ngIf="store.address">
+              {{ store.address.street }}, {{ store.address.house }}
+            </p>
+
+            <div class="store-schedule" *ngIf="getTodaySchedule(store) as schedule">
+              <span class="schedule-today" [class.open-now]="isStoreOpenNow(store)">
+                {{ isStoreOpenNow(store) ? 'Открыто' : 'Закрыто' }} • 
+                {{ schedule.dayName }} {{ schedule.openTime }}-{{ schedule.closeTime }}
+              </span>
+            </div>
+            <div class="store-schedule closed" *ngIf="!getTodaySchedule(store)">
+              <span class="schedule-today closed">Сегодня закрыто</span>
+            </div>
+          </div>
+
+          <div class="store-select-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                [attr.fill]="isStoreSelected(store) ? '#327120' : '#ccc'" />
+            </svg>
+          </div>
+        </button>
+
+        <div class="empty-stores" *ngIf="filteredAndSearchedStores.length === 0">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="#ccc">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM12 5c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3ZM12 19.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22Z" />
+          </svg>
+          <p *ngIf="storeSearchTerm">По запросу "{{ storeSearchTerm }}" ничего не найдено</p>
+          <p *ngIf="!storeSearchTerm">В этом городе пока нет магазинов</p>
+        </div>
+      </div>
+
+      <div class="store-actions">
+        <button class="skip-btn" [class.active]="isShowAllStores()" [class.address-btn]="filteredStores.length === 0"
+          (click)="skipStoreSelection()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path *ngIf="filteredStores.length > 0 && !isShowAllStores()"
+              d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19ZM17 10H7V12H17V10ZM17 14H7V16H17V14Z"
+              fill="#327120" />
+            <path *ngIf="filteredStores.length > 0 && isShowAllStores()"
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              fill="white" />
+            <path *ngIf="filteredStores.length === 0"
+              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+              fill="white" />
+          </svg>
+          <span *ngIf="filteredStores.length > 0 && !isShowAllStores()">Показать во всех магазинах города</span>
+          <span *ngIf="filteredStores.length > 0 && isShowAllStores()">✓ Показаны все магазины</span>
+          <span *ngIf="filteredStores.length === 0">Добавить адрес доставки</span>
+        </button>
+      </div>
+    </div>
+
+    <ng-template #loading>
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Загрузка магазинов...</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Модалка адреса доставки -->
+<div class="modal-overlay" *ngIf="showAddressModal$ | async" (click)="closeAddressModal()">
+  <div class="modal-container address-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="header-content">
+        <h2 class="modal-title">Адрес доставки</h2>
+        <p class="modal-subtitle">в городе {{ (city$ | async)?.name }}</p>
+      </div>
+      <button class="close-btn" (click)="closeAddressModal()">×</button>
+    </div>
+
+    <!-- Подсказка по доставке -->
+    <div class="delivery-hint" *ngIf="selectedStore$ | async as store">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#327120"/>
+      </svg>
+      <span>Доставка от магазина "{{ store.fullName }}"</span>
+    </div>
+
+    <div class="address-form">
+      <div class="form-group">
+        <label for="street">Улица *</label>
+        <input type="text" id="street" [(ngModel)]="deliveryAddress.street" 
+          placeholder="Например: Ленина" class="form-input" 
+          [class.error]="showAddressErrors && !deliveryAddress.street" />
+        <div class="address-suggestions" *ngIf="addressSuggestions.length > 0">
+          <button *ngFor="let suggestion of addressSuggestions" 
+            (click)="selectAddressSuggestion(suggestion)" class="suggestion-btn">
+            {{ suggestion }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="house">Дом *</label>
+          <input type="text" id="house" [(ngModel)]="deliveryAddress.house" 
+            placeholder="12" class="form-input"
+            [class.error]="showAddressErrors && !deliveryAddress.house" />
+        </div>
+
+        <div class="form-group">
+          <label for="apartment">Квартира/офис</label>
+          <input type="text" id="apartment" [(ngModel)]="deliveryAddress.apartment" 
+            placeholder="45" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="entrance">Подъезд</label>
+          <input type="text" id="entrance" [(ngModel)]="deliveryAddress.entrance" 
+            placeholder="2" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="floor">Этаж</label>
+          <input type="text" id="floor" [(ngModel)]="deliveryAddress.floor" 
+            placeholder="5" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="intercom">Домофон</label>
+          <input type="text" id="intercom" [(ngModel)]="deliveryAddress.intercom" 
+            placeholder="12#" class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Комментарий для курьера</label>
+        <textarea id="comment" [(ngModel)]="deliveryAddress.comment"
+          placeholder="Домофон, ориентиры, особенности проезда..." class="form-textarea" rows="3"></textarea>
+      </div>
+
+      <!-- Сохраненные адреса -->
+      <div class="saved-addresses" *ngIf="savedAddresses.length > 0">
+        <label>Сохраненные адреса</label>
+        <div class="address-list">
+          <button *ngFor="let addr of savedAddresses" (click)="loadSavedAddress(addr)" class="saved-address-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#327120"/>
+            </svg>
+            <span>{{ addr.street }}, {{ addr.house }}{{ addr.apartment ? ', кв.' + addr.apartment : '' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="address-actions">
+        <button class="cancel-btn" (click)="closeAddressModal()">
+          Отмена
+        </button>
+        <button class="save-btn" (click)="saveAddress()" [disabled]="isSavingAddress">
+          <span *ngIf="!isSavingAddress">Сохранить адрес</span>
+          <span *ngIf="isSavingAddress" class="btn-spinner"></span>
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Блок быстрого выбора в шапке (если нужен) -->
+<!-- <div class="location-quick-bar" *ngIf="(city$ | async) as city">
+  <button class="location-badge" (click)="openCityListModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="currentColor"/>
+    </svg>
+    <span>{{ city.name }}</span>
+  </button>
+  
+  <button class="location-badge" *ngIf="selectedStore$ | async as store" (click)="openStoreModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 7V3H2V21H22V7H12ZM6 19H4V17H6V19ZM6 15H4V13H6V15ZM6 11H4V9H6V11ZM6 7H4V5H6V7ZM10 19H8V17H10V19ZM10 15H8V13H10V15ZM10 11H8V9H10V11ZM10 7H8V5H10V7ZM20 19H12V17H14V15H12V13H14V11H12V9H20V19ZM18 11H16V13H18V11ZM18 15H16V17H18V15Z" fill="currentColor"/>
+    </svg>
+    <span>{{ store.fullName | slice:0:20 }}{{ store.fullName.length > 20 ? '...' : '' }}</span>
+  </button>
+  
+  <button class="location-badge" *ngIf="savedAddress$ | async as addr" (click)="openAddressModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+    </svg>
+    <span>{{ addr.street }}, {{ addr.house }}</span>
+  </button>
+</div> -->
