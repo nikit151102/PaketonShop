@@ -1,101 +1,230 @@
-<div class="search-bar">
-  <!-- Основная обёртка для позиционирования кнопок и дропдаунов -->
-  <div class="positioned-wrapper">
-    <!-- Иконка поиска -->
-    <i class="fas fa-search"></i>
+<!-- search.component.html -->
+<div class="search-container">
+  <!-- Основная строка поиска -->
+  <div class="search-bar" [class.focused]="isInputFocused" [class.has-results]="autocompleteResults.length">
+    <div class="search-bar__wrapper">
+      <!-- Иконка поиска -->
+      <svg class="search-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" 
+              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
 
-    <!-- Поле ввода -->
-    <input #searchInput type="text" placeholder="Поиск товаров..." [(ngModel)]="searchQuery"
-      (ngModelChange)="onSearch()" (keyup.enter)="performSearch()" (focus)="onInputFocus()" (blur)="onInputBlur()" />
+      <!-- Поле ввода -->
+      <input #searchInput
+             type="text"
+             class="search-bar__input"
+             placeholder="Поиск товаров..."
+             [(ngModel)]="searchQuery"
+             (ngModelChange)="onSearch()"
+             (keyup.enter)="performSearch()"
+             (focus)="onInputFocus()"
+             (blur)="onInputBlur()"
+             (scroll)="onInputScroll()"
+             [attr.aria-label]="'Поиск'"
+      />
 
-    <!-- Индикатор загрузки -->
-    <div *ngIf="isLoading" class="loading-indicator">
-      <span>Загрузка...</span>
+      <!-- Индикатор загрузки -->
+      <div class="search-bar__loader" *ngIf="isLoading">
+        <div class="loader-spinner"></div>
+      </div>
+
+      <!-- Кнопка очистки -->
+      <button class="search-bar__clear" 
+              *ngIf="searchQuery" 
+              (click)="clearSearch()"
+              aria-label="Очистить поиск">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Кнопка поиска -->
+      <button class="search-bar__submit" 
+              (click)="performSearch()"
+              [disabled]="isLoading"
+              aria-label="Найти">
+        Найти
+      </button>
     </div>
 
-    <!-- Кнопка поиска -->
-    <button class="search-btn" (click)="performSearch()" aria-label="Найти" [disabled]="isLoading">
-      🔍
+    <!-- Кнопка фильтров -->
+    <button class="search-bar__filter" 
+            (click)="toggleFilters()"
+            [class.active]="filtersOpen"
+            [class.has-filters]="hasActiveFilters"
+            aria-label="Фильтры">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7H21M3 17H21M7 12H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="7" cy="7" r="2" fill="#327120" stroke="#327120" stroke-width="2"/>
+        <circle cx="17" cy="17" r="2" fill="#327120" stroke="#327120" stroke-width="2"/>
+      </svg>
+      <span class="filter-badge" *ngIf="hasActiveFilters"></span>
     </button>
+  </div>
 
-    <!-- Выпадающий список автокомплита -->
-    <div class="autocomplete-dropdown" *ngIf="autocompleteResults?.length">
-      <div class="autocomplete-item" *ngFor="let item of autocompleteResults" (click)="selectItem(item)">
-        <img [src]="item.image" alt="{{ item.name }}" />
+  <!-- Выпадающий список автокомплита с нативным скроллом -->
+  <div class="autocomplete-dropdown" 
+       *ngIf="autocompleteResults.length && isInputFocused"
+       #autocompleteDropdown
+       (scroll)="onAutocompleteScroll($event)">
+    
+    <div class="autocomplete-header">
+      <span class="autocomplete-title">Товары</span>
+      <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span>
+    </div>
+
+    <div class="autocomplete-list" #autocompleteList>
+      <div class="autocomplete-item" 
+           *ngFor="let item of autocompleteResults; let i = index"
+           (click)="selectItem(item)"
+           [class.last]="i === autocompleteResults.length - 1">
+        
+        <div class="item-image">
+          <img [src]="item.image" 
+               [alt]="item.name"
+               loading="lazy"
+               (error)="handleImageError($event)">
+        </div>
+        
         <div class="item-info">
           <span class="item-name">{{ item.name }}</span>
-          <span class="item-sku">{{ item.sku }}</span>
+          <div class="item-details">
+            <span class="item-sku">Арт. {{ item.sku }}</span>
+            <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span>
+          </div>
+          <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
         </div>
+
+        <div class="item-status" [class.in-stock]="item.inStock">
+          {{ item.inStock ? 'В наличии' : 'Под заказ' }}
+        </div>
+      </div>
+
+      <!-- Индикатор загрузки при подгрузке -->
+      <div class="autocomplete-loader" *ngIf="isLoadingMore">
+        <div class="loader-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <!-- Сообщение о конце списка -->
+      <div class="autocomplete-end" *ngIf="!hasMoreAutocomplete && autocompleteResults.length > 0">
+        Больше нет товаров
       </div>
     </div>
   </div>
 
-  <!-- Кнопка фильтра -->
-  <button class="filter-btn" (click)="toggleFilters()" aria-label="Фильтры">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-      <path
-        d="M3 6h12a1 1 0 0 0 0-2H3a1 1 0 0 0 0 2zm0 7h18a1 1 0 0 0 0-2H3a1 1 0 0 0 0 2zm0 7h9a1 1 0 0 0 0-2H3a1 1 0 0 0 0 2z" />
-      <circle cx="18" cy="5" r="2" />
-      <circle cx="9" cy="12" r="2" />
-      <circle cx="15" cy="19" r="2" />
-    </svg>
-  </button>
-</div>
-
-<!-- Маленькое выпадающее окно фильтров -->
-<div class="filters-dropdown" *ngIf="filtersOpen">
-  <h4>Фильтры</h4>
-
-  <!-- Сообщение об ошибке -->
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <!-- Цена -->
-  <div class="filter-group">
-    <label>Цена (₽)</label>
-    <div class="price-inputs">
-      <input type="number" [(ngModel)]="filters.priceMin" placeholder="от" min="0" />
-      <input type="number" [(ngModel)]="filters.priceMax" placeholder="до" min="0" />
+  <!-- Панель фильтров -->
+  <div class="filters-panel" *ngIf="filtersOpen" [class.mobile-open]="filtersOpen">
+    <div class="filters-header">
+      <h3>Фильтры</h3>
+      <button class="filters-close" (click)="closeFilters()" aria-label="Закрыть">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
-  </div>
 
-  <!-- Наличие -->
-  <div class="filter-group">
-    <label>
-      <input type="checkbox" [(ngModel)]="filters.inStock" />
-      В наличии
-    </label>
-  </div>
+    <!-- Сообщение об ошибке -->
+    <div class="error-message" *ngIf="errorMessage">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      {{ errorMessage }}
+    </div>
 
-  <!-- Доп. фильтры -->
-  <div class="filter-group">
-    <label>
-      <input type="checkbox" [(ngModel)]="filters.discountOnly" />
-      Со скидкой
-    </label>
-  </div>
+    <div class="filters-content" #filtersContent>
+      <!-- Цена -->
+      <div class="filter-section">
+        <label class="filter-label">Цена, ₽</label>
+        <div class="price-range">
+          <div class="price-input">
+            <span class="price-prefix">от</span>
+            <input type="number" 
+                   [(ngModel)]="filters.priceMin" 
+                   placeholder="0"
+                   min="0"
+                   (input)="validatePrice('min')">
+          </div>
+          <div class="price-separator">—</div>
+          <div class="price-input">
+            <span class="price-prefix">до</span>
+            <input type="number" 
+                   [(ngModel)]="filters.priceMax" 
+                   placeholder="999 999"
+                   min="0"
+                   (input)="validatePrice('max')">
+          </div>
+        </div>
+      </div>
 
-  <div class="filter-actions">
-    <button class="apply" (click)="applyFilters()" [disabled]="isLoading">
-      {{ isLoading ? 'Загрузка...' : 'Применить' }}
-    </button>
-    <button class="reset" (click)="resetFilters()" [disabled]="isLoading">
-      Сбросить
-    </button>
-  </div>
-</div>
+      <!-- Чекбоксы -->
+      <div class="filter-section">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="filters.inStock">
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">Только в наличии</span>
+        </label>
+      </div>
 
-<!-- Результаты поиска (можно вынести в отдельный компонент) -->
-<div *ngIf="searchResults.length > 0" class="search-results">
-  <h3>Найдено товаров: {{ searchResults.length }}</h3>
-  <div class="results-grid">
-    <div *ngFor="let product of searchResults" class="product-card">
-      <h4>{{ product.fullName }}</h4>
-      <p>Артикул: {{ product.article }}</p>
-      <p>Цена: {{ product.price }} ₽</p>
-      <p class="description">{{ product.description | slice:0:100 }}...</p>
-      <!-- Можно добавить кнопку для просмотра деталей -->
+      <div class="filter-section">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="filters.discountOnly">
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">Со скидкой</span>
+          <span class="discount-badge" *ngIf="filters.discountOnly">%</span>
+        </label>
+      </div>
+
+      <div class="filter-section">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="filters.freeDelivery">
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-text">Бесплатная доставка</span>
+        </label>
+      </div>
+
+      <!-- Быстрые фильтры -->
+      <div class="filter-section">
+        <label class="filter-label">Популярные бренды</label>
+        <div class="brand-chips">
+          <button class="brand-chip" 
+                  *ngFor="let brand of popularBrands"
+                  [class.active]="selectedBrands.includes(brand)"
+                  (click)="toggleBrand(brand)">
+            {{ brand }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Дополнительные фильтры -->
+      <div class="filter-section">
+        <label class="filter-label">Рейтинг</label>
+        <div class="rating-filter">
+          <select class="rating-select" [(ngModel)]="filters.minRating">
+            <option [ngValue]="null">Любой</option>
+            <option [ngValue]="4">От 4 ★</option>
+            <option [ngValue]="4.5">От 4.5 ★</option>
+            <option [ngValue]="4.8">От 4.8 ★</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <button class="btn-apply" 
+              (click)="applyFilters()"
+              [disabled]="isLoading">
+        {{ isLoading ? 'Применение...' : 'Применить' }}
+      </button>
+      <button class="btn-reset" 
+              (click)="resetFilters()"
+              [disabled]="isLoading">
+        Сбросить
+      </button>
     </div>
   </div>
 </div>

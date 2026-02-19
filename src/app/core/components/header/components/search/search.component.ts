@@ -1,7 +1,8 @@
+/* search.component.ts */
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, catchError, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, catchError, of, tap } from 'rxjs';
 import { ProductInstance, ProductsService, SearchRequest } from '../../../../services/products.service';
 import { Router } from '@angular/router';
 
@@ -10,6 +11,9 @@ interface AutocompleteProduct {
   name: string;
   sku: string;
   image: string;
+  price: number;
+  inStock: boolean;
+  category?: string;
 }
 
 @Component({
@@ -20,89 +24,302 @@ interface AutocompleteProduct {
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  @ViewChild('searchInput', { static: true }) searchInput!: ElementRef;
+  @ViewChild('searchInput') searchInput!: ElementRef;
+  @ViewChild('autocompleteDropdown') autocompleteDropdown!: ElementRef;
+  @ViewChild('autocompleteList') autocompleteList!: ElementRef;
   
+  // Состояние UI
   filtersOpen = false;
-  searchQuery: string = '';
-  autocompleteResults: AutocompleteProduct[] = [];
-  searchResults: ProductInstance[] = [];
-  isLoading = false;
-  errorMessage = '';
   isInputFocused = false;
+  isLoading = false;
+  isLoadingMore = false;
+  errorMessage = '';
 
-  // Subject для debounce поиска
+  // Поиск
+  searchQuery: string = '';
   private searchSubject = new Subject<string>();
 
+  // Автокомплит
+  autocompleteResults: AutocompleteProduct[] = [];
+  totalAutocompleteResults = 0;
+  hasMoreAutocomplete = true;
+  private autocompletePage = 0;
+  private readonly pageSize = 10;
+  private scrollThreshold = 100; // пикселей до конца для загрузки
+  
+  // Фильтры
   filters = {
     inStock: false,
     priceMin: null as number | null,
     priceMax: null as number | null,
     freeDelivery: false,
     discountOnly: false,
+    minRating: null as number | null,
   };
+
+  // Бренды
+  popularBrands = ['Nike', 'Adidas', 'Puma', 'Reebok', 'New Balance'];
+  selectedBrands: string[] = [];
+
+  get hasActiveFilters(): boolean {
+    return Object.values(this.filters).some(value => 
+      value === true || (typeof value === 'number' && value !== null)
+    ) || this.selectedBrands.length > 0;
+  }
 
   constructor(
     private elementRef: ElementRef,
     private productsService: ProductsService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit() {
-    // Настройка debounce для поиска с автокомплитом
+    this.setupAutocomplete();
+  }
+
+  private setupAutocomplete() {
     this.searchSubject.pipe(
-      debounceTime(300), // Задержка 300мс
-      distinctUntilChanged(), // Только если значение изменилось
+      debounceTime(300),
+      distinctUntilChanged(),
+      tap(() => {
+        this.resetAutocomplete();
+        this.isLoading = true;
+      }),
       switchMap(query => {
         if (query.length < 2) {
-          this.autocompleteResults = [];
+          this.isLoading = false;
           return of(null);
         }
-            const searchRequest: SearchRequest = {
-      filters: [
-        {'field': 'searchQuery',
-          'values': [this.searchQuery],
-          'type': 0
-        }
-      ],
-      page: 0,
-      pageSize: 20
-    };
+
+        const searchRequest: SearchRequest = {
+          filters: [
+            {
+              field: 'searchQuery',
+              values: [query],
+              type: 0
+            },
+            ...this.buildFilterParams()
+          ],
+          page: 0,
+          pageSize: this.pageSize
+        };
+
         return this.productsService.searchAutocomplete(searchRequest).pipe(
           catchError(error => {
             console.error('Ошибка автокомплита:', error);
-            this.autocompleteResults = [];
+            this.errorMessage = 'Не удалось загрузить подсказки';
+            this.isLoading = false;
             return of(null);
           })
         );
       })
-    ).subscribe(response => {
+    ).subscribe((response: any) => {
+      this.isLoading = false;
       if (response?.data) {
-        // Преобразуем результаты API в формат для автокомплита
-        this.autocompleteResults = response.data.slice(0, 5).map(product => ({
-          id: product.id,
-          name: product.fullName,
-          sku: product.article,
-          image: this.getProductImage(product) // Метод для получения изображения
-        }));
+        this.totalAutocompleteResults = response.total || response.data.length;
+        this.autocompleteResults = this.mapAutocompleteResults(response.data);
+        this.hasMoreAutocomplete = response.data.length === this.pageSize;
       }
     });
   }
 
-  // Метод для получения изображения продукта (заглушка)
-  private getProductImage(product: ProductInstance): string {
-    // Здесь можно реализовать логику получения изображения
-    // Например, из свойств или использовать дефолтное
-    return 'https://via.placeholder.com/50x50?text=' + product.article.substring(0, 2);
+  private resetAutocomplete() {
+    this.autocompleteResults = [];
+    this.autocompletePage = 0;
+    this.hasMoreAutocomplete = true;
+  }
+
+  private buildFilterParams() {
+    const filters = [];
+    
+    if (this.filters.inStock) {
+      filters.push({
+        field: 'inStock',
+        values: ['true'],
+        type: 0
+      });
+    }
+
+    if (this.filters.discountOnly) {
+      filters.push({
+        field: 'discount',
+        values: ['true'],
+        type: 0
+      });
+    }
+
+    if (this.filters.priceMin !== null) {
+      filters.push({
+        field: 'priceMin',
+        values: [this.filters.priceMin.toString()],
+        type: 0
+      });
+    }
+
+    if (this.filters.priceMax !== null) {
+      filters.push({
+        field: 'priceMax',
+        values: [this.filters.priceMax.toString()],
+        type: 0
+      });
+    }
+
+    if (this.selectedBrands.length > 0) {
+      filters.push({
+        field: 'brands',
+        values: this.selectedBrands,
+        type: 0
+      });
+    }
+
+    if (this.filters.minRating !== null) {
+      filters.push({
+        field: 'minRating',
+        values: [this.filters.minRating.toString()],
+        type: 0
+      });
+    }
+
+    return filters;
+  }
+
+  private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
+    return products.map(product => ({
+      id: product.id,
+      name: product.fullName || product.name,
+      sku: product.article || product.sku,
+      image: this.getProductImage(product),
+      price: product.price || 0,
+      inStock: product.inStock || false,
+      category: product.category?.name
+    }));
+  }
+
+  private getProductImage(product: any): string {
+    if (product.images?.length > 0) {
+      return product.images[0].url;
+    }
+    // Генерируем плейсхолдер с первой буквой артикула
+    const letter = product.article?.charAt(0) || 'P';
+    return `https://via.placeholder.com/60x60/327120/ffffff?text=${letter}`;
+  }
+
+  handleImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/60x60/e2e8f0/64748b?text=No+Image';
+  }
+
+  // Кастомный скролл для подгрузки
+  onAutocompleteScroll(event: Event) {
+    if (!this.hasMoreAutocomplete || this.isLoadingMore) return;
+
+    const element = event.target as HTMLElement;
+    const scrollPosition = element.scrollHeight - element.scrollTop - element.clientHeight;
+    
+    if (scrollPosition < this.scrollThreshold) {
+      this.loadMoreAutocomplete();
+    }
+  }
+
+  // Загрузка дополнительных результатов
+  loadMoreAutocomplete() {
+    if (!this.hasMoreAutocomplete || this.isLoadingMore || this.searchQuery.length < 2) {
+      return;
+    }
+
+    this.isLoadingMore = true;
+    this.autocompletePage++;
+
+    const searchRequest: SearchRequest = {
+      filters: [
+        {
+          field: 'searchQuery',
+          values: [this.searchQuery],
+          type: 0
+        },
+        ...this.buildFilterParams()
+      ],
+      page: this.autocompletePage,
+      pageSize: this.pageSize
+    };
+
+    this.productsService.searchAutocomplete(searchRequest).subscribe({
+      next: (response) => {
+        if (response?.data) {
+          const newResults = this.mapAutocompleteResults(response.data);
+          this.autocompleteResults = [...this.autocompleteResults, ...newResults];
+          this.hasMoreAutocomplete = response.data.length === this.pageSize;
+        }
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки автокомплита:', error);
+        this.isLoadingMore = false;
+        this.autocompletePage--;
+        this.errorMessage = 'Ошибка при загрузке';
+        
+        // Скрываем ошибку через 3 секунды
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 3000);
+      }
+    });
+  }
+
+  // Валидация цены
+  validatePrice(type: 'min' | 'max') {
+    if (type === 'min' && this.filters.priceMin && this.filters.priceMax) {
+      if (this.filters.priceMin > this.filters.priceMax) {
+        this.filters.priceMin = this.filters.priceMax;
+      }
+    }
+    
+    if (type === 'max' && this.filters.priceMax && this.filters.priceMin) {
+      if (this.filters.priceMax < this.filters.priceMin) {
+        this.filters.priceMax = this.filters.priceMin;
+      }
+    }
+
+    // Ограничение отрицательных значений
+    if (this.filters.priceMin && this.filters.priceMin < 0) {
+      this.filters.priceMin = 0;
+    }
+    if (this.filters.priceMax && this.filters.priceMax < 0) {
+      this.filters.priceMax = 0;
+    }
+  }
+
+  toggleBrand(brand: string) {
+    const index = this.selectedBrands.indexOf(brand);
+    if (index === -1) {
+      this.selectedBrands.push(brand);
+    } else {
+      this.selectedBrands.splice(index, 1);
+    }
   }
 
   toggleFilters() {
     this.filtersOpen = !this.filtersOpen;
+    if (this.filtersOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeFilters() {
+    this.filtersOpen = false;
+    document.body.style.overflow = '';
   }
 
   applyFilters() {
-    console.log('Фильтры применены:', this.filters);
+    console.log('Фильтры применены:', this.filters, this.selectedBrands);
+    
+    // Сбрасываем автокомплит и запускаем новый поиск
+    this.resetAutocomplete();
     this.performSearch();
-    this.filtersOpen = false;
+    this.closeFilters();
+    
+    // Показываем уведомление о примененных фильтрах
+    this.showNotification('Фильтры применены');
   }
 
   resetFilters() {
@@ -112,53 +329,71 @@ export class SearchComponent implements OnInit {
       priceMax: null,
       freeDelivery: false,
       discountOnly: false,
+      minRating: null,
     };
+    this.selectedBrands = [];
+    
+    // Сбрасываем автокомплит и запускаем поиск без фильтров
+    this.resetAutocomplete();
     this.performSearch();
+    this.showNotification('Фильтры сброшены');
+  }
+
+  private showNotification(message: string) {
+    // Здесь можно добавить уведомление
+    console.log(message);
   }
 
   clearSearch() {
     this.searchQuery = '';
-    this.autocompleteResults = [];
-    this.searchResults = [];
+    this.resetAutocomplete();
+    this.searchSubject.next('');
+    this.searchInput.nativeElement.focus();
   }
 
-  // Вызывается при вводе в поле поиска
   onSearch() {
     this.searchSubject.next(this.searchQuery);
   }
 
-  // Обработчик фокуса на поле ввода
   onInputFocus() {
     this.isInputFocused = true;
   }
 
-  // Обработчик потери фокуса полем ввода
   onInputBlur() {
-    // Небольшая задержка перед скрытием автокомплита,
-    // чтобы дать время для клика по элементам автокомплита
+    // Задержка для возможности клика по автокомплиту
     setTimeout(() => {
-      this.isInputFocused = false;
-      // Автокомплит скроется при клике вне компонента благодаря HostListener
+      if (!this.isElementFocused(this.autocompleteDropdown?.nativeElement)) {
+        this.isInputFocused = false;
+      }
     }, 200);
   }
 
-  // Основной поиск с применением фильтров
+  private isElementFocused(element: HTMLElement): boolean {
+    return element?.contains(document.activeElement) || false;
+  }
+
+  // Обработчик скролла инпута (для мобильных устройств)
+  onInputScroll() {
+    // Можно добавить логику при скролле
+  }
+
   performSearch() {
     if (!this.searchQuery.trim()) {
-      this.searchResults = [];
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = '';
-    this.autocompleteResults = []; // Закрываем автокомплит при основном поиске
+    this.autocompleteResults = [];
 
     const searchRequest: SearchRequest = {
       filters: [
-        {'field': 'searchQuery',
-          'values': [this.searchQuery],
-          'type': 0
-        }
+        {
+          field: 'searchQuery',
+          values: [this.searchQuery],
+          type: 0
+        },
+        ...this.buildFilterParams()
       ],
       page: 0,
       pageSize: 20
@@ -166,89 +401,92 @@ export class SearchComponent implements OnInit {
 
     this.productsService.searchProducts(searchRequest).subscribe({
       next: (response: any) => {
-        this.searchResults = response.data;
         this.isLoading = false;
-        console.log('Результаты поиска:', response);
+        
+        // Навигация на страницу результатов
+        this.router.navigate(['/search'], {
+          queryParams: { 
+            q: this.searchQuery,
+            ...this.getFilterParams()
+          }
+        });
+        
+        // Показываем количество результатов
+        if (response.total) {
+          this.showNotification(`Найдено ${response.total} товаров`);
+        }
       },
       error: (error: any) => {
         console.error('Ошибка поиска:', error);
         this.errorMessage = 'Ошибка при выполнении поиска';
         this.isLoading = false;
+        
+        // Автоматически скрываем ошибку
+        setTimeout(() => {
+          this.errorMessage = '';
+        }, 5000);
       }
     });
   }
 
-  // Старый метод для совместимости
-  applySearch() {
-    this.performSearch();
+  private getFilterParams() {
+    const params: any = {};
+    if (this.filters.inStock) params.inStock = true;
+    if (this.filters.priceMin) params.priceMin = this.filters.priceMin;
+    if (this.filters.priceMax) params.priceMax = this.filters.priceMax;
+    if (this.filters.discountOnly) params.discount = true;
+    if (this.filters.freeDelivery) params.freeDelivery = true;
+    if (this.filters.minRating) params.minRating = this.filters.minRating;
+    if (this.selectedBrands.length) params.brands = this.selectedBrands.join(',');
+    return params;
   }
 
-  // Выбор элемента из автокомплита
   selectItem(item: AutocompleteProduct) {
     this.searchQuery = item.name;
     this.autocompleteResults = [];
-    this.router.navigate(['/product',item.id])
+    this.router.navigate(['/product', item.id]);
   }
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
-    if (!event.target) {
-      return;
-    }
+    if (!event.target) return;
 
     const target = event.target as HTMLElement;
     
-    // Проверяем, кликнули ли мы на элемент автокомплита
-    const clickedOnAutocompleteItem = target.closest('.autocomplete-item') !== null;
-    
-    // Если кликнули на элемент автокомплита, ничего не делаем
-    if (clickedOnAutocompleteItem) {
+    // Не закрываем при клике на элементы автокомплита или фильтров
+    if (target.closest('.autocomplete-item') || 
+        target.closest('.search-bar__input') ||
+        target.closest('.search-bar__submit') ||
+        target.closest('.search-bar__filter') ||
+        target.closest('.filters-panel')) {
       return;
     }
 
-    // Проверяем, кликнули ли мы на поле ввода
-    const clickedOnSearchInput = target === this.searchInput.nativeElement || 
-                                 this.searchInput.nativeElement.contains(target);
-    
-    // Проверяем, кликнули ли мы на кнопку поиска
-    const clickedOnSearchBtn = target.closest('.search-btn') !== null;
-    
-    // Проверяем, кликнули ли мы на иконку поиска
-    const clickedOnSearchIcon = target.closest('.fa-search') !== null;
-    
-    // Проверяем, кликнули ли мы внутри контейнера поиска
-    const clickedInsideSearchContainer = target.closest('.positioned-wrapper') !== null;
-
-    // Если клик был на кнопке фильтров, ничего не закрываем
-    const clickedOnFilterBtn = target.closest('.filter-btn') !== null;
-
-    if (clickedOnFilterBtn) {
-      this.autocompleteResults = []; // Закрываем только автокомплит
-      return;
-    }
-
-    // Если клик был на поле ввода, кнопке поиска или иконке, не закрываем автокомплит
-    if (clickedOnSearchInput || clickedOnSearchBtn || clickedOnSearchIcon || clickedInsideSearchContainer) {
-      // Не закрываем автокомплит при клике на элементы поиска
-      return;
-    }
-
-    // Во всех остальных случаях закрываем автокомплит и фильтры
-    this.autocompleteResults = [];
-    
-    // Закрываем фильтры только если клик был вне компонента
-    const clickedInsideComponent = this.elementRef.nativeElement.contains(target);
-    if (!clickedInsideComponent) {
-      this.filtersOpen = false;
+    // Закрываем автокомплит при клике вне компонента
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.autocompleteResults = [];
+      this.isInputFocused = false;
     }
   }
 
-  // Дополнительный обработчик для клавиши пробела
-  @HostListener('document:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
-    // Если нажат пробел и фокус в поле ввода
-    if (event.key === ' ' && document.activeElement === this.searchInput.nativeElement) {
-      event.stopPropagation(); // Останавливаем всплытие, чтобы onClickOutside не сработал
+  @HostListener('document:keydown.escape')
+  onEscapePress() {
+    this.closeFilters();
+    this.autocompleteResults = [];
+    this.isInputFocused = false;
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    // Закрываем фильтры на десктопе при изменении размера
+    if (window.innerWidth > 768 && this.filtersOpen) {
+      this.closeFilters();
     }
+  }
+
+  ngOnDestroy() {
+    // Очищаем подписки
+    this.searchSubject.complete();
+    document.body.style.overflow = '';
   }
 }
