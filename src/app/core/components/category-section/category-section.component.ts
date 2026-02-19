@@ -1,6 +1,5 @@
-// category-section.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, OnChanges, SimpleChanges, HostListener } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, HostListener, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 @Component({
@@ -19,11 +18,17 @@ export class CategorySectionComponent implements OnInit, OnChanges {
   hiddenCategoriesCount: number = 0;
 
   private itemsPerRow: number = 6;
+  private resizeTimeout: any;
+  private isMobile: boolean = false;
   
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit() {
     this.isMainPage = this.router.url === '/';
+    this.checkMobile();
     this.calculateItemsPerRow();
     this.updateDisplay();
   }
@@ -36,8 +41,21 @@ export class CategorySectionComponent implements OnInit, OnChanges {
 
   @HostListener('window:resize')
   onResize() {
-    this.calculateItemsPerRow();
-    this.updateDisplay();
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    
+    this.resizeTimeout = setTimeout(() => {
+      this.ngZone.run(() => {
+        this.checkMobile();
+        this.calculateItemsPerRow();
+        this.updateDisplay();
+      });
+    }, 150);
+  }
+
+  private checkMobile() {
+    this.isMobile = window.innerWidth <= 768;
   }
 
   private calculateItemsPerRow() {
@@ -118,6 +136,7 @@ export class CategorySectionComponent implements OnInit, OnChanges {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
+
   getFirstImage(imageString: string): string {
     if (!imageString) return '';
 
@@ -127,5 +146,9 @@ export class CategorySectionComponent implements OnInit, OnChanges {
     }
 
     return imageString;
+  }
+
+  trackByCategory(index: number, category: any): number {
+    return category.id || index;
   }
 }

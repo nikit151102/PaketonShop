@@ -308,6 +308,7 @@
     flex-direction: column;
 
     @media (max-width: 768px) {
+      flex: 1 1 200px;
       // flex: 1 1 40%;
       // max-width: 44%;
     }

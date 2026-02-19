@@ -15,7 +15,7 @@
              class="search-bar__input"
              placeholder="Поиск товаров..."
              [(ngModel)]="searchQuery"
-             (ngModelChange)="onSearch()"
+             (input)="onSearch()"
              (keyup.enter)="performSearch()"
              (focus)="onInputFocus()"
              (blur)="onInputBlur()"
@@ -48,7 +48,7 @@
     </div>
 
     <!-- Кнопка фильтров -->
-    <button class="search-bar__filter" 
+    <!-- <button class="search-bar__filter" 
             (click)="toggleFilters()"
             [class.active]="filtersOpen"
             [class.has-filters]="hasActiveFilters"
@@ -59,62 +59,61 @@
         <circle cx="17" cy="17" r="2" fill="#327120" stroke="#327120" stroke-width="2"/>
       </svg>
       <span class="filter-badge" *ngIf="hasActiveFilters"></span>
-    </button>
+    </button> -->
   </div>
 
-  <!-- Выпадающий список автокомплита с нативным скроллом -->
-  <div class="autocomplete-dropdown" 
-       *ngIf="autocompleteResults.length && isInputFocused"
-       #autocompleteDropdown
-       (scroll)="onAutocompleteScroll($event)">
-    
-    <div class="autocomplete-header">
-      <span class="autocomplete-title">Товары</span>
-      <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span>
+<!-- Выпадающий список автокомплита с нативным скроллом -->
+<div class="autocomplete-dropdown" 
+     *ngIf="autocompleteResults.length && isInputFocused"
+     #autocompleteDropdown>
+  
+  <div class="autocomplete-header">
+    <span class="autocomplete-title">Товары</span>
+    <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span>
+  </div>
+
+  <div class="autocomplete-list" #autocompleteList>
+    <div class="autocomplete-item" 
+         *ngFor="let item of autocompleteResults; let i = index"
+         (click)="selectItem(item)"
+         [class.last]="i === autocompleteResults.length - 1">
+      
+      <div class="item-image">
+        <img [src]="item.image" 
+             [alt]="item.name"
+             loading="lazy"
+             (error)="handleImageError($event)">
+      </div>
+      
+      <div class="item-info">
+        <span class="item-name">{{ item.name }}</span>
+        <div class="item-details">
+          <span class="item-sku">Арт. {{ item.sku }}</span>
+          <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span>
+        </div>
+        <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
+      </div>
+
+      <div class="item-status" [class.in-stock]="item.inStock">
+        {{ item.inStock ? 'В наличии' : 'Под заказ' }}
+      </div>
     </div>
 
-    <div class="autocomplete-list" #autocompleteList>
-      <div class="autocomplete-item" 
-           *ngFor="let item of autocompleteResults; let i = index"
-           (click)="selectItem(item)"
-           [class.last]="i === autocompleteResults.length - 1">
-        
-        <div class="item-image">
-          <img [src]="item.image" 
-               [alt]="item.name"
-               loading="lazy"
-               (error)="handleImageError($event)">
-        </div>
-        
-        <div class="item-info">
-          <span class="item-name">{{ item.name }}</span>
-          <div class="item-details">
-            <span class="item-sku">Арт. {{ item.sku }}</span>
-            <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span>
-          </div>
-          <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
-        </div>
-
-        <div class="item-status" [class.in-stock]="item.inStock">
-          {{ item.inStock ? 'В наличии' : 'Под заказ' }}
-        </div>
+    <!-- Индикатор загрузки при подгрузке -->
+    <div class="autocomplete-loader" *ngIf="isLoadingMore">
+      <div class="loader-dots">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
+    </div>
 
-      <!-- Индикатор загрузки при подгрузке -->
-      <div class="autocomplete-loader" *ngIf="isLoadingMore">
-        <div class="loader-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-
-      <!-- Сообщение о конце списка -->
-      <div class="autocomplete-end" *ngIf="!hasMoreAutocomplete && autocompleteResults.length > 0">
-        Больше нет товаров
-      </div>
+    <!-- Сообщение о конце списка -->
+    <div class="autocomplete-end" *ngIf="!hasMoreAutocomplete && autocompleteResults.length > 0">
+      Больше нет товаров
     </div>
   </div>
+</div>
 
   <!-- Панель фильтров -->
   <div class="filters-panel" *ngIf="filtersOpen" [class.mobile-open]="filtersOpen">
@@ -228,3 +227,4 @@
     </div>
   </div>
 </div>
+

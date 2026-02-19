@@ -1,4 +1,3 @@
-<!-- category-section.component.html -->
 <div class="category-section" [class.show-all]="showAllCategories || !isMainPage">
   <div class="grid-container" [class.collapsed]="!showAllCategories && isMainPage && hasMoreCategories">
     <div *ngFor="let category of displayedCategories; let i = index" class="category-card"

@@ -56,17 +56,10 @@
     border-radius: 60px;
     font-size: 16px;
     background: transparent;
-    outline: none;
     color: #1e293b;
 
-    &::placeholder {
-      color: #94a3b8;
-      font-weight: 300;
-      transition: opacity 0.2s ease;
-    }
-
-    &:focus::placeholder {
-      opacity: 0.5;
+    &:focus {
+      outline: none;
     }
   }
 
@@ -156,7 +149,7 @@
 
     &:hover {
       background: #e2e8f0;
-      
+
       svg {
         transform: rotate(180deg);
       }
@@ -522,7 +515,6 @@
     border: 2px solid #e2e8f0;
     border-radius: 16px;
     font-size: 14px;
-    outline: none;
     transition: all 0.2s ease;
     background: #f8fafc;
 
@@ -567,7 +559,7 @@
   transition: all 0.2s ease;
   position: relative;
 
-  input[type="checkbox"]:checked + & {
+  input[type="checkbox"]:checked+& {
     background: #327120;
     border-color: #327120;
     animation: checkPop 0.3s ease;
@@ -586,7 +578,7 @@
     }
   }
 
-  input[type="checkbox"]:focus + & {
+  input[type="checkbox"]:focus+& {
     box-shadow: 0 0 0 3px rgba(50, 113, 32, 0.2);
   }
 }
@@ -644,7 +636,6 @@
   border: 2px solid #e2e8f0;
   border-radius: 16px;
   font-size: 14px;
-  outline: none;
   background: #f8fafc;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -667,7 +658,8 @@
   background: linear-gradient(135deg, #f8fafc, #ffffff);
 }
 
-.btn-apply, .btn-reset {
+.btn-apply,
+.btn-reset {
   flex: 1;
   padding: 14px;
   border: none;
@@ -731,6 +723,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -742,6 +735,7 @@
     opacity: 0;
     transform: translateX(10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -749,18 +743,24 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
 }
 
 @keyframes blink {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -770,9 +770,11 @@
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
+
   100% {
     transform: scale(1);
   }
@@ -783,6 +785,7 @@
     opacity: 0;
     transform: rotate(45deg) scale(0.5);
   }
+
   to {
     opacity: 1;
     transform: rotate(45deg) scale(1);
@@ -812,21 +815,32 @@
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out;
 
-    &:nth-child(1) { animation-delay: -0.32s; }
-    &:nth-child(2) { animation-delay: -0.16s; }
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
   }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes bounce {
-  0%, 80%, 100% { 
+
+  0%,
+  80%,
+  100% {
     transform: scale(0);
     opacity: 0.5;
   }
-  40% { 
+
+  40% {
     transform: scale(1);
     opacity: 1;
   }
@@ -849,7 +863,7 @@
 @media (max-width: 768px) {
   .search-bar {
     border-radius: 30px;
-    
+
     &__wrapper {
       height: 44px;
     }
@@ -897,7 +911,7 @@
 
   .price-range {
     flex-direction: column;
-    
+
     .price-separator {
       display: none;
     }
