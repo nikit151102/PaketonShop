@@ -1,196 +1,243 @@
-<div class="product-card" [class.selected]="selected" [class.has-discount]="hasDiscount">
-  <!-- Шапка с чекбоксом и статусом -->
-  <div class="product-header">
-    <label class="selection-toggle">
-      <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)" class="selection-input" />
-      <div class="custom-checkbox">
-        <svg class="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-        </svg>
-      </div>
-      <span class="selection-label">Выбрать</span>
-    </label>
+<div class="cart-item" [class.selected]="selected" [class.has-discount]="hasDiscount" [class.unavailable]="!isAvailable"
+  *ngIf="product.product">
 
-    <!-- Бейдж скидки -->
-    <div class="discount-badge" *ngIf="hasDiscount">
-      <svg class="discount-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-        <path
-          d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
-      </svg>
-      -{{ product.product.discountPercentage }}%
-    </div>
-
-    <!-- Статус наличия -->
-    <div class="availability-badge" [class.in-stock]="true">
-      <svg class="availability-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-        <path *ngIf="product.product.available" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-        <path *ngIf="!product.product.available"
-          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-      </svg>
-      {{ 'В наличии' }}
-    </div>
+  <!-- Индикатор недоступности -->
+  <div class="unavailable-overlay" *ngIf="!isAvailable">
+    <span>Товар временно недоступен</span>
   </div>
 
-  <!-- Основное содержимое -->
-  <div class="product-main">
-    <!-- Изображение товара -->
-    <div class="product-image-container">
-      <div class="image-wrapper">
-        <img [src]="product.product.productImageLinks[0]"
-          [alt]="product.product.fullName" class="product-image"
-          (error)="product.product.productImageLinks[0] = 'assets/images/product-placeholder.svg'" />
-        <!-- Затемнение при выборе -->
-        <div class="image-overlay" *ngIf="selected">
-          <svg class="selected-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-          </svg>
-        </div>
-      </div>
+  <!-- Мобильный хедер (виден только на мобильных) -->
+  <div class="item-header-mobile">
+    <label class="checkbox-wrapper" [class.disabled]="!isAvailable">
+      <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)" [disabled]="!isAvailable" />
+      <span class="checkbox-custom">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M20 6L9 17L4 12" stroke-linecap="round" />
+        </svg>
+      </span>
+    </label>
 
-      <!-- Быстрые действия на изображении -->
-      <div class="image-actions">
-        <button class="quick-action-btn" (click)="toggleWishlist()" [class.active]="isWishlisted" title="В избранное">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path *ngIf="!isWishlisted"
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            <path *ngIf="isWishlisted"
-              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Информация о товаре -->
-    <div class="product-info">
-      <!-- Артикул и категория -->
-      <div class="product-meta">
-        <span class="sku">Артикул: {{ product.product.article }}</span>
-        <span class="category" *ngIf="product.product.measurementUnitId">шт</span>
-      </div>
-
-      <!-- Название товара -->
-      <h3 class="product-title" [title]="product.product.fullName">
-        {{ product.product.fullName }}
-      </h3>
-
-      <!-- Краткое описание -->
-      <p class="product-desc" *ngIf="product.product.shortName">
-        {{ product.product.shortName }}
-      </p>
-
-      <!-- Рейтинг и отзывы -->
-      <div class="product-rating" *ngIf="product.product.rating">
-        <div class="stars">
-          <span *ngFor="let star of [1,2,3,4,5]; let i = index" class="star" [class.filled]="i < getRatingFloor()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            </svg>
-          </span>
-        </div>
-        <span class="reviews" *ngIf="product.product.reviews">
-          {{ product.product.reviews }} отзывов
-        </span>
-      </div>
-    </div>
-
-    <!-- Управление количеством -->
-    <div class="quantity-section">
-      <div class="quantity-control">
-        <button class="qty-btn decrease" (click)="decreaseQty()" [disabled]="product.count <= 1">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 13H5v-2h14v2z" />
-          </svg>
-        </button>
-
-        <div class="qty-display">
-          <input type="number" [value]="product.count" (change)="onQuantityInput($event)" min="1" class="qty-input" />
-          <span class="qty-unit">шт</span>
-        </div>
-
-        <button class="qty-btn increase" (click)="increaseQty()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="price-breakdown">
-        <span class="price-per-unit">Цена за шт</span>
-        <span class="qty-total">{{ product.count }} × {{ discountPrice | number:'1.0-2':'ru' }} ₽</span>
-      </div>
-    </div>
-
-    <!-- Цена и итог -->
-    <div class="price-section">
-      <!-- Цена за единицу -->
-      <div class="unit-price">
-        <div class="price-main" *ngIf="hasDiscount">
-          <span class="price-old">
-            {{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽
-          </span>
-          <span class="price-current">
-            {{ discountPrice | number:'1.0-2':'ru' }} ₽
-          </span>
-        </div>
-        <div class="price-main" *ngIf="!hasDiscount">
-          <span class="price-current">
-            {{ discountPrice | number:'1.0-2':'ru' }} ₽
-          </span>
-        </div>
-        <span class="price-label">за шт</span>
-      </div>
-
-      <!-- Общая стоимость -->
-      <div class="total-price">
-        <span class="total-label">Стоимость</span>
-        <span class="total-amount">
-          {{ totalPrice | number:'1.0-2':'ru' }} ₽
-        </span>
-      </div>
-    </div>
-
-    <!-- Действия -->
-    <div class="actions-section">
-      <button class="action-btn remove-btn" (click)="removeProduct()" title="Удалить">
-        <svg class="action-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+    <div class="header-actions">
+      <button class="icon-btn" (click)="toggleWishlist()" [class.active]="isWishlisted"
+        [class.animate]="wishlistAnimate" (animationend)="wishlistAnimate = false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      </button>
+      <button class="icon-btn remove-mobile" (click)="removeProduct()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
         </svg>
       </button>
     </div>
   </div>
 
-  <!-- Сопутствующие товары (аккордеон) -->
-  <div class="related-products-section" *ngIf="product.product.related?.length">
-    <div class="related-header" (click)="toggleRelated()">
-      <div class="related-title">
-        <svg class="related-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+  <div class="item-main" [class.unavailable]="!isAvailable">
+
+    <!-- Левая колонка с изображением -->
+    <div class="item-media">
+      <div class="image-container" [class.has-discount]="hasDiscount">
+        <img [src]="productImage" [alt]="product.product.fullName" class="item-image" (error)="onImageError()"
+          loading="lazy" />
+
+        <!-- Оверлей выбора -->
+        <div class="image-overlay" *ngIf="selected">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+          </svg>
+        </div>
+
+        <!-- Бейдж скидки -->
+        <span class="discount-chip" *ngIf="hasDiscount">
+          -{{ product.product.discountPercentage }}%
+        </span>
+
+        <!-- Быстрый просмотр -->
+        <button class="quick-view" (click)="quickView.emit(product.product)" title="Быстрый просмотр">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Правая flex-колонка с контентом -->
+    <div class="item-content-wrapper">
+
+      <!-- Верхний ряд: артикул и чекбокс (десктоп) -->
+      <div class="content-header">
+        <div class="header-left">
+          <span class="item-sku">
+            <span class="sku-label">Арт.</span>
+            {{ product.product.article || '---' }}
+          </span>
+          <span class="stock-badge" [class.out]="!isAvailable">
+            {{ isAvailable ? 'В наличии' : 'Нет в наличии' }}
+          </span>
+        </div>
+        <div class="desktop-checkbox">
+          <label class="checkbox-wrapper" [class.disabled]="!isAvailable">
+            <input type="checkbox" [checked]="selected" (change)="onSelectionChange($event)"
+              [disabled]="!isAvailable" />
+            <span class="checkbox-custom"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Название товара -->
+      <h3 class="item-title" [title]="product.product.fullName">
+        {{ product.product.fullName || 'Без названия' }}
+      </h3>
+
+      <!-- Краткое описание -->
+      <p class="item-desc" *ngIf="product.product.shortName">{{ product.product.shortName }}</p>
+
+      <!-- Характеристики и рейтинг в одной строке -->
+      <div class="item-meta-row">
+        <!-- Характеристики -->
+        <div class="item-specs" *ngIf="product.product.measurementUnitId">
+          <span class="spec">шт</span>
+        </div>
+
+        <!-- Рейтинг и отзывы -->
+        <div class="item-rating" *ngIf="product.product.rating || product.product.reviews">
+          <div class="stars" *ngIf="product.product.rating">
+            <span *ngFor="let star of [1,2,3,4,5]; let i = index" class="star" [class.filled]="isStarFilled(i)"
+              [class.half]="isStarHalf(i)">
+              ★
+            </span>
+          </div>
+          <span class="reviews-count" *ngIf="product.product.reviews">
+            {{ product.product.reviews }} {{ getReviewsWord(product.product.reviews) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Блок с ценами и управлением (flex-row) -->
+      <div class="pricing-row">
+        <!-- Левая часть: количество и цена за единицу -->
+        <div class="pricing-left">
+          <!-- Контрол количества (если товар доступен) -->
+          <div class="quantity-wrapper" *ngIf="isAvailable; else unavailableQty">
+            <div class="quantity-control">
+              <button class="qty-btn" (click)="decreaseQty()" [disabled]="(product.count || 1) <= 1"
+                [class.pulse]="quantityChanging === 'decrease'" (animationend)="quantityChanging = null">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13H5v-2h14v2z" />
+                </svg>
+              </button>
+
+              <div class="qty-value">
+                <input type="number" [value]="product.count || 1" (change)="onQuantityInput($event)"
+                  (keyup.enter)="validateQuantityInput($event)" (blur)="validateQuantityInput($event)" min="1"
+                  class="qty-input" [class.error]="quantityError" />
+                <span class="qty-unit">шт</span>
+              </div>
+
+              <button class="qty-btn" (click)="increaseQty()" [class.pulse]="quantityChanging === 'increase'"
+                (animationend)="quantityChanging = null">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+              </button>
+            </div>
+            <span class="quantity-error" *ngIf="quantityError">{{ quantityError }}</span>
+          </div>
+
+          <ng-template #unavailableQty>
+            <div class="unavailable-qty">
+              <span class="unavailable-text">Товар недоступен</span>
+            </div>
+          </ng-template>
+
+          <!-- Цена за единицу (десктоп) -->
+          <div class="unit-price-desktop" *ngIf="!isMobile">
+            <span class="price-per-unit">{{ discountPrice | number:'1.0-2':'ru' }} ₽/шт</span>
+            <span class="unit-old" *ngIf="hasDiscount">{{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽</span>
+          </div>
+        </div>
+
+        <!-- Правая часть: итоговая стоимость и удаление -->
+        <div class="pricing-right">
+          <!-- Мобильные цены -->
+          <div class="price-mobile" *ngIf="isMobile">
+            <div class="price-block" *ngIf="hasDiscount">
+              <span class="price-current">{{ discountPrice | number:'1.0-2':'ru' }} ₽</span>
+              <span class="price-old">{{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽</span>
+            </div>
+            <div class="price-block" *ngIf="!hasDiscount">
+              <span class="price-current">{{ discountPrice | number:'1.0-2':'ru' }} ₽</span>
+            </div>
+          </div>
+
+          <!-- Итоговая стоимость -->
+          <div class="item-total" [class.has-discount]="hasDiscount">
+            <span class="total-label">итого</span>
+            <span class="total-value">{{ totalPrice | number:'1.0-2':'ru' }} ₽</span>
+            <span class="total-old" *ngIf="hasDiscount">
+              {{ (product.product.retailPrice * (product.count || 1)) | number:'1.0-2':'ru' }} ₽
+            </span>
+          </div>
+
+          <!-- Кнопка удалить (десктоп) -->
+          <button class="remove-btn desktop-remove" (click)="removeProduct()" title="Удалить"
+            [class.confirm]="removeConfirm" (mouseleave)="removeConfirm = false">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+            <span class="remove-confirm-text" *ngIf="removeConfirm">Подтвердите удаление</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Информация об экономии (если есть скидка) -->
+      <div class="saving-info" *ngIf="hasDiscount && isAvailable">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+        <span>Экономия {{ savingAmount * (product.count || 1) | number:'1.0-2':'ru' }} ₽</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Сопутствующие товары (отображаются под основным блоком) -->
+  <div class="related-section" *ngIf="product.product.related?.length && isAvailable">
+    <div class="related-trigger" (click)="toggleRelated()">
+      <div class="related-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" />
         </svg>
-        <span>С этим товаром покупают</span>
+        <span>Часто покупают вместе</span>
+        <span class="related-count">{{ product.product.related?.length }}</span>
       </div>
-      <svg class="toggle-arrow" [class.collapsed]="relatedCollapsed" width="16" height="16" viewBox="0 0 24 24"
+      <svg class="arrow" [class.rotated]="!relatedCollapsed" width="16" height="16" viewBox="0 0 24 24"
         fill="currentColor">
         <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
       </svg>
     </div>
 
-    <div class="related-content" [class.collapsed]="relatedCollapsed">
-      <div class="related-grid">
-        <div class="related-product" *ngFor="let item of product.product.related">
+    <div class="related-content" [class.hidden]="relatedCollapsed">
+      <div class="related-list">
+        <div class="related-item" *ngFor="let item of product.product.related">
           <div class="related-image">
-            <img [src]="item.image || 'assets/images/product-placeholder.svg'" [alt]="item.name" />
+            <img [src]="item?.image || 'assets/images/product-placeholder.svg'" [alt]="item?.name" loading="lazy"
+              (error)="onRelatedImageError($event)" />
           </div>
-          <div class="related-info">
-            <h5 class="related-name">{{ item.name }}</h5>
-            <div class="related-price">
-              <span class="related-price-current">{{ item.retailPrice | number:'1.0-2':'ru' }} ₽</span>
-              <span class="related-price-old" *ngIf="item.discountPercentage">
-                {{ item.wholesalePrice | number:'1.0-2':'ru' }} ₽
+          <div class="related-details">
+            <h6 class="related-name" [title]="item?.name">{{ item?.name || 'Товар' }}</h6>
+            <div class="related-prices">
+              <span class="related-current">{{ item?.retailPrice | number:'1.0-2':'ru' }} ₽</span>
+              <span class="related-old" *ngIf="item?.discountPercentage">
+                {{ item?.wholesalePrice | number:'1.0-2':'ru' }} ₽
               </span>
             </div>
           </div>
-          <button class="related-add-btn" title="Добавить в корзину">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <button class="related-add" (click)="addRelatedToCart(item)" [class.added]="isRelatedAdded(item.id)"
+            title="Добавить в корзину">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
             </svg>
           </button>
