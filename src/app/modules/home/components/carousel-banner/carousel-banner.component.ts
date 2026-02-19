@@ -269,26 +269,6 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
     this.slidesWithDuplicates[index].image = 'https://via.placeholder.com/1920x1080/4f46e5/ffffff?text=Баннер+' + (actualIndex + 1);
   }
 
-  // Обработка клавиатуры для доступности
-  @HostListener('window:keydown', ['$event'])
-  handleKeyboardNavigation(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'ArrowLeft':
-        event.preventDefault();
-        this.prevSlide();
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        this.nextSlide();
-        break;
-      case ' ':
-      case 'Spacebar':
-        event.preventDefault();
-        this.toggleAutoRotate();
-        break;
-    }
-  }
-
   // Проверка, активен ли слайд
   isSlideActive(index: number): boolean {
     return index === this.displayIndex;
