@@ -34,15 +34,15 @@
 
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <div class="stat-value">{{ user?.ordersCount || 0 }}</div>
-                            <div class="stat-label">Заказов</div>
+                            <div class="stat-value">{{ operativeInfo().activeDeliveryOrdersCount || 0 }}</div>
+                            <div class="stat-label">Активных заказов</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ favoriteCount }}</div>
+                            <div class="stat-value">{{ operativeInfo().favoriteCount || 0  }}</div>
                             <div class="stat-label">Избранное</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ user?.userCompanys?.length || 0 }}</div>
+                            <div class="stat-value">{{ operativeInfo().userCompaniesCount || 0 }}</div>
                             <div class="stat-label">Компании</div>
                         </div>
                     </div>
@@ -146,8 +146,8 @@
                             </div>
                         </div>
                         <div class="card-title">Избранное</div>
-                        <div class="card-description">
-                            {{ favoriteCount }} товаров
+                        <div class="card-description" *ngIf="operativeInfo() && operativeInfo().favoriteCount">
+                            {{ operativeInfo().favoriteCount }} товаров
                         </div>
                         <div class="card-action">
                             <span>Посмотреть все</span>
@@ -170,8 +170,8 @@
                             </div>
                         </div>
                         <div class="card-title">Адреса доставки</div>
-                        <div class="card-description">
-                            {{ addressCount }} адресов
+                        <div class="card-description" *ngIf="operativeInfo() && operativeInfo().addressCount">
+                            {{ operativeInfo().addressCount }} адресов
                         </div>
                         <div class="card-action">
                             <span>Управлять адресами</span>
@@ -268,8 +268,8 @@
                             </div>
                         </div>
                         <div class="card-title">Мои компании</div>
-                        <div class="card-description">
-                            {{ user?.userCompanys?.length || 0 }} компании
+                        <div class="card-description" *ngIf=" operativeInfo() && operativeInfo().userCompaniesCount">
+                            {{ operativeInfo().userCompaniesCount || 0 }} компании
                         </div>
                         <div class="card-action">
                             <span>Посмотреть все</span>

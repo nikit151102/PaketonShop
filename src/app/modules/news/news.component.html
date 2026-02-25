@@ -1,19 +1,75 @@
-<section class="news-page">
+<section class="news-section">
   <div class="container">
-    <h1 class="page-title">Новости</h1>
+    <!-- Заголовок и фильтры -->
+    <div class="news-header">
+      <h1 class="news-title">Новости и акции</h1>
+      <p class="news-subtitle">Будьте в курсе последних событий и выгодных предложений</p>
+      
+      <!-- Фильтр по типу новостей -->
+      <div class="news-filters">
+        <button 
+          *ngFor="let type of newsTypes" 
+          class="filter-btn"
+          [class.active]="selectedType === type.value"
+          (click)="onTypeChange(type.value)"
+        >
+          {{ type.label }}
+        </button>
+      </div>
+    </div>
 
-    <div class="news-grid">
-      <div class="news-card" *ngFor="let item of news">
-        <div class="news-image">
-          <img [src]="item.image" [alt]="item.title" />
-          <span class="news-date">{{ item.date | date: "dd MMM yyyy" }}</span>
+    <!-- Состояние загрузки -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Загружаем свежие новости...</p>
+    </div>
+
+    <!-- Состояние ошибки -->
+    <div *ngIf="error" class="error-state">
+      <span class="error-icon">⚠️</span>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadData()">Попробовать снова</button>
+    </div>
+
+    <!-- Сетка новостей -->
+    <div *ngIf="!isLoading && !error" class="news-grid">
+      <div *ngFor="let item of filteredNewsItems" class="news-card" [routerLink]="['/news', item.id]">
+        <!-- Изображение с датой -->
+        <div class="card-image">
+          <img [src]="item.imageUrl" [alt]="item.title" loading="lazy">
+          <div class="card-date">
+            <span class="day">{{ item.date | date:'dd' }}</span>
+            <span class="month">{{ item.date | date:'MMM' }}</span>
+          </div>
         </div>
-        <div class="news-content">
-          <h2 class="news-title">{{ item.title }}</h2>
-          <p class="news-summary">{{ item.summary }}</p>
-          <a href="#" class="read-more">Читать далее →</a>
+
+        <!-- Контент карточки -->
+        <div class="card-content">
+          <!-- Бейдж типа (опционально) -->
+          <span class="card-badge" *ngIf="item.type === 0">Акция</span>
+          <span class="card-badge event" *ngIf="item.type === 1">Событие</span>
+          <span class="card-badge new" *ngIf="item.type === 2">Новинка</span>
+          
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-summary">{{ item.summary }}</p>
+          
+          <div class="card-footer">
+            <a [routerLink]="['/news', item.id]" class="read-more">
+              <span>Подробнее</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0" class="empty-state">
+      <span class="empty-icon">📭</span>
+      <h3>Новостей пока нет</h3>
+      <p>Загляните позже, мы обязательно что-нибудь опубликуем</p>
     </div>
   </div>
 </section>

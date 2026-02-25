@@ -30,19 +30,18 @@
         <!-- Товары -->
         <main class="products-section">
             <div class="section-header">
-                <h2 class="section-title">Товары категории</h2>
 
                 <div class="sort-controls">
-                    <label class="sort-label">Сортировать:</label>
+                    <!-- <label class="sort-label">Сортировать:</label>
                     <select class="sort-select">
                         <option value="popular">По популярности</option>
                         <option value="price-asc">По возрастанию цены</option>
                         <option value="price-desc">По убыванию цены</option>
                         <option value="new">По новизне</option>
                         <option value="rating">По рейтингу</option>
-                    </select>
+                    </select> -->
 
-                    <div class="view-toggle">
+                    <!-- <div class="view-toggle">
                         <button class="view-btn active" title="Сетка">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path
@@ -55,7 +54,7 @@
                                     d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
                             </svg>
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -122,7 +121,7 @@
     </div>
 
     <!-- Пагинация для десктопа -->
-    <div *ngIf="totalItems > pageSize" class="desktop-pagination">
+    <!-- <div *ngIf="totalItems > pageSize" class="desktop-pagination">
         <button class="pagination-btn" [disabled]="currentPage === 0" (click)="prevPage()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
@@ -145,5 +144,5 @@
                 <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
             </svg>
         </button>
-    </div>
+    </div> -->
 </div>

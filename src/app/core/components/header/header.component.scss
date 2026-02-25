@@ -75,7 +75,7 @@
   }
 
   .top-left {
-    margin-bottom: 5px;
+    margin: 5px 0;
   }
 }
 
@@ -205,4 +205,13 @@
 
 .city-inline .change:hover {
   background: #ddd;
+}
+
+
+
+
+app-icons {
+  @media (max-width: 956px) {
+    display: none;
+  }
 }

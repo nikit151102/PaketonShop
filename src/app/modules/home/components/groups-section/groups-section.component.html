@@ -1,42 +1,81 @@
 <section class="groups">
-  <div class="category-container" *ngFor="let category of categories; let i = index">
-    <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick($event)">
-      <!-- Левая часть с контентом -->
-      <div class="category-content">
-        <div class="category-header">
-          <h3 class="category-title">{{ category.name }}</h3>
-          <div class="category-arrow">→</div>
-        </div>
-
-        <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
-          <span class="tag" *ngFor="let subcategory of category.subcategories">
-            {{ subcategory.name }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Правая часть с изображением -->
-      <div class="category-image" *ngIf="category.image">
-        <img [src]="category.image" [alt]="category.name" loading="lazy" />
-      </div>
-    </div>
+  <!-- Индикатор загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загрузка категорий...</p>
   </div>
 
-  <!-- Карточка "Другие готовые решения" -->
-  <div class="category-container">
-    <div class="category-card other-solutions" [routerLink]="'/niches'">
-      <!-- Левая часть с контентом -->
-      <div class="category-content">
-        <div class="category-header">
-          <h3 class="category-title">Другие готовые решения</h3>
-          <div class="category-arrow">→</div>
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="error" class="error-state">
+    <p class="error-message">{{ error }}</p>
+    <button (click)="loadNicheCategories()" class="retry-button">
+      Повторить попытку
+    </button>
+  </div>
+
+  <!-- Категории -->
+  <ng-container *ngIf="!isLoading && !error">
+    <div class="category-container" *ngFor="let category of visibleCategories; let i = index">
+      <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick(category)">
+        <!-- Левая часть с контентом -->
+        <div class="category-content">
+          <div class="category-header">
+            <h3 class="category-title">{{ category.name }}</h3>
+            <div class="category-arrow">→</div>
+          </div>
+
+          <!-- Количество товаров (если есть) -->
+          <div class="product-count" *ngIf="category.productCount > 0">
+            {{ category.productCount }} товаров
+          </div>
+
+          <!-- Подкатегории -->
+          <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
+            <span class="tag" *ngFor="let subcategory of category.subcategories.slice(0, 3)">
+              {{ subcategory.name || subcategory }}
+            </span>
+            <span class="tag more-tag" *ngIf="category.subcategories.length > 3">
+              +{{ category.subcategories.length - 3 }}
+            </span>
+          </div>
+
+          <!-- Описание, если нет подкатегорий -->
+          <div class="category-description" *ngIf="(!category.subcategories || category.subcategories.length === 0) && category.description">
+            {{ category.description }}
+          </div>
+        </div>
+
+        <!-- Правая часть с изображением -->
+        <div class="category-image" *ngIf="category.image">
+          <img [src]="category.image" [alt]="category.name" loading="lazy" 
+             />
         </div>
       </div>
+    </div>
 
-      <!-- Правая часть с иконкой вместо изображения -->
-      <div class="category-image">
-        <div class="icon-placeholder">📦</div>
+    <!-- Карточка "Другие готовые решения" (показываем только если есть категории) -->
+    <div class="category-container" *ngIf="categories.length > 0">
+      <div class="category-card other-solutions" [routerLink]="'/niches'">
+        <div class="category-content">
+          <div class="category-header">
+            <h3 class="category-title">Другие готовые решения</h3>
+            <div class="category-arrow">→</div>
+          </div>
+          <div class="category-description">
+            Все категории товаров
+          </div>
+        </div>
+        <div class="category-image">
+          <div class="icon-placeholder">📦</div>
+        </div>
       </div>
     </div>
+  </ng-container>
+
+  <!-- Кнопка "Показать все/свернуть" (если нужно) -->
+  <div class="toggle-button-container" *ngIf="categories.length > 2 * maxPerRow">
+    <button class="toggle-button" (click)="toggleShowAll()">
+      {{ showAll ? 'Свернуть' : 'Показать все' }}
+    </button>
   </div>
 </section>

@@ -46,23 +46,23 @@ export class LocationService {
   localStorage_store = 'pktn_selectedStore';
   localStorage_store_state = 'pktn_store_state'; // Новый ключ для состояния выбора магазина
   localStorage_lastDistrict = 'pktn_lastDistrict';
-  
+
   city$ = new BehaviorSubject<City | null>(null);
   detectedCity$ = new BehaviorSubject<string | null>(null);
   showCityModal$ = new BehaviorSubject<boolean>(false);
   showStoreModal$ = new BehaviorSubject<boolean>(false);
   showAddressModal$ = new BehaviorSubject<boolean>(false);
   currentSession$ = new BehaviorSubject<string | null>(null);
-  
+
   // Данные для адреса доставки
   deliveryAddress$ = new BehaviorSubject<DeliveryAddress | null>(null);
-  
+
   // Данные для выбранного магазина
   selectedStore$ = new BehaviorSubject<SelectedStore | null>(null);
-  
+
   // Состояние выбора магазина
   storeSelectionState$ = new BehaviorSubject<StoreSelectionState>({ type: 'all' });
-  
+
   cities: City[] = [];
   groupedDistricts: DistrictGroup[] = [];
   selectedDistrict: any | null = null;
@@ -136,24 +136,48 @@ export class LocationService {
     this.showAddressModal$.next(false);
   }
 
-  saveSelectedStore(store: any) {
-    const selectedStore: SelectedStore = {
-      id: store.id,
-      fullName: store.fullName,
-      address: store.address ? `${store.address.street}, ${store.address.house}` : ''
-    };
-    this.selectedStore$.next(selectedStore);
-    localStorage.setItem(this.localStorage_store, JSON.stringify(selectedStore));
-    
-    // Устанавливаем состояние как выбранный конкретный магазин
-    const state: StoreSelectionState = {
-      type: 'single',
-      storeId: store.id,
-      storeData: selectedStore
-    };
-    this.storeSelectionState$.next(state);
-    localStorage.setItem(this.localStorage_store_state, JSON.stringify(state));
+  saveSelectedStore(store: any | any[]) {
+    // Проверяем, является ли переданный параметр массивом
+    if (Array.isArray(store)) {
+      // Сохраняем массив магазинов
+      console.log('selectedStores',store)
+      const selectedStores: any[] = store.map(s => (s.fullName ? s.fullName : ''
+      ));
+
+      this.selectedStore$.next(selectedStores.length === 1 ? selectedStores[0] : null);
+      localStorage.setItem(this.localStorage_store, JSON.stringify(selectedStores));
+
+      // Устанавливаем состояние как "все магазины"
+      const state: StoreSelectionState = {
+        type: 'all',
+        storeData: selectedStores.length === 1 ? selectedStores[0] : undefined
+      };
+      this.storeSelectionState$.next(state);
+      localStorage.setItem(this.localStorage_store_state, JSON.stringify(state));
+
+    } else {
+      // Сохраняем один магазин
+      const selectedStore: SelectedStore = {
+        id: store.id,
+        fullName: store.fullName,
+        address: store.address ? `${store.address.street}, ${store.address.house}` : ''
+      };
+
+      this.selectedStore$.next(selectedStore);
+      localStorage.setItem(this.localStorage_store, JSON.stringify(selectedStore));
+
+      // Устанавливаем состояние как выбранный конкретный магазин
+      const state: StoreSelectionState = {
+        type: 'single',
+        storeId: store.id,
+        storeData: selectedStore
+      };
+      this.storeSelectionState$.next(state);
+      localStorage.setItem(this.localStorage_store_state, JSON.stringify(state));
+
+    }
   }
+
 
   // Установить состояние "показать во всех магазинах"
   setShowAllStores() {
@@ -161,7 +185,6 @@ export class LocationService {
     this.storeSelectionState$.next(state);
     localStorage.setItem(this.localStorage_store_state, JSON.stringify(state));
     this.selectedStore$.next(null);
-    localStorage.removeItem(this.localStorage_store);
   }
 
   // Получить текущее состояние выбора магазина
@@ -279,25 +302,25 @@ export class LocationService {
   setCity(city: City) {
     this.city$.next(city);
     localStorage.setItem(this.localStorage_city, city.name);
-    
-    const district = this.groupedDistricts.find(d => 
+
+    const district = this.groupedDistricts.find(d =>
       d.cities.some(c => c.name === city.name)
     );
     if (district) {
       localStorage.setItem(this.localStorage_lastDistrict, district.name);
     }
-    
+
     this.selectedDistrict = null;
     this.showCityModal$.next(false);
     StorageUtils.setSessionStorage(this.localStorage_city, 'true');
-    
+
     setTimeout(() => this.openStoreModal(), 300);
   }
 
   confirmCity() {
     const detectedCityName = this.detectedCity$.value;
     if (detectedCityName) {
-      const foundCity = this.cities.find(city => 
+      const foundCity = this.cities.find(city =>
         city.name === detectedCityName
       );
       if (foundCity) {
@@ -306,7 +329,7 @@ export class LocationService {
     }
     this.showCityModal$.next(false);
     StorageUtils.setSessionStorage(this.localStorage_city, 'true');
-    
+
     setTimeout(() => this.openStoreModal(), 300);
   }
 
@@ -390,15 +413,15 @@ export class LocationService {
 
       const data = await res.json();
       const cityName = data.address?.city || data.address?.town || data.address?.village;
-      
+
       if (cityName) {
         this.detectedCity$.next(cityName);
-        
-        const foundCity = this.cities.find(city => 
+
+        const foundCity = this.cities.find(city =>
           city.name.toLowerCase().includes(cityName.toLowerCase()) ||
           cityName.toLowerCase().includes(city.name.toLowerCase())
         );
-        
+
         if (foundCity) {
           this.city$.next(foundCity);
           localStorage.setItem(this.localStorage_city, foundCity.name);

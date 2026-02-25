@@ -173,6 +173,7 @@ export class AuthComponent implements OnInit, OnDestroy {
       this.authService.login(email, email, password).subscribe({
         next: (response: any) => {
           this.handleLoginSuccess(response);
+          this.userApiService.getOperativeInfo();
         },
         error: (error) => {
           this.handleError(error);
@@ -191,6 +192,7 @@ export class AuthComponent implements OnInit, OnDestroy {
       this.authService.register(data).subscribe({
         next: (res) => {
           this.handleRegistrationSuccess(res);
+          this.userApiService.getOperativeInfo();
         },
         error: (err) => {
           this.handleError(err);

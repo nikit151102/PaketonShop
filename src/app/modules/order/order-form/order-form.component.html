@@ -1,4 +1,4 @@
-<form class="modern-order-form" >
+<form class="modern-order-form">
   <!-- Новый заголовок с прогресс-баром -->
   <div class="form-header-section">
     <div class="header-content">
@@ -236,14 +236,10 @@
       </div>
 
       <!-- Секция компаний (появляется при выборе юр.лица) -->
-<app-company-selector
-  *ngIf="formData.personType === 'jur'"
-  [selectedCompanyId]="selectedCompanyId"
-  (selectedCompanyChange)="onCompanySelected($event)"
-  (companyAdded)="onCompanyAdded()"
-  (companyEdited)="onCompanyEdited($event)"
-  (companyDeleted)="onCompanyDeleted($event)">
-</app-company-selector>
+      <app-company-selector *ngIf="formData.personType === 'jur'" [selectedCompanyId]="selectedCompanyId"
+        (selectedCompanyChange)="onCompanySelected($event)" (companyAdded)="onCompanyAdded()"
+        (companyEdited)="onCompanyEdited($event)" (companyDeleted)="onCompanyDeleted($event)">
+      </app-company-selector>
 
     </div>
 
@@ -340,13 +336,16 @@
 
       <!-- Динамические компоненты доставки -->
       <div class="delivery-details-section">
-        <app-pickup-delivery *ngIf="formData.delivery === 'pickup'" (storeSelected)="onDeliveryDataChange('store', $event)">
+        <app-pickup-delivery *ngIf="formData.delivery === 'pickup'"
+          (storeSelected)="onDeliveryDataChange('store', $event)">
         </app-pickup-delivery>
 
-        <app-transport-delivery *ngIf="formData.delivery === 'transport'" (addressSelected)="onDeliveryDataChange('transport', $event)">
+        <app-transport-delivery *ngIf="formData.delivery === 'transport'"
+          (addressSelected)="onDeliveryDataChange('transport', $event)">
         </app-transport-delivery>
 
-        <app-city-delivery *ngIf="formData.delivery === 'city'" (addressSelected)="onDeliveryDataChange('city', $event)">
+        <app-city-delivery *ngIf="formData.delivery === 'city'"
+          (addressSelected)="onDeliveryDataChange('city', $event)">
         </app-city-delivery>
       </div>
     </div>

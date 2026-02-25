@@ -1,14 +1,14 @@
 <div class="category-section" [class.show-all]="showAllCategories || !isMainPage">
   <div class="grid-container" [class.collapsed]="!showAllCategories && isMainPage && hasMoreCategories">
     <div *ngFor="let category of displayedCategories; let i = index" class="category-card"
-      [routerLink]="category.subCategories?.length > 0 ? ['/category', category.id] : ['/products', category.id]"
+      [routerLink]="['/category', category.id]"
       [style.--index]="i" [class.has-subcategories]="category.subCategories?.length > 0">
       <div class="card-content">
         <h3 class="category-name">{{ category.name }}</h3>
       </div>
       <div class="card-image">
-        <img [src]="getFirstImage(category?.imageInstanceLinks[0]) || './assets/default-category.jpg'"
-          [alt]="category.name" loading="lazy" class="category-img" />
+        <img [src]="getFirstImage(category?.imageInstanceLinks?.[0]) || ''" [alt]="category.name" loading="lazy"
+          class="category-img" />
         <div class="image-gradient"></div>
 
         <!-- Бейдж с количеством подкатегорий -->

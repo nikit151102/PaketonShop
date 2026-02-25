@@ -1,8 +1,9 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UserApiService } from '../../../../core/api/user.service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-profile',
@@ -15,7 +16,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
         query('.profile-menu-card', [
           style({ opacity: 0, transform: 'translateY(20px)' }),
           stagger('100ms', [
-            animate('500ms cubic-bezier(0.34, 1.56, 0.64, 1)', 
+            animate('500ms cubic-bezier(0.34, 1.56, 0.64, 1)',
               style({ opacity: 1, transform: 'translateY(0)' }))
           ])
         ])
@@ -24,7 +25,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'scale(0.9)' }),
-        animate('600ms cubic-bezier(0.34, 1.56, 0.64, 1)', 
+        animate('600ms cubic-bezier(0.34, 1.56, 0.64, 1)',
           style({ opacity: 1, transform: 'scale(1)' }))
       ])
     ])
@@ -38,8 +39,10 @@ export class ProfileComponent implements OnInit {
   unreadAnswersCount: number = 1;
   isLoading: boolean = true;
   isMobile: boolean = false;
+  operativeInfo = computed(() => this.userService.operativeInfo())
 
-  constructor(private userApiService: UserApiService) {}
+  private userService = inject(UserService);
+  private userApiService = inject(UserApiService);
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -61,9 +64,8 @@ export class ProfileComponent implements OnInit {
       next: (response) => {
         this.user = response.data;
         this.isLoading = false;
-        
-        // Здесь можно добавить загрузку дополнительных данных
-        // Например, количество избранного и адресов через другие сервисы
+
+        this.userApiService.getOperativeInfo();
         this.simulateAdditionalData();
       },
       error: (error) => {
@@ -85,7 +87,7 @@ export class ProfileComponent implements OnInit {
     // Логика изменения аватара
     console.log('Edit avatar');
     // Можно реализовать загрузку файла
-    
+
   }
 
   // Дополнительные методы для улучшения UX

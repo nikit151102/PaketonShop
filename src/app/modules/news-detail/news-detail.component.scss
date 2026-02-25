@@ -1,0 +1,1156 @@
+// Переменные
+$primary-color: #2a5e1c;
+$primary-light: lighten($primary-color, 10%);
+$primary-dark: darken($primary-color, 10%);
+$text-dark: #1e293b;
+$text-light: #64748b;
+$bg-light: #f8fafc;
+$white: #ffffff;
+$shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+$shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+$shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.1);
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// Брейкпоинты
+$mobile: 480px;
+$tablet: 768px;
+$laptop: 1024px;
+$desktop: 1280px;
+
+.news-detail {
+    min-height: 100vh;
+    background: $bg-light;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    @media (max-width: $tablet) {
+        padding: 0 1rem;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 0 0.75rem;
+    }
+}
+
+// Кнопка назад
+.back-button-container {
+    background: $white;
+    border-bottom: 1px solid rgba($text-light, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    background: rgba($white, 0.9);
+
+    @media (max-width: $mobile) {
+        padding: 0.75rem 0;
+    }
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: $text-dark;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 9999px;
+    transition: $transition;
+
+    @media (max-width: $mobile) {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.9rem;
+        gap: 0.4rem;
+    }
+
+    &:hover {
+        background: rgba($primary-color, 0.1);
+        color: $primary-color;
+        transform: translateX(-4px);
+    }
+
+    svg {
+        transition: transform 0.2s;
+        
+        @media (max-width: $mobile) {
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
+// Состояния загрузки и ошибки
+.loading-state,
+.error-content {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: $white;
+    border-radius: 32px;
+    box-shadow: $shadow-sm;
+    margin: 2rem auto;
+    max-width: 600px;
+
+    @media (max-width: $tablet) {
+        padding: 3rem 1.5rem;
+        margin: 1.5rem auto;
+        max-width: 90%;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 2rem 1rem;
+        border-radius: 24px;
+    }
+}
+
+.loading-state {
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba($primary-color, 0.1);
+        border-top-color: $primary-color;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        animation: spin 1s linear infinite;
+
+        @media (max-width: $mobile) {
+            width: 40px;
+            height: 40px;
+            border-width: 2px;
+            margin-bottom: 1rem;
+        }
+    }
+}
+
+.error-state {
+    .error-content {
+        h2 {
+            font-size: 1.5rem;
+            color: $text-dark;
+            margin-bottom: 1rem;
+
+            @media (max-width: $mobile) {
+                font-size: 1.25rem;
+            }
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+
+            @media (max-width: $mobile) {
+                font-size: 2.5rem;
+            }
+        }
+
+        .retry-btn,
+        .home-btn {
+            margin: 0.5rem;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: $transition;
+
+            @media (max-width: $mobile) {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+
+        .retry-btn {
+            background: $primary-color;
+            color: $white;
+
+            &:hover {
+                background: $primary-dark;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba($primary-color, 0.3);
+            }
+        }
+
+        .home-btn {
+            background: $bg-light;
+            color: $text-dark;
+            border: 1px solid rgba($text-light, 0.2);
+
+            &:hover {
+                background: $white;
+                border-color: $primary-color;
+            }
+        }
+    }
+}
+
+// Героическая секция
+.hero-section {
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+    max-height: 800px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-end;
+
+    @media (max-width: $laptop) {
+        min-height: 450px;
+        height: 60vh;
+    }
+
+    @media (max-width: $tablet) {
+        min-height: 400px;
+        height: 50vh;
+    }
+
+    @media (max-width: $mobile) {
+        min-height: 350px;
+        height: 45vh;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.2) 100%);
+        border-radius: 16px;
+
+        @media (max-width: $tablet) {
+            border-radius: 12px;
+        }
+
+        @media (max-width: $mobile) {
+            border-radius: 8px;
+        }
+    }
+
+    .hero-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 4rem;
+
+        @media (max-width: $tablet) {
+            padding-bottom: 2.5rem;
+        }
+
+        @media (max-width: $mobile) {
+            padding-bottom: 2rem;
+        }
+    }
+
+    .hero-content {
+        color: $white;
+        max-width: 800px;
+
+        @media (max-width: $laptop) {
+            max-width: 700px;
+        }
+
+        @media (max-width: $tablet) {
+            max-width: 100%;
+        }
+    }
+
+    .news-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+
+        @media (max-width: $mobile) {
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+    }
+
+    .news-type {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background: $primary-color;
+        color: $white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-radius: 100px;
+        box-shadow: $shadow-md;
+
+        @media (max-width: $tablet) {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: $mobile) {
+            padding: 0.3rem 1rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    .news-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        opacity: 0.9;
+
+        @media (max-width: $mobile) {
+            font-size: 0.85rem;
+            
+            svg {
+                width: 14px;
+                height: 14px;
+            }
+        }
+    }
+
+    .news-header {
+        font-size: clamp(2rem, 5vw, 4rem);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        @media (max-width: $tablet) {
+            font-size: clamp(1.75rem, 4vw, 3rem);
+        }
+
+        @media (max-width: $mobile) {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    .news-subheader {
+        font-size: clamp(1.125rem, 2vw, 1.5rem);
+        opacity: 0.9;
+        max-width: 600px;
+        line-height: 1.5;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+        @media (max-width: $tablet) {
+            font-size: clamp(1rem, 1.8vw, 1.25rem);
+            max-width: 500px;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 1rem;
+            max-width: 100%;
+        }
+    }
+}
+
+// Навигация по изображениям
+.image-navigation {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    pointer-events: none;
+
+    @media (max-width: $mobile) {
+        padding: 0 0.5rem;
+    }
+
+    .nav-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba($white, 0.2);
+        backdrop-filter: blur(8px);
+        border: 2px solid rgba($white, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        pointer-events: auto;
+        transition: $transition;
+
+        @media (max-width: $tablet) {
+            width: 40px;
+            height: 40px;
+        }
+
+        @media (max-width: $mobile) {
+            width: 32px;
+            height: 32px;
+            border-width: 1.5px;
+        }
+
+        &:hover:not(:disabled) {
+            background: rgba($white, 0.3);
+            transform: scale(1.1);
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+
+            @media (max-width: $tablet) {
+                width: 20px;
+                height: 20px;
+            }
+
+            @media (max-width: $mobile) {
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
+
+    .image-indicators {
+        position: absolute;
+        bottom: -2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 0.5rem;
+        pointer-events: auto;
+
+        @media (max-width: $mobile) {
+            bottom: -1.5rem;
+            gap: 0.35rem;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba($white, 0.5);
+            cursor: pointer;
+            transition: $transition;
+
+            @media (max-width: $mobile) {
+                width: 6px;
+                height: 6px;
+            }
+
+            &.active {
+                width: 24px;
+                background: $white;
+                border-radius: 4px;
+
+                @media (max-width: $mobile) {
+                    width: 18px;
+                }
+            }
+
+            &:hover {
+                background: $white;
+            }
+        }
+    }
+}
+
+// Основной контент
+.main-content {
+    padding: 4rem 0;
+    position: relative;
+    z-index: 2;
+
+    @media (max-width: $laptop) {
+        padding: 3rem 0;
+    }
+
+    @media (max-width: $tablet) {
+        padding: 2.5rem 0;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 2rem 0;
+    }
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 2fr 1fr;
+    }
+
+    @media (max-width: $laptop) {
+        gap: 2.5rem;
+    }
+
+    @media (max-width: $tablet) {
+        gap: 2rem;
+    }
+
+    @media (max-width: $mobile) {
+        gap: 1.5rem;
+    }
+}
+
+// Левая колонка
+.content-main {
+    background: $white;
+    border-radius: 32px;
+    padding: 2rem;
+    box-shadow: $shadow-md;
+
+    @media (min-width: 768px) {
+        padding: 3rem;
+    }
+
+    @media (max-width: $laptop) {
+        padding: 2rem;
+    }
+
+    @media (max-width: $tablet) {
+        padding: 1.75rem;
+        border-radius: 28px;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 1.25rem;
+        border-radius: 20px;
+    }
+}
+
+.promo-timer {
+    margin-bottom: 2rem;
+
+    @media (max-width: $mobile) {
+        margin-bottom: 1.5rem;
+    }
+
+    .timer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1.5rem;
+        background: #fee2e2;
+        border-radius: 100px;
+        color: #991b1b;
+
+        @media (max-width: $tablet) {
+            padding: 0.6rem 1.2rem;
+        }
+
+        @media (max-width: $mobile) {
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        &.active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .timer-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+
+            @media (max-width: $mobile) {
+                font-size: 0.85rem;
+            }
+        }
+
+        .timer-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+
+            @media (max-width: $mobile) {
+                font-size: 1rem;
+            }
+        }
+    }
+}
+
+.description {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid rgba($text-light, 0.1);
+
+    @media (max-width: $laptop) {
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.75rem;
+    }
+
+    @media (max-width: $tablet) {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+    }
+
+    @media (max-width: $mobile) {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.25rem;
+    }
+
+    &-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 1rem;
+
+        @media (max-width: $tablet) {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    &-text {
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: $text-light;
+
+        @media (max-width: $tablet) {
+            font-size: 1rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    }
+}
+
+.content-body {
+    margin-bottom: 3rem;
+
+    @media (max-width: $laptop) {
+        margin-bottom: 2.5rem;
+    }
+
+    @media (max-width: $tablet) {
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: $mobile) {
+        margin-bottom: 1.5rem;
+    }
+
+    &-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 1.5rem;
+
+        @media (max-width: $tablet) {
+            font-size: 1.35rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+    }
+
+    &-text {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: $text-dark;
+
+        @media (max-width: $tablet) {
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ::ng-deep {
+            p {
+                margin-bottom: 1.5rem;
+
+                @media (max-width: $mobile) {
+                    margin-bottom: 1rem;
+                }
+            }
+
+            h1,
+            h2,
+            h3 {
+                margin: 2rem 0 1rem;
+                color: $text-dark;
+
+                @media (max-width: $tablet) {
+                    margin: 1.5rem 0 0.75rem;
+                }
+
+                @media (max-width: $mobile) {
+                    margin: 1.25rem 0 0.5rem;
+                }
+            }
+
+            ul,
+            ol {
+                margin: 1rem 0;
+                padding-left: 1.5rem;
+
+                @media (max-width: $mobile) {
+                    padding-left: 1.25rem;
+                }
+            }
+
+            li {
+                margin-bottom: 0.5rem;
+
+                @media (max-width: $mobile) {
+                    margin-bottom: 0.35rem;
+                }
+            }
+
+            a {
+                color: $primary-color;
+                text-decoration: underline;
+                text-underline-offset: 2px;
+
+                &:hover {
+                    color: $primary-dark;
+                }
+            }
+        }
+    }
+}
+
+.validity-period {
+    background: $bg-light;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+
+    @media (max-width: $tablet) {
+        padding: 1.25rem;
+        border-radius: 14px;
+        margin-bottom: 1.75rem;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $text-light;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+
+        @media (max-width: $mobile) {
+            font-size: 0.85rem;
+        }
+    }
+
+    p {
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: $primary-color;
+
+        @media (max-width: $tablet) {
+            font-size: 1rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.95rem;
+        }
+    }
+}
+
+.external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: $primary-color;
+    color: $white;
+    text-decoration: none;
+    border-radius: 100px;
+    font-weight: 600;
+    transition: $transition;
+
+    @media (max-width: $laptop) {
+        padding: 0.9rem 1.75rem;
+    }
+
+    @media (max-width: $tablet) {
+        padding: 0.8rem 1.5rem;
+        width: stretch;
+        justify-content: center;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 0.7rem 1.25rem;
+        font-size: 0.9rem;
+        gap: 0.5rem;
+    }
+
+    &:hover {
+        background: $primary-dark;
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg;
+
+        @media (max-width: $tablet) {
+            transform: translateY(-1px);
+        }
+    }
+}
+
+// Правая колонка
+.content-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    @media (max-width: $laptop) {
+        gap: 1.75rem;
+    }
+
+    @media (max-width: $tablet) {
+        gap: 1.5rem;
+    }
+
+    @media (max-width: $mobile) {
+        gap: 1rem;
+    }
+}
+
+.info-card {
+    background: $white;
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: $shadow-md;
+
+    @media (max-width: $laptop) {
+        padding: 1.35rem;
+    }
+
+    @media (max-width: $tablet) {
+        padding: 1.25rem;
+        border-radius: 20px;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    &-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $text-dark;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba($text-light, 0.1);
+
+        @media (max-width: $tablet) {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+    }
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba($text-light, 0.1);
+
+        @media (max-width: $mobile) {
+            padding: 0.6rem 0;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .info-label {
+        color: $text-light;
+        font-size: 0.95rem;
+
+        @media (max-width: $tablet) {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.85rem;
+        }
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: $text-dark;
+
+        @media (max-width: $mobile) {
+            font-size: 0.9rem;
+        }
+
+        &.status {
+            padding: 0.25rem 1rem;
+            background: #fee2e2;
+            border-radius: 100px;
+            color: #991b1b;
+            font-size: 0.875rem;
+
+            @media (max-width: $mobile) {
+                padding: 0.2rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            &.active {
+                background: #dcfce7;
+                color: #166534;
+            }
+        }
+    }
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: $mobile) {
+        gap: 0.75rem;
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: none;
+        background: $white;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: $text-dark;
+        cursor: pointer;
+        transition: $transition;
+        border: 1px solid rgba($text-light, 0.1);
+
+        @media (max-width: $laptop) {
+            padding: 0.9rem;
+        }
+
+        @media (max-width: $tablet) {
+            font-size: 0.9rem;
+            padding: 0.8rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.85rem;
+            padding: 0.7rem 0.5rem;
+            gap: 0.3rem;
+            
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        &:hover {
+            background: $primary-color;
+            color: $white;
+            transform: translateY(-2px);
+            box-shadow: $shadow-md;
+
+            @media (max-width: $tablet) {
+                transform: translateY(-1px);
+            }
+
+            @media (max-width: $mobile) {
+                transform: none;
+            }
+        }
+    }
+}
+
+.image-thumbnails {
+    background: $white;
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: $shadow-md;
+
+    @media (max-width: $laptop) {
+        padding: 1.35rem;
+    }
+
+    @media (max-width: $tablet) {
+        padding: 1.25rem;
+        border-radius: 20px;
+    }
+
+    @media (max-width: $mobile) {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: $text-light;
+        margin-bottom: 1rem;
+
+        @media (max-width: $tablet) {
+            font-size: 0.95rem;
+            margin-bottom: 0.85rem;
+        }
+
+        @media (max-width: $mobile) {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+    }
+}
+
+.thumbnail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+
+    @media (max-width: $mobile) {
+        gap: 0.5rem;
+    }
+}
+
+.thumbnail {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: $transition;
+
+    @media (max-width: $mobile) {
+        border-radius: 8px;
+        border-width: 1.5px;
+    }
+
+    &.active {
+        border-color: $primary-color;
+        transform: scale(1.05);
+
+        @media (max-width: $mobile) {
+            transform: scale(1.03);
+        }
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &:hover {
+        opacity: 0.9;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Дополнительные адаптации для очень маленьких экранов
+@media (max-width: 360px) {
+    .hero-section {
+        min-height: 300px;
+        
+        .news-header {
+            font-size: 1.5rem;
+        }
+        
+        .news-subheader {
+            font-size: 0.9rem;
+        }
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+        
+        button {
+            width: 100%;
+        }
+    }
+    
+    .thumbnail-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// Адаптация для планшетов в альбомной ориентации
+@media (min-width: $tablet) and (max-width: $laptop) and (orientation: landscape) {
+    .hero-section {
+        height: 55vh;
+        min-height: 400px;
+    }
+    
+    .content-grid {
+        gap: 2rem;
+    }
+}
+
+// Адаптация для больших экранов
+@media (min-width: $desktop) {
+    .container {
+        padding: 0 2rem;
+    }
+    
+    .hero-section {
+        border-radius: 24px;
+        margin: 0 2rem;
+    }
+    
+    .content-main {
+        padding: 3.5rem;
+    }
+}

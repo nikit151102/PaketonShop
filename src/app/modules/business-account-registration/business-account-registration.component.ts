@@ -200,6 +200,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   };
 
   private destroy$ = new Subject<void>();
+  isActiveUser: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -216,6 +217,17 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.userService.user$.subscribe((user: any) => {
+
+    });
+
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
+    if (authToken) {
+      this.loadUserData();
+    }
+
     this.loadPartnerTypes();
     this.setupFormListeners();
   }
@@ -225,6 +237,39 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+
+  private loadUserData(): void {
+    this.userApiService.getData().subscribe({
+      next: (response) => {
+        const user = response.data;
+        this.isActiveUser = true;
+        let birthdayValue = null;
+        if (user.birthday) {
+          const date = new Date(user.birthday);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          birthdayValue = `${year}-${month}-${day}`;
+        }
+
+        this.userForm.patchValue({
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          birthday: birthdayValue,
+          phoneNumber: user.phoneNumber,
+          agreeToTerms: true
+        });
+
+        this.currentStep = 2;
+      },
+      error: (error) => {
+        console.error('Error loading user data:', error);
+        this.isLoading = false;
+      }
+    });
+  }
 
   private createUserForm(): FormGroup {
     return this.fb.group({
@@ -997,7 +1042,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     return Math.round((uploadedCount / requiredDocsCount) * 100);
   }
 
-  // Submission
   submitBusinessAccount(): void {
     if (!this.validateDocumentsStep()) {
       this.error = 'Пожалуйста, завершите загрузку документов';
@@ -1016,6 +1060,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       password: this.accountData.user.password,
       isEmailSend: 'false',
     };
+
+    if (this.isActiveUser == false) {
+
+    }
 
     this.authService.register(registerData).pipe(
       // После успешной регистрации сохраняем токен и обновляем данные пользователя

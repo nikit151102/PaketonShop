@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, Signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   localStorageEnvironment,
@@ -92,4 +92,17 @@ export class UserService {
   getDataUser(): Observable<any> {
     return this.http.get('');
   }
+
+
+
+  public operativeInfo = signal<any>({});
+
+  setOperativeInfo(value: boolean) {
+    this.operativeInfo.set(value);
+  }
+
+  get getOperativeInfo(): boolean {
+    return this.operativeInfo();
+  }
+
 }

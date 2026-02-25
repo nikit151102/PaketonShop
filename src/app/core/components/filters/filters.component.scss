@@ -14,7 +14,7 @@
         gap: 10px;
         width: 100%;
         padding: 14px 20px;
-        background: linear-gradient(135deg, #327120 0%, #3f8b2a 100%);
+        background: linear-gradient(135deg, #2a5e1c 0%, #3f8b2a 100%);
         color: white;
         border: none;
         border-radius: 12px;
@@ -38,7 +38,7 @@
 
         .filters-count {
             background: white;
-            color: #667eea;
+            color: #2a5e1c;
             font-size: 12px;
             padding: 2px 8px;
             border-radius: 12px;
@@ -141,9 +141,9 @@
 
                 &:focus {
                     outline: none;
-                    border-color: #667eea;
+                    border-color: #2a5e1c;
                     background: white;
-                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                    box-shadow: 0 0 0 3px rgba(42, 94, 28, 0.1);
                 }
 
                 &::placeholder {
@@ -163,11 +163,11 @@
         }
 
         .active-filters {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(42, 94, 28, 0.05) 0%, rgba(63, 139, 42, 0.05) 100%);
             border-radius: 14px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(42, 94, 28, 0.1);
 
             .active-filters-header {
                 display: flex;
@@ -178,7 +178,7 @@
                 .title {
                     font-size: 15px;
                     font-weight: 600;
-                    color: #667eea;
+                    color: #2a5e1c;
                 }
 
                 .clear-all {
@@ -212,8 +212,8 @@
                     transition: all 0.3s ease;
 
                     &:hover {
-                        border-color: #667eea;
-                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+                        border-color: #2a5e1c;
+                        box-shadow: 0 2px 8px rgba(42, 94, 28, 0.1);
                     }
 
                     .filter-name {
@@ -224,7 +224,7 @@
 
                     .filter-value {
                         font-size: 13px;
-                        color: #667eea;
+                        color: #2a5e1c;
                         font-weight: 600;
                         margin-left: auto;
                         max-width: 120px;
@@ -331,8 +331,8 @@
                                 display: none;
 
                                 &:checked+.checkbox-custom {
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    border-color: #667eea;
+                                    background: linear-gradient(135deg, #2a5e1c 0%, #3f8b2a 100%);
+                                    border-color: #2a5e1c;
 
                                     svg {
                                         opacity: 1;
@@ -386,7 +386,7 @@
                         button {
                             background: none;
                             border: none;
-                            color: #667eea;
+                            color: #2a5e1c;
                             font-size: 13px;
                             font-weight: 500;
                             cursor: pointer;
@@ -395,8 +395,8 @@
                             border-radius: 8px;
 
                             &:hover {
-                                color: #764ba2;
-                                background: rgba(102, 126, 234, 0.05);
+                                color: #3f8b2a;
+                                background: rgba(42, 94, 28, 0.05);
                             }
                         }
                     }
@@ -412,8 +412,8 @@
                         .max-value {
                             font-size: 14px;
                             font-weight: 600;
-                            color: #667eea;
-                            background: rgba(102, 126, 234, 0.1);
+                            color: #2a5e1c;
+                            background: rgba(42, 94, 28, 0.1);
                             padding: 4px 10px;
                             border-radius: 8px;
                         }
@@ -439,7 +439,7 @@
                             position: absolute;
                             top: 50%;
                             height: 4px;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            background: linear-gradient(135deg, #2a5e1c 0%, #3f8b2a 100%);
                             border-radius: 2px;
                             transform: translateY(-50%);
                         }
@@ -461,7 +461,7 @@
                                 width: 24px;
                                 height: 24px;
                                 background: white;
-                                border: 2px solid #667eea;
+                                border: 2px solid #2a5e1c;
                                 border-radius: 50%;
                                 cursor: pointer;
                                 pointer-events: auto;
@@ -470,7 +470,7 @@
 
                                 &:hover {
                                     transform: scale(1.1);
-                                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                                    box-shadow: 0 4px 15px rgba(42, 94, 28, 0.3);
                                 }
                             }
 
@@ -512,8 +512,8 @@
 
                                 &:focus {
                                     outline: none;
-                                    border-color: #667eea;
-                                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                                    border-color: #2a5e1c;
+                                    box-shadow: 0 0 0 3px rgba(42, 94, 28, 0.1);
                                 }
                             }
                         }
@@ -532,7 +532,7 @@
 
             .btn-apply {
                 padding: 16px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #2a5e1c 0%, #3f8b2a 100%);
                 color: white;
                 border: none;
                 border-radius: 12px;
@@ -540,11 +540,11 @@
                 font-size: 16px;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+                box-shadow: 0 4px 20px rgba(42, 94, 28, 0.3);
 
                 &:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+                    box-shadow: 0 6px 25px rgba(42, 94, 28, 0.4);
                 }
             }
 

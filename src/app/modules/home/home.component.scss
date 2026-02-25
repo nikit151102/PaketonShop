@@ -6,11 +6,7 @@
       display: block;
     }
   }
-  @media (max-width: 950px) {
-    .ready_solutions {
-      display: none;
-    }
-  }
+
 }
 
 #section-sales {
@@ -33,7 +29,7 @@
 .products {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 8px;
 
   app-product {

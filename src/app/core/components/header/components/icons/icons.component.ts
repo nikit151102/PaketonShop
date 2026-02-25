@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../../services/auth.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { CommonModule } from '@angular/common';
@@ -18,7 +18,8 @@ import {
   templateUrl: './icons.component.html',
   styleUrl: './icons.component.scss',
 })
-export class IconsComponent {
+export class IconsComponent implements OnInit {
+
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private userApiService = inject(UserApiService);
@@ -27,6 +28,18 @@ export class IconsComponent {
   userId$: Observable<string | null> = this.userService.user$.pipe(
     map((user: User | null) => user?.id ?? null),
   );
+
+  operativeInfo = computed(() => this.userService.operativeInfo())
+
+  ngOnInit(): void {
+    if (this.isObjectEmpty(this.operativeInfo())) {
+      this.userApiService.getOperativeInfo();
+    }
+  }
+
+  private isObjectEmpty(obj: any): boolean {
+    return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+  }
 
   goToPage(page: string) {
 
@@ -69,7 +82,6 @@ export class IconsComponent {
           }
         });
     });
-
 
   }
 }

@@ -1,89 +1,142 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { NewsBannerService, NewsBannerFilterDto } from '../../../../core/api/news-banner.service';
 
 interface Slide {
   image: string;
   title?: string;
   subtitle?: string;
   badge?: string;
+  date?: Date;
   buttonText?: string;
   note?: string;
   link?: string;
-  action?: () => void;
+  id?: string;
 }
 
 @Component({
   selector: 'app-carousel-banner',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './carousel-banner.component.html',
   styleUrl: './carousel-banner.component.scss',
 })
 export class CarouselBannerComponent implements OnInit, OnDestroy {
-  slides: Slide[] = [
-    {
-      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-      title: 'Летняя распродажа',
-      subtitle: 'Скидки до 50% на всю коллекцию',
-      badge: 'Скидка',
-      buttonText: 'Смотреть товары',
-      note: 'Акция действует до 31 августа',
-      link: '/categories/sale'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-      title: 'Новые поступления',
-      subtitle: 'Свежая коллекция уже в продаже',
-      badge: 'Новинка',
-      buttonText: 'Посмотреть новинки',
-      note: 'Более 200 новых позиций',
-      link: '/categories/new'
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-      title: 'Премиум качество',
-      subtitle: 'Только лучшие материалы и технологии',
-      badge: 'Премиум',
-      buttonText: 'В каталог',
-      note: 'Гарантия 2 года',
-      link: '/categories/premium'
-    }
-  ];
+  @Input() autoRotateInterval: number = 3000; 
+  @Input() primaryColor: string = '#2a5e1c'; 
 
-  // Массив с дублированными слайдами для бесконечной прокрутки
+  slides: Slide[] = [];
   slidesWithDuplicates: Slide[] = [];
 
-  activeIndex = 1; // Начинаем с 1, потому что добавили дубликаты
-  displayIndex = 0; // Индекс для отображения пользователю (от 0 до slides.length-1)
+  activeIndex = 1;
+  displayIndex = 0; 
   progress = 0;
   autoRotate = true;
-  rotationInterval = 4000; // 4 секунд
-  private intervalId: any;
-  private progressIntervalId: any;
+  
+  private intervalId?: any;
+  private progressIntervalId?: any;
   private startTime = 0;
-  imagesLoaded = 0;
   private isTransitioning = false;
-  private transitionDuration = 500; // Длительность анимации в мс
+  private transitionDuration = 300;
+  
+  isLoading = true;
+  error: string | null = null;
+  imagesLoaded = 0;
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private newsBannerService: NewsBannerService
+  ) {}
 
   ngOnInit(): void {
-    // Создаем массив с дублированными слайдами для бесконечной прокрутки
-    // Добавляем последний слайд в начало и первый слайд в конец
+    this.loadBanners();
+  }
+
+  ngOnDestroy(): void {
+    this.clearAllIntervals();
+  }
+
+  loadBanners(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const filterDto: NewsBannerFilterDto = {
+      filters: [
+        {
+          field: 'newsBannerType',
+          values: [1],
+          type: 1
+        },
+               {
+          field: 'isDeleted',
+          values: [1],
+          type: 1
+        }
+        
+      ],
+      sorts: [
+        {
+          field: 'createdAt',
+          sortType: 1
+        }
+      ],
+      page: 0,
+      pageSize: 10
+    };
+
+    this.newsBannerService.getNewsBannersByFilter(filterDto).subscribe({
+      next: (response) => {
+        if (response?.data?.length) {
+          this.slides = this.mapBannersToSlides(response.data);
+          this.initializeCarousel();
+        } else {
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки баннеров:', error);
+        this.error = 'Не удалось загрузить баннеры';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  // Маппинг данных с API
+  private mapBannersToSlides(banners: any[]): Slide[] {
+    return banners.map(banner => ({
+      id: banner.id,
+      image: banner.imageInstanceLinks?.[0] || this.getPlaceholderImage(banner.id),
+      title: banner.header || 'Акция',
+      subtitle: banner.subheader || 'Специальное предложение',
+      badge: banner.badge || 'НОВИНКА',
+      date: banner.createdAt ? new Date(banner.createdAt) : new Date(),
+      buttonText: 'Подробнее',
+      note: 'Акция действует ограниченное время',
+      link: `/news/${banner.id}`
+    }));
+  }
+
+  // Заглушка для изображений
+  private getPlaceholderImage(id?: string): string {
+    const colors = ['2a5e1c', '1e4514', '3f7a2e', '4c9e34', '5fb83e'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    return `https://via.placeholder.com/1920x1080/${color}/ffffff?text=Баннер+${id || ''}`;
+  }
+
+  // Инициализация карусели
+  private initializeCarousel(): void {
+    if (this.slides.length === 0) return;
+
+    // Создаем массив с дублированными слайдами
     this.slidesWithDuplicates = [
-      this.slides[this.slides.length - 1], // Последний слайд становится первым
-      ...this.slides, // Оригинальные слайды
-      this.slides[0] // Первый слайд становится последним
+      this.slides[this.slides.length - 1],
+      ...this.slides,
+      this.slides[0]
     ];
 
     this.preloadImages();
     this.startAutoRotation();
-    this.startProgress();
-    this.startAutoRotation();
-  }
-
-  ngOnDestroy(): void {
-    this.clearIntervals();
   }
 
   // Предзагрузка изображений
@@ -93,33 +146,31 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
       img.src = slide.image;
       img.onload = () => {
         this.imagesLoaded++;
-        console.log(`Изображение ${index + 1} загружено`);
       };
       img.onerror = () => {
-        console.error(`Ошибка загрузки изображения ${index + 1}: ${slide.image}`);
-        // Заменяем на placeholder при ошибке
-        this.slidesWithDuplicates[index].image = 'https://via.placeholder.com/1920x1080/4f46e5/ffffff?text=Баннер+' + ((index - 1) % this.slides.length + 1);
+        console.warn(`Ошибка загрузки изображения ${index + 1}`);
+        this.slidesWithDuplicates[index].image = this.getPlaceholderImage();
       };
     });
   }
 
-  // Автоматическое вращение
+  // Автопрокрутка (всегда активна)
   private startAutoRotation(): void {
-    if (!this.autoRotate) return;
-
-    this.clearIntervals();
+    this.clearAllIntervals();
     this.startTime = Date.now();
 
+    // Интервал для смены слайдов
     this.intervalId = setInterval(() => {
-      this.smoothNextSlide();
-    }, this.rotationInterval);
-  }
+      if (!this.isTransitioning && this.autoRotate) {
+        this.nextSlide();
+      }
+    }, this.autoRotateInterval);
 
-  private startProgress(): void {
+    // Интервал для прогресс-бара
     this.progressIntervalId = setInterval(() => {
       if (this.autoRotate && !this.isTransitioning) {
         const elapsed = Date.now() - this.startTime;
-        this.progress = (elapsed / this.rotationInterval) * 100;
+        this.progress = (elapsed / this.autoRotateInterval) * 100;
 
         if (this.progress >= 100) {
           this.startTime = Date.now();
@@ -128,28 +179,31 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
     }, 50);
   }
 
-  private clearIntervals(): void {
+  // Очистка всех интервалов
+  private clearAllIntervals(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
+      this.intervalId = undefined;
     }
     if (this.progressIntervalId) {
       clearInterval(this.progressIntervalId);
+      this.progressIntervalId = undefined;
     }
   }
 
-  // Плавный переход к следующему слайду
-  private smoothNextSlide(): void {
-    if (this.isTransitioning) return;
+  // Следующий слайд
+  nextSlide(): void {
+    if (this.isTransitioning || this.slides.length === 0) return;
 
     this.isTransitioning = true;
     this.activeIndex++;
     this.displayIndex = (this.displayIndex + 1) % this.slides.length;
     this.progress = 0;
+    this.startTime = Date.now();
 
-    // Если дошли до клонированного последнего слайда (первого оригинала)
     if (this.activeIndex === this.slidesWithDuplicates.length - 1) {
+      // Дошли до последнего дубликата
       setTimeout(() => {
-        // Без анимации перескакиваем на реальный первый слайд
         this.activeIndex = 1;
         this.isTransitioning = false;
       }, this.transitionDuration);
@@ -158,23 +212,21 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
         this.isTransitioning = false;
       }, this.transitionDuration);
     }
-
-    this.startTime = Date.now();
   }
 
-  // Плавный переход к предыдущему слайду
-  private smoothPrevSlide(): void {
-    if (this.isTransitioning) return;
+  // Предыдущий слайд
+  prevSlide(): void {
+    if (this.isTransitioning || this.slides.length === 0) return;
 
     this.isTransitioning = true;
     this.activeIndex--;
     this.displayIndex = (this.displayIndex - 1 + this.slides.length) % this.slides.length;
     this.progress = 0;
+    this.startTime = Date.now();
 
-    // Если дошли до клонированного первого слайда (последнего оригинала)
     if (this.activeIndex === 0) {
+      // Дошли до первого дубликата
       setTimeout(() => {
-        // Без анимации перескакиваем на реальный последний слайд
         this.activeIndex = this.slides.length;
         this.isTransitioning = false;
       }, this.transitionDuration);
@@ -183,106 +235,70 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
         this.isTransitioning = false;
       }, this.transitionDuration);
     }
-
-    this.startTime = Date.now();
   }
 
-  // Навигация по слайдам (публичные методы)
-  nextSlide(): void {
-    if (this.isTransitioning) return;
-    this.smoothNextSlide();
-  }
-
-  prevSlide(): void {
-    if (this.isTransitioning) return;
-    this.smoothPrevSlide();
-  }
-
+  // Переход к конкретному слайду
   goToSlide(index: number): void {
-    if (this.isTransitioning) return;
+    if (this.isTransitioning || this.slides.length === 0 || index === this.displayIndex) return;
 
     this.isTransitioning = true;
     const diff = index - this.displayIndex;
-
     this.activeIndex += diff;
     this.displayIndex = index;
     this.progress = 0;
-
-    // Корректировка для бесконечной прокрутки
-    if (this.activeIndex < 1) {
-      setTimeout(() => {
-        this.activeIndex = this.slides.length;
-        this.isTransitioning = false;
-      }, this.transitionDuration);
-    } else if (this.activeIndex > this.slides.length) {
-      setTimeout(() => {
-        this.activeIndex = 1;
-        this.isTransitioning = false;
-      }, this.transitionDuration);
-    } else {
-      setTimeout(() => {
-        this.isTransitioning = false;
-      }, this.transitionDuration);
-    }
-
     this.startTime = Date.now();
+
+    setTimeout(() => {
+      if (this.activeIndex < 1) {
+        this.activeIndex = this.slides.length;
+      } else if (this.activeIndex > this.slides.length) {
+        this.activeIndex = 1;
+      }
+      this.isTransitioning = false;
+    }, this.transitionDuration);
   }
 
-  // Управление автопрокруткой
+  // Обработка наведения мыши
   pauseAutoRotate(): void {
     this.autoRotate = false;
-    this.clearIntervals();
   }
 
   resumeAutoRotate(): void {
-    if (this.autoRotate) {
-      this.startAutoRotation();
-    }
+    this.autoRotate = true;
+    this.startTime = Date.now();
   }
 
+  // Переключение автопрокрутки
   toggleAutoRotate(): void {
     this.autoRotate = !this.autoRotate;
     if (this.autoRotate) {
       this.startAutoRotation();
     } else {
-      this.clearIntervals();
+      this.clearAllIntervals();
     }
   }
 
-  // Обработчики кликов
+  // Обработка клика по кнопке
   handleButtonClick(slide: Slide): void {
     if (slide.link) {
       this.router.navigate([slide.link]);
-    } else if (slide.action) {
-      slide.action();
+    } else if (slide.id) {
+      this.router.navigate(['/news', slide.id]);
     }
   }
 
-  onImageLoad(): void {
-    console.log('Изображение загружено');
-  }
-
+  // Обработка ошибки загрузки изображения
   onImageError(event: Event, index: number): void {
-    console.error('Ошибка загрузки изображения:', event);
-    // Заменяем битое изображение на placeholder
-    const actualIndex = (index - 1 + this.slides.length) % this.slides.length;
-    this.slidesWithDuplicates[index].image = 'https://via.placeholder.com/1920x1080/4f46e5/ffffff?text=Баннер+' + (actualIndex + 1);
+    console.warn('Ошибка загрузки изображения, индекс:', index);
+    this.slidesWithDuplicates[index].image = this.getPlaceholderImage();
   }
 
-  // Проверка, активен ли слайд
-  isSlideActive(index: number): boolean {
-    return index === this.displayIndex;
+  onImageLoad(): void {
+    // Можно добавить логику при загрузке изображения
   }
 
-  // Получение текущего слайда
-  get currentSlide(): Slide {
-    return this.slides[this.displayIndex];
-  }
-
-  // Получение реального индекса слайда
-  getRealSlideIndex(virtualIndex: number): number {
-    if (virtualIndex === 0) return this.slides.length - 1;
-    if (virtualIndex === this.slidesWithDuplicates.length - 1) return 0;
-    return virtualIndex - 1;
+  // Геттеры
+  get hasSlides(): boolean {
+    return this.slides.length > 0;
   }
 }

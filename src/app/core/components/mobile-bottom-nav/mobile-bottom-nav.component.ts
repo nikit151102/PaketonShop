@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, HostListener, SecurityContext } from '@angular/core';
+import { Component, inject, HostListener, SecurityContext, computed } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -21,15 +21,15 @@ import { UserApiService } from '../../api/user.service';
 export class MobileBottomNavComponent {
   activeTab: string = 'home';
   isMenuOpen = false;
-  
-  // Объявляем массив с SafeHtml
-  menuItems: Array<{label: string, icon: SafeHtml, link: string}> = [];
+  menuItems: Array<{ label: string, icon: SafeHtml, link: string }> = [];
 
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private userApiService = inject(UserApiService);
   private router = inject(Router);
   private sanitizer = inject(DomSanitizer);
+
+  operativeInfo = computed(() => this.userService.operativeInfo())
 
   constructor() {
     // Инициализируем меню с безопасным HTML
@@ -94,12 +94,11 @@ export class MobileBottomNavComponent {
 
     const labels = [
       'О компании',
-      'Новости и акции', 
-      'Магазины', 
-      'Контакты', 
+      'Новости и акции',
+      'Магазины',
+      'Контакты',
       'Для бизнеса',
-      'Политика конфиденциальности', 
-      'Публичная оферта'
+      'Правовая информация'
     ];
 
     const links = [
@@ -108,10 +107,9 @@ export class MobileBottomNavComponent {
       '/stores',
       '/contacts',
       '/business',
-      '/privacy',
-      '/offer'
+      '/documents'
     ];
-
+    
     this.menuItems = labels.map((label, index) => ({
       label,
       icon: this.sanitizer.bypassSecurityTrustHtml(icons[index]),
@@ -196,7 +194,6 @@ export class MobileBottomNavComponent {
   }
 
   changeTab(tab: string) {
-    this.activeTab = tab;
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
     );
@@ -206,6 +203,7 @@ export class MobileBottomNavComponent {
         this.authService.changeVisible(true);
         return;
       } else {
+        this.activeTab = tab;
         this.router.navigate(['/profile/favorites']);
       }
     }
@@ -214,6 +212,7 @@ export class MobileBottomNavComponent {
         this.authService.changeVisible(true);
         return;
       } else {
+        this.activeTab = tab;
         this.router.navigate(['/cart']);
       }
     }

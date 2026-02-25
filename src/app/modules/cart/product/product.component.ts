@@ -61,7 +61,7 @@ export class ProductComponent implements OnChanges, OnInit {
   @Input() selected: boolean = false;
   @Output() selectionChange = new EventEmitter<{ id: string; selected: boolean }>();
   @Output() quantityChange = new EventEmitter<{ id: string; quantity: number }>();
-  @Output() remove = new EventEmitter<string>();
+  @Output() remove = new EventEmitter<any>();
   @Output() quickView = new EventEmitter<Product>();
   @Output() addRelated = new EventEmitter<RelatedProduct>();
 
@@ -275,7 +275,12 @@ export class ProductComponent implements OnChanges, OnInit {
     }
 
     if (this.product) {
-      this.remove.emit(this.product.id);
+      this.remove.emit(
+        {
+          "productId": this.product.id,
+          "count": this.product.count
+        }
+      );
     }
   }
 

@@ -93,6 +93,9 @@ export class ProductsService {
       sort: sort,
       page: page,
       pageSize: pageSize,
+      storeIds: [
+    "г.Новоалтайск, ул.Октябрьская, 36"
+  ],
     };
     return this.http.post<any>(
       `${environment.production}/api/Entities/ProductInstanceSearch/Filter`,

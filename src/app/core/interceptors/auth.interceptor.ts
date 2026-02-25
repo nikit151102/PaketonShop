@@ -13,14 +13,14 @@ import { UserDataService } from '../services/user-data.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  // Исключения - URL, для которых не нужно отправлять данные устройства
+
   private excludedUrls = [
     '/assets/',
     '.json',
     'ipapi.co',
     'nominatim.openstreetmap.org',
     'api.ipify.org',
-    'песочница.пакетон.рф' // Добавляем ваш домен с кириллицей
+    'песочница.пакетон.рф' 
   ];
 
   constructor(private userDataService: UserDataService) {}

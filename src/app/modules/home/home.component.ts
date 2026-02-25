@@ -8,6 +8,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { StorageUtils } from '../../../utils/storage.utils';
 import { BusinessBlockComponent } from './components/business-block/business-block.component';
 import { CompareCommonBtnComponent } from '../../core/components/compare-common-btn/compare-common-btn.component';
+import { GroupsSectionComponent } from './components/groups-section/groups-section.component';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +19,8 @@ import { CompareCommonBtnComponent } from '../../core/components/compare-common-
     CategorySectionComponent,
     ProductComponent,
     BusinessBlockComponent,
-    CompareCommonBtnComponent
+    CompareCommonBtnComponent,
+    GroupsSectionComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -78,7 +80,7 @@ export class HomeComponent implements OnInit {
       : [];
 
     this.productsService
-      .getAll(filters, null, this.currentPage, this.pageSize)
+      .getAllSearch(filters, null, this.currentPage, this.pageSize)
       .subscribe({
         next: (res) => {
           this.products = this.products.concat(res.data);

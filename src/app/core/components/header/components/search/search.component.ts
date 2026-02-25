@@ -151,19 +151,20 @@ private setupAutocomplete() {
   });
 }
 
-  private setupScrollListener() {
-    this.removeScrollListener();
+private setupScrollListener() {
+  this.removeScrollListener();
 
-    const dropdown = this.autocompleteDropdown?.nativeElement;
-    if (!dropdown) return;
+  // Используем autocompleteList вместо autocompleteDropdown
+  const listElement = this.autocompleteList?.nativeElement;
+  if (!listElement) return;
 
-    const onScroll = (event: Event) => {
-      this.onAutocompleteScroll(event);
-    };
+  const onScroll = (event: Event) => {
+    this.onAutocompleteScroll(event);
+  };
 
-    dropdown.addEventListener('scroll', onScroll, { passive: true });
-    this.autocompleteScrollListener = () => dropdown.removeEventListener('scroll', onScroll);
-  }
+  listElement.addEventListener('scroll', onScroll, { passive: true });
+  this.autocompleteScrollListener = () => listElement.removeEventListener('scroll', onScroll);
+}
 
   private removeScrollListener() {
     if (this.autocompleteScrollListener) {
@@ -246,8 +247,8 @@ private setupAutocomplete() {
   }
 
   private getProductImage(product: any): string {
-    if (product.images?.length > 0) {
-      return product.images[0].url;
+    if (product.productImageLinks?.length > 0) {
+      return product.productImageLinks[0];
     }
     // Генерируем плейсхолдер с первой буквой артикула
     const letter = product.article?.charAt(0) || 'P';
@@ -533,6 +534,7 @@ onSearch() {
     this.autocompleteResults = [];
     this.isInputFocused = false;
     this.removeScrollListener();
+    this.searchQuery = '';
     this.router.navigate(['/product', item.id]);
   }
 

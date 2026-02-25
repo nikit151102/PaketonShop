@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, computed, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-compare-common-btn',
@@ -9,5 +10,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './compare-common-btn.component.scss'
 })
 export class CompareCommonBtnComponent {
-  @Input() showHeader: boolean = false;
+  
+  private userService = inject(UserService);
+  operativeInfo = computed(() => this.userService.operativeInfo())
+
 }

@@ -28,13 +28,13 @@ export class OrderFormComponent implements OnInit {
   @Output() orderDelivery = new EventEmitter<any>();
   @Output() orderCompany = new EventEmitter<any>();
   @Output() formChanged = new EventEmitter<any>();
-  
+
   // Данные пользователя
   currentUserData: any = null;
   isEditing = false;
   isSubmitting = false;
   selectedCompanyId: string | null = null;
-  
+
   // Форма
   formData = {
     lastName: '',
@@ -79,19 +79,19 @@ export class OrderFormComponent implements OnInit {
   }
 
 
-  orderDeliveryData:any;
+  orderDeliveryData: any;
 
   // Метод для отслеживания изменений в форме
   onFormChange(): void {
     const formDataCopy = { ...this.formData };
-    
+
     // Добавляем ID выбранной компании если есть
     const payload = {
       ...formDataCopy,
       selectedCompanyId: this.selectedCompanyId,
       orderDeliveryData: this.orderDeliveryData
     };
-    
+
     this.formChangeSubject.next(payload);
   }
 
@@ -108,7 +108,7 @@ export class OrderFormComponent implements OnInit {
       personType: 'fiz',
       delivery: 'pickup',
     };
-    
+
     // Отправляем начальные данные
     setTimeout(() => this.onFormChange(), 0);
   }
@@ -128,10 +128,11 @@ export class OrderFormComponent implements OnInit {
   }
 
   onDeliveryDataChange(type: string, data: any) {
-    console.log('data',data)
     this.orderDelivery.emit({
       'type': type,
-      'id': data.id
+      'id': data.id,
+      'shopCity': data?.address?.city ? data.address.city : undefined,
+      'shopAddress': data.fullName
     });
     this.orderDeliveryData = {
       'type': type,
@@ -156,7 +157,7 @@ export class OrderFormComponent implements OnInit {
       this.formData.personType = 'jur';
       this.loadCompanyDetails(companyId);
     }
-    
+
     this.onFormChange();
   }
 
@@ -177,7 +178,7 @@ export class OrderFormComponent implements OnInit {
       this.selectedCompanyId = null;
       this.formData.personType = 'fiz';
     }
-    
+
     this.onFormChange();
   }
 

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { NicheProductsService, NewsBannerFilterDto, SortType } from '../../../../core/api/niche-products.service';
 
 @Component({
   selector: 'app-groups-section',
@@ -8,91 +9,127 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './groups-section.component.html',
   styleUrl: './groups-section.component.scss',
 })
-export class GroupsSectionComponent {
+export class GroupsSectionComponent implements OnInit {
   @Input() showAll = true;
-  maxPerRow = 5;
+  @Input() maxPerRow = 5;
+  @Input() pageSize = 3; // Количество ниш для загрузки
 
-  categories: any = [
-    {
-      name: 'Одноразовая посуда',
-      image:
-        'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
-      subcategories: [
-        { name: 'Бумажная посуда', slug: 'paper-tableware' },
-        { name: 'Пластиковая посуда', slug: 'plastic-tableware' },
-        { name: 'Посуда премиум-класса', slug: 'premium-tableware' },
-        { name: 'Посуда ВПС', slug: 'vps-tableware' },
-      ],
-    },
-    {
-      name: 'Биоразлагаемая посуда',
-      image:
-        'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80',
-      subcategories: [
-        {
-          name: 'Набор тарелок биоразлагаемых',
-          slug: 'biodegradable-plates-set',
-        },
-        { name: 'Стаканы', slug: 'cups' },
-        { name: 'Столовые приборы', slug: 'cutlery' },
-      ],
-    },
-    {
-      name: 'Эко упаковка',
-      image:
-        'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400&q=80',
-      subcategories: [
-        { name: 'Эко упаковка для салатов', slug: 'eco-salad-packaging' },
-        {
-          name: 'Эко упаковка для сэндвичей и роллов',
-          slug: 'eco-sandwich-rolls-packaging',
-        },
-        {
-          name: 'Эко упаковка для супа, лапши',
-          slug: 'eco-soup-noodles-packaging',
-        },
-        {
-          name: 'Эко упаковка для бургеров, картофеля фри',
-          slug: 'eco-burger-fries-packaging',
-        },
-        { name: 'Бумажный уголок', slug: 'paper-corner' },
-        { name: 'Универсальная упаковка', slug: 'universal-packaging' },
-      ],
-    },
-    {
-      name: 'Контейнеры',
-      image:
-        'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=400&q=80',
-      subcategories: [
-        {
-          name: 'Контейнеры полипропиленовые',
-          slug: 'polypropylene-containers',
-        },
-        { name: 'Контейнер наборы (фасовка)', slug: 'container-sets' },
-        { name: 'Контейнер Комус фасовка', slug: 'komus-containers' },
-        {
-          name: 'Контейнер для кондитерских изделий',
-          slug: 'confectionery-containers',
-        },
-      ],
-    }
-  ];
+  categories: any[] = [];
+  isLoading = false;
+  error: string | null = null;
 
-  constructor(private router: Router) {
-    this.categories.forEach((category: any) => {
-      const classes = ['w-small', 'w-medium', 'w-large'];
-      const randomIndex = Math.floor(Math.random() * classes.length);
-      category.widthClass = classes[randomIndex];
+  constructor(
+    private router: Router,
+    private nicheProductsService: NicheProductsService
+  ) {}
+
+  ngOnInit(): void {
+    this.loadNicheCategories();
+  }
+
+  loadNicheCategories(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const filterDto: NewsBannerFilterDto = {
+      page: 0,
+      pageSize: this.pageSize,
+      sorts: [
+        {
+          field: 'sortIndex',
+          sortType: SortType.Ascending
+        }
+      ]
+    };
+
+    this.nicheProductsService.getNewsBannersByFilter(filterDto).subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          // Преобразуем данные из API в формат для отображения
+          this.categories = response.data.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            description: item.description,
+            image: item.imageLink || this.getDefaultImage(item.name),
+            productCount: item.productCount,
+            subcategories: item.subCategories || [],
+            // Добавляем случайный класс ширины для разнообразия отображения
+            widthClass: this.getRandomWidthClass()
+          }));
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки ниш:', error);
+        this.error = 'Не удалось загрузить категории';
+        this.isLoading = false;
+        
+        // Если API не работает, используем тестовые данные
+        this.loadMockData();
+      }
     });
   }
 
-  toggleShowAll() {
+  // Метод для тестовых данных, если API недоступно
+  private loadMockData(): void {
+    this.categories = [
+      {
+        id: '1',
+        name: 'Одноразовая посуда',
+        description: 'Широкий выбор одноразовой посуды',
+        image: 'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
+        productCount: 45,
+        subcategories: [
+          { name: 'Бумажная посуда', slug: 'paper-tableware' },
+          { name: 'Пластиковая посуда', slug: 'plastic-tableware' },
+          { name: 'Посуда премиум-класса', slug: 'premium-tableware' },
+        ],
+        widthClass: this.getRandomWidthClass()
+      },
+      {
+        id: '2',
+        name: 'Биоразлагаемая посуда',
+        image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80',
+        productCount: 32,
+        subcategories: [
+          { name: 'Набор тарелок биоразлагаемых', slug: 'biodegradable-plates-set' },
+          { name: 'Стаканы', slug: 'cups' },
+          { name: 'Столовые приборы', slug: 'cutlery' },
+        ],
+        widthClass: this.getRandomWidthClass()
+      },
+      {
+        id: '3',
+        name: 'Кемпинг',
+        description: 'Всё для отдыха на природе',
+        productCount: 28,
+        subcategories: [],
+        widthClass: this.getRandomWidthClass()
+      }
+    ];
+  }
+
+  // Получаем изображение по умолчанию на основе названия категории
+  private getDefaultImage(categoryName: string): string {
+    const defaultImages = [
+      'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400&q=80',
+      'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=400&q=80'
+    ];
+    
+    // Используем хеш названия для выбора изображения
+    const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return defaultImages[hash % defaultImages.length];
+  }
+
+  toggleShowAll(): void {
     this.showAll = !this.showAll;
   }
 
   get visibleCategories() {
     if (this.showAll) return this.categories;
-    return this.categories.slice(0, 2 * this.maxPerRow); // 2 ряда по текущему maxPerRow
+    return this.categories.slice(0, 2 * this.maxPerRow);
   }
 
   getRandomWidthClass(): string {
@@ -101,7 +138,16 @@ export class GroupsSectionComponent {
     return classes[randomIndex];
   }
 
-  onNicheClick(event: MouseEvent): void {
-    this.router.navigate(['/product']);
+  onNicheClick(category: any): void {
+    // Переходим на страницу с продуктами выбранной ниши
+    this.router.navigate([`/niche/${category.id}`]);
+  }
+
+  getCategoryDescription(category: any): string {
+    if (category.description) return category.description;
+    if (category.subcategories && category.subcategories.length > 0) {
+      return `Товары для ${category.name.toLowerCase()}`;
+    }
+    return `${category.productCount} товаров`;
   }
 }

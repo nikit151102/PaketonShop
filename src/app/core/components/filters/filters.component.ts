@@ -80,7 +80,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['filters'] && this.filters) {
-      console.log('Filters changed:', this.filters);
       this.initializeFilters();
       this.loadFiltersData();
     }
@@ -151,7 +150,7 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
       if (response.data) {
         const filterData: any = response.data;
-          console.log('filterData',filterData)
+        
         // Обновляем фильтр
         const index = this.filters.findIndex(f => f.id === filter.id);
         if (index !== -1) {
@@ -177,7 +176,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         this.setFallbackValues(filter);
       }
     } catch (error) {
-      console.error(`Ошибка загрузки данных для фильтра ${filter.fullName}:`, error);
       this.setFallbackValues(filter);
     } finally {
       this.loadingFilters.delete(filter.id);
@@ -227,7 +225,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     } catch (error) {
-      console.error(`Ошибка загрузки диапазона для фильтра ${filterId}:`, error);
       this.rangeValues[filterId] = { min: 0, max: 100 };
       this.rangeMinValues[filterId] = 0;
       this.rangeMaxValues[filterId] = 100;

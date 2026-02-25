@@ -1,226 +1,352 @@
-<div class="product-card" *ngIf="productData as product">
-  <!-- Хлебные крошки -->
-  <div class="breadcrumbs" *ngIf="breadCrumbs && breadCrumbs.length > 0">
-    <a routerLink="/catalog" class="breadcrumb-link">Каталог</a>
-    <span class="separator">›</span>
-    <ng-container *ngFor="let crumb of breadCrumbs; let last = last">
-      <a *ngIf="!last" [routerLink]="['/catalog', crumb.id]" class="breadcrumb-link">
-        {{crumb.name}}
-      </a>
-      <span *ngIf="last" class="breadcrumb-current">{{crumb.name}}</span>
-      <span class="separator" *ngIf="!last">›</span>
-    </ng-container>
-  </div>
+<div class="product-detail" *ngIf="productData as product">
+  <!-- Хлебные крошки с современным дизайном -->
+  <nav class="breadcrumb-nav" *ngIf="breadCrumbs && breadCrumbs.length > 0" aria-label="Хлебные крошки">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a routerLink="/catalog" class="breadcrumb-link">Каталог</a>
+      </li>
+      <li class="breadcrumb-item" *ngFor="let crumb of breadCrumbs; let last = last">
+        <a *ngIf="!last" [routerLink]="['/catalog', crumb.id]" class="breadcrumb-link">
+          {{crumb.name}}
+        </a>
+        <span *ngIf="last" class="breadcrumb-current" aria-current="page">{{crumb.name}}</span>
+      </li>
+    </ol>
+  </nav>
 
-  <div class="product-main">
-    <!-- Галерея -->
-    <div class="gallery-section">
-      <app-product-gallery [images]="(productData ? productData.productImageLinks : []) | cleanArrayLink">
-      </app-product-gallery>
+  <div class="product-grid">
+    <!-- Галерея с улучшенным дизайном -->
+    <div class="gallery-wrapper">
+      <div class="gallery-container">
+        <app-product-gallery [images]="(productData ? productData.productImageLinks : []) | cleanArrayLink"
+          class="product-gallery">
+        </app-product-gallery>
+      </div>
+
+      <!-- Плавающие бейджи -->
+      <div class="floating-badges">
+        <span class="badge favorite-badge" *ngIf="productData.isFavorite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          В избранном
+        </span>
+        <span class="badge discount-badge" *ngIf="product.oldPrice">
+          -{{ calculateDiscount() }}%
+        </span>
+      </div>
     </div>
 
-    <div class="product-content">
+    <!-- Основной контент -->
+    <div class="product-info">
+      <!-- Заголовок и артикул -->
       <div class="product-header">
         <h1 class="product-title">{{ productData.h1Title || productData.fullName }}</h1>
+
         <div class="product-meta">
-          <div class="product-sku">
+          <div class="sku-wrapper" (click)="copyArticle()" role="button" tabindex="0"
+            [attr.aria-label]="'Скопировать артикул ' + productData.article">
             <span class="sku-label">Артикул:</span>
-            <span class="sku-value">{{ productData.article }}</span>
-            <button class="copy-btn" (click)="copyArticle()" title="Скопировать артикул">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-              </svg>
-            </button>
+            <code class="sku-code">{{ productData.article }}</code>
+            <svg class="copy-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+            </svg>
           </div>
-          <div class="product-badge" *ngIf="productData.isFavorite">
-            <span class="badge favorite">★ Избранное</span>
+
+          <div class="rating-stats" *ngIf="productData.rating">
+            <div class="stars">
+              <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= productData.rating">★</span>
+            </div>
+            <span class="rating-value">{{ productData.rating }}</span>
           </div>
         </div>
       </div>
 
-      <div class="content-wrapper">
-        <!-- Основная информация -->
-        <div class="info-section">
-          <!-- Цена -->
-          <div class="price-section">
-            <div class="price-main">
-              <span class="price-value">{{ productData.viewPrice | number:'1.2-2' }} ₽</span>
-              <span class="price-unit">/ {{ productData.measurementUnit?.shortName || 'шт' }}</span>
-            </div>
-            <div class="price-details">
-              <div class="pack-info" *ngIf="productData.packCount">
-                <span class="pack-label">В упаковке:</span>
-                <span class="pack-value">{{ productData.packCount }} шт</span>
-              </div>
-            </div>
+      <!-- Ценовой блок с современным дизайном -->
+      <div class="price-card">
+        <div class="price-header">
+          <span class="price-label">Цена</span>
+          <div class="price-tooltip" *ngIf="productData.packCount">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4M12 8h.01" />
+            </svg>
+            <span class="tooltip-text">Цена за упаковку</span>
           </div>
+        </div>
 
-          <!-- Информация о корзинах -->
-          <div class="basket-info-section" *ngIf="basketsWithProduct.length > 0">
-            <div class="basket-info-header">
-              <h3 class="section-title">В корзинах:</h3>
-              <button class="basket-info-toggle" (click)="toggleBasketDetailsPopup($event)">
-                <span>{{ totalQuantityInBaskets }} шт. в {{ basketsWithProduct.length }} корзине</span>
-                <svg [class.expanded]="showBasketDetailsPopup" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                </svg>
-              </button>
-            </div>
+        <div class="price-main">
+          <span class="current-price">{{ productData.viewPrice | number:'1.2-2' }} ₽</span>
+          <span class="price-unit">/ {{ productData.measurementUnit?.shortName || 'шт' }}</span>
+          <span class="pack-badge" *ngIf="productData.packCount">
+            {{ productData.packCount }} шт в упаковке
+          </span>
+        </div>
 
-            <div class="basket-info-content" [class.expanded]="showBasketDetailsPopup">
-              <div class="basket-list">
-                <div class="basket-item" *ngFor="let item of basketsWithProduct">
-                  <div class="basket-info">
-                    <div class="basket-name">
-                      <span class="basket-icon">🛒</span>
-                      {{ item.basket.name }}
-                      <span *ngIf="item.basket.isActiveBasket" class="active-badge">Активная</span>
-                    </div>
-                    <div class="basket-details">
-                      <span class="basket-quantity">{{ item.quantity }} шт.</span>
-                      <span class="basket-total">{{ item.totalCost | number:'1.2-2' }} ₽</span>
-                    </div>
-                  </div>
-                  <div class="basket-actions">
-                    <button class="mini-btn minus" (click)="updateBasketQuantity(item.basket.id, -1)">-</button>
-                    <button class="mini-btn plus" (click)="updateBasketQuantity(item.basket.id, 1)">+</button>
-                    <button class="mini-btn remove" (click)="removeFromBasket(item.basket.id)">✕</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <!-- Калькулятор цен за единицу -->
+        <div class="unit-prices" *ngIf="productData.packCount">
+          <div class="unit-price-item">
+            <span>За 1 шт:</span>
+            <strong>{{ (productData.viewPrice / productData.packCount) | number:'1.2-2' }} ₽</strong>
           </div>
+          <div class="unit-price-item" *ngIf="productData.boxCount">
+            <span>Коробка ({{ productData.boxCount }} уп):</span>
+            <strong>{{ (productData.viewPrice * productData.boxCount) | number:'1.2-2' }} ₽</strong>
+          </div>
+        </div>
+      </div>
 
-          <!-- Наличие -->
-          <div class="availability-section">
-            <div class="availability-header">
-              <h3 class="section-title">Наличие в магазинах</h3>
-              <button class="availability-toggle" (click)="toggleAvailability()">
-                <span *ngIf="productData.remains">{{ getAvailableStoresCount() }} магазина(ов)</span>
-                <svg [class.expanded]="showAvailability" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                </svg>
-              </button>
-            </div>
 
-            <div class="availability-content" [class.expanded]="showAvailability">
-              <div class="store-list">
-                <div class="store-item" *ngFor="let store of productData.remains">
-                  <div class="store-info">
-                    <div class="store-name">{{ store.productPlaceName }}</div>
-                    <div class="store-stock">
-                      <span class="stock-badge" [class.in-stock]="store.count > 0">
-                        {{ store.count > 0 ? 'В наличии' : 'Нет в наличии' }}
-                      </span>
-                      <span class="stock-count" *ngIf="store.count > 0">{{ store.count }} шт</span>
-                    </div>
+      <!-- Блок наличия (улучшенный) -->
+      <div class="availability-block">
+        <div class="availability-header" (click)="toggleAvailability()" role="button" tabindex="0">
+          <div class="availability-header-left">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            <span>Наличие в магазинах</span>
+          </div>
+          <div class="availability-header-right">
+            <span class="stores-count">{{ getAvailableStoresCount() }} магазинов</span>
+            <svg class="chevron-icon" [class.expanded]="showAvailability" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="availability-details" [class.expanded]="showAvailability">
+          <div class="stores-grid">
+            <div class="store-card" *ngFor="let store of productData.remains">
+              <div class="store-card-inner">
+                <div class="store-name">{{ store.productPlaceName }}</div>
+                <div style="display: flex;
+                  justify-content: space-between;
+                  align-items: center;">
+                  <div class="store-quantity" *ngIf="store.count > 0">
+                    <strong>{{ store.count }}</strong> шт
+                  </div>
+                  <div class="store-status" [class.in-stock]="store.count > 0">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">{{ store.count > 0 ? 'В наличии' : 'Нет в наличии' }}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Блок действий -->
-        <div class="actions-section">
-          <div class="actions-card">
-            <!-- Общая сумма -->
-            <div class="total-price-section" *ngIf="showQuantityControls && selectedQuantity > 1">
-              <span class="total-label">Общая сумма:</span>
-              <span class="total-value">{{ calculateTotal() | number:'1.2-2' }} ₽</span>
+      <!-- Блок действий (главный) -->
+      <div class="action-card">
+        <!-- Общая сумма (если выбрано больше 1) -->
+        <div class="total-sum" *ngIf="selectedQuantity > 1">
+          <span>Общая сумма</span>
+          <strong>{{ getTotalPrice() | number:'1.2-2' }} ₽</strong>
+        </div>
+
+        <!-- Управление количеством (современный дизайн) -->
+        <div class="quantity-section" *ngIf="selectedQuantity > 0">
+          <span class="quantity-label">Количество</span>
+          <div class="quantity-controls-modern">
+            <button class="quantity-control-btn minus" (click)="updateActiveBasketQty(-1)"
+              [disabled]="selectedQuantity <= 1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14" />
+              </svg>
+            </button>
+            <div class="quantity-display">
+              <input type="number" [(ngModel)]="selectedQuantity" min="1" class="quantity-input-modern"
+                (change)="validateQuantity(); updateActiveBasketQtyFromInput($event)" aria-label="Количество">
+              <span class="quantity-unit">{{ productData.measurementUnit?.shortName || 'шт' }}</span>
             </div>
+            <button class="quantity-control-btn plus" (click)="updateActiveBasketQty(1)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        </div>
 
-            <!-- Выбор количества (только для активной корзины) -->
-            <div class="quantity-selector-wrapper" *ngIf="isInActiveBasket">
-              <label class="quantity-label">Количество:</label>
-              <div class="quantity-controls">
-                <button class="quantity-btn minus" (click)="decreaseQuantity()" [disabled]="selectedQuantity <= 1">-</button>
-                <input type="number" [(ngModel)]="selectedQuantity" min="1" (change)="validateQuantity()"
-                  class="quantity-input">
-                <button class="quantity-btn plus" (click)="increaseQuantity()">+</button>
-              </div>
-            </div>
+        <!-- Кнопки действий -->
+        <div class="action-buttons-modern">
+          <!-- Состояние: товар в активной корзине -->
+          <div *ngIf="isInActiveBasket()" class="in-basket-controls">
+            <button class="btn btn-primary" (click)="updateActiveBasketQty(1)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              <span *ngIf="selectedQuantity > 0">В корзине {{ getActiveBasketCount() }} шт</span>
+              <span *ngIf="selectedQuantity <= 0">В корзину</span>
+            </button>
+            <button class="btn btn-outline" (click)="removeFromBasket(activeBasketId!)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+              Удалить
+            </button>
+          </div>
 
-            <!-- Кнопки действий -->
-            <div class="action-buttons">
-              <!-- Если товара нет в активной корзине -->
-              <div *ngIf="!isInActiveBasket" class="add-to-cart-section">
-                <!-- Основная кнопка с выпадающим меню корзин -->
-                <div class="add-cart-wrapper">
-                  <button class="btn-primary add-cart" (click)="addToActiveBasket()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path
-                        d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
-                    </svg>
-                    {{ isInOtherBaskets ? 'Добавить в активную корзину' : 'В корзину' }}
-                  </button>
+          <!-- Состояние: товара нет в активной корзине -->
+          <div *ngIf="!isInActiveBasket()" class="add-to-cart-modern">
+            <button class="btn btn-primary btn-large" (click)="addOneToCart()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 7h14l-1 10H6L5 7z" />
+                <circle cx="8" cy="20" r="1.5" />
+                <circle cx="16" cy="20" r="1.5" />
+              </svg>
+              {{ hasProductInBaskets() ? 'Добавить в активную корзину' : 'В корзину' }}
+            </button>
 
-                  <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                    </svg>
-                  </button>
+            <div class="basket-selector-wrapper">
+              <button class="btn btn-icon" (click)="toggleBasketPopup($event)" [class.active]="showBasketPopup"
+                aria-label="Выбрать корзину">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
+                  {{ getProductBaskets().length }}
+                </span>
+              </button>
 
-                  <!-- Попап со списком корзин -->
-                  <div class="basket-popup" *ngIf="showBasketPopup" (click)="$event.stopPropagation()">
-                    <div *ngIf="baskets?.length; else noBaskets">
-                      <div class="basket-item" *ngFor="let basket of baskets" (click)="addToCartWithBasket(basket)">
-                        {{ basket.name }}
-                        <span *ngIf="basket.isActiveBasket" class="active-indicator">активная</span>
-                      </div>
-                    </div>
-                    <ng-template #noBaskets>
-                      <div class="no-baskets">Нет доступных корзин</div>
-                    </ng-template>
+              <!-- Попап выбора корзины -->
+              <div class="basket-selector-popup" *ngIf="showBasketPopup" (click)="$event.stopPropagation()">
+                <div class="popup-header">
+                  <span>Выберите корзину</span>
+                  <button class="close-popup" (click)="closeBasketPopup()">✕</button>
+                </div>
+
+                <div class="popup-search" *ngIf="baskets?.length > 3">
+                  <input type="text" placeholder="Поиск корзины..." (input)="filterBaskets($event)"
+                    [value]="basketSearchTerm" class="search-input">
+                </div>
+
+                <div class="popup-list">
+                  <div *ngIf="filteredBaskets?.length; else noBaskets">
+                    <button class="popup-item" *ngFor="let basket of filteredBaskets"
+                      (click)="addToSpecificBasket(basket.id)">
+                      <span class="item-name">{{ basket.name }}</span>
+                      <span class="item-badge" *ngIf="basket.isActiveBasket">активная</span>
+                      <span class="item-count" *ngIf="isProductInBasket(basket.id)">
+                        {{ getBasketItem(basket.id).count }} шт
+                      </span>
+                    </button>
                   </div>
+                  <ng-template #noBaskets>
+                    <div class="empty-state">Нет доступных корзин</div>
+                  </ng-template>
+                </div>
+
+                <div class="popup-footer">
+                  <button class="create-basket-btn" (click)="createNewBasket()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M7 1v12M1 7h12" />
+                    </svg>
+                    Новая корзина
+                  </button>
                 </div>
               </div>
-
-              <!-- Если товар уже в активной корзине -->
-              <div *ngIf="isInActiveBasket" class="cart-controls">
-                <button class="btn-primary" (click)="updateActiveBasketQuantity()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                  </svg>
-                  Обновить
-                </button>
-                <button class="btn-remove" (click)="removeFromActiveBasket()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                  </svg>
-                  Удалить
-                </button>
-              </div>
-
-              <button class="btn-secondary" (click)="toggleFavorite()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path *ngIf="!productData.isFavorite"
-                    d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-8.09 10.05z" />
-                  <path *ngIf="productData.isFavorite"
-                    d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                {{ productData.isFavorite ? 'В избранном' : 'В избранное' }}
-              </button>
             </div>
+          </div>
 
-            <!-- Информация о доставке -->
-            <div class="delivery-info">
-              <div class="info-item">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M19 7h-.67l-2.41-2.42A.985.985 0 0 0 15.35 4H8.65c-.33 0-.65.17-.82.42L5.68 7H5c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm-7 11c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
-                  <circle cx="12" cy="12" r="2.5" />
+          <!-- Кнопка избранного -->
+          <button class="btn btn-favorite" [class.active]="productData.isFavorite" (click)="toggleFavorite()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            <span>{{ productData.isFavorite ? 'В избранном' : 'В избранное' }}</span>
+          </button>
+        </div>
+        <!-- Блок корзин (улучшенный дизайн) -->
+        <div class="baskets-block" *ngIf="hasProductInBaskets()">
+          <div class="baskets-header" (click)="toggleBasketDetailsPopup($event)" role="button" tabindex="0">
+            <div class="baskets-header-left">
+              <div class="baskets-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 7h14l-1 10H6L5 7z" />
+                  <circle cx="8" cy="20" r="1.5" />
+                  <circle cx="16" cy="20" r="1.5" />
                 </svg>
-                <span>Доставка от 1 дня</span>
+                <span class="baskets-count">{{ getProductBaskets().length }}</span>
               </div>
-              <div class="info-item">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-                <span>Гарантия качества</span>
+              <div class="baskets-info">
+                <span class="baskets-total">{{ getTotalProductCount() }} шт в корзинах</span>
+                <span class="baskets-sum">{{ calculateTotalBasketsSum() | number:'1.2-2' }} ₽</span>
               </div>
+            </div>
+            <svg class="chevron-icon" [class.expanded]="showBasketDetailsPopup" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+
+          <!-- Детали корзин с анимацией -->
+          <div class="baskets-details" [class.expanded]="showBasketDetailsPopup">
+            <div class="baskets-list">
+              <div class="basket-detail-card" *ngFor="let item of getProductBaskets()">
+                <div class="basket-detail-header">
+                  <div class="basket-detail-name">
+                    <span class="basket-icon">🛒</span>
+                    <span>{{ getBasketName(item.userBasketId) }}</span>
+                    <span class="active-badge" *ngIf="item.userBasketId === activeBasketId">Активная</span>
+                  </div>
+                  <div class="basket-detail-actions">
+                    <button class="quantity-btn minus" (click)="updateBasketItemQuantity(item.userBasketId, -1)"
+                      [disabled]="item.count <= 1" aria-label="Уменьшить количество">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12h14" />
+                      </svg>
+                    </button>
+                    <span class="quantity-value">{{ item.count }}</span>
+                    <button class="quantity-btn plus" (click)="updateBasketItemQuantity(item.userBasketId, 1)"
+                      aria-label="Увеличить количество">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                    </button>
+                    <button class="remove-btn" (click)="removeFromBasket(item.userBasketId)"
+                      aria-label="Удалить из корзины">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="basket-detail-footer">
+                  <span class="basket-subtotal">Сумма: {{ item.totalCost | number:'1.2-2' }} ₽</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Доставка и гарантия -->
+        <div class="delivery-info-modern">
+          <div class="delivery-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2a5e1c" stroke-width="2">
+              <circle cx="12" cy="10" r="3" />
+              <path d="M12 2a8 8 0 00-8 8c0 4 8 12 8 12s8-8 8-12a8 8 0 00-8-8z" />
+            </svg>
+            <div class="delivery-text">
+              <strong>Доставка от 1 дня</strong>
+              <span>По всей России</span>
+            </div>
+          </div>
+          <div class="delivery-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2a5e1c" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <path d="M22 4L12 14.01l-3-3" />
+            </svg>
+            <div class="delivery-text">
+              <strong>Гарантия качества</strong>
+              <span>Сертифицированная продукция</span>
             </div>
           </div>
         </div>

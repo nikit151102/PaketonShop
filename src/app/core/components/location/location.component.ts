@@ -265,6 +265,7 @@ export class LocationComponent implements OnInit {
   }
 
   setShowAllStores() {
+    this.locationService.saveSelectedStore(this.filteredAndSearchedStores);
     this.locationService.setShowAllStores();
     this.selectedStoreId = null;
     this.selectedStore$.next(null);

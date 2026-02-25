@@ -69,7 +69,7 @@
   
   <div class="autocomplete-header">
     <span class="autocomplete-title">Товары</span>
-    <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span>
+    <!-- <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span> -->
   </div>
 
   <div class="autocomplete-list" #autocompleteList>
@@ -88,15 +88,15 @@
       <div class="item-info">
         <span class="item-name">{{ item.name }}</span>
         <div class="item-details">
-          <span class="item-sku">Арт. {{ item.sku }}</span>
-          <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span>
+          <span class="item-sku">Артикул: {{ item.sku }}</span>
+          <!-- <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span> -->
         </div>
         <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
       </div>
 
-      <div class="item-status" [class.in-stock]="item.inStock">
+      <!-- <div class="item-status" [class.in-stock]="item.inStock">
         {{ item.inStock ? 'В наличии' : 'Под заказ' }}
-      </div>
+      </div> -->
     </div>
 
     <!-- Индикатор загрузки при подгрузке -->

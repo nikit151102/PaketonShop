@@ -1,3 +1,7 @@
-<div *ngIf="showHeader">
-  <a [routerLink]="'compare'">В сравнение</a>
+<div *ngIf="operativeInfo().comparisonCount > 0" class="compare-button-container">
+  <a [routerLink]="'/compare'" class="compare-button">
+    В сравнение
+    <span class="count" *ngIf="operativeInfo().comparisonCount > 0">{{operativeInfo().comparisonCount}}</span>
+  </a>
 </div>
+

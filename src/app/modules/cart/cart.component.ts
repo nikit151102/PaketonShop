@@ -5,9 +5,12 @@ import { Router } from '@angular/router';
 import { ProductComponent } from './product/product.component';
 import { SelectCartButtonComponent } from './select-cart-button/select-cart-button.component';
 import { BasketsService } from '../../core/api/baskets.service';
-import { UserBasket, CreateBasketDto } from '../../../models/baskets.interface';
+import { UserBasket, CreateBasketDto, BasketProductDto } from '../../../models/baskets.interface';
 import { DeliveryOrderService } from '../../core/api/delivery-order.service';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { Subject, debounceTime, takeUntil, switchMap, finalize } from 'rxjs';
+import { StorageUtils } from '../../../utils/storage.utils';
+import { memoryCacheEnvironment } from '../../../environment';
+import { ProductsService } from '../../core/services/products.service';
 
 @Component({
   selector: 'app-cart',
@@ -28,60 +31,115 @@ export class CartComponent implements OnInit, OnDestroy {
   popupMode: 'create' | 'rename' = 'create';
   popupInputValue = '';
   selectedProducts: Set<string> = new Set();
-  
+
   // Состояния
   isLoading = false;
+  isPopupLoading = false;
   error: string | null = null;
+  notification: { message: string; type: 'success' | 'error' | 'warning' } | null = null;
   step = 1; // 1 - корзина, 2 - оформление, 3 - оплата
-  
+
   // Фильтры
   filter: 'all' | 'available' | 'discount' = 'all';
-  
+
   // Рекомендации
   recommendedProducts: any[] = [];
-  
+
   // Промокод
   promoCode = '';
   showPromo = false;
   appliedPromo: string | null = null;
-  
+
   // Доставка
   deliveryCost = 0;
   deliveryInfoOpen = false;
-  
+
   // Quick view
   quickViewProduct: any = null;
-  
+
   // Дополнительные состояния
   totalItems = 0;
   subtotal = 0;
   totalDiscount = 0;
   total = 0;
-  
+
   private destroy$ = new Subject<void>();
-  private quantityUpdate$ = new Subject<{ id: string; quantity: number }>();
+  private quantityUpdate$ = new Subject<{ productId: string; basketId: string; quantity: number }>();
 
   constructor(
     private basketsService: BasketsService,
+    private productsService: ProductsService,
     private deliveryOrderService: DeliveryOrderService,
     public router: Router,
   ) {
     // Дебаунс для обновления количества
     this.quantityUpdate$
-      .pipe(debounceTime(500), takeUntil(this.destroy$))
-      .subscribe((event) => {
-        this.updateQuantityApi(event.id, event.quantity);
+      .pipe(
+        debounceTime(500),
+        takeUntil(this.destroy$),
+        switchMap((event) => {
+          this.isLoading = true;
+          const dto: BasketProductDto = {
+            productId: event.productId,
+            basketId: event.basketId,
+            count: event.quantity
+          };
+          return this.basketsService.addProduct(dto).pipe(
+            finalize(() => {
+              this.isLoading = false;
+              this.cdr?.markForCheck();
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.loadActiveBasket(true);
+          this.showNotification('Количество обновлено', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка при обновлении количества:', err);
+          this.showNotification('Не удалось обновить количество', 'error');
+          this.loadActiveBasket(true); // Перезагружаем для синхронизации
+        }
       });
   }
 
   ngOnInit(): void {
-    this.loadBaskets();
+    this.loadBasketsFromCache();
     this.loadRecommendations();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Загружаем корзины из кэша
+  private loadBasketsFromCache(): void {
+    const cachedBaskets = StorageUtils.getMemoryCache(memoryCacheEnvironment.baskets.key);
+
+    if (cachedBaskets && Array.isArray(cachedBaskets)) {
+      this.baskets = cachedBaskets;
+
+      // Найти активную корзину
+      this.activeBasket = this.baskets.find(
+        (basket: any) => basket.isActiveBasket === true
+      );
+
+      // Если активной корзины нет, взять первую
+      if (!this.activeBasket && this.baskets.length > 0) {
+        this.activeBasket = this.baskets[0];
+      }
+
+      // Загрузить полную информацию об активной корзине
+      if (this.activeBasket) {
+        this.loadActiveBasket();
+      }
+    } else {
+      // Если нет в кэше, загружаем с сервера
+      this.loadBaskets();
+    }
   }
 
   loadBaskets(): void {
@@ -95,9 +153,16 @@ export class CartComponent implements OnInit, OnDestroy {
         page: 0,
         pageSize: 10,
       })
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
       .subscribe({
         next: (res) => {
           this.baskets = res.data;
+
+          // Сохраняем в кэш
+          StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
 
           // Найти активную корзину
           this.activeBasket = this.baskets.find(
@@ -111,35 +176,65 @@ export class CartComponent implements OnInit, OnDestroy {
 
           // Загрузить полную информацию об активной корзине
           if (this.activeBasket) {
-            this.selectBasket(this.activeBasket);
+            this.loadActiveBasket();
           }
-
-          this.isLoading = false;
         },
         error: (err) => {
           console.error('Ошибка загрузки корзин', err);
           this.error = 'Не удалось загрузить корзины. Пожалуйста, попробуйте позже.';
-          this.isLoading = false;
         },
       });
   }
 
-  selectBasket(basket: UserBasket): void {
+  loadActiveBasket(updateCache: boolean = false): void {
+    if (!this.activeBasket) return;
+
     this.isLoading = true;
-    
-    this.basketsService.getBasketById(basket.id).subscribe({
-      next: (value: any) => {
-        this.activeBasket = value.data;
-        this.selectedProducts.clear();
-        this.calculateTotals();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Ошибка загрузки корзины', err);
-        this.error = 'Не удалось загрузить содержимое корзины.';
-        this.isLoading = false;
-      }
-    });
+
+    this.basketsService.getBasketById(this.activeBasket.id)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (value: any) => {
+          this.activeBasket = value.data;
+
+          if (updateCache) {
+            // Обновляем кэш
+            const basketIndex = this.baskets.findIndex(b => b.id === this.activeBasket.id);
+            if (basketIndex !== -1) {
+              this.baskets[basketIndex] = {
+                ...this.baskets[basketIndex],
+                ...this.activeBasket,
+                productCount: this.activeBasket.products?.length || 0
+              };
+              StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
+            }
+          }
+
+          this.selectedProducts.clear();
+          this.calculateTotals();
+        },
+        error: (err) => {
+          console.error('Ошибка загрузки корзины', err);
+          this.error = 'Не удалось загрузить содержимое корзины.';
+        }
+      });
+  }
+
+  selectBasket(basket: UserBasket): void {
+    if (this.activeBasket?.id === basket.id) return;
+
+    this.activeBasket = basket;
+    this.loadActiveBasket();
+
+    // Обновляем активную корзину в кэше
+    this.baskets = this.baskets.map(b => ({
+      ...b,
+      isActiveBasket: b.id === basket.id
+    }));
+    StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
   }
 
   openCreatePopup(): void {
@@ -172,73 +267,126 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   private createBasket(name: string): void {
+    this.isPopupLoading = true;
+
     const dto: CreateBasketDto = {
       name,
       products: [],
     };
 
-    this.basketsService.createBasket(dto).subscribe({
-      next: (res) => {
-        this.baskets.push(res.data);
-        this.activeBasket = res.data;
-        this.closePopup();
-        this.showNotification('Корзина успешно создана', 'success');
-      },
-      error: (err) => {
-        console.error('Ошибка создания корзины', err);
-        this.showNotification('Не удалось создать корзину', 'error');
-      },
-    });
+    this.basketsService.createBasket(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isPopupLoading = false)
+      )
+      .subscribe({
+        next: (res) => {
+          const newBasket = res.data;
+          this.baskets.push(newBasket);
+          this.activeBasket = newBasket;
+
+          // Обновляем кэш
+          StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
+
+          this.closePopup();
+          this.showNotification('Корзина успешно создана', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка создания корзины', err);
+          this.showNotification('Не удалось создать корзину', 'error');
+        },
+      });
   }
 
   private updateBasketName(name: string): void {
     if (!this.activeBasket) return;
+    this.isPopupLoading = true;
 
     // TODO: Добавить API для обновления имени корзины
-    this.activeBasket.name = name;
-    const basketIndex = this.baskets.findIndex(b => b.id === this.activeBasket.id);
-    if (basketIndex !== -1) {
-      this.baskets[basketIndex].name = name;
-    }
-    
-    this.closePopup();
-    this.showNotification('Название корзины обновлено', 'success');
+    // Пока обновляем локально
+    setTimeout(() => {
+      this.activeBasket.name = name;
+      const basketIndex = this.baskets.findIndex(b => b.id === this.activeBasket.id);
+      if (basketIndex !== -1) {
+        this.baskets[basketIndex].name = name;
+        StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
+      }
+
+      this.isPopupLoading = false;
+      this.closePopup();
+      this.showNotification('Название корзины обновлено', 'success');
+    }, 500);
   }
 
   deleteBasket(basket: any, event: Event): void {
     event.stopPropagation();
-    
+
     if (this.baskets.length <= 1) {
       this.showNotification('Нельзя удалить последнюю корзину', 'warning');
       return;
     }
 
     if (confirm(`Удалить корзину "${basket.name}"?`)) {
-      // TODO: Добавить API удаления корзины
-      this.baskets = this.baskets.filter(b => b.id !== basket.id);
-      
-      if (this.activeBasket?.id === basket.id) {
-        this.activeBasket = this.baskets[0];
-        this.selectBasket(this.activeBasket);
-      }
-      
-      this.showNotification('Корзина удалена', 'success');
+      this.isLoading = true;
+
+      this.basketsService.deleteBasket(basket.id)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoading = false)
+        )
+        .subscribe({
+          next: () => {
+            this.baskets = this.baskets.filter(b => b.id !== basket.id);
+
+            if (this.activeBasket?.id === basket.id) {
+              this.activeBasket = this.baskets[0];
+              this.loadActiveBasket();
+            }
+
+            // Обновляем кэш
+            StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
+
+            this.showNotification('Корзина удалена', 'success');
+          },
+          error: (err) => {
+            console.error('Ошибка удаления корзины', err);
+            this.showNotification('Не удалось удалить корзину', 'error');
+          }
+        });
     }
   }
 
   duplicateBasket(): void {
     if (!this.activeBasket) return;
+    this.isLoading = true;
 
-    const newBasket = {
-      ...this.activeBasket,
-      id: undefined,
+    const dto: CreateBasketDto = {
       name: `${this.activeBasket.name} (копия)`,
+      products: this.activeBasket.products?.map((p: any) => ({
+        productId: p.product?.id,
+        count: p.count
+      })) || [],
     };
 
-    // TODO: Добавить API дублирования корзины
-    this.baskets.push(newBasket);
-    this.activeBasket = newBasket;
-    this.showNotification('Корзина продублирована', 'success');
+    this.basketsService.createBasket(dto)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: (res) => {
+          const newBasket = res.data;
+          this.baskets.push(newBasket);
+          this.activeBasket = newBasket;
+
+          StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
+          this.showNotification('Корзина продублирована', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка дублирования корзины', err);
+          this.showNotification('Не удалось продублировать корзину', 'error');
+        }
+      });
   }
 
   // Работа с товарами
@@ -256,7 +404,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   selectAll(): void {
     if (!this.activeBasket?.products) return;
-    
+
     this.activeBasket.products.forEach((p: any) => {
       this.selectedProducts.add(p.id);
     });
@@ -267,49 +415,66 @@ export class CartComponent implements OnInit, OnDestroy {
 
     const productIds = Array.from(this.selectedProducts);
 
-    // TODO: Добавить API вызова для удаления нескольких товаров
-    if (this.activeBasket?.products) {
-      this.activeBasket.products = this.activeBasket.products.filter(
-        (p: any) => !productIds.includes(p.id)
-      );
-    }
+    if (confirm(`Удалить ${productIds.length} товар(ов) из корзины?`)) {
+      this.isLoading = true;
 
-    this.selectedProducts.clear();
-    this.calculateTotals();
-    this.showNotification(`${productIds.length} товаров удалено`, 'success');
+      // this.basketsService.removeProductsFromBasket(this.activeBasket.id, productIds)
+      //   .pipe(
+      //     takeUntil(this.destroy$),
+      //     finalize(() => this.isLoading = false)
+      //   )
+      //   .subscribe({
+      //     next: () => {
+      //       this.selectedProducts.clear();
+      //       this.loadActiveBasket(true);
+      //       this.showNotification(`${productIds.length} товаров удалено`, 'success');
+      //     },
+      //     error: (err) => {
+      //       console.error('Ошибка удаления товаров', err);
+      //       this.showNotification('Не удалось удалить товары', 'error');
+      //     }
+      //   });
+    }
   }
 
   onQuantityChange(event: { id: string; quantity: number }): void {
-    if (!this.activeBasket?.products) return;
+    if (!this.activeBasket?.products || !this.activeBasket.id) return;
 
     const product = this.activeBasket.products.find((p: any) => p.id === event.id);
     if (product) {
       product.count = event.quantity;
       this.calculateTotals();
-      
+
       // Отправляем с дебаунсом для API
-      this.quantityUpdate$.next(event);
+      this.quantityUpdate$.next({
+        productId: product.product?.id,
+        basketId: this.activeBasket.id,
+        quantity: event.quantity
+      });
     }
   }
 
-  private updateQuantityApi(id: string, quantity: number): void {
-    // TODO: Добавить реальный API вызов
-    console.log(`API: Обновление количества товара ${id} до ${quantity}`);
-  }
+  onProductRemove(data: any): void {
+    if (!this.activeBasket?.products || !this.activeBasket.id) return;
 
-  onProductRemove(id: string): void {
-    if (!this.activeBasket?.products) return;
+    this.isLoading = true;
 
-    this.activeBasket.products = this.activeBasket.products.filter(
-      (p: any) => p.id !== id
-    );
-
-    this.selectedProducts.delete(id);
-    this.calculateTotals();
-
-    // TODO: Добавить API удаления товара
-    console.log(`Удален товар с ID: ${id}`);
-    this.showNotification('Товар удален из корзины', 'success');
+    this.basketsService.removeProductFromBasket(this.activeBasket.id, data.productId, data.count)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading = false)
+      )
+      .subscribe({
+        next: () => {
+          // this.selectedProducts.delete(id);
+          this.loadActiveBasket(true);
+          this.showNotification('Товар удален из корзины', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка удаления товара', err);
+          this.showNotification('Не удалось удалить товар', 'error');
+        }
+      });
   }
 
   onQuickView(product: any): void {
@@ -321,9 +486,26 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   onAddRelated(item: any): void {
-    // TODO: Добавить связанный товар в корзину
-    console.log('Добавлен связанный товар:', item);
-    this.showNotification('Товар добавлен в корзину', 'success');
+    if (!this.activeBasket?.id) return;
+
+    const dto: BasketProductDto = {
+      productId: item.id,
+      basketId: this.activeBasket.id,
+      count: 1
+    };
+
+    this.basketsService.addProduct(dto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadActiveBasket(true);
+          this.showNotification('Товар добавлен в корзину', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка добавления связанного товара', err);
+          this.showNotification('Не удалось добавить товар', 'error');
+        }
+      });
   }
 
   // Фильтрация
@@ -361,11 +543,11 @@ export class CartComponent implements OnInit, OnDestroy {
     this.activeBasket.products.forEach((product: any) => {
       const count = product.count || 1;
       items += count;
-      
+
       const originalPrice = product.product?.retailPrice || 0;
       const discountPercent = product.product?.discountPercentage || 0;
       const finalPrice = discountPercent > 0 ? originalPrice * (1 - discountPercent / 100) : originalPrice;
-      
+
       subtotal += originalPrice * count;
       discount += (originalPrice - finalPrice) * count;
     });
@@ -384,11 +566,11 @@ export class CartComponent implements OnInit, OnDestroy {
     this.appliedPromo = this.promoCode;
     this.promoCode = '';
     this.showPromo = false;
-    
+
     // Временно добавим тестовую скидку
     this.totalDiscount += 100;
     this.calculateTotals();
-    
+
     this.showNotification('Промокод применен!', 'success');
   }
 
@@ -409,12 +591,28 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   addRecommendedToCart(item: any): void {
-    // TODO: Добавить товар в корзину
-    console.log('Добавлен рекомендуемый товар:', item);
-    this.showNotification('Товар добавлен в корзину', 'success');
+    if (!this.activeBasket?.id) return;
+
+    const dto: BasketProductDto = {
+      productId: item.id,
+      basketId: this.activeBasket.id,
+      count: 1
+    };
+
+    this.basketsService.addProduct(dto)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadActiveBasket(true);
+          this.showNotification('Товар добавлен в корзину', 'success');
+        },
+        error: (err) => {
+          console.error('Ошибка добавления товара', err);
+          this.showNotification('Не удалось добавить товар', 'error');
+        }
+      });
   }
 
-  // Оформление заказа
   canProceedToCheckout(): boolean {
     return this.activeBasket?.products?.length > 0;
   }
@@ -425,44 +623,37 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.step = 2;
-    // Плавный скролл к верху
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const productPositionIds = this.activeBasket.products.map((product: any) => product.id);
 
-    // TODO: Переход к оформлению
-    // const productPositionIds = this.activeBasket.products.map((product:any) => product.id);
-    // this.deliveryOrderService.createOrder({
-    //   'userBasketId': this.activeBasket.id,
-    //   'orderStatus': 0,
-    //   'productPositionIds': productPositionIds
-    // }).subscribe((response: any) => {
-    //   this.router.navigate(['/order', response.data.id]);
-    // });
+    this.deliveryOrderService.createOrder({
+      'userBasketId': this.activeBasket.id,
+      'orderStatus': 0,
+      'productPositionIds': productPositionIds
+    }).subscribe((response: any) => {
+      this.router.navigate(['/order', response.data.id]);
+    });
   }
 
-  // Доставка
-  toggleDeliveryInfo(): void {
-    this.deliveryInfoOpen = !this.deliveryInfoOpen;
-  }
 
-  // Чат поддержки
-  openChat(): void {
-    console.log('Открыть чат поддержки');
-    // TODO: Открыть чат
-  }
-
-  // Уведомления
   private showNotification(message: string, type: 'success' | 'error' | 'warning'): void {
-    // TODO: Реализовать систему уведомлений
-    console.log(`[${type}] ${message}`);
+    this.notification = { message, type };
+
+    setTimeout(() => {
+      this.notification = null;
+      this.cdr?.markForCheck();
+    }, 3000);
   }
 
-  // TrackBy для оптимизации
   trackByProductId(index: number, item: any): string {
     return item.id;
   }
 
   trackByBasketId(index: number, item: any): string {
     return item.id;
+  }
+
+  private cdr: any;
+  setChangeDetectorRef(cdr: any): void {
+    this.cdr = cdr;
   }
 }

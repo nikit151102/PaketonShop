@@ -17,7 +17,7 @@ import {
 export class BasketsService {
   private readonly baseUrl = `${environment.production}/api/Entities/UserBasket`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Получить список корзин с фильтрацией и пагинацией
@@ -97,7 +97,7 @@ export class BasketsService {
     >(`${this.baseUrl}/RemoveProduct`, dto);
   }
 
-  
+
   /**
    * Добавить товар в корзину
    */
@@ -106,12 +106,30 @@ export class BasketsService {
   }
 
   /**
-   * Удалить товары из корзины
+   * Удалить товар из корзины
    */
-  removeProductsFromBasket(basketId: string, productIds: string[]): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${basketId}/products`, {
-      body: { productIds }
-    });
+  removeProductFromBasket(basketId: string, productId: string, count: Number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/RemoveProduct`,
+      {
+        "isDeleted": true,
+        "productId": productId,
+        "basketId": basketId,
+        "count": count,
+
+      });
+  }
+
+  /**
+ * Изменить количество товара в корзине
+ */
+  changeProductFromBasket(basketId: string, productId: string, count: Number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/ChangeProductCount`,
+      {
+        "isDeleted": true,
+        "productId": productId,
+        "basketId": basketId,
+        "count": count,
+      });
   }
 
 }

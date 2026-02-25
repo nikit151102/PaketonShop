@@ -1,0 +1,221 @@
+<div class="consent-container">
+  <!-- Заголовок -->
+  <div class="consent-header">
+    <div class="header-icon">📧</div>
+    <div class="header-text">
+      <h1>Согласие на получение рассылки</h1>
+      <p class="subtitle">рекламно-информационных материалов</p>
+    </div>
+  </div>
+
+  <!-- Информационная карточка -->
+  <div class="info-card">
+    <div class="legal-badge">Правовая информация</div>
+    
+    <div class="law-info">
+      <div class="law-item">
+        <span class="law-number">38-ФЗ</span>
+        <span class="law-name">«О рекламе» от 13.03.2006</span>
+      </div>
+      <div class="law-item">
+        <span class="law-number">126-ФЗ</span>
+        <span class="law-name">«О связи» от 07.07.2003</span>
+      </div>
+    </div>
+
+    <div class="company-badge">
+      <span class="company-name">{{companyInfo.name}}</span>
+      <span class="company-ogrn">ОГРН {{companyInfo.ogrn}}</span>
+      <span class="company-inn">ИНН {{companyInfo.inn}}</span>
+    </div>
+  </div>
+
+  <!-- Сетка с информацией -->
+  <div class="consent-grid">
+    <!-- Общие положения -->
+    <div class="grid-card" id="general">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[0].icon}}</span>
+        <h3>{{consentSections[0].title}}</h3>
+      </div>
+      <div class="card-content">
+        <p>Я, действуя по своей воле и в своем интересе, даю согласие на направление мне сообщений об услугах (сервисах) Организации в информационных, рекламно-информационных целях.</p>
+        <div class="highlight-text">
+          Согласие дается свободно и осознанно
+        </div>
+      </div>
+    </div>
+
+    <!-- Что входит в рассылку -->
+    <div class="grid-card" id="what">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[1].icon}}</span>
+        <h3>{{consentSections[1].title}}</h3>
+      </div>
+      <div class="card-content">
+        <p>Рассылки включают информацию о:</p>
+        <ul class="bullet-list">
+          <li>Мероприятиях и событиях</li>
+          <li>Контенте и новостях</li>
+          <li>Акциях и специальных предложениях</li>
+          <li>Других информационных материалах</li>
+        </ul>
+        <div class="chip-list">
+          <span class="chip">текстовые</span>
+          <span class="chip">аудиальные</span>
+          <span class="chip">графические</span>
+          <span class="chip">видео</span>
+          <span class="chip">мультимедийные</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Какие данные используются -->
+    <div class="grid-card" id="contacts">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[2].icon}}</span>
+        <h3>{{consentSections[2].title}}</h3>
+      </div>
+      <div class="card-content">
+        <p>Для отправки используются контактные данные, указанные на сайте <strong>{{companyInfo.site}}</strong>:</p>
+        <div class="data-box">
+          <div class="data-row">
+            <span class="data-icon">📱</span>
+            <span>Номер телефона</span>
+          </div>
+          <div class="data-row">
+            <span class="data-icon">✉️</span>
+            <span>Адрес электронной почты</span>
+          </div>
+        </div>
+        <p class="small-note">Я несу ответственность за достоверность предоставленных данных.</p>
+      </div>
+    </div>
+
+    <!-- Каналы коммуникации -->
+    <div class="grid-card" id="channels">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[3].icon}}</span>
+        <h3>{{consentSections[3].title}}</h3>
+      </div>
+      <div class="card-content">
+        <div class="channels">
+          <div class="channel">
+            <span class="channel-icon">📧</span>
+            <div>
+              <strong>E-mail рассылки</strong>
+              <p class="channel-desc">Информационные письма на электронную почту</p>
+            </div>
+          </div>
+          <div class="channel">
+            <span class="channel-icon">📞</span>
+            <div>
+              <strong>Телефонная связь</strong>
+              <p class="channel-desc">Звонки с информацией об услугах и акциях</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Как отозвать согласие -->
+    <div class="grid-card" id="withdraw">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[4].icon}}</span>
+        <h3>{{consentSections[4].title}}</h3>
+      </div>
+      <div class="card-content">
+        <p>Согласие может быть отозвано в любой момент:</p>
+        
+        <div class="withdraw-methods">
+          <div class="method">
+            <div class="method-number">1</div>
+            <div class="method-desc">
+              <strong>По email</strong>
+              <p>Направить заявление в службу поддержки:</p>
+              <a href="mailto:{{companyInfo.email}}" class="email-link">{{companyInfo.email}}</a>
+            </div>
+          </div>
+          
+          <div class="method">
+            <div class="method-number">2</div>
+            <div class="method-desc">
+              <strong>Почтовым отправлением</strong>
+              <p>По адресу местонахождения Организации:</p>
+              <address>{{companyInfo.address}}</address>
+            </div>
+          </div>
+          
+          <div class="method">
+            <div class="method-number">3</div>
+            <div class="method-desc">
+              <strong>Через ссылку в письме</strong>
+              <p>Перейти по ссылке «Отписаться» в тексте e-mail рассылки</p>
+            </div>
+          </div>
+        </div>
+
+        <details class="withdraw-details">
+          <summary>Подробнее о составлении заявления</summary>
+          <div class="details-content">
+            <p>Заявление составляется в свободной форме с указанием:</p>
+            <ul>
+              <li>Номера телефона</li>
+              <li>Адреса электронной почты</li>
+              <li>Каналов получения, от которых заявитель отказывается</li>
+            </ul>
+            <p>Можно направить в форматах: pdf, png, jpeg (скан или фото). Качество должно позволять прочитать текст.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Срок действия -->
+    <div class="grid-card" id="duration">
+      <div class="card-header">
+        <span class="card-icon">{{consentSections[5].icon}}</span>
+        <h3>{{consentSections[5].title}}</h3>
+      </div>
+      <div class="card-content">
+        <div class="duration-info">
+          <div class="duration-badge">Бессрочно</div>
+          <p>Согласие действует на неограниченный срок, если Организация не получила сведений о его отзыве.</p>
+          <p class="small-note">Датой отзыва считается день, следующий за днем вручения заявления об отзыве.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок с подтверждением -->
+  <div class="confirmation-block">
+    <h3>Форма подтверждения согласия</h3>
+    
+    <div class="confirmation-steps">
+      <div class="step">
+        <span class="step-number">1</span>
+        <span class="step-text">Заполнение регистрационной формы</span>
+      </div>
+      <div class="step-arrow">→</div>
+      <div class="step">
+        <span class="step-number">2</span>
+        <span class="step-text">Нажатие кнопки «Отправить»</span>
+      </div>
+    </div>
+
+    <div class="confirmation-note">
+      <span class="note-icon">⚖️</span>
+      <p>Конклюдентные действия являются достаточной формой согласия и позволяют подтвердить факт получения согласия. Иных доказательств для подтверждения свободного волеизъявления не требуется.</p>
+    </div>
+  </div>
+
+  <!-- Дата и контакты -->
+  <div class="footer-info">
+    <p class="footer-text">
+      Информация актуальна на {{currentDate | date:'dd.MM.yyyy'}}
+    </p>
+    <p class="footer-text">
+      По вопросам, касающимся отказа от рассылки: 
+      <a href="mailto:{{companyInfo.email}}" class="footer-link">{{companyInfo.email}}</a>
+    </p>
+  </div>
+</div>

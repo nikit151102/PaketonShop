@@ -7,6 +7,8 @@ import { DeliveryOrderService } from '../../core/api/delivery-order.service';
 import { Subject, takeUntil, interval } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { PluralPipe } from "../../core/pipes/plural.pipe";
+import { PaymentService } from '../../core/api/payment.service';
+import { PaymentWidgetComponent } from '../../core/components/payment-widget/payment-widget.component';
 
 @Component({
   selector: 'app-order',
@@ -16,7 +18,8 @@ import { PluralPipe } from "../../core/pipes/plural.pipe";
     RouterModule,
     OrderFormComponent,
     FormsModule,
-    PluralPipe
+    PluralPipe,
+    PaymentWidgetComponent
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
@@ -47,7 +50,8 @@ export class OrderComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private basketsService: BasketsService,
-    private deliveryOrderService: DeliveryOrderService
+    private deliveryOrderService: DeliveryOrderService,
+    private paymentService: PaymentService
   ) { }
 
   ngOnInit(): void {
@@ -185,24 +189,91 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   onOrderDelivery(data: {
     'type': string,
-    'id': string
-  }) { 
-    
+    'id': string,
+    'shopCity'?: string,
+    'shopAddress'?: string
+  }) {
+    console.log('datadatadata', data)
   }
 
-  onFormChanged(data:any){
-console.log('data---:',data)
+  onFormChanged(data: any) {
+    console.log('data---:', data)
   }
 
-  proceedToPayment(): void {
-    if (!this.createdOrderId || this.isProcessing) return;
+  showPaymentWidget: boolean = false
+  paymentToken: any;
+
+  /**
+  * Инициализация оплаты
+  */
+  initiatePayment() {
 
     this.isProcessing = true;
 
-    // Небольшая задержка для лучшего UX
-    setTimeout(() => {
-      this.router.navigate(['/payment', this.createdOrderId]);
-      this.isProcessing = false;
-    }, 500);
+    this.paymentService.createTopUpTransaction(this.getOrderTotal()).subscribe({
+      next: (response: any) => {
+        this.paymentToken = response.data.confirmationToken;
+        this.showPaymentWidget = true;
+        this.isProcessing = false;
+      },
+      error: (error) => {
+        console.error('Ошибка при создании платежа:', error);
+        this.isProcessing = false;
+      }
+    });
+  }
+
+
+  /**
+   * Обработка успешного платежа
+   */
+  handlePaymentSuccess(confirmationToken: string): void {
+    console.log('Платеж успешен, токен:', confirmationToken);
+
+    this.isProcessing = true;
+
+    this.paymentService.confirmPayment(confirmationToken).subscribe({
+      next: (response: any) => {
+        console.log('Платеж подтвержден:', response);
+
+
+        // this.successMessage = 'Оплата прошла успешно!';
+        this.showPaymentWidget = false;
+        this.isProcessing = false;
+      },
+      error: (error) => {
+        console.error('Ошибка подтверждения платежа:', error);
+        // this.errorMessage = 'Платеж прошел, но не удалось обновить данные. Обратитесь в поддержку.';
+        this.showPaymentWidget = false;
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  handlePaymentFail(confirmationToken: string): void {
+    console.log('Платеж не удался, токен:', confirmationToken);
+    this.showPaymentWidget = false;
+    // Обработка ошибки оплаты
+  }
+
+  handlePaymentError(error: any): void {
+    console.error('Ошибка платежа:', error);
+    this.showPaymentWidget = false;
+  }
+
+  onWidgetLoaded(): void {
+    console.log('Виджет загружен');
+  }
+
+  // Пример метода создания транзакции
+  private createTransaction(amount: number) {
+    // Здесь ваш HTTP запрос для создания транзакции
+    // Возвращает Observable с confirmationToken
+  }
+
+  // Пример метода подтверждения платежа
+  private confirmPayment(confirmationToken: string) {
+    // Здесь ваш HTTP запрос для подтверждения транзакции
+    // Возвращает Observable с обновленными данными
   }
 }

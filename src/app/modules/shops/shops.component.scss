@@ -11,7 +11,6 @@
     overflow-x: hidden;
 
     .container {
-        max-width: 1200px;
         margin: 0 auto;
         padding: 0 1.5rem;
     }
@@ -20,7 +19,7 @@
 // ========== HERO SECTION ==========
 .hero-section {
     position: relative;
-    padding: 4rem 0 6rem;
+    padding: 10px 0 10px;
     overflow: hidden;
 
     .hero-background {
@@ -41,7 +40,6 @@
 
     .hero-container {
         position: relative;
-        max-width: 1200px;
         margin: 0 auto;
         padding: 0 1.5rem;
     }
@@ -57,7 +55,6 @@
             color: #317120;
             font-size: 0.875rem;
             font-weight: 500;
-            margin-bottom: 2rem;
             animation: fadeInUp 0.6s ease-out;
 
             svg {
@@ -70,6 +67,7 @@
             font-size: 3.5rem;
             font-weight: 800;
             line-height: 1.1;
+            margin-top: 5px;
             margin-bottom: 1.5rem;
             animation: fadeInUp 0.6s ease-out 0.1s both;
 
@@ -97,7 +95,7 @@
             font-size: 1.125rem;
             color: #64748b;
             line-height: 1.6;
-            margin-bottom: 3rem;
+            margin-bottom: 10px;
             max-width: 500px;
             animation: fadeInUp 0.6s ease-out 0.2s both;
 
@@ -154,8 +152,7 @@
 // ========== FILTERS SECTION ==========
 .filters-section {
     position: relative;
-    margin-top: -2rem;
-    margin-bottom: 2rem;
+    margin-top: 0;
     z-index: 10;
 
     .filters-grid {

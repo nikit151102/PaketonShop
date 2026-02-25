@@ -34,13 +34,23 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/about/about.component').then((m) => m.AboutComponent),
   },
+    {
+    path: 'news',
+    loadComponent: () =>
+      import('./modules/news/news.component').then((m) => m.NewsComponent),
+  },
+      {
+    path: 'news/:id',
+    loadComponent: () =>
+      import('./modules/news-detail/news-detail.component').then((m) => m.NewsDetailComponent),
+  },
   {
     path: 'shop/:id',
     loadComponent: () =>
       import('./modules/shop-details/shop-details.component').then((m) => m.ShopDetailsComponent),
   },
   {
-    path: 'shops',
+    path: 'stores',
     loadComponent: () =>
       import('./modules/shops/shops.component').then((m) => m.ShopsComponent),
   },
@@ -52,9 +62,11 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'news',
+    path: 'niche/:id',
     loadComponent: () =>
-      import('./modules/news/news.module').then((m) => m.NewsModule),
+      import('./modules/niche-products/niche-products.component').then(
+        (m) => m.NicheProductsComponent,
+      ),
   },
   {
     path: 'notifications',
@@ -71,13 +83,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'products/:id',
-    loadComponent: () =>
-      import('./modules/products/products.component').then(
-        (m) => m.ProductsComponent,
-      ),
-  },
-  {
     path: 'order/:id',
     loadComponent: () =>
       import('./modules/order/order.component').then(
@@ -91,12 +96,17 @@ export const routes: Routes = [
         (m) => m.CompareProductsComponent,
       ),
   },
-    {
+  {
     path: 'register-business',
     loadComponent: () =>
       import('./modules/business-account-registration/business-account-registration.component').then(
         (m) => m.BusinessAccountRegistrationComponent,
       ),
   },
-  
+  {
+    path: 'documents',
+    loadChildren: () =>
+      import('./modules/documents/documents.routes').then((m) => m.documentsRoutes)
+  },
+
 ];

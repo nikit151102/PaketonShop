@@ -1,0 +1,185 @@
+<div class="documents-container">
+  <!-- Хедер -->
+  <div class="documents-header">
+    <div class="header-content">
+      <h1>Документы и информация</h1>
+      <p class="subtitle">Правовая информация, условия сотрудничества и согласия</p>
+    </div>
+  </div>
+
+  <!-- Поиск и фильтры -->
+  <div class="documents-toolbar">
+    <div class="search-box">
+      <span class="search-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M20 20L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <input 
+        type="text" 
+        placeholder="Поиск документов..." 
+        [(ngModel)]="searchQuery"
+        class="search-input"
+      >
+    </div>
+
+    <div class="category-filters">
+      <button 
+        *ngFor="let category of categories"
+        class="category-btn"
+        [class.active]="selectedCategory === category.id"
+        (click)="filterByCategory(category.id)"
+      >
+        <span class="category-icon">
+          <!-- Иконка "Все документы" -->
+          <svg *ngIf="category.icon === 'all'" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 12H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8 16H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          
+          <!-- Иконка "Правовые" -->
+          <svg *ngIf="category.icon === 'legal'" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L3 7L12 12L21 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M3 12L12 17L21 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M3 17L12 22L21 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          
+          <!-- Иконка "Персональные данные" -->
+          <svg *ngIf="category.icon === 'personal'" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M5 18V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 12V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+          </svg>
+        </span>
+        <span>{{category.name}}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Сетка документов -->
+  <div class="documents-grid">
+    <div *ngFor="let doc of filteredDocuments" class="document-card" (click)="navigateToDocument(doc.route)">
+      <div class="card-badge" [class]="doc.category">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="doc.category === 'legal'">
+          <path d="M12 2L3 7L12 12L21 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M3 12L12 17L21 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M3 17L12 22L21 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" *ngIf="doc.category === 'personal'">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5 18V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      
+      <div class="card-icon">
+        <!-- Иконка документа -->
+        <svg *ngIf="doc.icon === 'document'" width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path d="M4 4H20V20H4V4Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M8 8H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M8 12H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M8 16H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        
+        <!-- Иконка рукопожатия -->
+        <svg *ngIf="doc.icon === 'handshake'" width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <path d="M3 15L7 11L10 14L14 10L17 13L21 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="6" cy="16" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="18" cy="16" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7 14L5 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M17 14L19 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        
+        <!-- Иконка письма/рассылки -->
+        <svg *ngIf="doc.icon === 'mail'" width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3 7L12 13L21 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="1" fill="currentColor"/>
+        </svg>
+      </div>
+      
+      <div class="card-content">
+        <h3 class="card-title">{{doc.title}}</h3>
+        <p class="card-description">{{doc.description}}</p>
+        
+        <div class="card-meta">
+          <span class="meta-item">
+            <span class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M8 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M16 2V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M3 10H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            {{doc.lastUpdated}}
+          </span>
+          <span class="meta-item">
+            <span class="meta-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            {{doc.version}}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="view-link">
+          Открыть документ
+          <span class="arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Пустое состояние -->
+  <div *ngIf="filteredDocuments.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke="#9ca3af" stroke-width="1.5"/>
+        <path d="M8 8H16" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 12H16" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 16H13" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="18" cy="6" r="2" fill="#ef4444"/>
+      </svg>
+    </div>
+    <h3>Документы не найдены</h3>
+    <p>Попробуйте изменить параметры поиска или фильтрации</p>
+    <button class="reset-btn" (click)="searchQuery = ''; selectedCategory = 'all'">
+      Сбросить фильтры
+    </button>
+  </div>
+
+  <!-- Дополнительная информация -->
+  <div class="documents-footer">
+    <div class="footer-note">
+      <span class="note-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L3 7L12 12L21 7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M3 12L12 17L21 12" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M3 17L12 22L21 17" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <p>Все документы актуальны на текущую дату. Редакции документов вступают в силу с момента их публикации на сайте.</p>
+    </div>
+    
+    <div class="footer-links">
+      <a href="#" class="footer-link">Политика конфиденциальности</a>
+      <span class="separator">•</span>
+      <a href="#" class="footer-link">Использование cookies</a>
+      <span class="separator">•</span>
+      <a href="#" class="footer-link">Правила сайта</a>
+    </div>
+  </div>
+</div>

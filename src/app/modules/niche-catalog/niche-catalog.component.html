@@ -1,24 +1,123 @@
-<section class="groups">
-  <div class="category-container" *ngFor="let category of categories; let i = index">
-    <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick($event)">
-      <!-- Левая часть с контентом -->
-      <div class="category-content">
-        <div class="category-header">
-          <h3 class="category-title">{{ category.name }}</h3>
-          <div class="category-arrow">→</div>
+<section class="niche-catalog">
+  <!-- Заголовок секции -->
+  <div class="catalog-header">
+    <div class="header-content">
+      <h1 class="catalog-title">Готовые решения для вашего бизнеса</h1>
+      <p class="catalog-subtitle">Выберите подходящую нишу и получите полный ассортимент товаров</p>
+    </div>
+    
+    <!-- Переключатель вида (опционально) -->
+    <div class="view-toggle" *ngIf="categories.length > 0">
+      <button class="toggle-btn" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Сетка">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </button>
+      <button class="toggle-btn" [class.active]="viewMode === 'list'" (click)="setViewMode('list')" aria-label="Список">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Состояния загрузки и ошибок -->
+  <div class="catalog-state" *ngIf="isLoading">
+    <div class="loader-wrapper">
+      <div class="spinner"></div>
+      <p>Загружаем готовые решения...</p>
+    </div>
+  </div>
+
+  <div class="catalog-state" *ngIf="error && !isLoading">
+    <div class="error-wrapper">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <circle cx="12" cy="16" r="1" fill="#ef4444"/>
+      </svg>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadNicheCategories()">Попробовать снова</button>
+    </div>
+  </div>
+
+  <!-- Сетка категорий -->
+  <div class="categories-grid" [class.list-view]="viewMode === 'list'" *ngIf="!isLoading && !error">
+    <div class="category-card-wrapper" 
+         *ngFor="let category of visibleCategories; trackBy: trackByCategoryId"
+         [@cardAnimation]>
+      
+      <div class="category-card" 
+           [class.featured]="category.isFeatured"
+           [class.has-subcategories]="category.subcategories"
+           (click)="onNicheClick(category)">
+
+        <!-- Изображение с градиентом -->
+        <div class="card-image">
+          <div class="image-overlay"></div>
+          <img [src]="category.image" 
+               [alt]="category.name"
+               loading="lazy"
+               (error)="handleImageError($event, category)">
+          
+          <!-- Декоративный паттерн -->
+          <div class="image-pattern"></div>
         </div>
 
-        <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
-          <span class="tag" *ngFor="let subcategory of category.subcategories">
-            {{ subcategory.name }}
-          </span>
-        </div>
-      </div>
+        <!-- Контент карточки -->
+        <div class="card-content">
+          <h3 class="category-name">{{ category.name }}</h3>
+          
+          <p class="category-description" *ngIf="category.description">
+            {{ category.description }}
+          </p>
+          
+          <!-- Подкатегории в виде чипсов -->
+          <div class="subcategories-list" *ngIf="category.subcategories">
+            <span class="subcategory-chip" 
+                  *ngFor="let sub of category.subcategories | slice:0:4"
+                  (click)="onSubcategoryClick($event, sub)">
+              {{ sub.name }}
+            </span>
+            <span class="subcategory-more" *ngIf="category.subcategories.length > 4">
+              +{{ category.subcategories.length - 4 }}
+            </span>
+          </div>
 
-      <!-- Правая часть с изображением -->
-      <div class="category-image" *ngIf="category.image">
-        <img [src]="category.image" [alt]="category.name" loading="lazy" />
+          <!-- Статистика и кнопка -->
+          <div class="card-footer">
+            <button class="explore-btn" aria-label="Перейти к категории">
+              <span>Перейти</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Декоративный элемент -->
+        <div class="card-accent"></div>
       </div>
     </div>
+
+  </div>
+
+  <!-- Кнопка "Показать еще" (если есть скрытые категории) -->
+  <div class="show-more-container" *ngIf="!showAll && categories.length > visibleCategoriesCount">
+    <button class="show-more-btn" (click)="toggleShowAll()">
+      <span>Показать еще {{ categories.length - visibleCategoriesCount }} решений</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
   </div>
 </section>

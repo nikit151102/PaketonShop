@@ -1,0 +1,186 @@
+<div class="news-detail">
+  <!-- Кнопка назад -->
+  <div class="back-button-container">
+    <div class="container">
+      <button class="back-button" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Назад к новостям</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Состояние загрузки -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загружаем новость...</p>
+  </div>
+
+  <!-- Состояние ошибки -->
+  <div *ngIf="error" class="error-state">
+    <div class="container">
+      <div class="error-content">
+        <span class="error-icon">😕</span>
+        <h2>Что-то пошло не так</h2>
+        <p>{{ error }}</p>
+        <!-- <button class="retry-btn" (click)="loadNewsDetail()">Попробовать снова</button> -->
+        <button class="home-btn" routerLink="/news">Вернуться к списку</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Детальная информация о новости -->
+  <div *ngIf="!isLoading && !error && news" class="news-content">
+    <!-- Героическая секция с изображением -->
+    <div class="hero-section" [style.background-image]="'url(' + news.imageInstanceLinks?.[currentImageIndex] + ')'">
+      <div class="hero-overlay"></div>
+      <div class="container hero-container">
+        <!-- Навигация по изображениям (если их несколько) -->
+        <div *ngIf="news.imageInstanceLinks.length > 1" class="image-navigation">
+          <button class="nav-btn prev" (click)="prevImage()" [disabled]="currentImageIndex === 0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="image-indicators">
+            <span *ngFor="let img of news.imageInstanceLinks; let i = index" 
+                  class="indicator" 
+                  [class.active]="i === currentImageIndex"
+                  (click)="currentImageIndex = i">
+            </span>
+          </div>
+          <button class="nav-btn next" (click)="nextImage()" [disabled]="currentImageIndex === news.imageInstanceLinks.length - 1">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Информация поверх изображения -->
+        <div class="hero-content">
+          <div class="news-meta">
+            <span class="news-type" [style.background-color]="getNewsTypeColor(news.newsBannerType)">
+              {{ getNewsTypeLabel(news.newsBannerType) }}
+            </span>
+            <span class="news-date" *ngIf="news.beginDateTime">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke-width="2"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke-width="2"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke-width="2"/>
+              </svg>
+              {{ formatDate(news.beginDateTime) }}
+            </span>
+          </div>
+          <h1 class="news-header">{{ news.header }}</h1>
+          <p class="news-subheader" *ngIf="news.subheader">{{ news.subheader }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="container main-content">
+      <div class="content-grid">
+        <!-- Левая колонка - основной текст -->
+        <div class="content-main">
+          <!-- Счетчик времени для акций -->
+          <div *ngIf="news.newsBannerType === 0 && news.endDateTime" class="promo-timer">
+            <div class="timer-badge" [class.active]="isActive()">
+              <span class="timer-label">
+                {{ isActive() ? 'До окончания' : 'Акция завершена' }}
+              </span>
+              <span *ngIf="isActive()" class="timer-value">
+                {{ getDaysLeft() }} {{ getDaysLeft() === 1 ? 'день' : (getDaysLeft()! < 5 ? 'дня' : 'дней') }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Описание/подзаголовок -->
+          <div class="description" *ngIf="news.description !== news.content">
+            <h2 class="description-title">О событии</h2>
+            <p class="description-text">{{ news.description }}</p>
+          </div>
+
+          <!-- Основной контент -->
+          <div class="content-body">
+            <h2 class="content-title">Подробности</h2>
+            <div class="content-text" [innerHTML]="sanitizeContent(news.content)"></div>
+          </div>
+
+          <!-- Период действия -->
+          <div class="validity-period">
+            <h3>Период действия</h3>
+            <p>{{ getValidityPeriod() }}</p>
+          </div>
+
+          <!-- Ссылка (если есть) -->
+          <div class="action-link" *ngIf="news.link">
+            <a [href]="news.link" target="_blank" rel="noopener noreferrer" class="external-link">
+              <span>Перейти по ссылке</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 3L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Правая колонка - дополнительная информация -->
+        <div class="content-sidebar">
+          <!-- Карточка с информацией -->
+          <div class="info-card">
+            <h3 class="info-title">Информация</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">Тип:</span>
+                <span class="info-value" [style.color]="getNewsTypeColor(news.newsBannerType)">
+                  {{ getNewsTypeLabel(news.newsBannerType) }}
+                </span>
+              </li>
+              <li>
+                <span class="info-label">Начало:</span>
+                <span class="info-value">{{ formatDate(news.beginDateTime) }}</span>
+              </li>
+              <li *ngIf="news.endDateTime">
+                <span class="info-label">Окончание:</span>
+                <span class="info-value">{{ formatDate(news.endDateTime) }}</span>
+              </li>
+              <li>
+                <span class="info-label">Статус:</span>
+                <span class="info-value status" [class.active]="isActive()">
+                  {{ isActive() ? 'Активно' : 'Завершено' }}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Кнопки действий -->
+          <div class="action-buttons">
+            <button class="share-btn" (click)="shareNews()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M4 12V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 2V14M12 14L9 11M12 14L15 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Поделиться</span>
+            </button>
+          </div>
+
+          <!-- Миниатюры изображений (если их несколько) -->
+          <div class="image-thumbnails" *ngIf="news.imageInstanceLinks && news.imageInstanceLinks.length > 1">
+            <h3>Все фото</h3>
+            <div class="thumbnail-grid">
+              <div *ngFor="let img of news.imageInstanceLinks; let i = index" 
+                   class="thumbnail" 
+                   [class.active]="i === currentImageIndex"
+                   (click)="currentImageIndex = i">
+                <img [src]="img" [alt]="news.header + ' ' + (i + 1)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

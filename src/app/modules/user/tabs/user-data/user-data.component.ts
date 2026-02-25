@@ -520,7 +520,7 @@ export class UserDataComponent implements OnInit {
 
     this.userForm.patchValue({ avatar: avatarUrl });
     this.userForm.markAsDirty();
-
+    this.saveProfileData();
     this.showNotification('Аватар выбран!', 'success');
   }
 

@@ -25,7 +25,7 @@
         <!-- Форма оформления заказа -->
         <div class="order-form-container">
           <app-order-form [userBasketId]="activeBasketId" (orderCreated)="onOrderCreated($event)"
-            (orderUpdated)="onOrderUpdated($event)" (orderDelivery)="onOrderDelivery($event)" (orderCompany)="null" 
+            (orderUpdated)="onOrderUpdated($event)" (orderDelivery)="onOrderDelivery($event)" (orderCompany)="null"
             (formChanged)="onFormChanged($event)">
           </app-order-form>
         </div>
@@ -157,7 +157,7 @@
               Изменить корзину
             </button>
 
-            <button class="action-btn checkout-btn" [disabled]="!canProceedToPayment()" (click)="proceedToPayment()"
+            <button class="action-btn checkout-btn" [disabled]="!canProceedToPayment()" (click)="initiatePayment()"
               [class.loading]="isProcessing">
               <span class="btn-content">
                 <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
@@ -173,9 +173,9 @@
                   {{ isProcessing ? 'Обработка...' : 'Перейти к оплате' }}
                 </span>
                 <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.2-2' }}</span>
-            
+
               </span>
-              </button>
+            </button>
 
             <p class="action-hint">
               Нажимая кнопку, вы соглашаетесь с условиями
@@ -186,6 +186,11 @@
       </div>
     </div>
   </div>
+
+  <app-payment-widget *ngIf="showPaymentWidget" [confirmationToken]="paymentToken" 
+    (onSuccess)="handlePaymentSuccess($event)" (onFail)="handlePaymentFail($event)"
+    (onError)="handlePaymentError($event)" (onWidgetLoaded)="onWidgetLoaded()">
+  </app-payment-widget>
 
   <!-- Уведомление об успешном создании заказа -->
   <div class="notification-overlay" *ngIf="showSuccessNotification" (click)="showSuccessNotification = false">
