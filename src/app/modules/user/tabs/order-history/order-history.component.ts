@@ -368,5 +368,5 @@ export class OrderHistoryComponent implements OnInit {
   getActiveOrdersCount(): number {
     return this.getFilteredOrders().filter(order => [0, 1, 2, 3].includes(order.orderStatus)).length;
   }
-
+ 
 }

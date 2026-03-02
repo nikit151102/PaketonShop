@@ -317,7 +317,7 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
     const features: string[] = [];
 
     if (this.shop?.partner) {
-      features.push('Официальный партнер');
+      features.push('Официальный');
     }
 
     if (this.todaySchedule?.isOpen) {

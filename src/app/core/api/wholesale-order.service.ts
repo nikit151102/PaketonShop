@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { from, Observable, switchMap } from 'rxjs';
 import { environment } from '../../../environment';
 
 export interface WholesaleOrder {
@@ -82,13 +82,31 @@ export class WholesaleOrderService {
    * @returns Observable с результатом операции
    */
   addDocuments(id: string, files: File[]): Observable<any> {
-    const formData = new FormData();
-    
-    files.forEach((file, index) => {
-      formData.append(`files`, file, file.name);
-    });
 
-    return this.http.put(`${this.baseUrl}/AddDocuments/${id}`, formData);
+    const promises = files.map(file => this.fileToBase64(file));
+
+    return from(Promise.all(promises)).pipe(
+      switchMap(base64Files => {
+        const body = {
+          files: base64Files.map((base64, index) => ({
+            name: files[index].name,
+            type: files[index].type,
+            content: base64.split(',')[1]
+          }))
+        };
+
+        return this.http.put(`${this.baseUrl}/AddDocuments/${id}`, body);
+      })
+    );
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
   }
 
   /**

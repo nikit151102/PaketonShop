@@ -2,8 +2,8 @@
   --border-light: #eaeef2;
   --text-primary: #1a1f2b;
   --text-secondary: #6b7280;
-  --accent-color: #2563eb;
-  --accent-hover: #1d4ed8;
+  --accent-color: #327220;
+  --accent-hover: #3e8b29;
   --danger-color: #ef4444;
   --success-color: #10b981;
   --warning-color: #f59e0b;
@@ -26,7 +26,7 @@
   
   &.selected {
     border-color: var(--accent-color);
-    background: linear-gradient(to right, #f0f7ff, white);
+    background: linear-gradient(to right, #30712114, white);
   }
   
   &.has-discount {
@@ -174,7 +174,7 @@
   .image-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(37, 99, 235, 0.2);
+    background: rgb(49 114 33 / 56%);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;

@@ -1,5 +1,30 @@
 <div class="product-details-container">
-  <app-product-card [productData]="productData"></app-product-card>
+  <app-product-card [productData]="productData" [breadCrumbs]="breadCrumbs"></app-product-card>
+
+
+
+  <div class="product-niches">
+    <!-- Заголовок -->
+    <div class="product-niches__header">
+      <h3 class="product-niches__title">Готовые решения для бизнеса</h3>
+      <p class="product-niches__subtitle">Товар подходит для следующих направлений</p>
+    </div>
+
+    <!-- Список ниш -->
+    <div class="product-niches__grid">
+      <a *ngFor="let niche of productData?.productNiches; let i = index" class="niche-card"
+        [routerLink]="['/niche', niche.id]" [style.animation-delay]="i * 0.05 + 's'">
+
+        <span class="niche-card__name">{{ niche.name }}</span>
+
+        <div class="niche-card__arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </div>
+      </a>
+    </div>
+  </div>
 
   <!-- Навигация по табам -->
   <div class="tabs-wrapper">

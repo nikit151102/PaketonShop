@@ -1,0 +1,147 @@
+<div #flipbookContainer class="book-container">
+  <!-- Навигационные стрелки -->
+  <button class="nav-arrow left-arrow" (click)="flipPrev()" [disabled]="isFirstPage" aria-label="Предыдущая страница">
+    ‹
+  </button>
+
+  <button class="nav-arrow right-arrow" (click)="flipNext()" [disabled]="isLastPage" aria-label="Следующая страница">
+    ›
+  </button>
+
+  <!-- Страницы каталога -->
+  <div *ngFor="let page of pages; let i = index" class="page" [attr.data-density]="'soft'">
+    <!-- Пустая страница (форзац) -->
+    <ng-container *ngIf="page === 'empty'">
+      <div class="empty-page"></div>
+    </ng-container>
+
+    <!-- Передняя обложка -->
+    <ng-container *ngIf="page === 'cover' && i === 1">
+      <div class="cover-page front-cover">
+        <div class="cover-content">
+          <h1>{{ nicheData?.name || 'ЭЛЕКТРОННЫЙ КАТАЛОГ' }}</h1>
+          <h2>2026</h2>
+          <div class="cover-logo">
+            <ng-container *ngIf="nicheData?.imageInstanceLink; else defaultLogo">
+              <img [src]="nicheData?.imageInstanceLink" alt="logo" style="max-width: 100px;">
+            </ng-container>
+            <ng-template #defaultLogo>
+              ⚡
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Страница содержания -->
+    <ng-container *ngIf="page === 'content'">
+      <div class="content-page">
+        <h2 class="section-title">СОДЕРЖАНИЕ</h2>
+        <div class="content-list">
+          <div *ngFor="let category of categories" class="content-item" (click)="goToPage(category.startPage)">
+            <span class="content-section">{{ category.name }}</span>
+            <span class="content-dots"></span>
+            <span class="content-page-num">{{ category.startPage }}</span>
+          </div>
+        </div>
+        <div class="content-note">Нажмите на раздел для перехода</div>
+      </div>
+    </ng-container>
+
+    <!-- Внутренние страницы с товарами -->
+    <ng-container *ngIf="isString(page) && isCategoryPage(page)">
+      <div class="category-page" [ngClass]="getCategoryClass(i)">
+        <h2 class="category-title">{{ getCategoryName(i) }}</h2>
+
+        <!-- Таблица товаров -->
+        <div class="products-table">
+          <div class="table-header">
+            <div class="col-image">Фото</div>
+            <div class="col-name">Наименование</div>
+            <div class="col-price">Цена</div>
+            <div class="col-actions">Действия</div>
+          </div>
+
+          <div class="table-body">
+            <div class="product-row" *ngFor="let product of getProductsForPage(i)">
+              <div class="col-image">
+                <div class="product-image-placeholder">
+                  <ng-container *ngIf="product.imageUrl; else iconTemplate">
+                    <img [src]="product.imageUrl" [alt]="product.name"
+                      style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                  </ng-container>
+                  <ng-template #iconTemplate>
+                    <span class="product-icon">{{ product.icon }}</span>
+                  </ng-template>
+                </div>
+              </div>
+              <div class="col-name">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-model">{{ product.model }}</div>
+              </div>
+              <div class="col-price">
+                <div class="product-price">{{ product.price }}</div>
+              </div>
+              <div class="col-actions">
+                <!-- Если товар в корзине, показываем селектор количества -->
+                <div class="cart-controls" *ngIf="isProductInCart(product); else addButton">
+                  <div class="quantity-selector">
+                    <button class="quantity-btn" (click)="decreaseQty(product, i)" 
+                            [disabled]="getProductQuantity(product) <= 1">−</button>
+                    <input class="input-quantity" type="number" 
+                           [ngModel]="getProductQuantity(product)" 
+                           (change)="updateQtyFromInput(product, i, $event)" 
+                           min="1" />
+                    <button class="quantity-btn" (click)="increaseQty(product, i)">+</button>
+                  </div>
+                  <span class="in-cart-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                </div>
+                
+                <!-- Кнопка добавления в корзину -->
+                <ng-template #addButton>
+                  <button class="add-cart" (click)="addOneToCart(product, i)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>В корзину</span>
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Номер страницы -->
+        <div class="page-number">Стр. {{ i }}</div>
+      </div>
+    </ng-container>
+
+    <!-- Задняя обложка -->
+    <ng-container *ngIf="page === 'back-cover'">
+      <div class="cover-page back-cover">
+        <div class="cover-content">
+          <h3>{{ nicheData?.name || 'ЭЛЕКТРОННЫЙ КАТАЛОГ' }}</h3>
+          <p>Все права защищены © 2024</p>
+          <div class="contact-info">
+            <p>Тел: +7 (999) 123-45-67</p>
+            <p>Email: info&#64;catalog.ru</p>
+            <p>Сайт: www.catalog.ru</p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Последняя пустая страница (нахзац) -->
+    <ng-container *ngIf="page === 'empty' && i === pages.length - 2">
+      <div class="empty-page"></div>
+    </ng-container>
+  </div>
+
+  <div class="page-indicator">
+    Стр. {{ currentPage + 1 }} / {{ totalPages - 2 }}
+  </div>
+</div>

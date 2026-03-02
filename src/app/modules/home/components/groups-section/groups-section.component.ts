@@ -50,7 +50,7 @@ export class GroupsSectionComponent implements OnInit {
             id: item.id,
             name: item.name,
             description: item.description,
-            image: item.imageLink || this.getDefaultImage(item.name),
+            image: item.imageInstanceLinks[0] || this.getDefaultImage(item.name),
             productCount: item.productCount,
             subcategories: item.subCategories || [],
             // Добавляем случайный класс ширины для разнообразия отображения

@@ -1,58 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-// Переменные
-$primary-gradient: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
-$secondary-gradient: linear-gradient(135deg, #3c8a27 0%, #327120 100%);
-$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-$error-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-
-$primary-color: #3c8a27;
-$primary-light: rgba(102, 126, 234, 0.1);
-$secondary-color: #327120;
-$success-color: #10b981;
-$error-color: #ef4444;
-$warning-color: #f59e0b;
-$info-color: #3b82f6;
-
-$bg-white: #ffffff;
-$bg-light: #f8fafc;
-$bg-lighter: #f1f5f9;
-$bg-dark: #0f172a;
-$bg-card: rgba(255, 255, 255, 0.95);
-
-$text-primary: #1a1a1a;
-$text-secondary: #4a5568;
-$text-muted: #718096;
-$text-light: #94a3b8;
-$text-white: #ffffff;
-
-$border-color: #e2e8f0;
-$border-light: rgba(226, 232, 240, 0.5);
-$border-dark: rgba(0, 0, 0, 0.08);
-
-$radius-sm: 8px;
-$radius-md: 12px;
-$radius-lg: 16px;
-$radius-xl: 20px;
-$radius-full: 50%;
-
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-$shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
-
-$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-// Анимации
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+:host {
+  display: block;
+  font-family: 'Inter', sans-serif;
 }
 
-@keyframes slideIn {
+// Цветовая схема
+$primary: #3c8a27;
+$primary-light: #e8f5e9;
+$primary-dark: #2d6a1f;
+$success: #10b981;
+$error: #ef4444;
+$warning: #f59e0b;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+// Анимации
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -60,174 +35,244 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-// Основные стили
-:host {
-  display: block;
-}
-
-// Кнопка открытия (если используется отдельно)
-.open-btn {
-  display: flex;
+// Кнопка добавления
+.floating-add-btn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background: $primary-gradient;
+  background: $primary;
   color: white;
   border: none;
-  border-radius: $radius-md;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: $transition-base;
-  box-shadow: $shadow-md;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba($primary, 0.3);
   
   &:hover {
+    background: $primary-dark;
     transform: translateY(-2px);
-    box-shadow: $shadow-lg;
+    box-shadow: 0 6px 16px rgba($primary, 0.4);
   }
   
   svg {
-    width: 18px;
-    height: 18px;
+    fill: currentColor;
   }
 }
 
 // Модальное окно
-.form-modal-overlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
-  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.2s;
   
   &.active {
     display: flex;
   }
 }
 
-.form-modal-container {
+.modal-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 800px;
   max-height: 90vh;
-  background: $bg-white;
-  border-radius: $radius-xl;
+  background: white;
+  border-radius: 20px;
   overflow: hidden;
-  animation: scaleIn 0.3s ease;
-  box-shadow: $shadow-xl;
-  position: relative;
   display: flex;
   flex-direction: column;
+  animation: slideUp 0.3s;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
-.form-modal-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-// Заголовок модального окна
-.modal-header-modern {
-  padding: 32px 40px 24px;
-  border-bottom: 1px solid $border-light;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), transparent);
+// Заголовок
+.modal-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid $gray-200;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  flex-shrink: 0;
+  align-items: center;
+  background: white;
   
   .header-content {
-    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .header-icon {
+    width: 48px;
+    height: 48px;
+    background: $primary-light;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
-    .modal-title {
-      margin: 0 0 8px;
-      font-size: 28px;
-      font-weight: 700;
-      color: $text-primary;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      
-      svg {
-        color: $primary-color;
-      }
-    }
-    
-    .modal-subtitle {
-      margin: 0;
-      font-size: 16px;
-      color: $text-secondary;
-      line-height: 1.5;
+    svg {
+      fill: $primary;
     }
   }
   
-  .modal-close-btn {
+  .modal-title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    color: $gray-900;
+    line-height: 1.3;
+  }
+  
+  .modal-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: $gray-500;
+  }
+  
+  .close-btn {
     width: 40px;
     height: 40px;
-    border-radius: $radius-md;
-    border: 1px solid $border-color;
-    background: $bg-white;
-    color: $text-secondary;
+    border: none;
+    background: $gray-100;
+    border-radius: 12px;
+    color: $gray-600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: $transition-base;
-    flex-shrink: 0;
+    transition: all 0.2s;
     
     &:hover {
-      background: $primary-color;
-      color: white;
-      border-color: $primary-color;
-      transform: rotate(90deg);
+      background: $gray-200;
+      color: $gray-800;
     }
     
     svg {
-      width: 20px;
-      height: 20px;
+      fill: currentColor;
+    }
+  }
+}
+
+// Прогресс
+.progress-section {
+  padding: 20px 28px;
+  background: $gray-50;
+  border-bottom: 1px solid $gray-200;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px;
+  
+  &:hover .step-indicator {
+    background: $gray-200;
+  }
+  
+  .step-indicator {
+    width: 36px;
+    height: 36px;
+    border-radius: 36px;
+    background: $gray-200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    
+    .step-number {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-600;
+    }
+    
+    .step-check {
+      fill: white;
+      display: none;
+    }
+  }
+  
+  .step-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: $gray-500;
+  }
+  
+  &.active {
+    .step-indicator {
+      background: $primary;
+      
+      .step-number {
+        color: white;
+      }
+    }
+    
+    .step-label {
+      color: $primary;
+      font-weight: 600;
+    }
+  }
+  
+  &.completed {
+    .step-indicator {
+      background: $success;
+      
+      .step-number {
+        display: none;
+      }
+      
+      .step-check {
+        display: block;
+      }
+    }
+    
+    .step-label {
+      color: $success;
     }
   }
 }
 
 // Форма
-.partner-form-modern {
+.modern-form {
   display: flex;
   flex-direction: column;
   flex: 1;
   overflow: hidden;
 }
 
-.form-content {
+.form-scrollable {
   flex: 1;
   overflow-y: auto;
-  padding: 0 40px 24px;
+  padding: 28px;
   
-  // Кастомный скролл
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -237,770 +282,766 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 3px;
+    background: $gray-300;
+    border-radius: 6px;
     
     &:hover {
-      background: rgba(0, 0, 0, 0.2);
+      background: $gray-400;
     }
   }
 }
 
-// Прогресс шагов
-.form-progress {
-  margin: 24px 0 32px;
-  padding: 24px;
-  background: $bg-light;
-  border-radius: $radius-lg;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-  
-  .progress-steps {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      z-index: 2;
-      
-      .step-number {
-        width: 40px;
-        height: 40px;
-        border-radius: $radius-full;
-        background: $bg-white;
-        border: 2px solid $border-color;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        color: $text-muted;
-        transition: $transition-base;
-      }
-      
-      .step-label {
-        font-size: 14px;
-        color: $text-muted;
-        font-weight: 500;
-        white-space: nowrap;
-        transition: $transition-base;
-      }
-      
-      &.active {
-        .step-number {
-          background: $primary-gradient;
-          border-color: $primary-color;
-          color: white;
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba($primary-color, 0.3);
-        }
-        
-        .step-label {
-          color: $primary-color;
-          font-weight: 600;
-        }
-      }
-      
-      &.completed {
-        .step-number {
-          background: $success-gradient;
-          border-color: $success-color;
-          color: white;
-          
-          &::after {
-            content: '✓';
-          }
-        }
-        
-        .step-label {
-          color: $success-color;
-        }
-      }
-    }
-    
-    .step-line {
-      flex: 1;
-      height: 2px;
-      background: $border-color;
-      margin: 0 12px;
-      position: relative;
-      top: -20px;
-      z-index: 1;
-      
-      &.completed {
-        background: $success-color;
-      }
-    }
-  }
-}
-
-// Шаги формы
 .form-step {
   display: none;
-  animation: slideIn 0.4s ease;
   
   &.active {
     display: block;
+    animation: slideUp 0.3s;
   }
 }
 
 .step-header {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   
   .step-title {
-    margin: 0 0 8px;
-    font-size: 20px;
-    font-weight: 600;
-    color: $text-primary;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    
-    svg {
-      color: $primary-color;
-    }
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: $gray-900;
   }
   
   .step-description {
     margin: 0;
-    font-size: 15px;
-    color: $text-secondary;
+    font-size: 14px;
+    color: $gray-500;
   }
 }
 
 // Поля формы
-.form-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.field-group {
-  &.has-error {
-    .field-error {
-      display: block;
-    }
-    
-    .modern-input,
-    .modern-select {
-      border-color: $error-color;
-      background: rgba($error-color, 0.05);
-      
-      &:focus {
-        box-shadow: 0 0 0 3px rgba($error-color, 0.1);
-      }
-    }
+.form-group {
+  margin-bottom: 20px;
+  
+  &:last-child {
+    margin-bottom: 0;
   }
 }
 
 .field-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-  font-size: 14px;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
   font-weight: 600;
-  color: $text-primary;
+  color: $gray-700;
   
-  .required-mark {
-    color: $error-color;
-    font-weight: 600;
+  .required {
+    color: $error;
+    margin-left: 2px;
   }
   
-  .optional-text {
+  .optional {
     font-size: 12px;
-    color: $text-muted;
     font-weight: 400;
+    color: $gray-500;
+    margin-left: 4px;
   }
 }
 
-.field-input-wrapper {
+.input-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
   
-  .field-icon {
+  .input-icon {
     position: absolute;
-    left: 16px;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $gray-400;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    color: $text-muted;
     pointer-events: none;
-    z-index: 1;
+    
+    svg {
+      fill: currentColor;
+    }
   }
   
   .phone-prefix {
     position: absolute;
     left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: $gray-600;
     font-weight: 500;
-    color: $text-muted;
     pointer-events: none;
-    z-index: 1;
   }
 }
 
-.modern-input,
-.modern-select {
-  flex: 1;
+.form-input {
   width: 100%;
-  padding: 14px 16px 14px 48px;
-  border: 2px solid $border-color;
-  border-radius: $radius-md;
+  padding: 12px 16px 12px 46px;
+  border: 2px solid $gray-200;
+  border-radius: 14px;
   font-size: 15px;
-  color: $text-primary;
-  background: $bg-white;
-  transition: $transition-base;
-  font-family: 'Inter', sans-serif;
+  font-family: inherit;
+  background: white;
+  transition: all 0.2s;
   
   &.phone-input {
-    padding-left: 64px;
+    padding-left: 70px;
   }
   
   &:focus {
     outline: none;
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+    border-color: $primary;
+    box-shadow: 0 0 0 4px rgba($primary, 0.1);
+  }
+  
+  &.error {
+    border-color: $error;
     
-    & + .field-icon {
-      color: $primary-color;
+    &:focus {
+      box-shadow: 0 0 0 4px rgba($error, 0.1);
     }
   }
   
   &::placeholder {
-    color: $text-muted;
-    opacity: 0.7;
+    color: $gray-400;
   }
-}
-
-.modern-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='%23718096'%3E%3Cpath d='M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 16px;
-  padding-right: 48px;
-  cursor: pointer;
 }
 
 .field-error {
-  display: none;
   margin-top: 6px;
   font-size: 12px;
-  color: $error-color;
-  min-height: 18px;
+  color: $error;
 }
 
-// Селектор типа партнера
-.partner-type-selector {
-  margin-top: 8px;
+// Кастомный селект
+.custom-select {
+  position: relative;
+  width: 100%;
   
-  .loading-types {
+  &.loading {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .select-trigger {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.02);
-    border-radius: 12px;
-    text-align: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 2px solid $gray-200;
+    border-radius: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
     
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #e5e7eb;
-      border-top-color: #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    &:hover {
+      border-color: $gray-300;
     }
     
-    span {
-      color: #666;
-      font-size: 14px;
-    }
-  }
-  
-  .type-options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 4px;
-    
-    &::-webkit-scrollbar {
-      width: 4px;
+    .select-value {
+      font-size: 15px;
+      color: $gray-900;
     }
     
-    &::-webkit-scrollbar-track {
-      background: transparent;
+    .select-placeholder {
+      font-size: 15px;
+      color: $gray-400;
     }
     
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 2px;
-    }
-    
-    .type-option-card {
-      background: white;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+    .select-arrow {
+      fill: $gray-500;
+      transition: transform 0.2s;
       
-      &:hover {
-        border-color: #c7d2fe;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
-      
-      &.active {
-        border-color: #667eea;
-        background: rgba(102, 126, 234, 0.05);
-        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
-        
-        .type-card-header .type-code {
-          background: rgba(102, 126, 234, 0.2);
-        }
-      }
-      
-      .type-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        
-        .type-code {
-          font-size: 14px;
-          font-weight: 600;
-          color: #667eea;
-          background: rgba(102, 126, 234, 0.1);
-          padding: 4px 8px;
-          border-radius: 6px;
-          transition: background 0.3s ease;
-        }
-        
-        .type-selected {
-          width: 24px;
-          height: 24px;
-          background: #667eea;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          
-          svg {
-            width: 12px;
-            height: 12px;
-            color: white;
-          }
-        }
-      }
-      
-      .type-card-body {
-        .type-full-name {
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a1a;
-          margin-bottom: 4px;
-          line-height: 1.3;
-        }
-        
-        .type-short-name {
-          font-size: 12px;
-          color: #666;
-          font-weight: 500;
-        }
-      }
-    }
-  }
-}
-
-.selected-type-info {
-  margin-top: 20px;
-  
-  .info-card {
-    background: rgba(102, 126, 234, 0.05);
-    border: 1px solid rgba(102, 126, 234, 0.2);
-    border-radius: 12px;
-    padding: 16px;
-    
-    .info-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      
-      svg {
-        color: #667eea;
-      }
-      
-      span {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1a1a1a;
-      }
-    }
-    
-    .info-content {
-      strong {
-        display: block;
-        font-size: 16px;
-        margin-bottom: 8px;
-        color: #1a1a1a;
-      }
-      
-      .type-note {
-        font-size: 12px;
-        color: #666;
-        padding: 6px 10px;
-        background: white;
-        border-radius: 6px;
-        border: 1px solid #e5e7eb;
-        margin-top: 8px;
-        display: inline-block;
-      }
-    }
-  }
-}
-
-// Поиск банков
-.bank-search-wrapper {
-  position: relative;
-  
-  .bank-search-input {
-    position: relative;
-    
-    .search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: $text-muted;
-      width: 18px;
-      height: 18px;
-      z-index: 1;
-    }
-    
-    .clear-search-btn {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: $text-muted;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      z-index: 1;
-      
-      &:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: $text-primary;
+      &.open {
+        transform: rotate(180deg);
       }
     }
   }
   
-  .bank-search-results {
+  .select-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 4px);
     left: 0;
     right: 0;
     background: white;
-    border: 1px solid $border-color;
-    border-radius: $radius-md;
-    margin-top: 4px;
-    max-height: 300px;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: $shadow-lg;
+    border: 2px solid $gray-200;
+    border-radius: 14px;
+    max-height: 320px;
+    overflow: hidden;
+    z-index: 20;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
     
-    &::-webkit-scrollbar {
-      width: 4px;
+    .dropdown-search {
+      position: relative;
+      padding: 12px;
+      border-bottom: 1px solid $gray-200;
+      
+      .search-icon {
+        position: absolute;
+        left: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        fill: $gray-400;
+        pointer-events: none;
+      }
+      
+      .search-input {
+        width: 100%;
+        padding: 10px 10px 10px 36px;
+        border: 2px solid $gray-200;
+        border-radius: 10px;
+        font-size: 14px;
+        
+        &:focus {
+          outline: none;
+          border-color: $primary;
+        }
+      }
     }
     
-    &::-webkit-scrollbar-track {
-      background: transparent;
+    .dropdown-options {
+      max-height: 240px;
+      overflow-y: auto;
+      
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: $gray-300;
+        border-radius: 4px;
+      }
     }
     
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 2px;
-    }
-    
-    .bank-result-item {
+    .dropdown-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       padding: 12px 16px;
       cursor: pointer;
-      transition: $transition-base;
-      border-bottom: 1px solid $border-light;
+      transition: all 0.2s;
+      border-bottom: 1px solid $gray-100;
       
       &:last-child {
         border-bottom: none;
       }
       
       &:hover {
-        background: $bg-light;
+        background: $gray-50;
       }
       
-      .bank-info {
-        .bank-name {
-          font-weight: 600;
-          color: $text-primary;
-          margin-bottom: 4px;
-        }
-        
-        .bank-details {
-          display: flex;
-          gap: 16px;
-          font-size: 13px;
-          color: $text-secondary;
-          
-          .bank-bik {
-            color: $primary-color;
-            font-weight: 500;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Управление шагами
-.form-actions {
-  padding: 24px 40px;
-  border-top: 1px solid $border-light;
-  background: $bg-white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  flex-shrink: 0;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .step-navigation {
-    display: flex;
-    gap: 12px;
-    
-    .btn-prev,
-    .btn-next {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: $radius-md;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      transition: $transition-base;
-      border: none;
-    }
-    
-    .btn-prev {
-      background: $bg-light;
-      color: $text-secondary;
-      
-      &:hover {
-        background: darken($bg-light, 5%);
-        color: $text-primary;
-      }
-    }
-    
-    .btn-next {
-      background: $primary-gradient;
-      color: white;
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: $shadow-md;
-      }
-    }
-  }
-  
-  .submit-section {
-    .btn-submit {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 32px;
-      background: $success-gradient;
-      color: white;
-      border: none;
-      border-radius: $radius-md;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      transition: $transition-base;
-      
-      &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: $shadow-lg;
-      }
-      
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-      
-      .btn-content {
+      .option-content {
+        flex: 1;
         display: flex;
-        align-items: center;
-        gap: 8px;
+        flex-direction: column;
+        gap: 2px;
         
-        .btn-spinner {
-          animation: spin 1s linear infinite;
+        .option-full {
+          font-size: 14px;
+          font-weight: 500;
+          color: $gray-900;
         }
+        
+        .option-short {
+          font-size: 12px;
+          color: $gray-500;
+        }
+      }
+      
+      .option-code {
+        font-size: 12px;
+        font-weight: 600;
+        color: $primary;
+        background: rgba($primary, 0.1);
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      
+      .option-check {
+        fill: $success;
+      }
+    }
+    
+    .dropdown-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 32px 16px;
+      
+      svg {
+        fill: $gray-400;
+      }
+      
+      span {
+        font-size: 14px;
+        color: $gray-500;
       }
     }
   }
 }
 
-// Уведомление об ошибке
-.error-notification {
-  margin: 0 40px 24px;
-  background: rgba($error-color, 0.1);
-  border: 1px solid rgba($error-color, 0.2);
-  border-radius: $radius-md;
-  padding: 16px;
-  animation: slideIn 0.3s ease;
-  flex-shrink: 0;
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: $gray-50;
+  border-radius: 14px;
   
-  .error-content {
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid $gray-300;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  
+  span {
+    font-size: 14px;
+    color: $gray-600;
+  }
+}
+
+// Поиск банка
+.bank-search {
+  position: relative;
+  
+  .clear-search {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $gray-400;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    z-index: 1;
+    
+    &:hover {
+      color: $gray-600;
+      background: $gray-100;
+    }
+    
+    svg {
+      fill: currentColor;
+    }
+  }
+}
+
+.bank-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid $gray-200;
+  border-radius: 14px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $gray-300;
+    border-radius: 4px;
+  }
+}
+
+.bank-result {
+  padding: 14px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid $gray-100;
+  transition: all 0.2s;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background: $gray-50;
+    
+    .bank-name {
+      color: $primary;
+    }
+  }
+  
+  .bank-name {
+    font-weight: 600;
+    color: $gray-900;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+  
+  .bank-details {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    
+    .bank-bik {
+      color: $primary;
+      font-weight: 500;
+    }
+    
+    .bank-inn {
+      color: $gray-500;
+    }
+  }
+}
+
+// Информационный бейдж
+.info-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: $gray-50;
+  border-radius: 16px;
+  margin-top: 16px;
+  
+  .info-badge-icon {
+    width: 36px;
+    height: 36px;
+    background: $primary-light;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      fill: $primary;
+    }
+  }
+  
+  .info-badge-content {
+    flex: 1;
+    
+    strong {
+      display: block;
+      font-size: 14px;
+      color: $gray-900;
+      margin-bottom: 2px;
+    }
+    
+    span {
+      font-size: 13px;
+      color: $gray-600;
+    }
+  }
+}
+
+// Информационное сообщение о следующем шаге
+.next-step-info {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 2px dashed $gray-200;
+  
+  .info-message {
     display: flex;
     align-items: flex-start;
     gap: 12px;
+    padding: 16px;
+    background: #fff8e7;
+    border-radius: 16px;
     
     svg {
-      color: $error-color;
+      fill: $warning;
       flex-shrink: 0;
-      margin-top: 2px;
     }
     
-    .error-text {
+    .message-content {
       flex: 1;
-      font-size: 14px;
-      color: $text-primary;
-      line-height: 1.5;
-    }
-    
-    .error-close {
-      background: none;
-      border: none;
-      color: $text-muted;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      transition: $transition-base;
-      flex-shrink: 0;
       
-      &:hover {
-        background: rgba(0, 0, 0, 0.05);
-        color: $text-primary;
+      strong {
+        display: block;
+        font-size: 14px;
+        color: $gray-900;
+        margin-bottom: 4px;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: $gray-600;
+        line-height: 1.5;
       }
     }
+  }
+}
+
+// Действия формы
+.form-actions {
+  padding: 20px 28px;
+  border-top: 1px solid $gray-200;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.actions-left,
+.actions-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+// Кнопки
+.btn-secondary {
+  padding: 12px 20px;
+  border: 2px solid $gray-200;
+  background: white;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $gray-600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: $gray-50;
+    border-color: $gray-300;
+  }
+}
+
+.btn-prev,
+.btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  svg {
+    fill: currentColor;
+  }
+}
+
+.btn-prev {
+  background: $gray-100;
+  color: $gray-700;
+  
+  &:hover {
+    background: $gray-200;
+  }
+}
+
+.btn-next {
+  background: $primary;
+  color: white;
+  
+  &:hover {
+    background: $primary-dark;
+    transform: translateX(2px);
+  }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover:not(:disabled) {
+    background: $primary-dark;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba($primary, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn-icon {
+    fill: currentColor;
+  }
+  
+  .btn-spinner {
+    stroke: white;
+  }
+}
+
+// Тосты
+.error-toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: $error;
+  color: white;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 12px 24px -8px rgba($error, 0.3);
+  z-index: 10;
+  animation: slideUp 0.3s;
+  cursor: pointer;
+  
+  svg {
+    fill: currentColor;
+  }
+  
+  &:hover {
+    background: darken($error, 5%);
   }
 }
 
 // Адаптивность
 @media (max-width: 768px) {
-  .form-modal-container {
+  .modal-overlay {
+    padding: 0;
+  }
+  
+  .modal-container {
     max-height: 100vh;
     border-radius: 0;
-    width: 100%;
-    height: 100%;
   }
   
-  .modal-header-modern {
-    padding: 20px 24px 16px;
+  .modal-header {
+    padding: 20px;
+    
+    .header-icon {
+      width: 40px;
+      height: 40px;
+    }
     
     .modal-title {
-      font-size: 22px;
+      font-size: 18px;
     }
   }
   
-  .form-content {
-    padding: 0 24px 20px;
+  .progress-section {
+    padding: 16px 20px;
   }
   
-  .form-progress {
-    padding: 16px;
-    margin: 16px 0 24px;
-    
-    .progress-steps {
-      .step {
-        .step-number {
-          width: 32px;
-          height: 32px;
-          font-size: 14px;
-        }
-        
-        .step-label {
-          font-size: 12px;
-        }
-      }
-    }
+  .progress-step .step-indicator {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .form-scrollable {
+    padding: 20px;
   }
   
   .form-actions {
-    padding: 20px 24px;
-  }
-  
-  .partner-type-selector {
-    .type-options-grid {
-      grid-template-columns: 1fr;
-      max-height: 250px;
+    padding: 16px 20px;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    
+    .actions-left,
+    .actions-right {
+      justify-content: center;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      justify-content: center;
     }
   }
 }
 
 @media (max-width: 480px) {
-  .modal-header-modern {
-    .header-content {
-      .modal-title {
-        font-size: 20px;
-      }
-      
-      .modal-subtitle {
-        font-size: 14px;
-      }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .actions-right {
+    flex-wrap: wrap;
+    
+    .btn-prev,
+    .btn-next,
+    .btn-primary {
+      flex: 1;
+    }
+  }
+}
+
+
+.selected-bank {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: $primary-light;
+  border: 2px solid $primary;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  .selected-bank-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    
+    .selected-bank-name {
+      font-weight: 600;
+      color: $gray-900;
+      font-size: 14px;
+    }
+    
+    .selected-bank-bik {
+      font-size: 12px;
+      color: $primary;
+      font-weight: 500;
     }
   }
   
-  .step-header {
-    .step-title {
-      font-size: 18px;
-    }
-  }
-  
-  .form-actions {
-    .btn-submit {
-      width: 100%;
-      justify-content: center;
+  .change-bank {
+    background: none;
+    border: none;
+    color: $primary;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: rgba($primary, 0.1);
     }
   }
 }

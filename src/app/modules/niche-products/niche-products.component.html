@@ -1,27 +1,65 @@
 <div class="categories-page">
     <!-- Заголовок категории -->
-    <div *ngIf="categoryData" class="category-header">
+    <div *ngIf="nicheData" class="category-header">
         <div class="header-content">
-            <h1 class="category-title">{{ categoryData.name }}</h1>
-            <p *ngIf="categoryData.description" class="category-description">
-                {{ categoryData.description }}
+            <h1 class="category-title">{{ nicheData.name }}</h1>
+            <p *ngIf="nicheData.description" class="category-description">
+                {{ nicheData.description }}
             </p>
         </div>
 
-        <div class="header-image" *ngIf="categoryData.imageUrl">
-            <img [src]="categoryData.imageUrl" [alt]="categoryData.name">
+        <div class="header-image" *ngIf="nicheData.imageUrl">
+            <img [src]="nicheData.imageUrl" [alt]="nicheData.name">
         </div>
     </div>
 
-    <!-- Подкатегории -->
-    <div *ngIf="subCategories?.length" class="subcategories-section">
-        <app-category-section [categories]="subCategories"></app-category-section>
+    <div class="category-tags">
+        <a *ngFor="let category of subCategories; let i = index" class="category-tag"
+            [routerLink]="['/category', category.id]" [style.animation-delay]="i * 0.03 + 's'">
+
+            <span class="category-tag__name">{{ category.name }}</span>
+
+            <span class="category-tag__count" *ngIf="category.count">
+                {{ category.count }}
+            </span>
+
+            <span class="category-tag__arrow" *ngIf="category.subCategories?.length > 0">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+                </svg>
+            </span>
+        </a>
+    </div>
+
+    <!-- Панель переключения режимов просмотра -->
+    <div class="view-mode-header">
+        <div class="view-mode-tabs">
+            <button 
+                class="view-mode-tab" 
+                [class.active]="viewMode === 'cards'"
+                (click)="setViewMode('cards')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/>
+                </svg>
+                <span>Карточки</span>
+            </button>
+            <button 
+                class="view-mode-tab" 
+                [class.active]="viewMode === 'flipbook'"
+                (click)="setViewMode('flipbook')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+                </svg>
+                <span>Каталог</span>
+            </button>
+        </div>
+
     </div>
 
     <!-- Основной контент -->
-    <div class="main-content">
+    <div class="main-content" *ngIf="viewMode === 'cards'">
         <!-- Сайдбар с фильтрами -->
-        <aside class="filters-sidebar" *ngIf="categoryData">
+        <aside class="filters-sidebar" *ngIf="filters.length > 0">
             <app-filters [filters]="filters" [productsCount]="products.length" (filtersChange)="onFiltersChange($event)"
                 (filtersApplied)="applyFilters()">
             </app-filters>
@@ -30,31 +68,8 @@
         <!-- Товары -->
         <main class="products-section">
             <div class="section-header">
-
                 <div class="sort-controls">
-                    <!-- <label class="sort-label">Сортировать:</label>
-                    <select class="sort-select">
-                        <option value="popular">По популярности</option>
-                        <option value="price-asc">По возрастанию цены</option>
-                        <option value="price-desc">По убыванию цены</option>
-                        <option value="new">По новизне</option>
-                        <option value="rating">По рейтингу</option>
-                    </select> -->
-
-                    <!-- <div class="view-toggle">
-                        <button class="view-btn active" title="Сетка">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" />
-                            </svg>
-                        </button>
-                        <button class="view-btn" title="Список">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
-                            </svg>
-                        </button>
-                    </div> -->
+                
                 </div>
             </div>
 
@@ -120,29 +135,8 @@
         </main>
     </div>
 
-    <!-- Пагинация для десктопа -->
-    <!-- <div *ngIf="totalItems > pageSize" class="desktop-pagination">
-        <button class="pagination-btn" [disabled]="currentPage === 0" (click)="prevPage()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-            </svg>
-            Назад
-        </button>
-
-        <div class="pagination-pages">
-            <button *ngFor="let page of getPageNumbers()" class="page-btn" [class.active]="page === currentPage + 1"
-                (click)="goToPage(page - 1)">
-                {{ page }}
-            </button>
-
-            <span *ngIf="getPageNumbers().length < totalPages" class="pagination-dots">...</span>
-        </div>
-
-        <button class="pagination-btn" [disabled]="products.length >= totalItems" (click)="nextPage()">
-            Вперед
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-            </svg>
-        </button>
-    </div> -->
+    <!-- Flipbook режим -->
+    <div class="flipbook-container" *ngIf="viewMode === 'flipbook'">
+        <app-flipbook [nicheData]="nicheData" [subCategories]="subCategories"></app-flipbook>
+    </div>
 </div>

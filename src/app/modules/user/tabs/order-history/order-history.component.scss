@@ -2,7 +2,6 @@
 
 .order-history-section {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px 16px;
 
@@ -1277,5 +1276,236 @@
   &.cancelled {
     background: #fee2e2;
     color: #991b1b;
+  }
+}
+
+
+.details-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding: 16px 0 8px;
+  border-top: 2px dashed var(--gray-200);
+  animation: slideInUp 0.5s ease;
+  
+  @media (max-width: 768px) {
+    gap: 10px;
+    margin-top: 20px;
+    padding: 14px 0 6px;
+  }
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 0 4px;
+    
+    .action-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+/* Базовые стили для всех кнопок действий */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-xl, 14px);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-width: 140px;
+  
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+    min-width: 120px;
+    font-size: 13px;
+  }
+  
+  @media (max-width: 640px) {
+    min-width: 100%;
+    padding: 14px 20px;
+  }
+  
+  /* Эффект ряби при наведении */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  /* Иконки внутри кнопок */
+  svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    
+    @media (max-width: 768px) {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  /* Текст внутри кнопок */
+  span {
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* Primary кнопка - Подробнее */
+  &.primary {
+    background: linear-gradient(135deg, var(--primary, #6366f1), var(--primary-dark, #4f46e5));
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+      
+      svg {
+        transform: translateX(4px) scale(1.1);
+      }
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+  }
+  
+  /* Secondary кнопка - Повторить */
+  &.secondary {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #327120, #2a5e1c);
+    border: none;
+    border-radius: 40px;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(50, 113, 32, 0.3);
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+  }
+  
+  /* Tertiary кнопка - Скачать счет */
+  &.tertiary {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+      
+      svg {
+        transform: translateY(4px) scale(1.1);
+      }
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+  }
+  
+  /* Danger кнопка - Отменить */
+  &.danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+      
+      svg {
+        transform: scale(1.2);
+      }
+    }
+    
+    &:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+  }
+  
+  /* Альтернативный вариант с прозрачным фоном для danger */
+  &.danger-outline {
+    background: transparent;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    
+    &:hover {
+      background: #ef4444;
+      color: white;
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+      
+      svg {
+        transform: scale(1.1);
+      }
+    }
+    
+    &::before {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  /* Состояние disabled */
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      
+      &::before {
+        display: none;
+      }
+      
+      svg {
+        transform: none;
+      }
+    }
+  }
+  
+  /* Анимация пульсации для важных действий */
+  &.pulse {
+    animation: pulse 2s infinite;
+    
+    &:hover {
+      animation: none;
+    }
   }
 }

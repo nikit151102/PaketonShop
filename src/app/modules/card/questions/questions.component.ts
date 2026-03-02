@@ -145,21 +145,24 @@ export class QuestionsComponent implements OnInit, OnChanges {
     }
   }
 
+
   createQuestion(): void {
     if (!this.newQuestion.trim() || this.sending) return;
 
     this.sending = true;
     const now = new Date().toISOString();
 
+    const requestMessage = {
+      text: this.newQuestion.trim(),
+      dateTime: now,
+      isAnonymous: this.isAnonymous
+    };
+
     this.userQuestionsService
       .createQuestion({
         productId: this.productId,
         dateTime: now,
-        requestMessage: {
-          text: this.newQuestion.trim(),
-          dateTime: now,
-          ...(this.isAnonymous && { isAnonymous: true })
-        },
+        requestMessage: requestMessage,
       })
       .subscribe({
         next: () => {
@@ -197,11 +200,13 @@ export class QuestionsComponent implements OnInit, OnChanges {
     if (originalRate === 0) {
       question.requestMessage.dislikeCount = Math.max(0, (question.requestMessage.dislikeCount || 0) - 1);
     }
-    question.requestMessage.likeCount = (question.requestMessage.likeCount || 0) + 1;
-    question.requestMessage.rateValue = 1;
+
+    const oldRateValue = question.requestMessage.rateValue;
+    question.requestMessage.likeCount = (question.requestMessage.likeCount || 0) + (oldRateValue == null ? 1 : -1);
+    question.requestMessage.rateValue = oldRateValue == null ? 1 : null;
 
     this.userQuestionsService
-      .SetRate({ id: question.requestMessage.id, rateValue: 1 })
+      .SetRate({ id: question.requestMessage.id, rateValue: question.requestMessage.rateValue })
       .subscribe({
         next: (response) => {
           if (response.likeCount !== undefined) {
@@ -231,11 +236,11 @@ export class QuestionsComponent implements OnInit, OnChanges {
     if (originalRate === 1) {
       question.requestMessage.likeCount = Math.max(0, (question.requestMessage.likeCount || 0) - 1);
     }
-    question.requestMessage.dislikeCount = (question.requestMessage.dislikeCount || 0) + 1;
-    question.requestMessage.rateValue = 0;
+    question.requestMessage.dislikeCount = (question.requestMessage.dislikeCount || 0) + (question.requestMessage.rateValue == null ? 1 : -1);
+    question.requestMessage.rateValue = question.requestMessage.rateValue == null ? 0 : null;
 
     this.userQuestionsService
-      .SetRate({ id: question.requestMessage.id, rateValue: 0 })
+      .SetRate({ id: question.requestMessage.id, rateValue: question.requestMessage.rateValue })
       .subscribe({
         next: (response) => {
           if (response.dislikeCount !== undefined) {
@@ -303,9 +308,18 @@ export class QuestionsComponent implements OnInit, OnChanges {
   formatDate(dateString: string): string {
     if (!dateString) return '';
 
-    const date = new Date(dateString);
+    const utcDate = new Date(dateString);
+
+    if (isNaN(utcDate.getTime())) {
+      return dateString;
+    }
+
+    const timezoneOffset = new Date().getTimezoneOffset();
+
+    const localDate = new Date(utcDate.getTime() - timezoneOffset * 60 * 1000);
+
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
+    const diffMs = now.getTime() - localDate.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -317,13 +331,13 @@ export class QuestionsComponent implements OnInit, OnChanges {
     } else if (diffHours < 24) {
       return `${diffHours} ${this.pluralize(diffHours, ['час', 'часа', 'часов'])} назад`;
     } else if (diffDays === 1) {
-      return 'Вчера в ' + date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      return 'Вчера в ' + localDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     } else if (diffDays < 7) {
       const days = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
-      return `${days[date.getDay()]}, ${date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+      return `${days[localDate.getDay()]}, ${localDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
     }
 
-    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return localDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   private pluralize(n: number, forms: [string, string, string]): string {

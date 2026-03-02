@@ -13,10 +13,11 @@ import { ComparingService } from '../../api/comparing.service';
 import { ProductsService } from '../../services/products.service';
 import { AuthService } from '../../services/auth.service';
 import { UserApiService } from '../../api/user.service';
+import { BasketManagerModalComponent } from '../basket-manager-modal/basket-manager-modal.component';
 
 @Component({
   selector: 'app-product',
-  imports: [CommonModule, FormsModule, CleanStringLinkPipe],
+  imports: [CommonModule, FormsModule, CleanStringLinkPipe, BasketManagerModalComponent],
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss',
 })
@@ -418,25 +419,46 @@ export class ProductComponent implements OnInit {
     this.router.navigate(['/product', this.product.id]);
   }
 
-  toggleFavorite(event: MouseEvent) {
+  toggleFavorite(event: MouseEvent, isFavorite: boolean) {
     event.stopImmediatePropagation();
     event.preventDefault();
 
-    this.productFavoriteService
-      .addToFavorites(this.product.id)
-      .subscribe({
-        next: (value: any) => {
-          this.userApiService.getOperativeInfo();
-        },
-        error: (error) => {
-          if (error.status === 401) {
-            console.error('Пользователь не авторизован');
-            this.authService.changeVisible(true);
-          } else {
-            console.error('Произошла ошибка:', error);
+    if (isFavorite) {
+      this.productFavoriteService
+        .removeFromFavorites(this.product.id)
+        .subscribe({
+          next: (value: any) => {
+            this.userApiService.getOperativeInfo();
+            this.product.isFavorite = false;
+          },
+          error: (error) => {
+            if (error.status === 401) {
+              console.error('Пользователь не авторизован');
+              this.authService.changeVisible(true);
+            } else {
+              console.error('Произошла ошибка:', error);
+            }
           }
-        }
-      });
+        });
+    } else {
+      this.productFavoriteService
+        .addToFavorites(this.product.id)
+        .subscribe({
+          next: (value: any) => {
+            this.product.isFavorite = true;
+            this.userApiService.getOperativeInfo();
+          },
+          error: (error) => {
+            if (error.status === 401) {
+              console.error('Пользователь не авторизован');
+              this.authService.changeVisible(true);
+            } else {
+              console.error('Произошла ошибка:', error);
+            }
+          }
+        });
+    }
+
   }
 
   toggleCompare(event: MouseEvent) {
@@ -676,4 +698,43 @@ export class ProductComponent implements OnInit {
     this.filteredBaskets = this.baskets;
     document.body.style.overflow = 'auto';
   }
+
+
+
+
+
+  onSearchChange(term: string) {
+    this.basketSearchTerm = term;
+  }
+
+  onSelectBasket(basket: any) {
+    this.selectBasket(basket);
+  }
+
+  onAddToBasket(basketId: string) {
+    this.addToSpecificBasket(basketId);
+  }
+
+  onRemoveFromBasket(basketId: string) {
+    this.removeFromBasket(basketId);
+  }
+
+  onUpdateQuantity(event: {basketId: string, delta: number}) {
+    this.updateBasketItemQuantity(event.basketId, event.delta);
+  }
+
+  onUpdateQuantityFromInput(event: {basketId: string, value: string}) {
+    this.updateBasketItemQuantityFromInput(event.basketId, {target: {value: event.value}});
+  }
+
+  onCreateBasket() {
+    this.createNewBasket();
+  }
+
+  closeBasketManager() {
+    this.showBasketPopup = false;
+    this.basketSearchTerm = '';
+    document.body.style.overflow = 'auto';
+  }
+
 }

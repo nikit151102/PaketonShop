@@ -64,17 +64,15 @@
       <div class="header-top">
 
         <h1>
-          Бизнес-партнер: <span class="gradient-text">пакет "Профессиональный"</span>
+          Бизнес-аккаунт <span class="gradient-text">пакетон.рф</span>
         </h1>
-        <div class="discount-badge">
+        <!-- <div class="discount-badge">
           <div class="discount-info">
             <span class="discount-label">Ваша скидка:</span>
             <span class="discount-value">20%</span>
           </div>
           <div class="discount-hint">Заполните данные, чтобы зафиксировать скидку</div>
-        </div>
-
-
+        </div> -->
 
         <div class="user-progress">
           <div class="progress-info">
@@ -103,6 +101,7 @@
             </div>
           </div>
 
+          @if(isActivePartner == false){
           <div class="step-nav-tabs">
             @for (step of [1,2,3]; track step) {
             <button class="step-tab" [class.active]="currentStep === step"
@@ -125,6 +124,7 @@
             </button>
             }
           </div>
+          }
         </div>
       </div>
     </header>
@@ -376,9 +376,9 @@
                   </div>
                   <span class="checkbox-text">
                     Я соглашаюсь с
-                    <a href="#" class="link">Условиями использования</a>
+                    <a [routerLink]="'/documents/offer'" class="link">Условиями использования</a>
                     и
-                    <a href="#" class="link">Политикой конфиденциальности</a>
+                    <a [routerLink]="'/documents/offer'" class="link">Политикой конфиденциальности</a>
                   </span>
                 </label>
               </div>
@@ -546,11 +546,11 @@
                     <span class="field-hint-text">(рекомендуется указать)</span>
                   </label>
                   <input type="date" formControlName="registrationDate" class="modern-input" [max]="todayDate()">
-                  <div class="field-hint">
+                  <div class="field-hint" style="font-size: 12px;">
                     Укажите для точного определения необходимых документов
                   </div>
                   @if (!companyForm.get('registrationDate')?.value) {
-                  <div class="warning-message">
+                  <div class="warning-message"  style="font-size: 12px;">
                     ⚠️ Без даты регистрации будут запрошены все возможные документы
                   </div>
                   }

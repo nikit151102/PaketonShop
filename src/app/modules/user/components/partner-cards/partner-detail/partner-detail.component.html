@@ -1,325 +1,565 @@
-<div class="partner-detail-overlay" (click)="closeModal()" [class.closing]="isClosing">
-  <div class="partner-detail-modal" (click)="$event.stopPropagation()" [class.slide-out]="isClosing">
-    
-    <!-- Заголовок модального окна -->
-    <div class="modal-header-modern">
-      <div class="header-background"></div>
-      
+<div class="partner-detail" @fadeAnimation *ngIf="!isClosing" (click)="closeModal()">
+  <div class="partner-detail__modal" @modalAnimation (click)="$event.stopPropagation()">
+
+    <!-- Шапка с градиентом -->
+    <div class="modal-header">
+      <div class="header-gradient"
+        [style.background]="'linear-gradient(135deg, ' + getCompanyLogoColor() + '20 0%, ' + getCompanyLogoColor() + '05 100%)'">
+      </div>
+
       <div class="header-content">
-        <div class="partner-type-badge">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/>
-          </svg>
-          <span>{{ getPartnerTypeText() }}</span>
+        <div class="company-badge">
+          <span class="badge-dot" [style.background]="getPartnerTypeBadge().color"></span>
+          <span>{{ getPartnerType() }}</span>
+          <span class="badge-type" [style.background]="getPartnerTypeBadge().color + '20'"
+            [style.color]="getPartnerTypeBadge().color">
+            {{ getPartnerTypeBadge().text }}
+          </span>
         </div>
-        
-        <div class="partner-logo-title">
-          <div class="partner-logo">
-            {{ getPartnerLogo() }}
+
+        <div class="company-main">
+          <div class="company-logo" [style.background]="getCompanyLogoColor()">
+            {{ getCompanyInitials() }}
+            <div class="logo-glow"></div>
           </div>
-          <div class="partner-title">
-            <h1>{{ getPartnerFullName() }}</h1>
-            <p class="partner-short-name">{{ getPartnerShortName() }}</p>
+
+          <div class="company-info">
+            <h1>{{ getCompanyName() }}</h1>
+            <div class="company-meta">
+              <span class="meta-item">
+                <svg width="14" height="14" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                </svg>
+                {{ getCompanyShortName() }}
+              </span>
+              <span class="meta-item" *ngIf="getINN() !== '—'">
+                <svg width="14" height="14" viewBox="0 0 24 24">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+                </svg>
+                ИНН {{ getINN() }}
+              </span>
+            </div>
           </div>
         </div>
-        
+
         <div class="header-actions">
-          <button class="header-action-btn edit" (click)="editPartner()" title="Редактировать компанию">
+          <button class="action-btn" (click)="editPartner()" title="Редактировать">
             <svg width="16" height="16" viewBox="0 0 24 24">
-              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg>
-            Редактировать
-          </button>
-          <button class="header-action-btn close" (click)="closeModal()" title="Закрыть">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              <path
+                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
             </svg>
           </button>
+          <button class="action-btn close" (click)="closeModal()" title="Закрыть">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path
+                d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Статистика компании в шапке -->
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-label">Создано</span>
+          <span class="stat-value">{{ getCreatedDate() }}</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Обновлено</span>
+          <span class="stat-value">{{ getUpdatedDate() }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Основной контент -->
+    <!-- Табы -->
+    <div class="modal-tabs">
+      <button class="tab" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+        </svg>
+        <span>Обзор</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+        </svg>
+        <span>Реквизиты</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'bank'" (click)="setActiveTab('bank')">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zM2 6h20v3H2zM12 2L2 6v2h20V6z" />
+        </svg>
+        <span>Банк</span>
+      </button>
+      <!-- <button class="tab" [class.active]="activeTab === 'documents'" (click)="setActiveTab('documents')">
+        <svg width="16" height="16" viewBox="0 0 24 24">
+          <path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5s-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8z"/>
+        </svg>
+        <span>Документы</span>
+      </button> -->
+    </div>
+
+    <!-- Контент -->
     <div class="modal-content">
-      <!-- Вкладки -->
-      <div class="tabs-nav">
-        <div class="tabs-list">
-          <button class="tab-btn" 
-                  [class.active]="activeTab === 'info'" 
-                  (click)="setActiveTab('info')">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-            Основная информация
-          </button>
-          <button class="tab-btn" 
-                  [class.active]="activeTab === 'contacts'" 
-                  (click)="setActiveTab('contacts')">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-            Контакты
-          </button>
-          <button class="tab-btn" 
-                  [class.active]="activeTab === 'bank'" 
-                  (click)="setActiveTab('bank')">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
-            </svg>
-            Банковские реквизиты
-          </button>
-        </div>
-      </div>
 
-      <!-- Содержимое вкладок -->
-      <div class="tab-content">
-        
-        <!-- Вкладка "Основная информация" -->
-        <div class="tab-pane" [class.active]="activeTab === 'info'">
-          <div class="info-grid">
-            <div class="info-card">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                </svg>
-                <h3>Реквизиты компании</h3>
-              </div>
-              <div class="info-card-body">
-                <div class="info-row">
-                  <span class="info-label">ИНН:</span>
-                  <span class="info-value" [title]="getPartnerINN()">{{ getPartnerINN() }}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">ОГРН:</span>
-                  <span class="info-value" [title]="getPartnerOGRN()">{{ getPartnerOGRN() }}</span>
-                </div>
-                <div class="info-row" *ngIf="getPartnerKPP()">
-                  <span class="info-label">КПП:</span>
-                  <span class="info-value" [title]="getPartnerKPP()">{{ getPartnerKPP() }}</span>
-                </div>
-                <div class="info-row">
-                  <span class="info-label">Сфера деятельности:</span>
-                  <span class="info-value" [title]="getPartnerWorkDirection()">{{ getPartnerWorkDirection() }}</span>
-                </div>
-              </div>
+      <!-- Таб "Обзор" -->
+      <div class="tab-pane" *ngIf="activeTab === 'overview'" @slideAnimation>
+
+        <!-- Контактное лицо -->
+        <div class="content-card" (mouseenter)="onBlockHover('contact')" (mouseleave)="onBlockHover(null)"
+          [class.hovered]="hoveredBlock === 'contact'">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
             </div>
+            <h3>Контактное лицо</h3>
+          </div>
 
-            <div class="info-card">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
+          <div class="contact-person">
+            <div class="contact-avatar" [style.background]="getCompanyLogoColor()">
+              {{ getContactPerson().initials }}
+            </div>
+            <div class="contact-details">
+              <div class="contact-name">{{ getContactPerson().fullName }}</div>
+              <div class="contact-role">{{ getContactPerson().role }}</div>
+            </div>
+          </div>
+
+          <div class="contact-links">
+            <a *ngIf="hasPhone()" [href]="'tel:' + getPhone()" class="contact-link">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+              </svg>
+              {{ formatPhone(getPhone()) }}
+            </a>
+            <a *ngIf="hasEmail()" [href]="'mailto:' + getEmail()" class="contact-link">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+              </svg>
+              {{ getEmail() }}
+            </a>
+            <a *ngIf="hasWebsite()" [href]="getWebsite()" target="_blank" class="contact-link">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+              </svg>
+              {{ getWebsite() }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Адрес -->
+        <div class="content-card" *ngIf="hasAddress()" (mouseenter)="onBlockHover('address')"
+          (mouseleave)="onBlockHover(null)" [class.hovered]="hoveredBlock === 'address'">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              </svg>
+            </div>
+            <h3>Юридический адрес</h3>
+          </div>
+
+          <div class="address-block">
+            <div class="address-main">{{ getAddress().full }}</div>
+            <!-- <div class="address-map">
+              <a [href]="'https://maps.yandex.ru/?text=' + encodeURIComponent(getAddress().full)" 
+                 target="_blank" 
+                 class="map-link">
+                <svg width="14" height="14" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
                 </svg>
-                <h3>Юридический адрес</h3>
-              </div>
-              <div class="info-card-body">
-                <div class="info-row" *ngIf="getAddressField('country')">
-                  <span class="info-label">Страна:</span>
-                  <span class="info-value">{{ getAddressField('country') }}</span>
-                </div>
-                <div class="info-row" *ngIf="getAddressField('region')">
-                  <span class="info-label">Регион:</span>
-                  <span class="info-value">{{ getAddressField('region') }}</span>
-                </div>
-                <div class="info-row" *ngIf="getAddressField('city')">
-                  <span class="info-label">Город:</span>
-                  <span class="info-value">{{ getAddressField('city') }}</span>
-                </div>
-                <div class="info-row" *ngIf="getAddressField('street')">
-                  <span class="info-label">Улица:</span>
-                  <span class="info-value">{{ getAddressField('street') }}</span>
-                </div>
-                <div class="info-row" *ngIf="getAddressField('house')">
-                  <span class="info-label">Дом:</span>
-                  <span class="info-value">{{ getAddressField('house') }}</span>
-                </div>
-                <div class="info-row" *ngIf="getAddressField('postIndex')">
-                  <span class="info-label">Индекс:</span>
-                  <span class="info-value">{{ getAddressField('postIndex') }}</span>
-                </div>
-                <div class="address-hint" *ngIf="!hasAddress()">
-                  <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                Открыть на карте
+              </a>
+            </div> -->
+          </div>
+
+          <div class="address-parts" *ngIf="getAddress().parts">
+            <div class="address-part" *ngIf="getAddress().parts['country']">
+              <span class="part-label">Страна</span>
+              <span class="part-value">{{ getAddress().parts['country'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['region']">
+              <span class="part-label">Регион</span>
+              <span class="part-value">{{ getAddress().parts['region'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['city']">
+              <span class="part-label">Город</span>
+              <span class="part-value">{{ getAddress().parts['city'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['street']">
+              <span class="part-label">Улица</span>
+              <span class="part-value">{{ getAddress().parts['street'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['house']">
+              <span class="part-label">Дом</span>
+              <span class="part-value">{{ getAddress().parts['house'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['house']">
+              <span class="part-label">Корпус</span>
+              <span class="part-value">{{ getAddress().parts['house'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['apartment']">
+              <span class="part-label">Квартира</span>
+              <span class="part-value">{{ getAddress().parts['apartment'] }}</span>
+            </div>
+            <div class="address-part" *ngIf="getAddress().parts['postIndex']">
+              <span class="part-label">Индекс</span>
+              <span class="part-value">{{ getAddress().parts['postIndex'] }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Сфера деятельности -->
+        <div class="content-card" (mouseenter)="onBlockHover('work')" (mouseleave)="onBlockHover(null)"
+          [class.hovered]="hoveredBlock === 'work'">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path
+                  d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z" />
+              </svg>
+            </div>
+            <h3>Сфера деятельности</h3>
+          </div>
+
+          <div class="work-direction">
+            <span class="direction-badge">{{ getWorkDirection() }}</span>
+          </div>
+        </div>
+
+        <!-- Быстрые действия -->
+        <div class="quick-actions">
+          <button class="quick-action-btn primary" [routerLink]="'/register-business'" [queryParams]="{ 
+          companyId: partner?.id,
+        }">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            <span>Договор</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Таб "Реквизиты" -->
+      <div class="tab-pane" *ngIf="activeTab === 'details'" @slideAnimation>
+
+        <!-- Основные реквизиты -->
+        <div class="content-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
+              </svg>
+            </div>
+            <h3>Основные реквизиты</h3>
+            <button class="copy-all-btn" (click)="copyAllRequisites()" title="Копировать все">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="requisites-grid">
+            <div class="requisite-item">
+              <div class="requisite-label">ИНН</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ formatINN(getINN()) }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getINN())" *ngIf="getINN() !== '—'">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
                   </svg>
-                  <span>Адрес не указан</span>
-                </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="requisite-item">
+              <div class="requisite-label">ОГРН</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ formatOGRN(getOGRN()) }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getOGRN())" *ngIf="getOGRN() !== '—'">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="requisite-item" *ngIf="hasKPP()">
+              <div class="requisite-label">КПП</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ getKPP() }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getKPP())">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Вкладка "Контакты" -->
-        <div class="tab-pane" [class.active]="activeTab === 'contacts'">
-          <div class="info-grid">
-            <div class="info-card contact-card">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-                <h3>Контактное лицо</h3>
-              </div>
-              <div class="info-card-body">
-                <div class="contact-person">
-                  <div class="contact-avatar">
-                    {{ getContactInitials() }}
-                  </div>
-                  <div class="contact-details">
-                    <div class="contact-name">
-                      {{ getContactFullName() }}
-                    </div>
-                    <div class="contact-role">
-                      Представитель компании
-                    </div>
-                  </div>
-                </div>
-                <div class="contact-info">
-                  <div class="info-row">
-                    <svg width="16" height="16" viewBox="0 0 24 24">
-                      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
-                    <a [href]="'tel:' + getPartnerPhone()" class="phone-link">
-                      {{ formatPhoneNumber(getPartnerPhone()) }}
-                    </a>
-                  </div>
-                  <div class="info-row" *ngIf="getPartnerEmail()">
-                    <svg width="16" height="16" viewBox="0 0 24 24">
-                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
-                    </svg>
-                    <a [href]="'mailto:' + getPartnerEmail()" class="email-link">
-                      {{ getPartnerEmail() }}
-                    </a>
-                  </div>
-                </div>
+        <!-- Контактные данные -->
+        <div class="content-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+            </div>
+            <h3>Контактные данные</h3>
+          </div>
+
+          <div class="requisites-grid">
+            <div class="requisite-item" *ngIf="hasPhone()">
+              <div class="requisite-label">Телефон</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ formatPhone(getPhone()) }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getPhone())">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
-            <div class="info-card additional-info">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                <h3>Дополнительная информация</h3>
+            <div class="requisite-item" *ngIf="hasEmail()">
+              <div class="requisite-label">Email</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ getEmail() }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getEmail())">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
               </div>
-              <div class="info-card-body">
-                <div class="info-item">
-                  <div class="info-item-label">Дата создания:</div>
-                  <div class="info-item-value">{{ getCreationDate() }}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-item-label">Дата обновления:</div>
-                  <div class="info-item-value">{{ getUpdateDate() }}</div>
-                </div>
-                <div class="info-item">
-                  <div class="info-item-label">ID компании:</div>
-                  <div class="info-item-value id-value" [title]="getPartnerId()">
-                    {{ getPartnerId() }}
-                  </div>
-                </div>
+            </div>
+
+            <div class="requisite-item" *ngIf="hasWebsite()">
+              <div class="requisite-label">Сайт</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ getWebsite() }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getWebsite())">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Вкладка "Банковские реквизиты" -->
-        <div class="tab-pane" [class.active]="activeTab === 'bank'">
-          <div class="info-grid">
-            <div class="info-card bank-card">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
-                </svg>
-                <h3>Банковские реквизиты</h3>
-              </div>
-              <div class="info-card-body">
-                <div class="info-row" *ngIf="getBankName()">
-                  <span class="info-label">Банк:</span>
-                  <span class="info-value">{{ getBankName() }}</span>
-                </div>
-                <div class="info-row" *ngIf="getBankBik()">
-                  <span class="info-label">БИК:</span>
-                  <span class="info-value">{{ getBankBik() }}</span>
-                </div>
-                <div class="info-row" *ngIf="getBankAccount()">
-                  <span class="info-label">Расчетный счет:</span>
-                  <span class="info-value">{{ getBankAccount() }}</span>
-                </div>
-                <div class="info-row" *ngIf="getKorAccount()">
-                  <span class="info-label">Корреспондентский счет:</span>
-                  <span class="info-value">{{ getKorAccount() }}</span>
-                </div>
-                
-                <div class="bank-hint" *ngIf="!hasBankDetails()">
-                  <div class="hint-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
-                  </div>
-                  <div class="hint-content">
-                    <h4>Банковские реквизиты не указаны</h4>
-                    <p>Добавьте реквизиты для удобства проведения расчетов</p>
-                    <button class="add-bank-btn" (click)="editPartner()">
-                      <svg width="16" height="16" viewBox="0 0 24 24">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                      </svg>
-                      Добавить реквизиты
-                    </button>
-                  </div>
-                </div>
+        <!-- Полное название -->
+        <div class="content-card">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2z" />
+              </svg>
+            </div>
+            <h3>Полное наименование</h3>
+          </div>
+
+          <div class="full-name-block">
+            <span>{{ getCompanyName() }}</span>
+            <button class="copy-btn large" (click)="copyToClipboard(getCompanyName())">
+              <svg width="14" height="14" viewBox="0 0 24 24">
+                <path
+                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+              </svg>
+              <span>Копировать</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Таб "Банк" -->
+      <div class="tab-pane" *ngIf="activeTab === 'bank'" @slideAnimation>
+
+        <div class="content-card" *ngIf="hasBankDetails(); else noBank">
+          <div class="card-header">
+            <div class="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zM2 6h20v3H2zM12 2L2 6v2h20V6z" />
+              </svg>
+            </div>
+            <h3>Банковские реквизиты</h3>
+          </div>
+
+          <div class="bank-details">
+            <div class="bank-logo" *ngIf="getBankDetails().name !== 'Не указан'">
+              {{ getBankDetails().name.substring(0, 1) }}
+            </div>
+
+            <div class="bank-info">
+              <div class="bank-name">{{ getBankDetails().name }}</div>
+              <div class="bank-fullname" *ngIf="getBankDetails().fullName">{{ getBankDetails().fullName }}</div>
+            </div>
+          </div>
+
+          <div class="requisites-grid">
+            <div class="requisite-item" *ngIf="getBankDetails().bik !== '—'">
+              <div class="requisite-label">БИК</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ getBankDetails().bik }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getBankDetails().bik)">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
-            <div class="info-card quick-actions">
-              <div class="info-card-header">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                </svg>
-                <h3>Быстрые действия</h3>
-              </div>
-              <div class="info-card-body">
-                <button class="action-btn copy" (click)="copyCompanyInfo()">
-                  <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            <div class="requisite-item" *ngIf="getBankDetails().account !== '—'">
+              <div class="requisite-label">Расчетный счет</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ formatAccount(getBankDetails().account) }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getBankDetails().account)">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
                   </svg>
-                  Скопировать реквизиты
-                </button>
-                <button class="action-btn download" (click)="downloadCompanyInfo()">
-                  <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                  </svg>
-                  Скачать информацию
-                </button>
-                <button class="action-btn share" (click)="shareCompanyInfo()">
-                  <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                  </svg>
-                  Поделиться
                 </button>
               </div>
             </div>
+
+            <div class="requisite-item" *ngIf="getBankDetails().korAccount !== '—'">
+              <div class="requisite-label">Корр. счет</div>
+              <div class="requisite-value-group">
+                <span class="requisite-value">{{ formatAccount(getBankDetails().korAccount) }}</span>
+                <button class="copy-btn" (click)="copyToClipboard(getBankDetails().korAccount)">
+                  <svg width="12" height="12" viewBox="0 0 24 24">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noBank>
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <h4>Банковские реквизиты не указаны</h4>
+            <p>Добавьте реквизиты для проведения расчетов</p>
+            <button class="action-button" (click)="editPartner()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+              </svg>
+              Добавить реквизиты
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Таб "Документы" -->
+      <div class="tab-pane" *ngIf="activeTab === 'documents'" @slideAnimation>
+
+        <div class="documents-grid">
+          <!-- Договор -->
+          <div class="document-card">
+            <div class="document-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path
+                  d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5s-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8z" />
+              </svg>
+            </div>
+            <div class="document-info">
+              <h4>Договор</h4>
+              <p>Создайте и отправьте договор на подписание</p>
+            </div>
+            <button class="document-action" (click)="createNewContract()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              Создать
+            </button>
+          </div>
+
+          <!-- Документы компании -->
+          <div class="document-card">
+            <div class="document-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+              </svg>
+            </div>
+            <div class="document-info">
+              <h4>Документы компании</h4>
+              <p>Загрузите учредительные документы</p>
+            </div>
+            <button class="document-action" (click)="sendDocumentsToPartner()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+              Загрузить
+            </button>
+          </div>
+
+          <!-- Скачать реквизиты -->
+          <div class="document-card">
+            <div class="document-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+            </div>
+            <div class="document-info">
+              <h4>Реквизиты</h4>
+              <p>Скачайте реквизиты компании</p>
+            </div>
+            <button class="document-action" (click)="downloadRequisites()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+              </svg>
+              Скачать
+            </button>
+          </div>
+        </div>
+
+        <!-- Информационное сообщение -->
+        <div class="info-message">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+          <div class="message-content">
+            <strong>Работа с документами</strong>
+            <p>После создания карточки компании необходимо оформить договор и отправить документы. Все документы будут
+              доступны в этом разделе.</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Футер модального окна -->
+    <!-- Футер -->
     <div class="modal-footer">
-      <div class="footer-actions">
-        <button class="footer-btn secondary" (click)="closeModal()">
-          <svg width="16" height="16" viewBox="0 0 24 24">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          Закрыть
-        </button>
-      </div>
+      <button class="footer-btn secondary" (click)="closeModal()">Закрыть</button>
+      <button class="footer-btn primary" (click)="editPartner()">Редактировать</button>
     </div>
   </div>
 </div>
 
 <!-- Уведомление о копировании -->
-<div class="copy-notification" *ngIf="showCopyNotification" [class.hiding]="isHidingCopyNotification">
-  <div class="notification-content">
-    <svg width="20" height="20" viewBox="0 0 24 24">
-      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-    </svg>
-    <span>Реквизиты скопированы в буфер обмена!</span>
-  </div>
+<div class="copy-toast" *ngIf="showCopyNotification" @fadeAnimation>
+  <svg width="16" height="16" viewBox="0 0 24 24">
+    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+  </svg>
+  <span>Скопировано в буфер обмена</span>
 </div>

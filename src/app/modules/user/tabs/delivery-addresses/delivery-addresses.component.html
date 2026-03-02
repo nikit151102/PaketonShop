@@ -1,427 +1,431 @@
-<div class="modern-addresses">
-  <!-- Уведомления -->
+<div class="addresses-container">
   <div class="floating-notifications">
-    <div class="notification-toast success" *ngIf="success">
-      <div class="toast-icon">✓</div>
-      <div class="toast-content">
-        <p class="toast-message">{{ success }}</p>
-      </div>
+    <div class="notification success" *ngIf="success">
+      <div class="notification-icon">✓</div>
+      <div class="notification-content">{{ success }}</div>
+      <button class="notification-close" (click)="success = null">×</button>
     </div>
 
-    <div class="notification-toast error" *ngIf="error">
-      <div class="toast-icon">!</div>
-      <div class="toast-content">
-        <p class="toast-message">{{ error }}</p>
+    <div class="notification error" *ngIf="error">
+      <div class="notification-icon">!</div>
+      <div class="notification-content">{{ error }}</div>
+      <button class="notification-close" (click)="error = null">×</button>
+    </div>
+  </div>
+
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-header">
+        <h1 class="hero-title">Мои адреса</h1>
+        <p class="hero-subtitle">Управляйте адресами доставки и пунктами выдачи</p>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <span class="stat-value">{{ activeAddresses.length }}</span>
+          <span class="stat-label">активных</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value">{{ archivedAddresses.length }}</span>
+          <span class="stat-label">в архиве</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Заголовок с табами -->
-  <header class="hero-header">
-    <div class="header-content">
-      <div class="header-main">
-        <div class="title-section">
-          <h1 class="page-title">Мои адреса</h1>
-          <p class="page-subtitle">Управляйте адресами доставки</p>
-        </div>
+  <div class="main-content">
+    <div class="controls-bar">
+      <div class="view-mode-switcher">
+        <button class="mode-btn" [class.active]="viewMode === 'active'" (click)="setViewMode('active')">
+          <span class="mode-icon">📍</span>
+          <span class="mode-text">Активные</span>
+          <span class="mode-count">{{ activeAddresses.length }}</span>
+        </button>
+        <button class="mode-btn" [class.active]="viewMode === 'archived'" (click)="setViewMode('archived')">
+          <span class="mode-icon">📦</span>
+          <span class="mode-text">Архив</span>
+          <span class="mode-count">{{ archivedAddresses.length }}</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Табы -->
-      <div class="tabs-container">
-        <div class="tabs">
-          <button class="tab-btn" [class.active]="activeTab === 'personal'" (click)="switchTab('personal')">
-            <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24">
-              <path
-                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
-            Личные адреса
-            <span class="tab-count">{{ personalAddresses.length }}</span>
-          </button>
-
-          <button class="tab-btn" [class.active]="activeTab === 'transport'" (click)="switchTab('transport')">
-            <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24">
-              <path
-                d="M18 18.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5-1.5.67-1.5 1.5.67 1.5 1.5 1.5zM3.5 11h11c.83 0 1.5-.67 1.5-1.5S15.33 8 14.5 8h-11C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11zm6 6h5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5h-5c-.83 0-1.5.67-1.5 1.5S8.67 17 9.5 17z" />
-            </svg>
-            Пункты выдачи
-            <span class="tab-count">{{ transportCompanyAddresses.length }}</span>
-          </button>
-        </div>
+    <div class="tabs-section">
+      <div class="tabs">
+        <button class="tab" [class.active]="activeTab === 'personal'" (click)="switchTab('personal')">
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+          <span>Личные адреса</span>
+          <span class="tab-badge">{{ getPersonalAddressesCount() }}</span>
+        </button>
+        <button class="tab" [class.active]="activeTab === 'transport'" (click)="switchTab('transport')">
+          <svg class="tab-icon" width="18" height="18" viewBox="0 0 24 24">
+            <path
+              d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z" />
+          </svg>
+          <span>Пункты выдачи</span>
+          <span class="tab-badge">{{ getTransportAddressesCount() }}</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Кнопки добавления -->
-      <div class="header-actions">
-        <button class="add-btn" (click)="openAddModal('personal')">
-          <svg width="20" height="20" viewBox="0 0 24 24">
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Загрузка адресов...</p>
+    </div>
+
+    <div *ngIf="!loading && viewMode === 'active'" class="active-view">
+
+      <div *ngIf="activeTab === 'personal'" class="action-buttons">
+        <button class="action-btn primary" (click)="openAddModal('personal')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
-          Добавить личный адрес
+          <span>Новый адрес</span>
         </button>
+      </div>
+      <div *ngIf="activeTab === 'personal'" class="addresses-grid">
 
-        <div class="dropdown" *ngIf="activeTab === 'transport'">
-          <button class="add-btn transport-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24">
+        <div *ngFor="let address of personalAddresses" class="address-card">
+          <div class="card-header">
+            <div class="card-type">
+              <span class="type-icon">🏠</span>
+              <span class="type-label">Личный адрес</span>
+            </div>
+            <div class="card-actions">
+              <button class="card-action edit" (click)="openEditModal(address)" title="Редактировать">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <path
+                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                </svg>
+              </button>
+              <button class="card-action archive" (click)="confirmDelete(address)" title="В архив">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <path
+                    d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h3 class="card-title">{{ address.city || 'Город не указан' }}</h3>
+            <div class="card-address">{{ getShortAddress(address) }}</div>
+
+            <div class="card-details">
+              <div class="detail-item" *ngIf="address.street">
+                <span class="detail-icon">📍</span>
+                <span class="detail-text">ул. {{ address.street }}{{ address.house ? ', д. ' + address.house : ''
+                  }}</span>
+              </div>
+              <div class="detail-item" *ngIf="address.housing">
+                <span class="detail-icon">🏢</span>
+                <span class="detail-text">корп. {{ address.housing }}</span>
+              </div>
+              <div class="detail-item" *ngIf="address.office">
+                <span class="detail-icon">🚪</span>
+                <span class="detail-text">кв./офис {{ address.office }}</span>
+              </div>
+              <div class="detail-item" *ngIf="address.postIndex">
+                <span class="detail-icon">📮</span>
+                <span class="detail-text">{{ address.postIndex }}</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="address-coordinates" *ngIf="address.latitude && address.longitude">
+                <span class="coord-badge">
+                  {{ address.latitude.toFixed(4) }}, {{ address.longitude.toFixed(4) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="personalAddresses.length === 0" class="empty-state">
+          <div class="empty-illustration">🏠</div>
+          <h3>Нет личных адресов</h3>
+          <p>Добавьте свой первый адрес доставки</p>
+          <button class="empty-action" (click)="openAddModal('personal')">
+            <svg width="18" height="18" viewBox="0 0 24 24">
               <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
             </svg>
-            Добавить ПВЗ
-            <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24">
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
+            Добавить адрес
           </button>
-          <div class="dropdown-menu">
-            <button class="dropdown-item" (click)="openAddModal('transport', 1)">
-              <span class="transport-icon">🚚</span>
-              ПВЗ СДЭК
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'transport'" class="transport-view">
+        <div *ngFor="let companyType of [1,2,3]" class="company-section">
+          <div *ngIf="groupedTransportAddresses.has(companyType)" class="company-block">
+            <div class="company-header">
+              <div class="company-info">
+                <span class="company-icon">{{ getTransportCompanyIcon(companyType) }}</span>
+                <h2 class="company-name">{{ getTransportCompanyName(companyType) }}</h2>
+                <span class="company-count">{{ groupedTransportAddresses.get(companyType)!.length }}</span>
+              </div>
+              <button class="add-pickup-btn" (click)="openAddModal('transport', companyType)">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                <span>Добавить ПВЗ</span>
+              </button>
+            </div>
+
+            <div class="pickup-grid">
+              <div *ngFor="let address of groupedTransportAddresses.get(companyType)!" class="pickup-card">
+                <div class="pickup-card-header">
+                  <div class="pickup-badge" [class]="'badge-' + companyType">
+                    {{ companyType === 1 ? 'СДЭК' : companyType === 2 ? 'Байкал' : 'Деловые' }}
+                  </div>
+                  <div class="pickup-actions">
+                    <button class="pickup-action edit" (click)="openEditModal(address)">
+                      <svg width="14" height="14" viewBox="0 0 24 24">
+                        <path
+                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                      </svg>
+                    </button>
+                    <button class="pickup-action archive" (click)="confirmDelete(address)">
+                      <svg width="14" height="14" viewBox="0 0 24 24">
+                        <path
+                          d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="pickup-card-body">
+                  <h3 class="pickup-name">{{ address.pickupPointName || address.street || 'Пункт выдачи' }}</h3>
+
+                  <div class="pickup-address">
+                    <span class="address-icon">📍</span>
+                    <span class="address-text">{{ getFullAddress(address) }}</span>
+                  </div>
+
+                  <div class="pickup-meta" *ngIf="address.city">
+                    <span class="meta-city">{{ address.city }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="transportCompanyAddresses.length === 0" class="empty-state">
+          <div class="empty-illustration">📦</div>
+          <h3>Нет пунктов выдачи</h3>
+          <p>Добавьте пункты выдачи транспортных компаний</p>
+          <div class="empty-actions">
+            <button class="empty-action" (click)="openAddModal('transport', 1)">
+              <span class="action-icon">🚚</span>
+              СДЭК
             </button>
-            <button class="dropdown-item" (click)="openAddModal('transport', 2)">
-              <span class="transport-icon">🚛</span>
-              ПВЗ Байкал
+            <button class="empty-action" (click)="openAddModal('transport', 2)">
+              <span class="action-icon">🚛</span>
+              Байкал
             </button>
-            <button class="dropdown-item" (click)="openAddModal('transport', 3)">
-              <span class="transport-icon">📦</span>
-              ПВЗ Деловые линии
+            <button class="empty-action" (click)="openAddModal('transport', 3)">
+              <span class="action-icon">📦</span>
+              Деловые
             </button>
           </div>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- Основной контент -->
-  <main class="addresses-content">
-    <!-- Личные адреса -->
-    <section *ngIf="activeTab === 'personal'" class="address-section">
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Загрузка адресов...</p>
-      </div>
-
-      <div *ngIf="!loading && personalAddresses.length === 0" class="empty-state">
-        <div class="empty-illustration">
-          <svg width="64" height="64" viewBox="0 0 24 24">
-            <path
-              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-          </svg>
-        </div>
-        <h3>Личных адресов нет</h3>
-        <p>Добавьте свой первый адрес для доставки</p>
-        <button class="empty-action" (click)="openAddModal('personal')">
-          Добавить адрес
-        </button>
-      </div>
-
-      <div *ngIf="!loading && personalAddresses.length > 0" class="address-cards">
-        <div *ngFor="let address of personalAddresses" class="address-card">
-          <div class="card-header">
-            <div class="address-type">
-              <svg width="16" height="16" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-              </svg>
-              Личный адрес
+    <div *ngIf="!loading && viewMode === 'archived'" class="archived-view">
+      <div class="archived-grid">
+        <div *ngFor="let address of archivedAddresses" class="archived-card">
+          <div class="archived-header">
+            <div class="archived-type">
+              {{ address.transportCompanyType ? getTransportCompanyIcon(address.transportCompanyType) : '🏠' }}
+              {{ address.transportCompanyType ? getTransportCompanyName(address.transportCompanyType) : 'Личный адрес'
+              }}
             </div>
-            <div class="card-actions">
-              <button class="action-btn edit" (click)="openEditModal(address)">
+            <div class="archived-actions">
+              <button class="archived-action restore" (click)="restoreAddress(address)" title="Восстановить">
                 <svg width="16" height="16" viewBox="0 0 24 24">
                   <path
-                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                </svg>
-              </button>
-              <button class="action-btn delete" (click)="confirmDelete(address)">
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9z" />
                 </svg>
               </button>
             </div>
           </div>
-          <div class="card-body">
-            <h3 class="address-title">{{ getShortAddress(address) }}</h3>
-            <div class="address-details">
-              <div class="detail-row">
-                <span class="detail-label">Город:</span>
-                <span class="detail-value">{{ address.city || 'Не указан' }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Улица:</span>
-                <span class="detail-value">{{ address.street || 'Не указана' }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Дом:</span>
-                <span class="detail-value">{{ address.house || 'Не указан' }}</span>
-              </div>
-              <div *ngIf="address.housing" class="detail-row">
-                <span class="detail-label">Корпус:</span>
-                <span class="detail-value">{{ address.housing }}</span>
-              </div>
-              <div *ngIf="address.office" class="detail-row">
-                <span class="detail-label">Кв./Офис:</span>
-                <span class="detail-value">{{ address.office }}</span>
-              </div>
-            </div>
+
+          <div class="archived-content">
+            <h4 class="archived-title">{{ address.city || 'Город не указан' }}</h4>
+            <p class="archived-address">{{ getShortAddress(address) }}</p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- Адреса транспортных компаний -->
-    <section *ngIf="activeTab === 'transport'" class="address-section">
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner"></div>
-        <p>Загрузка пунктов выдачи...</p>
-      </div>
-
-      <div *ngIf="!loading && transportCompanyAddresses.length === 0" class="empty-state">
-        <div class="empty-illustration">
-          <svg width="64" height="64" viewBox="0 0 24 24">
-            <path
-              d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z" />
-          </svg>
-        </div>
-        <h3>Пунктов выдачи нет</h3>
-        <p>Добавьте первый пункт выдачи</p>
-        <button class="empty-action" (click)="openAddModal('transport')">
-          Добавить ПВЗ
-        </button>
-      </div>
-
-      <div *ngIf="!loading && transportCompanyAddresses.length > 0" class="transport-addresses">
-        <div *ngFor="let companyType of [1,2,3]" class="transport-company-section">
-          <div *ngIf="groupedTransportAddresses.has(companyType) && groupedTransportAddresses.get(companyType)!.length > 0">
-            <div class="company-header">
-              <div class="company-info">
-                <span class="company-icon">{{ getTransportCompanyIcon(companyType) }}</span>
-                <h3 class="company-name">{{ getTransportCompanyName(companyType) }}</h3>
-                <span class="company-count">{{ groupedTransportAddresses.get(companyType)!.length }} пунктов</span>
-              </div>
-              <button class="add-pickup-btn" (click)="openAddModal('transport', companyType)">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
-                Добавить ПВЗ
-              </button>
-            </div>
-
-            <div class="pickup-points-grid">
-              <div *ngFor="let address of groupedTransportAddresses.get(companyType)!" class="pickup-card">
-                <div class="pickup-header">
-                  <div class="pickup-type">
-                    <svg width="14" height="14" viewBox="0 0 24 24">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                    </svg>
-                    {{ getTransportCompanyName(companyType) }}
-                  </div>
-                  <div class="card-actions">
-                    <button class="action-btn edit" (click)="openEditModal(address)">
-                      <svg width="16" height="16" viewBox="0 0 24 24">
-                        <path
-                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                      </svg>
-                    </button>
-                    <button class="action-btn delete" (click)="confirmDelete(address)">
-                      <svg width="16" height="16" viewBox="0 0 24 24">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="pickup-body">
-                  <h4 class="pickup-name">{{ address.pickupPointName || getShortAddress(address) }}</h4>
-                  <div class="pickup-details">
-                    <div *ngIf="address.city" class="detail-row">
-                      <svg width="12" height="12" viewBox="0 0 24 24">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                      </svg>
-                      Город: {{ address.city }}
-                    </div>
-                    <div *ngIf="address.street" class="detail-row">
-                      <svg width="12" height="12" viewBox="0 0 24 24">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                      </svg>
-                      Адрес: {{ address.street }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div *ngIf="archivedAddresses.length === 0" class="empty-archived">
+          <div class="empty-illustration">📪</div>
+          <h3>Архив пуст</h3>
+          <p>Здесь появятся адреса, которые вы отправите в архив</p>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
 
-  <!-- Модальное окно добавления/редактирования -->
-  <div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>{{ isEditing ? 'Редактировать' : 'Добавить' }} {{ addressType === 'personal' ? 'адрес' : 'ПВЗ' }}</h2>
+        <h2 class="modal-title">
+          {{ isEditing ? 'Редактировать' : 'Добавить' }}
+          {{ addressType === 'personal' ? 'адрес' : 'пункт выдачи' }}
+        </h2>
         <button class="modal-close" (click)="closeModal()">×</button>
       </div>
 
-      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form">
-        <!-- Общие поля -->
-        <div class="form-group">
-          <label>Город *</label>
-          <input type="text" formControlName="city" placeholder="Москва" class="form-input" />
-          <div *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched" class="form-error">
-            Пожалуйста, введите корректное название города
-          </div>
-        </div>
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="modal-form">
 
-        <!-- Дополнительные поля для личных адресов -->
         <div *ngIf="addressType === 'personal'" class="personal-fields">
           <div class="form-group">
-            <label>Улица</label>
-            <input type="text" formControlName="street" placeholder="Ленина" class="form-input" />
+            <label class="form-label">
+              Город <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="city" placeholder="Москва" class="form-input">
+            <div class="form-error" *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
+              Укажите город
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Улица</label>
+            <input type="text" formControlName="street" placeholder="Ленина" class="form-input">
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Дом</label>
-              <input type="text" formControlName="house" placeholder="10" class="form-input" />
+              <label class="form-label">Дом</label>
+              <input type="text" formControlName="house" placeholder="10" class="form-input">
             </div>
 
             <div class="form-group">
-              <label>Корпус</label>
-              <input type="text" formControlName="housing" placeholder="1" class="form-input" />
+              <label class="form-label">Корпус</label>
+              <input type="text" formControlName="housing" placeholder="1" class="form-input">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Этаж</label>
-              <input type="text" formControlName="floorNumber" placeholder="3" class="form-input" />
+              <label class="form-label">Этаж</label>
+              <input type="text" formControlName="floorNumber" placeholder="3" class="form-input">
             </div>
 
             <div class="form-group">
-              <label>Квартира/Офис</label>
-              <input type="text" formControlName="office" placeholder="15" class="form-input" />
+              <label class="form-label">Кв./Офис</label>
+              <input type="text" formControlName="office" placeholder="15" class="form-input">
             </div>
           </div>
 
           <div class="form-group">
-            <label>Почтовый индекс</label>
-            <input type="text" formControlName="postIndex" placeholder="123456" class="form-input" />
+            <label class="form-label">Почтовый индекс</label>
+            <input type="text" formControlName="postIndex" placeholder="123456" class="form-input">
           </div>
         </div>
 
-        <!-- Поля для ПВЗ -->
         <div *ngIf="addressType === 'transport'" class="transport-fields">
           <div class="form-group">
-            <label>Транспортная компания</label>
+            <label class="form-label">Транспортная компания</label>
             <div class="company-selector">
-              <button type="button" *ngFor="let company of [1,2,3]"
+              <button type="button" *ngFor="let company of [1,2,3]" class="company-option"
                 [class.active]="selectedTransportCompany === company"
-                (click)="selectedTransportCompany = company; addressForm.patchValue({transportCompanyType: company})"
-                class="company-btn">
-                {{ getTransportCompanyIcon(company) }}
-                {{ getTransportCompanyName(company) }}
+                (click)="selectedTransportCompany = company; addressForm.patchValue({transportCompanyType: company})">
+                <span class="company-icon">{{ getTransportCompanyIcon(company) }}</span>
+                <span class="company-name">{{ getTransportCompanyName(company) }}</span>
               </button>
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Название пункта выдачи</label>
-            <input type="text" formControlName="pickupPointName" placeholder="Название ПВЗ" class="form-input" />
+          <div class="form-group" *ngIf="addressForm.get('pickupPointName')?.value?.length > 0">
+            <label class="form-label">Название ПВЗ</label>
+            <input type="text" formControlName="pickupPointName" placeholder="Пункт выдачи заказов" class="form-input">
           </div>
 
           <div class="form-group">
-            <label>Выбор пункта выдачи</label>
-            <div class="pickup-actions">
-              <button type="button" class="map-btn" (click)="openMapModal()">
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                </svg>
-                Выбрать на карте
-              </button>
-            </div>
+            <label class="form-label">Выбрать пункт выдачи</label>
+            <button type="button" class="map-picker" (click)="openMapModal()">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              </svg>
+              <span>Выбрать пункт выдачи</span>
+            </button>
           </div>
         </div>
-
-        <!-- Поля региона и района -->
+        <!-- 
         <div class="form-row">
           <div class="form-group">
-            <label>Регион/Область</label>
-            <input type="text" formControlName="region" placeholder="Московская область" class="form-input" />
+            <label class="form-label">Регион</label>
+            <input type="text" formControlName="region" placeholder="Московская область" class="form-input">
           </div>
-          <div class="form-group">
-            <label>Район</label>
-            <input type="text" formControlName="area" placeholder="Ленинский район" class="form-input" />
-          </div>
-        </div>
 
-        <!-- Координаты -->
-        <div class="form-row">
           <div class="form-group">
-            <label>Широта</label>
-            <input type="number" step="any" formControlName="latitude" class="form-input" />
+            <label class="form-label">Район</label>
+            <input type="text" formControlName="area" placeholder="Ленинский район" class="form-input">
           </div>
-          <div class="form-group">
-            <label>Долгота</label>
-            <input type="number" step="any" formControlName="longitude" class="form-input" />
+        </div> -->
+
+        <div class="coordinates-section">
+          <div class="coordinates-header">
+            <span class="coordinates-title">Координаты</span>
+            <span class="coordinates-hint"
+              *ngIf="addressForm.get('latitude')?.value && addressForm.get('longitude')?.value">
+              {{ addressForm.get('latitude')?.value.toFixed(4) }}, {{ addressForm.get('longitude')?.value.toFixed(4) }}
+            </span>
           </div>
         </div>
 
         <div class="modal-actions">
           <button type="button" class="btn-secondary" (click)="closeModal()">Отмена</button>
-          <button type="submit" class="btn-primary" [disabled]="saving || addressForm.invalid">
+          <button type="submit" class="btn-primary">
             <span *ngIf="!saving">{{ isEditing ? 'Сохранить' : 'Добавить' }}</span>
-            <span *ngIf="saving">Сохранение...</span>
+            <span *ngIf="saving" class="btn-loading">Сохранение...</span>
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Модальное окно выбора на карте -->
-  <div class="modal-overlay large" *ngIf="isMapModalOpen">
-    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" *ngIf="isMapModalOpen" (click)="closeMapModal()">
+    <div class="modal modal-lg" [class.map-mode]="mapViewMode === 'map'" [class.list-mode]="mapViewMode === 'list'"
+      (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2>Выбор пункта выдачи {{ selectedTransportCompany ? '(' + getTransportCompanyName(selectedTransportCompany) + ')' : '' }}</h2>
+        <h2 class="modal-title">Выбор пункта выдачи</h2>
         <button class="modal-close" (click)="closeMapModal()">×</button>
       </div>
 
-      <div class="map-modal-content">
-        <!-- Карта -->
-        <div class="map-section">
-          <div class="map-header">
-            <div class="city-search-box">
-              <input type="text" [(ngModel)]="searchCity" [ngModelOptions]="{standalone: true}"
-                placeholder="Введите город для поиска" class="city-input"
-                (input)="onCitySearch()" [disabled]="loadingCity" />
+      <!-- Добавляем переключатель режимов для мобильных устройств -->
+      <div class="map-view-toggle">
+        <button class="view-toggle-btn" [class.active]="mapViewMode === 'map'" (click)="setMapViewMode('map')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+          </svg>
+          <span>Карта</span>
+        </button>
+        <button class="view-toggle-btn" [class.active]="mapViewMode === 'list'" (click)="setMapViewMode('list')">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" />
+          </svg>
+          <span>Список</span>
+        </button>
+      </div>
 
-              <button type="button" class="search-city-btn" (click)="triggerCitySearch()"
-                [disabled]="loadingPoints || loadingCity">
-                <span *ngIf="!loadingPoints && !loadingCity">Поиск</span>
-                <span *ngIf="loadingPoints || loadingCity" class="loading-dots">...</span>
-              </button>
+      <div class="map-modal-content" [class.map-mode]="mapViewMode === 'map'"
+        [class.list-mode]="mapViewMode === 'list'">
+        <!-- Боковая панель со списком -->
+        <div class="map-sidebar" [class.active]="mapViewMode === 'list'">
+          <div class="city-search">
+            <input type="text" [(ngModel)]="searchCity" (input)="onCitySearch()" placeholder="Введите город"
+              class="city-input">
+            <button class="city-search-btn" (click)="triggerCitySearch()" [disabled]="loadingPoints || loadingCity">
+              {{ loadingPoints ? 'Поиск...' : 'Найти' }}
+            </button>
 
-              <!-- Автодополнение городов -->
-              <div class="autocomplete-dropdown" *ngIf="filteredCities.length > 0">
-                <div *ngFor="let city of filteredCities" class="autocomplete-item"
-                  (click)="selectCityFromAutocomplete(city)">
-                  <strong>{{ city.name }}</strong>
-                  <span class="autocomplete-subject">{{ city.subject }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div #mapContainer class="map-container"></div>
-
-          <div class="map-loading" *ngIf="loadingCity">
-            <div class="spinner"></div>
-            <p>Поиск города...</p>
-          </div>
-        </div>
-
-        <!-- Список ПВЗ -->
-        <div class="points-section">
-          <div class="points-header">
-            <h3>Пункты выдачи ({{ pickupPoints.length }})</h3>
-            <div class="selected-point-info" *ngIf="selectedPickupPoint">
-              <div class="selected-point">
-                <strong>Выбрано:</strong>
-                <span class="selected-name">{{ selectedPickupPoint.name }}</span>
+            <div class="city-autocomplete" *ngIf="filteredCities.length > 0">
+              <div *ngFor="let city of filteredCities" class="city-item" (click)="selectCityFromAutocomplete(city)">
+                <strong>{{ city.name }}</strong>
+                <span class="city-region">{{ city.subject }}</span>
               </div>
             </div>
           </div>
@@ -429,78 +433,80 @@
           <div class="points-list" *ngIf="!loadingPoints">
             <div *ngFor="let point of pickupPoints" class="point-item"
               [class.selected]="selectedPickupPoint?.id === point.id" (click)="selectPickupPoint(point)">
-              <div class="point-header">
-                <div class="point-type">
-                  <span *ngIf="point.type === 'cdek'" class="type-badge cdek">СДЭК</span>
-                  <span *ngIf="point.type === 'dellin'" class="type-badge dellin">Деловые линии</span>
-                  <span *ngIf="point.type === 'manual'" class="type-badge manual">Вручную</span>
-                </div>
-                <h4>{{ point.name }}</h4>
+              <div class="point-type">
+                <span class="point-badge" [class]="point.type">{{ point.type === 'cdek' ? 'СДЭК' : point.type ===
+                  'dellin' ? 'Деловые' : 'Выбрано' }}</span>
               </div>
-              <div class="point-address">{{ point.address }}</div>
-              <div *ngIf="point.phone || point.work_time" class="point-info">
-                <span *ngIf="point.phone" class="point-phone">
-                  <svg width="12" height="12" viewBox="0 0 24 24">
-                    <path
-                      d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                  </svg>
-                  {{ point.phone }}
-                </span>
-                <span *ngIf="point.work_time" class="point-time">
-                  <svg width="12" height="12" viewBox="0 0 24 24">
-                    <path
-                      d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
-                    <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                  </svg>
-                  {{ point.work_time }}
-                </span>
+              <h4 class="point-name">{{ point.name }}</h4>
+              <p class="point-address">{{ point.address }}</p>
+              <div class="point-contacts" *ngIf="point.phone || point.work_time">
+                <span *ngIf="point.phone" class="point-phone">📞 {{ point.phone }}</span>
+                <span *ngIf="point.work_time" class="point-time">🕒 {{ point.work_time }}</span>
               </div>
             </div>
 
             <div *ngIf="pickupPoints.length === 0 && !loadingPoints" class="no-points">
-              <div class="no-points-icon">📍</div>
               <p>Пункты выдачи не найдены</p>
-              <p class="hint">Введите город и нажмите "Поиск" или выберите точку на карте</p>
             </div>
           </div>
 
-          <div class="points-loading" *ngIf="loadingPoints && !loadingCity">
+          <div class="points-loading" *ngIf="loadingPoints">
             <div class="spinner"></div>
-            <p>Загрузка пунктов выдачи...</p>
-          </div>
-
-          <div class="points-actions">
-            <button type="button" class="btn-secondary" (click)="closeMapModal()">Отмена</button>
-            <button type="button" class="btn-primary" (click)="useSelectedPickupPoint()"
-              [disabled]="!selectedPickupPoint">
-              <svg width="16" height="16" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-              Выбрать пункт
-            </button>
+            <p>Загрузка пунктов...</p>
           </div>
         </div>
+
+        <!-- Карта -->
+        <div class="map-container-wrapper" [class.active]="mapViewMode === 'map'">
+          <div #mapContainer class="map-container"></div>
+          <div class="map-loading" *ngIf="loadingCity">
+            <div class="spinner"></div>
+            <p>Поиск города...</p>
+          </div>
+
+          <div class="city-search">
+            <input type="text" [(ngModel)]="searchCity" (input)="onCitySearch()" placeholder="Введите город"
+              class="city-input">
+            <button class="city-search-btn" (click)="triggerCitySearch()" [disabled]="loadingPoints || loadingCity">
+              {{ loadingPoints ? 'Поиск...' : 'Найти' }}
+            </button>
+
+            <div class="city-autocomplete" *ngIf="filteredCities.length > 0">
+              <div *ngFor="let city of filteredCities" class="city-item" (click)="selectCityFromAutocomplete(city)">
+                <strong>{{ city.name }}</strong>
+                <span class="city-region">{{ city.subject }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeMapModal()">Отмена</button>
+        <button class="btn-primary" (click)="useSelectedPickupPoint()" [disabled]="!selectedPickupPoint">
+          <svg width="16" height="16" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+          </svg>
+          Выбрать пункт
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Модальное окно подтверждения удаления -->
-  <div class="modal-overlay" *ngIf="isDeleteConfirmOpen">
+  <div class="modal-overlay" *ngIf="isDeleteConfirmOpen" (click)="closeDeleteConfirm()">
     <div class="modal modal-sm" (click)="$event.stopPropagation()">
       <div class="delete-modal">
-        <div class="delete-icon">!</div>
-        <h3>Удалить адрес?</h3>
-        <p>Вы уверены, что хотите удалить этот адрес? Это действие нельзя отменить.</p>
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" (click)="closeDeleteConfirm()">Отмена</button>
-          <button type="button" class="btn-danger" (click)="deleteAddress()" [disabled]="deleting">
-            <span *ngIf="!deleting">Удалить</span>
-            <span *ngIf="deleting">Удаление...</span>
+        <div class="delete-icon">📦</div>
+        <h3 class="delete-title">Отправить в архив?</h3>
+        <p class="delete-message">Адрес будет перемещен в архив. Вы сможете восстановить его позже.</p>
+        <div class="delete-actions">
+          <button class="btn-secondary" (click)="closeDeleteConfirm()">Отмена</button>
+          <button class="btn-archive" (click)="deleteAddress()" [disabled]="deleting">
+            {{ deleting ? 'Отправка...' : 'В архив' }}
           </button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-

@@ -178,7 +178,12 @@ export class TransportDeliveryComponent implements OnInit {
 
   private emitSelectedAddress(): void {
     if (this.selectedAddress) {
-      this.addressSelected.emit(this.selectedAddress);
+      this.addressSelected.emit({
+        'type': 'transport',
+        'id': this.selectedAddress.id,
+        'shopCity': undefined,
+        'shopAddress': undefined
+      });
       this.emitDataChange();
     }
   }

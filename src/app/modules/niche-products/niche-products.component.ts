@@ -1,29 +1,29 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CategorySectionComponent } from '../../core/components/category-section/category-section.component';
+import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { FiltersComponent } from '../../core/components/filters/filters.component';
-import { CategoryService } from '../../core/services/category.service';
 import { ProductsService } from '../../core/services/products.service';
 import { ProductComponent } from '../../core/components/product/product.component';
+import { NicheProductsService } from '../../core/api/niche-products.service';
+import { FlipbookComponent } from '../../core/components/flipbook/flipbook.component';
 
 @Component({
   selector: 'app-niche-products',
   imports: [
     CommonModule,
     FormsModule,
-    CategorySectionComponent,
     ProductComponent,
     FiltersComponent,
-    RouterLink
+    RouterLink,
+    FlipbookComponent
   ],
   templateUrl: './niche-products.component.html',
   styleUrl: './niche-products.component.scss'
 })
 export class NicheProductsComponent implements OnInit {
   categoryId!: string;
-  categoryData: any;
+  nicheData: any;
   subCategories: any[] = [];
   filters: any[] = [];
 
@@ -38,9 +38,13 @@ export class NicheProductsComponent implements OnInit {
 
   appliedFilters: any[] = [];
 
+  // Режим просмотра: 'cards' или 'flipbook'
+  viewMode: 'cards' | 'flipbook' = 'cards';
+
   constructor(
     private route: ActivatedRoute,
-    private categoryService: CategoryService,
+    private router: Router,
+    private nicheProductsService: NicheProductsService,
     private productsService: ProductsService,
   ) { }
 
@@ -48,13 +52,50 @@ export class NicheProductsComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       this.categoryId = params.get('id')!;
       this.resetState();
-      // this.loadCategoryData();
+      this.loadCategoryData();
       this.loadProducts();
+    });
+
+    // Отдельно подписываемся на queryParams для viewMode
+    this.route.queryParams.subscribe((queryParams) => {
+      this.handleViewModeFromUrl(queryParams);
+    });
+  }
+
+  /**
+   * Обрабатывает параметр viewMode из URL
+   */
+  handleViewModeFromUrl(queryParams: any): void {
+    const urlViewMode = queryParams['viewMode'];
+    
+    if (urlViewMode && (urlViewMode === 'cards' || urlViewMode === 'flipbook')) {
+      // Если в URL есть валидный viewMode, используем его
+      if (this.viewMode !== urlViewMode) {
+        this.viewMode = urlViewMode;
+        // Сохраняем в localStorage как предпочтение пользователя
+        localStorage.setItem('preferredViewMode', urlViewMode);
+      }
+    } else {
+      // Если в URL нет viewMode, устанавливаем 'cards' по умолчанию
+      // и обновляем URL с параметром
+      this.updateUrlWithViewMode('cards');
+    }
+  }
+
+  /**
+   * Обновляет URL с параметром viewMode
+   */
+  updateUrlWithViewMode(mode: 'cards' | 'flipbook'): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { viewMode: mode },
+      queryParamsHandling: 'merge', // сохраняем другие query параметры
+      replaceUrl: true // заменяем в истории, чтобы не создавать лишних записей
     });
   }
 
   resetState(): void {
-    this.categoryData = null;
+    this.nicheData = null;
     this.subCategories = [];
     this.products = [];
     this.currentPage = 0;
@@ -67,13 +108,14 @@ export class NicheProductsComponent implements OnInit {
   loadCategoryData(): void {
     if (!this.categoryId) return;
 
-    this.categoryService
-      .getCategoryById(this.categoryId)
+    this.nicheProductsService
+      .getNicheById(this.categoryId)
       .subscribe({
         next: (data: any) => {
-          this.categoryData = data.data;
-          console.log('this.categoryData', this.categoryData)
-          this.filters = this.categoryData.properties
+          this.nicheData = data.data;
+          console.log('nicheData', this.nicheData)
+          console.log('subCategories', data.data?.subCategories)
+          // this.filters = this.categoryData.properties
           this.subCategories = data.data?.subCategories || [];
         },
         error: (err) => {
@@ -93,18 +135,12 @@ export class NicheProductsComponent implements OnInit {
 
     const baseFilters = this.categoryId
       ? [
-        // {
-        //   field: "Text",
-        //   values: [
-        //   ],
-        //   type: 0
-        // },
-        {
-          field: 'ProductNiches.Id',
-          values: [this.categoryId],
-          type: 11,
-        },
-      ]
+          {
+            field: 'ProductNiches.Id',
+            values: [this.categoryId],
+            type: 11,
+          },
+        ]
       : [];
 
     const allFilters = [...baseFilters, ...this.appliedFilters];
@@ -129,6 +165,23 @@ export class NicheProductsComponent implements OnInit {
           this.loadingMore = false;
         },
       });
+  }
+
+  // Метод для переключения режима просмотра
+  setViewMode(mode: 'cards' | 'flipbook'): void {
+    if (this.viewMode !== mode) {
+      this.viewMode = mode;
+      // Сохраняем предпочтения пользователя
+      localStorage.setItem('preferredViewMode', mode);
+      
+      // Обновляем URL с новым режимом
+      this.updateUrlWithViewMode(mode);
+      
+      // Если переключаемся на flipbook и данных нет, можно загрузить
+      if (mode === 'flipbook' && !this.nicheData) {
+        this.loadCategoryData();
+      }
+    }
   }
 
   onFiltersChange(filters: any[]): void {
@@ -196,6 +249,8 @@ export class NicheProductsComponent implements OnInit {
 
   @HostListener('window:scroll')
   onScroll(): void {
+    // Бесконечная прокрутка работает только в режиме карточек
+    if (this.viewMode !== 'cards') return;
     if (this.loading || this.loadingMore || this.products.length >= this.totalItems) return;
 
     const scrollPosition = window.scrollY + window.innerHeight;

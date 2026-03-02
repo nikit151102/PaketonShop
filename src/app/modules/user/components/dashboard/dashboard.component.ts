@@ -698,7 +698,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Подсчет активных договоров
   calculateActiveContracts(partners: Partner[]): number {
-    return partners.length; // Каждый партнер имеет минимум 1 договор
+    return partners.length; // Каждая компания имеет минимум 1 договор
   }
 
   // Подсчет общего количества заказов по компаниям

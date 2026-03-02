@@ -21,6 +21,7 @@ interface Partner {
   checkingAccount?: string;
   workDirection?: string;
   phoneNumber?: string;
+  isDeleted?: boolean;
   partnerTypeId?: number | string;
   email?: string;
   website?: string;
@@ -82,6 +83,20 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
   private scrollTimeout: any;
 
   private destroy$ = new Subject<void>();
+  activeTab: 'active' | 'deleted' = 'active';
+
+  get activeCompanies(): Partner[] {
+    return this.companies.filter((c: any) => !c.isDeleted);
+  }
+
+  get deletedCompanies(): Partner[] {
+    return this.companies.filter((c: any) => c.isDeleted);
+  }
+
+  get visibleCompanies(): Partner[] {
+    return this.activeTab === 'active' ? this.activeCompanies : this.deletedCompanies;
+  }
+
 
   constructor(private partnerService: PartnerService) { }
 
@@ -267,7 +282,7 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
     this.showPartnerForm = true;
   }
 
-  openEditPartnerForm(partner: Partner, event?: Event): void {
+  openEditPartnerForm(partner: Partner, event?: any): void {
     if (event) {
       event.stopPropagation();
     }

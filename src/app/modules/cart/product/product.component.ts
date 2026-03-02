@@ -184,7 +184,7 @@ export class ProductComponent implements OnChanges, OnInit {
   onSelectionChange(event: Event): void {
     if (!this.isAvailable) return;
     const checked = (event.target as HTMLInputElement).checked;
-    this.selectionChange.emit({ id: this.product.id, selected: checked });
+    this.selectionChange.emit({ id: this.product.product.id, selected: checked });
   }
 
   toggleRelated(): void {
@@ -265,19 +265,10 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   removeProduct(): void {
-    if (!this.removeConfirm) {
-      this.removeConfirm = true;
-      setTimeout(() => {
-        this.removeConfirm = false;
-        this.cdr.markForCheck();
-      }, 3000);
-      return;
-    }
-
     if (this.product) {
       this.remove.emit(
         {
-          "productId": this.product.id,
+          "productId": this.product.product.id,
           "count": this.product.count
         }
       );

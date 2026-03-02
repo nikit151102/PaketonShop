@@ -2165,23 +2165,23 @@
       min-height: 300px;
     }
 
-    @media (max-width: 768px) {
-      max-width: 225px;
+    @media (max-width: 568px) {
+      max-width: 45vw;
       min-height: 280px;
     }
 
     @media (max-width:745px) {
-      max-width: calc(50% - 10px);
+      // max-width: calc(50% - 10px);
       min-height: 270px;
     }
 
     @media (max-width: 480px) {
-      max-width: calc(50% - 15px);
+      // max-width: calc(50% - 15px);
       min-height: 260px;
     }
 
     @media (max-width: 360px) {
-      max-width: calc(50% - 15px);
+      // max-width: calc(50% - 15px);
       min-height: 250px;
     }
   }
@@ -3279,7 +3279,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
+  z-index: 9999; 
   animation: fadeIn 0.2s ease;
 }
 
@@ -3952,6 +3952,7 @@
 
 /* Единый менеджер корзин */
 .basket-manager-modal {
+  position: fixed;
   background: #ffffff;
   border-radius: 24px;
   width: 92%;
@@ -3962,6 +3963,7 @@
   animation: slideUp 0.3s ease;
   display: flex;
   flex-direction: column;
+  isolation: isolate;
 
   .modal-header {
     padding: 1rem 1.2rem;

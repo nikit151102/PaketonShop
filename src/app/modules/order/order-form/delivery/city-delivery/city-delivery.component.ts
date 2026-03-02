@@ -36,7 +36,7 @@ interface DeliveryOption {
   styleUrls: ['./city-delivery.component.scss']
 })
 export class CityDeliveryComponent implements OnInit {
-  @Output() addressSelected = new EventEmitter<string>();
+  @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 
   // Состояния
@@ -180,7 +180,12 @@ export class CityDeliveryComponent implements OnInit {
 
   private emitSelectedAddress(): void {
     if (this.selectedAddress) {
-      this.addressSelected.emit(this.selectedAddress.id);
+      this.addressSelected.emit({
+        'type': 'transport',
+        'id': this.selectedAddress.id,
+        'shopCity': undefined,
+        'shopAddress': undefined
+      });
       this.emitDataChange();
     }
   }

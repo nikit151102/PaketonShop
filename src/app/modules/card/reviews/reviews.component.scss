@@ -1,0 +1,1046 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+// Определяем переменные прямо в компоненте
+$primary: #327120;
+$primary-light: #3c8a27;
+$primary-dark: #2a601b;
+$primary-bg: #e8f3e5;
+$primary-glow: rgba(50, 113, 32, 0.3);
+
+$success: #10b981;
+$success-bg: #e6f7f0;
+$danger: #ef4444;
+$danger-bg: #fee9e7;
+$warning: #f59e0b;
+$warning-bg: #fff3e0;
+$info: #3b82f6;
+$info-bg: #e8f0fe;
+
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+$shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+$shadow-glow: 0 0 20px $primary-glow;
+
+$radius-sm: 6px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-2xl: 20px;
+$radius-full: 9999px;
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+$transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-bounce: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+:host {
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.reviews {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: $space-5 $space-4;
+  color: $gray-800;
+
+  @media (max-width: 768px) {
+    padding: $space-4 $space-3;
+  }
+
+  @media (max-width: 480px) {
+    padding: $space-3 $space-2;
+  }
+}
+
+/* Шапка */
+.reviews__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $space-4;
+  margin-bottom: $space-6;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $space-3;
+  }
+}
+
+.reviews__header-top {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
+.reviews__title-block {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+}
+
+.reviews__icon {
+  width: 48px;
+  height: 48px;
+  background: $primary-bg;
+  color: $primary;
+  border-radius: $radius-xl;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
+
+.reviews__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0 0 $space-1;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
+}
+
+.reviews__subtitle {
+  font-size: 14px;
+  color: $gray-500;
+  margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+}
+
+.reviews__stats {
+  display: flex;
+  gap: $space-2;
+}
+
+.stat-badge {
+  background: $gray-100;
+  border-radius: $radius-full;
+  padding: $space-2 $space-4;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  white-space: nowrap;
+
+  &__value {
+    font-size: 18px;
+    font-weight: 700;
+    color: $primary;
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  &__label {
+    font-size: 13px;
+    color: $gray-600;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
+  }
+}
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-2;
+  padding: $space-3 $space-5;
+  border-radius: $radius-lg;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+  border: none;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    padding: $space-2 $space-4;
+    font-size: 13px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: $space-3;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, $primary, $primary-dark);
+    color: white;
+    box-shadow: 0 4px 12px $primary-glow;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px $primary-glow;
+    }
+  }
+
+  &--secondary {
+    background: white;
+    border: 1px solid $gray-200;
+    color: $gray-700;
+
+    &:hover {
+      border-color: $primary;
+      background: $primary-bg;
+      color: $primary;
+    }
+  }
+
+  &--outline {
+    background: transparent;
+    border: 1px solid $gray-300;
+    color: $gray-600;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      background: $primary-bg;
+    }
+  }
+
+  &--text {
+    background: transparent;
+    color: $gray-500;
+    padding: $space-2 $space-3;
+
+    &:hover {
+      color: $primary;
+      background: $primary-bg;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    position: relative;
+    color: transparent !important;
+
+    .btn__spinner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+}
+
+/* Состояния */
+.reviews__state {
+  padding: $space-10 $space-4;
+  text-align: center;
+}
+
+.state {
+  max-width: 320px;
+  margin: 0 auto;
+
+  &__spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid $gray-200;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto $space-4;
+  }
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto $space-4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $danger;
+    background: $danger-bg;
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+    margin: 0 0 $space-2;
+  }
+
+  &__text {
+    font-size: 14px;
+    color: $gray-500;
+    margin: 0 0 $space-5;
+  }
+}
+
+/* Форма */
+.reviews__form {
+  margin-bottom: $space-6;
+  animation: slideDown 0.3s $transition-bounce;
+}
+
+.form-card {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-2xl;
+  overflow: hidden;
+  box-shadow: $shadow-lg;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-4 $space-5;
+    background: linear-gradient(90deg, $primary-bg, white);
+    border-bottom: 1px solid $gray-200;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $gray-900;
+    margin: 0;
+  }
+
+  &__close {
+    width: 36px;
+    height: 36px;
+    border-radius: $radius-lg;
+    border: none;
+    background: white;
+    color: $gray-500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all $transition;
+
+    &:hover {
+      background: $gray-100;
+      color: $gray-800;
+      transform: rotate(90deg);
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__body {
+    padding: $space-5;
+
+    @media (max-width: 768px) {
+      padding: $space-4;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: $space-3;
+    padding: $space-4 $space-5;
+    background: $gray-50;
+    border-top: 1px solid $gray-200;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+/* Поля формы */
+.field {
+  margin-bottom: $space-5;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &__label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $space-2;
+    font-size: 14px;
+    font-weight: 500;
+    color: $gray-700;
+  }
+
+  &__required {
+    color: $danger;
+    margin-left: $space-1;
+  }
+
+  &__counter {
+    font-size: 12px;
+    color: $gray-500;
+    font-weight: normal;
+  }
+
+  &__input {
+    width: stretch;
+    padding: $space-3;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    font-size: 14px;
+    transition: all $transition;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px $primary-bg;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+
+  &__textarea {
+    width: stretch;
+    padding: $space-3;
+    border: 1px solid $gray-200;
+    border-radius: $radius-lg;
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all $transition;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px $primary-bg;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Выбор рейтинга */
+.rating-selector {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  flex-wrap: wrap;
+
+  &__star {
+    background: transparent;
+    border: none;
+    padding: $space-1;
+    cursor: pointer;
+    color: $gray-300;
+    transition: all $transition;
+
+    svg {
+      width: 28px;
+      height: 28px;
+
+      @media (max-width: 480px) {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &--active {
+      color: #fbbf24;
+    }
+  }
+
+  &__hint {
+    font-size: 13px;
+    color: $gray-500;
+    margin-left: $space-2;
+  }
+}
+
+/* Toggle */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  cursor: pointer;
+
+  &__input {
+    display: none;
+
+    &:checked+.toggle__slider {
+      background: $success;
+
+      .toggle__dot {
+        transform: translateX(20px);
+      }
+    }
+  }
+
+  &__slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: $gray-300;
+    border-radius: $radius-full;
+    transition: all $transition;
+    flex-shrink: 0;
+  }
+
+  &__dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform $transition-bounce;
+    box-shadow: $shadow-sm;
+  }
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-800;
+    }
+
+    span {
+      font-size: 12px;
+      color: $gray-500;
+    }
+  }
+}
+
+/* Пустое состояние */
+.empty-state {
+  text-align: center;
+  padding: $space-10 $space-4;
+
+  &__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto $space-4;
+    background: $gray-100;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $gray-400;
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-900;
+    margin: 0 0 $space-2;
+  }
+
+  &__text {
+    font-size: 14px;
+    color: $gray-500;
+    margin: 0 0 $space-5;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* Сетка отзывов */
+.reviews-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+/* Карточка отзыва */
+.review {
+  animation: fadeIn 0.3s;
+
+  &--featured {
+    .review__card {
+      background: linear-gradient(135deg, white, $primary-bg);
+      border: 1px solid $primary;
+    }
+  }
+
+  &__card {
+    background: white;
+    border: 1px solid $gray-200;
+    border-radius: $radius-2xl;
+    padding: $space-5;
+    transition: all $transition;
+
+    &:hover {
+      box-shadow: $shadow-lg;
+      border-color: $primary;
+    }
+
+    @media (max-width: 768px) {
+      padding: $space-4;
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $space-4;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: $space-3;
+    }
+  }
+
+  &__rating {
+    .stars {
+      display: flex;
+      gap: 2px;
+      font-size: 18px;
+
+      &__item {
+        color: $gray-300;
+
+        &--filled {
+          color: #fbbf24;
+        }
+      }
+    }
+  }
+
+  &__pros,
+  &__cons {
+    margin-bottom: $space-3;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $gray-600;
+    display: block;
+    margin-bottom: $space-1;
+  }
+
+  &__text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: $gray-700;
+    margin: 0;
+  }
+
+  &__comment {
+    margin: $space-3 0;
+    padding: $space-3 0;
+    border-top: 1px dashed $gray-200;
+    border-bottom: 1px dashed $gray-200;
+  }
+
+  &__photos {
+    margin: $space-4 0;
+
+    .photos-grid {
+      display: flex;
+      gap: $space-2;
+      flex-wrap: wrap;
+    }
+
+    .photo {
+      width: 80px;
+      height: 80px;
+      border-radius: $radius-lg;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid $gray-200;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform $transition;
+      }
+
+      &:hover img {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  &__reply {
+    margin-top: $space-4;
+    padding-top: $space-4;
+    border-top: 1px solid $gray-200;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $space-4;
+    padding-top: $space-4;
+    border-top: 1px solid $gray-200;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: $space-3;
+    }
+  }
+
+  &__helpful {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-4;
+    background: transparent;
+    border: 1px solid $gray-200;
+    border-radius: $radius-full;
+    color: $gray-600;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all $transition;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      background: $primary-bg;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+/* Пользователь */
+.user {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: $gray-200;
+    border: 2px solid white;
+    box-shadow: $shadow-sm;
+    flex-shrink: 0;
+
+    &--anonymous {
+      background: $gray-300;
+      position: relative;
+
+      &::after {
+        content: '?';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 700;
+        color: $gray-600;
+      }
+
+      img {
+        display: none;
+      }
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+
+  &__date {
+    font-size: 12px;
+    color: $gray-500;
+  }
+}
+
+/* Рейтинг (лайки) */
+.rating {
+  display: inline-flex;
+  align-items: center;
+  background: $gray-100;
+  border-radius: $radius-full;
+  padding: 2px;
+
+  &--liked {
+    .rating__btn--like {
+      background: $primary;
+      color: white;
+    }
+  }
+
+  &--disliked {
+    .rating__btn--dislike {
+      background: $danger;
+      color: white;
+    }
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    padding: $space-2 $space-3;
+    border: none;
+    background: transparent;
+    border-radius: $radius-full;
+    font-size: 13px;
+    font-weight: 500;
+    color: $gray-600;
+    cursor: pointer;
+    transition: all $transition;
+
+    &:hover:not(:disabled) {
+      background: white;
+      box-shadow: $shadow-sm;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &--like:hover:not(:disabled) {
+      color: $primary;
+    }
+
+    &--dislike:hover:not(:disabled) {
+      color: $danger;
+    }
+  }
+}
+
+/* Ответ */
+.reply {
+  background: $gray-50;
+  border-radius: $radius-lg;
+  padding: $space-4;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+    margin-bottom: $space-3;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: $shadow-sm;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: $gray-900;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: $warning-bg;
+    color: $warning;
+    border-radius: $radius-full;
+    font-size: 11px;
+    font-weight: 600;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  &__date {
+    font-size: 12px;
+    color: $gray-500;
+  }
+
+  &__text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: $gray-700;
+    margin: 0;
+    padding-left: 52px;
+
+    @media (max-width: 768px) {
+      padding-left: 0;
+    }
+  }
+}
+
+/* Пагинация */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: $space-6;
+}
+
+.back-to-top {
+  display: flex;
+  justify-content: center;
+  margin-top: $space-4;
+}
+
+/* Анимации */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rotating {
+  animation: spin 1s linear infinite;
+}

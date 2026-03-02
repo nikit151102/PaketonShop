@@ -19,6 +19,7 @@ export interface Category {
   description?: string;
   image?: string;
   productCount?: number;
+  imageInstanceLinks: any;
   subcategories?: Subcategory[];
   widthClass?: string;
   isFeatured?: boolean;
@@ -83,7 +84,7 @@ export class NicheCatalogComponent implements OnInit {
             id: item.id,
             name: item.name,
             description: item.description,
-            image: item.imageLink || this.getDefaultImage(item.name),
+            image: item.imageInstanceLinks[0] || this.getDefaultImage(item.name),
             productCount: item.productCount || 0,
             subcategories: (item.subCategories || []).map((sub: any) => ({
               id: sub.id,

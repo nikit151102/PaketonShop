@@ -50,7 +50,7 @@ export class NicheProductsService {
    * Получение подробной информации по конкретному новостному баннеру
    * @param id - UUID новостного баннера
    */
-  getNewsBannerById(id: string): Observable<any> {
+  getNicheById(id: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
   }
 

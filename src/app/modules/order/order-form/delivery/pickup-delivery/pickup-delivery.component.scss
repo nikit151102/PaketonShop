@@ -1,1806 +1,783 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 // Переменные
-$primary-color: #3c8a27;
-$primary-dark: #2d6c1d;
-$primary-light: #e6f4ea;
-$primary-light-hover: #d4edda;
-
-$secondary-color: #3b82f6;
-$secondary-light: #e0e7ff;
-
-$accent-color: #f59e0b;
-$accent-light: #fef3c7;
-
-$success-color: #10b981;
-$error-color: #ef4444;
-$warning-color: #f59e0b;
-
-$background-light: #f8fafc;
-$background-card: #ffffff;
-$background-hover: #f1f5f9;
-$background-selected: rgba(60, 138, 39, 0.08);
-
-$text-primary: #1a1a1a;
-$text-secondary: #4a5568;
-$text-muted: #718096;
-$text-light: #94a3b8;
-$text-white: #ffffff;
-
-$border-color: #e2e8f0;
-$border-light: rgba(226, 232, 240, 0.5);
-$border-primary: rgba(60, 138, 39, 0.3);
-$border-secondary: rgba(59, 130, 246, 0.3);
-
+$primary: #3c8a27;
+$primary-light: rgba(60, 138, 39, 0.1);
+$primary-hover: #2d6c1d;
+$success: #10b981;
+$error: #ef4444;
+$text: #1a1a1a;
+$text-secondary: #4b5563;
+$text-muted: #9ca3af;
+$border: #e5e7eb;
+$bg: #ffffff;
+$bg-light: #f9fafb;
+$bg-hover: #f3f4f6;
+$shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+$radius: 12px;
 $radius-sm: 8px;
-$radius-md: 12px;
-$radius-lg: 16px;
-$radius-xl: 20px;
-$radius-full: 50%;
-
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-$shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
-$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-$shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.16);
-
-$transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-$transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 
 // Анимации
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
+// Основной контейнер
+.pickup-delivery {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: $bg;
+  border-radius: $radius;
+  margin: 0 auto;
+  
+  & > * {
+    animation: fadeIn 0.2s ease;
+  }
 
-    to {
-        opacity: 1;
-        transform: translateX(0);
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: $text;
+    
+    svg {
+      color: $primary;
     }
+  }
+
+  &__geo-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: $primary-light;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: $primary;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover:not(:disabled) {
+      background: rgba($primary, 0.15);
+    }
+    
+    &.loading {
+      opacity: 0.7;
+      cursor: wait;
+    }
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 }
 
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
+// Выбранный пункт
+.selected-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: $primary-light;
+  border-left: 3px solid $primary;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: rgba($primary, 0.15);
+  }
+  
+  &__icon {
+    width: 40px;
+    height: 40px;
+    background: $bg;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary;
+    flex-shrink: 0;
+    
+    svg {
+      width: 20px;
+      height: 20px;
     }
+  }
+  
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  &__name {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__address {
+    font-size: 12px;
+    color: $text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    background: $bg;
+    border-radius: 16px;
+    white-space: nowrap;
+    
+    &.open {
+      color: $success;
+    }
+    
+    &:not(.open) {
+      color: $error;
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  }
+  
+  &__change {
+    padding: 4px;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    border-radius: 4px;
+    
+    &:hover {
+      background: $bg;
+      color: $text;
+    }
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
 
-    50% {
+// Города
+.cities-search {
+  position: relative;
+  padding: 12px 16px 8px;
+  
+  .search-icon {
+    position: absolute;
+    left: 28px;
+    top: 22px;
+    color: $text-muted;
+  }
+  
+  &__input {
+    width: stretch;
+    padding: 10px 16px 10px 36px;
+    background: $bg-light;
+    border: 1px solid $border;
+    border-radius: 24px;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background: $bg;
+    }
+    
+    &::placeholder {
+      color: $text-muted;
+    }
+  }
+}
+
+.cities-grid {
+  display: flex;
+  flex-direction: column;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border;
+    border-radius: 2px;
+  }
+}
+
+.city-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  
+  &:hover {
+    background: $bg-hover;
+    
+    .city-card__arrow {
+      opacity: 1;
+      transform: translateX(2px);
+    }
+  }
+  
+  &__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text;
+  }
+  
+  &__arrow {
+    color: $primary;
+    opacity: 0;
+    transition: all 0.2s;
+    
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.cities-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  color: $text-muted;
+  
+  p {
+    margin: 12px 0 0;
+    font-size: 13px;
+  }
+}
+
+// Список пунктов
+.list-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border;
+  
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: $bg-light;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    color: $text-secondary;
+    cursor: pointer;
+    
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+    }
+  }
+  
+  &__city {
+    font-weight: 600;
+    font-size: 15px;
+    color: $text;
+  }
+  
+  &__toggle {
+    display: flex;
+    gap: 4px;
+    background: $bg-light;
+    border-radius: 20px;
+    padding: 2px;
+    
+    .toggle-btn {
+      padding: 4px 8px;
+      background: transparent;
+      border: none;
+      border-radius: 18px;
+      color: $text-muted;
+      cursor: pointer;
+      
+      &.active {
+        background: $primary;
+        color: white;
+      }
+      
+      &:disabled {
         opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      svg {
+        width: 16px;
+        height: 16px;
+      }
     }
+  }
 }
 
-// Основные стили
-.pickup-delivery-modern {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    animation: fadeIn 0.4s ease-out;
-
-    .pickup-header {
-        margin-bottom: 32px;
-
-        .pickup-title {
-            margin: 0 0 8px;
-            font-size: 24px;
-            font-weight: 700;
-            color: $text-primary;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            svg {
-                color: $primary-color;
-            }
-        }
-
-        .pickup-subtitle {
-            margin: 0;
-            font-size: 16px;
-            color: $text-secondary;
-            line-height: 1.5;
-        }
-    }
-
-    // Выбранный магазин
-    .selected-store-card {
-        background: $background-card;
-        border-radius: $radius-lg;
-        border: 2px solid $primary-color;
-        padding: 28px;
-        margin-bottom: 24px;
-        box-shadow: $shadow-lg;
-        animation: slideIn 0.4s ease;
-
-        .selected-store-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-
-            .store-badge {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                background: rgba($primary-color, 0.1);
-                border-radius: $radius-md;
-                font-size: 14px;
-                font-weight: 600;
-                color: $primary-color;
-
-                svg {
-                    width: 14px;
-                    height: 14px;
-                }
-            }
-
-            .change-store-btn {
-                padding: 10px 20px;
-                background: $background-light;
-                border: 1px solid $border-color;
-                border-radius: $radius-md;
-                font-size: 14px;
-                font-weight: 500;
-                color: $text-secondary;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: darken($background-light, 3%);
-                    border-color: $primary-color;
-                    color: $primary-color;
-                }
-            }
-        }
-
-        .selected-store-content {
-            display: flex;
-            align-items: flex-start;
-            gap: 24px;
-            margin-bottom: 24px;
-
-            .store-logo {
-                width: 72px;
-                height: 72px;
-                background: $primary-light;
-                border-radius: $radius-lg;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: $primary-color;
-                flex-shrink: 0;
-
-                svg {
-                    width: 32px;
-                    height: 32px;
-                }
-            }
-
-            .store-info {
-                flex: 1;
-
-                .store-name {
-                    margin: 0 0 12px;
-                    font-size: 20px;
-                    font-weight: 700;
-                    color: $text-primary;
-                }
-
-                .store-address {
-                    margin: 0 0 16px;
-                    font-size: 16px;
-                    color: $text-secondary;
-                    line-height: 1.5;
-                }
-
-                .store-status {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 16px;
-                    padding: 8px 12px;
-                    background: rgba($success-color, 0.1);
-                    border-radius: $radius-sm;
-                    font-size: 14px;
-                    font-weight: 500;
-
-                    &.open {
-                        background: rgba($success-color, 0.1);
-                        color: darken($success-color, 20%);
-                    }
-
-                    &:not(.open) {
-                        background: rgba($error-color, 0.1);
-                        color: darken($error-color, 20%);
-                    }
-
-                    .status-indicator {
-                        width: 8px;
-                        height: 8px;
-                        border-radius: 50%;
-                        background: currentColor;
-                        animation: pulse 2s infinite;
-                    }
-                }
-
-                .store-details {
-                    display: flex;
-                    gap: 24px;
-                    flex-wrap: wrap;
-
-                    .detail-item {
-                        .detail-label {
-                            font-size: 14px;
-                            color: $text-muted;
-                            margin-right: 4px;
-                        }
-
-                        .detail-value {
-                            font-size: 14px;
-                            font-weight: 500;
-                            color: $text-primary;
-                        }
-                    }
-                }
-            }
-        }
-
-        .store-schedule {
-            h5 {
-                margin: 0 0 16px;
-                font-size: 16px;
-                font-weight: 600;
-                color: $text-primary;
-            }
-
-            .schedule-days {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 12px;
-
-                .schedule-day {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px;
-                    background: $background-light;
-                    border-radius: $radius-sm;
-                    border: 1px solid $border-color;
-
-                    .day-name {
-                        font-size: 14px;
-                        color: $text-primary;
-                        font-weight: 500;
-                    }
-
-                    .day-hours {
-                        font-size: 14px;
-                        color: $text-secondary;
-                        display: flex;
-                        align-items: center;
-                        gap: 6px;
-
-                        .today-badge {
-                            padding: 2px 6px;
-                            background: $primary-color;
-                            color: white;
-                            border-radius: 10px;
-                            font-size: 11px;
-                            font-weight: 500;
-                        }
-                    }
-
-                    .day-closed {
-                        font-size: 14px;
-                        color: $error-color;
-                        font-style: italic;
-                    }
-                }
-            }
-        }
-    }
-
-    // Выбор города
-    .city-selection {
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-
-            h4 {
-                margin: 0;
-                font-size: 18px;
-                font-weight: 600;
-                color: $text-primary;
-            }
-
-            .geo-button {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 10px 16px;
-                background: $background-light;
-                border: 1px solid $border-color;
-                border-radius: $radius-md;
-                font-size: 14px;
-                font-weight: 500;
-                color: $secondary-color;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: $secondary-light;
-                    border-color: $secondary-color;
-                }
-
-                &.loading {
-                    opacity: 0.7;
-                    cursor: not-allowed;
-                }
-
-                svg {
-                    width: 16px;
-                    height: 16px;
-                }
-            }
-        }
-
-        .cities-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-
-            .city-card {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 20px;
-                background: $background-card;
-                border: 2px solid $border-color;
-                border-radius: $radius-lg;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    border-color: $primary-color;
-                    background: $background-selected;
-                    transform: translateY(-2px);
-                    box-shadow: $shadow-md;
-
-                    .city-arrow {
-                        color: $primary-color;
-                        transform: translateX(4px);
-                    }
-                }
-
-                .city-icon {
-                    width: 40px;
-                    height: 40px;
-                    background: $primary-light;
-                    border-radius: $radius-md;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: $primary-color;
-                    flex-shrink: 0;
-
-                    svg {
-                        width: 20px;
-                        height: 20px;
-                    }
-                }
-
-                .city-name {
-                    flex: 1;
-                    font-size: 16px;
-                    font-weight: 500;
-                    color: $text-primary;
-                }
-
-                .city-arrow {
-                    color: $text-muted;
-                    transition: $transition-base;
-
-                    svg {
-                        width: 16px;
-                        height: 16px;
-                    }
-                }
-            }
-        }
-    }
-
-    // Список магазинов
-    .stores-list-view {
-        animation: fadeIn 0.4s ease;
-
-        .stores-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid $border-light;
-
-            .back-button {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                background: $background-light;
-                border: 1px solid $border-color;
-                border-radius: $radius-md;
-                font-size: 14px;
-                font-weight: 500;
-                color: $text-secondary;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: darken($background-light, 3%);
-                    color: $text-primary;
-                }
-
-                svg {
-                    width: 16px;
-                    height: 16px;
-                    transform: rotate(180deg);
-                }
-            }
-
-            .current-city {
-                .city-label {
-                    font-size: 14px;
-                    color: $text-muted;
-                    margin-right: 8px;
-                }
-
-                .city-name {
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: $text-primary;
-                }
-            }
-
-            .view-toggle {
-                display: flex;
-                gap: 8px;
-
-                .view-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 8px 16px;
-                    background: $background-light;
-                    border: 2px solid $border-color;
-                    border-radius: $radius-md;
-                    font-size: 14px;
-                    font-weight: 500;
-                    color: $text-secondary;
-                    cursor: pointer;
-                    transition: $transition-base;
-
-                    &:hover {
-                        border-color: $primary-color;
-                        color: $primary-color;
-                    }
-
-                    &.active {
-                        background: $primary-color;
-                        border-color: $primary-color;
-                        color: white;
-
-                        svg {
-                            color: white;
-                        }
-                    }
-
-                    svg {
-                        width: 18px;
-                        height: 18px;
-                        color: $text-muted;
-                    }
-                }
-            }
-        }
-
-        .search-filters {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            align-items: center;
-
-            .search-box {
-                flex: 1;
-                min-width: 300px;
-                position: relative;
-
-                .search-icon {
-                    position: absolute;
-                    left: 16px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    color: $text-muted;
-                    z-index: 1;
-                }
-
-                .search-input {
-                    width: 100%;
-                    padding: 14px 16px 14px 48px;
-                    border: 2px solid $border-color;
-                    border-radius: $radius-md;
-                    font-size: 15px;
-                    color: $text-primary;
-                    background: $background-card;
-                    transition: $transition-base;
-
-                    &:focus {
-                        outline: none;
-                        border-color: $primary-color;
-                        box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
-                    }
-
-                    &::placeholder {
-                        color: $text-muted;
-                    }
-                }
-
-                .clear-search {
-                    position: absolute;
-                    right: 16px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    background: none;
-                    border: none;
-                    color: $text-muted;
-                    cursor: pointer;
-                    padding: 4px;
-                    border-radius: 4px;
-
-                    &:hover {
-                        background: rgba(0, 0, 0, 0.05);
-                        color: $text-primary;
-                    }
-                }
-            }
-
-            .filter-toggle {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                cursor: pointer;
-
-                .toggle-input {
-                    display: none;
-
-                    &:checked+.toggle-slider {
-                        background: $primary-color;
-
-                        &::before {
-                            transform: translateX(20px);
-                        }
-                    }
-                }
-
-                .toggle-slider {
-                    position: relative;
-                    width: 44px;
-                    height: 24px;
-                    background: $border-color;
-                    border-radius: 12px;
-                    transition: $transition-base;
-
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        width: 20px;
-                        height: 20px;
-                        border-radius: 50%;
-                        background: white;
-                        top: 2px;
-                        left: 2px;
-                        transition: $transition-base;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                    }
-                }
-
-                .toggle-text {
-                    font-size: 14px;
-                    color: $text-primary;
-                    font-weight: 500;
-                }
-            }
-
-            .geo-button-sm {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                padding: 10px 16px;
-                background: $background-light;
-                border: 1px solid $border-color;
-                border-radius: $radius-md;
-                font-size: 13px;
-                font-weight: 500;
-                color: $secondary-color;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: $secondary-light;
-                    border-color: $secondary-color;
-                }
-
-                svg {
-                    width: 14px;
-                    height: 14px;
-                }
-            }
-        }
-
-        .stores-results {
-            .results-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-
-                .results-count {
-                    font-size: 15px;
-                    font-weight: 600;
-                    color: $text-primary;
-                }
-
-                .results-note {
-                    font-size: 14px;
-                    color: $text-muted;
-                }
-            }
-
-            .nearby-stores {
-                margin-bottom: 24px;
-
-                .nearby-title {
-                    margin: 0 0 12px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: $text-primary;
-                }
-
-                .nearby-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-
-                    .nearby-store-card {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 16px;
-                        background: $background-card;
-                        border: 2px solid $secondary-color;
-                        border-radius: $radius-md;
-                        cursor: pointer;
-                        transition: $transition-base;
-
-                        &:hover {
-                            background: $secondary-light;
-                            transform: translateX(4px);
-                        }
-
-                        .nearby-store-content {
-                            .store-name {
-                                font-weight: 600;
-                                color: $text-primary;
-                                margin-bottom: 4px;
-                            }
-
-                            .store-distance {
-                                display: flex;
-                                align-items: center;
-                                gap: 6px;
-                                font-size: 13px;
-                                color: $secondary-color;
-                                font-weight: 500;
-                                margin-bottom: 4px;
-
-                                svg {
-                                    width: 12px;
-                                    height: 12px;
-                                }
-                            }
-
-                            .store-address {
-                                font-size: 13px;
-                                color: $text-secondary;
-                            }
-                        }
-
-                        .select-button {
-                            padding: 8px 16px;
-                            background: $secondary-color;
-                            color: white;
-                            border-radius: $radius-sm;
-                            font-size: 14px;
-                            font-weight: 500;
-                            cursor: pointer;
-                            transition: $transition-base;
-
-                            &:hover {
-                                background: darken($secondary-color, 10%);
-                            }
-                        }
-                    }
-                }
-            }
-
-            .all-stores-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-                gap: 16px;
-
-                .store-card {
-                    background: $background-card;
-                    border: 2px solid $border-color;
-                    border-radius: $radius-lg;
-                    padding: 20px;
-                    cursor: pointer;
-                    transition: $transition-base;
-
-                    &:hover {
-                        border-color: $primary-color;
-                        transform: translateY(-2px);
-                        box-shadow: $shadow-md;
-
-                        .select-store-btn {
-                            background: $primary-dark;
-                        }
-                    }
-
-                    .card-header {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        margin-bottom: 16px;
-
-                        .store-logo-sm {
-                            width: 48px;
-                            height: 48px;
-                            background: $primary-light;
-                            border-radius: $radius-md;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: $primary-color;
-                            flex-shrink: 0;
-
-                            svg {
-                                width: 20px;
-                                height: 20px;
-                            }
-                        }
-
-                        .store-info-sm {
-                            flex: 1;
-
-                            .store-name {
-                                margin: 0 0 6px;
-                                font-size: 16px;
-                                font-weight: 600;
-                                color: $text-primary;
-                            }
-
-                            .store-status-sm {
-                                display: flex;
-                                align-items: center;
-                                gap: 6px;
-                                font-size: 13px;
-                                font-weight: 500;
-
-                                &.open {
-                                    color: $success-color;
-                                }
-
-                                &:not(.open) {
-                                    color: $error-color;
-                                }
-
-                                .status-dot {
-                                    width: 6px;
-                                    height: 6px;
-                                    border-radius: 50%;
-                                    background: currentColor;
-                                }
-                            }
-                        }
-                    }
-
-                    .card-body {
-                        margin-bottom: 16px;
-
-                        .store-address {
-                            margin: 0 0 12px;
-                            font-size: 14px;
-                            color: $text-secondary;
-                            line-height: 1.4;
-                        }
-
-                        .store-details-sm {
-                            .detail-row {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 6px;
-
-                                &:last-child {
-                                    margin-bottom: 0;
-                                }
-
-                                .detail-label {
-                                    font-size: 13px;
-                                    color: $text-muted;
-                                }
-
-                                .detail-value {
-                                    font-size: 13px;
-                                    font-weight: 500;
-                                    color: $text-primary;
-                                }
-                            }
-                        }
-                    }
-
-                    .card-actions {
-                        display: flex;
-                        gap: 12px;
-
-                        .select-store-btn {
-                            flex: 2;
-                            padding: 12px;
-                            background: $primary-color;
-                            color: white;
-                            border: none;
-                            border-radius: $radius-md;
-                            font-weight: 600;
-                            font-size: 14px;
-                            cursor: pointer;
-                            transition: $transition-base;
-                        }
-
-                        .details-btn {
-                            flex: 1;
-                            padding: 12px;
-                            background: $background-light;
-                            border: 1px solid $border-color;
-                            border-radius: $radius-md;
-                            font-weight: 500;
-                            font-size: 14px;
-                            color: $text-secondary;
-                            cursor: pointer;
-                            transition: $transition-base;
-
-                            &:hover {
-                                background: darken($background-light, 3%);
-                                color: $text-primary;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Карта магазинов
-    .stores-map-view {
-        animation: fadeIn 0.4s ease;
-
-        .map-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-
-            .back-button {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 8px 16px;
-                background: $background-light;
-                border: 1px solid $border-color;
-                border-radius: $radius-md;
-                font-size: 14px;
-                font-weight: 500;
-                color: $text-secondary;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: darken($background-light, 3%);
-                    color: $text-primary;
-                }
-
-                svg {
-                    width: 16px;
-                    height: 16px;
-                    transform: rotate(180deg);
-                }
-            }
-
-            .map-title {
-                h4 {
-                    margin: 0 0 4px;
-                    font-size: 18px;
-                    font-weight: 600;
-                    color: $text-primary;
-                }
-
-                .map-subtitle {
-                    margin: 0;
-                    font-size: 14px;
-                    color: $text-muted;
-                }
-            }
-        }
-
-        .map-container {
-            position: relative;
-            height: 400px;
-            background: $background-light;
-            border-radius: $radius-lg;
-            border: 1px solid $border-color;
-            margin-bottom: 24px;
-            overflow: hidden;
-
-            .map-placeholder {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: $text-muted;
-
-                svg {
-                    width: 64px;
-                    height: 64px;
-                    margin-bottom: 16px;
-                    opacity: 0.5;
-                }
-
-                p {
-                    margin: 0 0 8px;
-                    font-size: 18px;
-                    font-weight: 500;
-                    color: $text-primary;
-                }
-
-                .map-note {
-                    font-size: 14px;
-                    color: $text-muted;
-                }
-            }
-
-            .map-markers {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-
-                .map-marker {
-                    position: absolute;
-                    cursor: pointer;
-                    transition: $transition-base;
-
-                    &:hover {
-                        z-index: 10;
-
-                        .marker-tooltip {
-                            opacity: 1;
-                            visibility: visible;
-                            transform: translate(-50%, -120%);
-                        }
-                    }
-
-                    .marker-pin {
-                        width: 20px;
-                        height: 20px;
-                        background: $primary-color;
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(-45deg);
-                        position: relative;
-
-                        &::after {
-                            content: '';
-                            position: absolute;
-                            width: 8px;
-                            height: 8px;
-                            background: white;
-                            border-radius: 50%;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                    }
-
-                    &.open .marker-pin {
-                        background: $success-color;
-                    }
-
-                    &:not(.open) .marker-pin {
-                        background: $error-color;
-                    }
-
-                    .marker-tooltip {
-                        position: absolute;
-                        top: 0;
-                        left: 50%;
-                        transform: translate(-50%, -130%);
-                        background: white;
-                        border: 1px solid $border-color;
-                        border-radius: $radius-sm;
-                        padding: 12px;
-                        box-shadow: $shadow-md;
-                        opacity: 0;
-                        visibility: hidden;
-                        transition: $transition-base;
-                        white-space: nowrap;
-                        z-index: 1000;
-
-                        &::after {
-                            content: '';
-                            position: absolute;
-                            bottom: -6px;
-                            left: 50%;
-                            transform: translateX(-50%) rotate(45deg);
-                            width: 12px;
-                            height: 12px;
-                            background: white;
-                            border-right: 1px solid $border-color;
-                            border-bottom: 1px solid $border-color;
-                        }
-
-                        .tooltip-name {
-                            font-weight: 600;
-                            color: $text-primary;
-                            margin-bottom: 4px;
-                        }
-
-                        .tooltip-address {
-                            font-size: 12px;
-                            color: $text-secondary;
-                            margin-bottom: 4px;
-                        }
-
-                        .tooltip-status {
-                            font-size: 12px;
-                            font-weight: 500;
-
-                            &.open {
-                                color: $success-color;
-                            }
-
-                            &:not(.open) {
-                                color: $error-color;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        .map-stores-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid $border-color;
-            border-radius: $radius-lg;
-
-            &::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            &::-webkit-scrollbar-track {
-                background: $background-light;
-            }
-
-            &::-webkit-scrollbar-thumb {
-                background: $border-color;
-                border-radius: 3px;
-            }
-
-            .map-store-card {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 16px;
-                border-bottom: 1px solid $border-light;
-                cursor: pointer;
-                transition: $transition-base;
-
-                &:hover {
-                    background: $background-hover;
-                }
-
-                &.selected {
-                    background: $background-selected;
-                    border-left: 4px solid $primary-color;
-                }
-
-                &:last-child {
-                    border-bottom: none;
-                }
-
-                .map-store-info {
-                    h5 {
-                        margin: 0 0 6px;
-                        font-size: 15px;
-                        font-weight: 600;
-                        color: $text-primary;
-                    }
-
-                    p {
-                        margin: 0 0 6px;
-                        font-size: 13px;
-                        color: $text-secondary;
-                    }
-
-                    .map-store-details {
-                        display: flex;
-                        gap: 16px;
-
-                        .map-store-status {
-                            font-size: 12px;
-                            font-weight: 500;
-
-                            &.open {
-                                color: $success-color;
-                            }
-
-                            &:not(.open) {
-                                color: $error-color;
-                            }
-                        }
-
-                        .map-store-distance {
-                            font-size: 12px;
-                            color: $secondary-color;
-                            font-weight: 500;
-                        }
-                    }
-                }
-
-                .map-select-btn {
-                    padding: 8px 16px;
-                    background: $primary-color;
-                    color: white;
-                    border: none;
-                    border-radius: $radius-sm;
-                    font-weight: 500;
-                    font-size: 14px;
-                    cursor: pointer;
-                    transition: $transition-base;
-
-                    &:hover {
-                        background: $primary-dark;
-                    }
-                }
-            }
-        }
-    }
-
-    // Состояния
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.9);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid $border-color;
-            border-top-color: $primary-color;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-        }
-
-        p {
-            font-size: 16px;
-            color: $text-muted;
-        }
-    }
-
-    .error-message {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 24px;
-        background: rgba($error-color, 0.05);
-        border: 1px solid rgba($error-color, 0.2);
-        border-radius: $radius-lg;
-        text-align: center;
-
-        .error-icon {
-            font-size: 36px;
-            margin-bottom: 16px;
-        }
-
-        p {
-            margin: 0 0 20px;
-            font-size: 16px;
-            color: $text-primary;
-            max-width: 400px;
-        }
-
-        .retry-button {
-            padding: 10px 24px;
-            background: $error-color;
-            color: white;
-            border: none;
-            border-radius: $radius-md;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            transition: $transition-base;
-
-            &:hover {
-                opacity: 0.9;
-            }
-        }
-    }
-
-    .no-results {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 24px;
-        background: $background-light;
-        border-radius: $radius-lg;
-        border: 2px dashed $border-color;
-        text-align: center;
-
-        .no-results-icon {
-            width: 72px;
-            height: 72px;
-            background: rgba($error-color, 0.1);
-            border-radius: $radius-lg;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: $error-color;
-            margin-bottom: 20px;
-
-            svg {
-                width: 36px;
-                height: 36px;
-            }
-        }
-
-        h4 {
-            margin: 0 0 8px;
-            font-size: 17px;
-            font-weight: 600;
-            color: $text-primary;
-        }
-
-        p {
-            margin: 0 0 20px;
-            font-size: 15px;
-            color: $text-muted;
-            max-width: 300px;
-        }
-
-        .clear-filters-btn {
-            padding: 10px 20px;
-            background: $background-card;
-            border: 1px solid $border-color;
-            border-radius: $radius-md;
-            font-weight: 500;
-            font-size: 14px;
-            color: $text-secondary;
-            cursor: pointer;
-            transition: $transition-base;
-
-            &:hover {
-                background: $background-hover;
-                color: $text-primary;
-            }
-        }
-    }
+.list-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
 }
 
-// Адаптивность
-@media (max-width: 768px) {
-    .pickup-delivery-modern {
-        .selected-store-card {
-            padding: 20px;
-
-            .selected-store-content {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 16px;
-
-                .store-logo {
-                    width: 60px;
-                    height: 60px;
-                }
-
-                .store-details {
-                    flex-direction: column;
-                    gap: 8px;
-                }
-            }
-
-            .store-schedule .schedule-days {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .city-selection .cities-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        }
-
-        .stores-list-view {
-            .stores-header {
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-
-                .back-button {
-                    order: 1;
-                }
-
-                .current-city {
-                    order: 3;
-                    margin-top: 12px;
-                }
-
-                .view-toggle {
-                    order: 2;
-                    align-self: flex-end;
-                }
-            }
-
-            .search-filters {
-                .search-box {
-                    min-width: 100%;
-                }
-            }
-
-            .all-stores-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .stores-map-view {
-            .map-header {
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-
-                .back-button {
-                    order: 1;
-                }
-
-                .map-title {
-                    order: 2;
-                    text-align: center;
-                }
-            }
-
-            .map-container {
-                height: 300px;
-            }
-        }
+.search-box {
+  flex: 1;
+  position: relative;
+  
+  &__icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+  }
+  
+  &__input {
+    width: stretch;
+    padding: 8px 28px 8px 32px;
+    background: $bg-light;
+    border: 1px solid $border;
+    border-radius: 20px;
+    font-size: 13px;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background: $bg;
     }
+  }
+  
+  &__clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 2px;
+    background: transparent;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    border-radius: 50%;
+    
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+    }
+  }
 }
 
-@media (max-width: 480px) {
-    .pickup-delivery-modern {
-        .pickup-header {
-            .pickup-title {
-                font-size: 20px;
-            }
-
-            .pickup-subtitle {
-                font-size: 14px;
-            }
-        }
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: $bg-light;
+  border: 1px solid $border;
+  border-radius: 20px;
+  cursor: pointer;
+  
+  &.active {
+    background: $primary-light;
+    border-color: $primary;
+    
+    .filter-chip__indicator {
+      background: $primary;
+      border-color: $primary;
+      
+      &::after {
+        opacity: 1;
+      }
     }
+  }
+  
+  &__input {
+    display: none;
+  }
+  
+  &__indicator {
+    width: 14px;
+    height: 14px;
+    border: 2px solid $border;
+    border-radius: 4px;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0;
+      width: 3px;
+      height: 7px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      opacity: 0;
+    }
+  }
+  
+  &__text {
+    font-size: 12px;
+    font-weight: 500;
+    color: $text;
+  }
 }
 
+.list-items {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 4px;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $border;
+    border-radius: 2px;
+  }
+}
 
-// Яндекс.Карты
-.yandex-map-container {
+.list-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid $border;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: $bg-light;
+  }
+  
+  &:active {
+    background: $bg-hover;
+  }
+  
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  &__name {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+  }
+  
+  &__status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    
+    &.open {
+      color: $success;
+    }
+    
+    &:not(.open) {
+      color: $error;
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  }
+  
+  &__address {
+    font-size: 13px;
+    color: $text-secondary;
+    margin-bottom: 6px;
+  }
+  
+  &__meta {
+    display: flex;
+    gap: 12px;
+    
+    .meta-time,
+    .meta-distance {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: $text-muted;
+      
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+}
+
+.list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+  color: $text-muted;
+  
+  p {
+    margin: 12px 0 0;
+    font-size: 13px;
+  }
+}
+
+// Карта
+.map-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: $bg;
+  border-bottom: 1px solid $border;
+  
+  &__back {
+    padding: 6px;
+    background: $bg-light;
+    border: none;
+    border-radius: 50%;
+    color: $text-secondary;
+    cursor: pointer;
+    
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+    }
+  }
+  
+  &__title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+  }
+  
+  &__geo {
+    padding: 6px;
+    background: $primary-light;
+    border: none;
+    border-radius: 50%;
+    color: $primary;
+    cursor: pointer;
+    
+    &:hover {
+      background: rgba($primary, 0.15);
+    }
+  }
+}
+
+.map-container {
+  position: relative;
+  height: 300px;
+  background: $bg-light;
+}
+
+.yandex-map {
   width: 100%;
-  height: 500px;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  box-shadow: $shadow-md;
+  height: 100%;
 }
 
 .map-legend {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: $radius-md;
-  padding: 16px;
-  box-shadow: $shadow-md;
-  z-index: 1000;
-  max-width: 220px;
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-
-    &:last-child {
-      margin-bottom: 0;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba($bg, 0.9);
+  border-radius: 20px;
+  font-size: 11px;
+  color: $text;
+  box-shadow: $shadow;
+  
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    
+    &.open {
+      background: $success;
     }
-
-    .legend-icon {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      position: relative;
-
-      &.open {
-        background: $success-color;
-        
-        &::after {
-          content: '';
-          position: absolute;
-          width: 6px;
-          height: 6px;
-          background: white;
-          border-radius: 50%;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-
-      &.closed {
-        background: $error-color;
-        
-        &::after {
-          content: '';
-          position: absolute;
-          width: 8px;
-          height: 2px;
-          background: white;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-
-      &.selected {
-        background: $primary-color;
-        
-        &::after {
-          content: '✓';
-          position: absolute;
-          color: white;
-          font-size: 10px;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-
-      &.user {
-        background: $secondary-color;
-        
-        &::after {
-          content: '';
-          position: absolute;
-          width: 6px;
-          height: 6px;
-          background: white;
-          border-radius: 50%;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-    }
-
-    span {
-      font-size: 12px;
-      color: $text-primary;
-      font-weight: 500;
+    
+    &.closed {
+      background: $error;
     }
   }
 }
 
-// Балуны на карте
-.store-balloon {
-  padding: 12px;
-  max-width: 300px;
+.map-cards {
+  position: relative;
+  margin-top: -32px;
+  padding: 0 12px 12px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
   
-  .balloon-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    
-    h4 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: $text-primary;
-    }
-    
-    .status {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
-      
-      &.open {
-        background: rgba($success-color, 0.1);
-        color: $success-color;
-      }
-      
-      &.closed {
-        background: rgba($error-color, 0.1);
-        color: $error-color;
-      }
-    }
-  }
-  
-  .balloon-body {
-    p {
-      margin: 0 0 8px;
-      font-size: 14px;
-      color: $text-secondary;
-      line-height: 1.4;
-    }
-    
-    .balloon-details {
-      font-size: 12px;
-      color: $text-muted;
-      
-      div {
-        margin-bottom: 4px;
-        
-        &:last-child {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-  
-  .balloon-footer {
-    display: flex;
-    gap: 8px;
-    margin-top: 12px;
-    
-    .select-btn, .details-btn {
-      flex: 1;
-      padding: 8px 12px;
-      border: none;
-      border-radius: $radius-sm;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: $transition-base;
-    }
-    
-    .select-btn {
-      background: $primary-color;
-      color: white;
-      
-      &:hover {
-        background: $primary-dark;
-      }
-    }
-    
-    .details-btn {
-      background: $background-light;
-      color: $text-secondary;
-      border: 1px solid $border-color;
-      
-      &:hover {
-        background: darken($background-light, 3%);
-        color: $text-primary;
-      }
-    }
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
-// Дополнительные стили для режима карты
-.stores-map-view {
-  .map-header {
+.map-card {
+  min-width: 200px;
+  background: $bg;
+  border-radius: $radius-sm;
+  padding: 10px;
+  box-shadow: $shadow-lg;
+  cursor: pointer;
+  
+  &.selected {
+    border-left: 3px solid $primary;
+  }
+  
+  &__name {
+    font-weight: 600;
+    font-size: 13px;
+    color: $text;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__address {
+    font-size: 11px;
+    color: $text-secondary;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  &__meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 12px;
-
-    .back-button {
+    justify-content: space-between;
+    
+    .status-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: $background-light;
-      border: 1px solid $border-color;
-      border-radius: $radius-md;
-      font-size: 14px;
+      gap: 4px;
+      font-size: 10px;
       font-weight: 500;
-      color: $text-secondary;
-      cursor: pointer;
-      transition: $transition-base;
-      order: 1;
-
-      &:hover {
-        background: darken($background-light, 3%);
-        color: $text-primary;
-      }
-
-      svg {
-        width: 16px;
-        height: 16px;
-        transform: rotate(180deg);
-      }
-    }
-
-    .map-title {
-      flex: 1;
-      order: 2;
       
-      h4 {
-        margin: 0 0 4px;
-        font-size: 18px;
-        font-weight: 600;
-        color: $text-primary;
+      &.open {
+        color: $success;
       }
       
-      .map-subtitle {
-        margin: 0;
-        font-size: 14px;
-        color: $text-muted;
+      &:not(.open) {
+        color: $error;
       }
-    }
-
-    .map-actions {
-      order: 3;
       
-      .geo-button-map {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        background: $background-light;
-        border: 1px solid $border-color;
-        border-radius: $radius-md;
-        font-size: 14px;
-        font-weight: 500;
-        color: $secondary-color;
-        cursor: pointer;
-        transition: $transition-base;
-
-        &:hover {
-          background: $secondary-light;
-          border-color: $secondary-color;
-        }
-
-        svg {
-          width: 16px;
-          height: 16px;
-        }
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
       }
     }
-  }
-
-  .map-container {
-    position: relative;
-    margin-bottom: 24px;
-  }
-}
-
-// Адаптивность для карты
-@media (max-width: 768px) {
-  .yandex-map-container {
-    height: 400px;
-  }
-  
-  .map-legend {
-    bottom: 10px;
-    right: 10px;
-    padding: 12px;
-    max-width: 180px;
     
-    .legend-item span {
-      font-size: 11px;
-    }
-  }
-  
-  .stores-map-view .map-header {
-    flex-direction: column;
-    align-items: stretch;
-    
-    .back-button {
-      order: 1;
-    }
-    
-    .map-title {
-      order: 3;
-      text-align: center;
-      margin-top: 12px;
-    }
-    
-    .map-actions {
-      order: 2;
-      align-self: flex-end;
-      margin-top: 12px;
+    .distance {
+      font-size: 10px;
+      color: $text-muted;
     }
   }
 }
 
-@media (max-width: 480px) {
-  .yandex-map-container {
-    height: 300px;
-  }
+// Лоадер
+.pickup-delivery__loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba($bg, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
   
-  .map-legend {
-    bottom: 5px;
-    right: 5px;
-    padding: 8px;
-    max-width: 150px;
+  .loader-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+// Адаптивность
+@media (min-width: 768px) {
+  .pickup-delivery {
+    max-width: 100%;
     
-    .legend-item {
-      gap: 6px;
-      margin-bottom: 6px;
-      
-      .legend-icon {
-        width: 12px;
-        height: 12px;
-      }
-      
-      span {
-        font-size: 10px;
-      }
+    .cities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      max-height: none;
+    }
+    
+    .list-items {
+      max-height: 500px;
+    }
+    
+    .map-container {
+      height: 400px;
     }
   }
+}
+
+// Состояния
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }

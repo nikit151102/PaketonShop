@@ -1,12 +1,11 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { finalize, map, switchMap, takeUntil } from 'rxjs/operators';
+import { finalize, map, switchMap, takeUntil, catchError } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
-
-import { trigger, transition, style, animate, query, stagger } from '@angular/animations'; // Добавьте этот импорт
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { AuthService } from '../../core/services/auth.service';
 import { StorageUtils } from '../../../utils/storage.utils';
 import { localStorageEnvironment } from '../../../environment';
@@ -14,8 +13,8 @@ import { UserApiService } from '../../core/api/user.service';
 import { UserService } from '../../core/services/user.service';
 import { PartnerService } from '../../core/api/partner.service';
 import { WholesaleOrderService } from '../../core/api/wholesale-order.service';
+import { PartnerBankService } from '../../core/api/partner-bank.service';
 
-// Добавьте константу с анимациями
 const animations = [
   trigger('fadeSlide', [
     transition(':enter', [
@@ -54,6 +53,7 @@ interface BusinessAccountData {
     phoneNumber: string;
   };
   company: {
+    id?: string;
     fullName: string;
     shortName: string;
     inn: string;
@@ -89,6 +89,35 @@ interface PartnerType {
   shortName: string;
 }
 
+interface Partner {
+  id: string;
+  fullName: string;
+  shortName: string;
+  inn: string;
+  ogrn: string;
+  kpp: string;
+  workDirection: string;
+  partnerType: PartnerType;
+  address: {
+    country: string;
+    region: string;
+    city: string;
+    street: string;
+    house: string;
+    postIndex: string;
+  };
+  phoneNumber?: string;
+  email?: string;
+  bank?: {
+    id: string;
+    bik: string;
+    partner: {
+      shortName: string;
+      fullName: string;
+    };
+  };
+}
+
 @Component({
   selector: 'app-business-account-registration',
   standalone: true,
@@ -112,12 +141,16 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   cloudLink = '';
   archiveFile: File | null = null;
   isDragOver = false;
+  isActivePartner: boolean = false;
 
-  // Forms
+  companyId: string = '';
+  existingPartner: Partner | null = null;
+  isLoadingPartner = false;
+  hideFirstTwoSteps = false;
+
   userForm: FormGroup;
   companyForm: FormGroup;
 
-  // Data
   accountData: BusinessAccountData = {
     user: {} as any,
     company: {} as any,
@@ -126,11 +159,8 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   partnerTypes: PartnerType[] = [];
   selectedPartnerType: PartnerType | null = null;
-
-  // Company registration date
   companyRegistrationDate: Date | null = null;
 
-  // Document types - Updated based on requirements
   documentTypes: any = [
     // Для ООО - обязательные
     { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
@@ -183,17 +213,14 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
   ];
 
-  // Uploaded files
   uploadedDocuments: DocumentData[] = [];
 
-  // Progress tracking
   progress = {
     step1: false,
     step2: false,
     step3: false
   };
 
-  // Password strength
   passwordStrength = {
     level: 0,
     hints: [] as { message: string; valid: boolean }[]
@@ -207,9 +234,11 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private userApiService: UserApiService,
     private userService: UserService,
-    private router: Router,
+    public router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private partnerService: PartnerService,
+    private partnerBankService: PartnerBankService,
     private wholesaleOrderService: WholesaleOrderService
   ) {
     this.userForm = this.createUserForm();
@@ -217,16 +246,32 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.userService.user$.subscribe((user: any) => {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      this.companyId = params['companyId'] || null;
 
+      if (this.companyId) {
+
+
+        const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+        if (authToken) {
+          this.loadUserDataAndPartner();
+          this.hideFirstTwoSteps = true;
+          this.currentStep = 3;
+        } else {
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { companyId: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+          });
+        }
+      } else {
+        const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+        if (authToken) {
+          this.loadUserData();
+        }
+      }
     });
-
-    const authToken = StorageUtils.getLocalStorageCache(
-      localStorageEnvironment.auth.key,
-    );
-    if (authToken) {
-      this.loadUserData();
-    }
 
     this.loadPartnerTypes();
     this.setupFormListeners();
@@ -237,6 +282,129 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  private loadUserDataAndPartner(): void {
+    this.isLoadingPartner = true;
+
+    this.userApiService.getData().pipe(
+      switchMap((response) => {
+        const user = response.data;
+        this.isActiveUser = true;
+
+        let birthdayValue = null;
+        if (user.birthday) {
+          const date = new Date(user.birthday);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          birthdayValue = `${year}-${month}-${day}`;
+        }
+
+        this.userForm.patchValue({
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          birthday: birthdayValue,
+          phoneNumber: user.phoneNumber,
+          agreeToTerms: true
+        });
+
+        this.progress.step1 = true;
+
+        return this.partnerService.getPartnerById(this.companyId!);
+      }),
+      catchError(error => {
+        console.error('Error loading data:', error);
+        this.error = 'Ошибка при загрузке данных';
+        return of(null);
+      })
+    ).subscribe({
+      next: (partnerResponse) => {
+        this.isLoadingPartner = false;
+        console.log('partnerResponse', partnerResponse)
+        if (partnerResponse && partnerResponse.data) {
+          this.existingPartner = partnerResponse.data;
+          this.selectedPartnerType = partnerResponse.data.partner.partnerType;
+          this.populateCompanyForm();
+          this.progress.step2 = true;
+          this.isActivePartner = true;
+        } else {
+          this.error = 'Компания не найдена';
+        }
+      },
+      error: (error) => {
+        this.isLoadingPartner = false;
+        console.error('Error loading partner:', error);
+        this.error = 'Ошибка при загрузке данных компании';
+      }
+    });
+  }
+
+  private populateCompanyForm(): void {
+    if (!this.existingPartner) return;
+
+    const partner = this.existingPartner;
+
+    if (partner.partnerType) {
+      this.selectedPartnerType = partner.partnerType;
+      this.companyForm.patchValue({
+        partnerTypeId: partner.partnerType.id
+      });
+    }
+
+    this.companyForm.patchValue({
+      fullName: partner.fullName || '',
+      shortName: partner.shortName || '',
+      workDirection: partner.workDirection || '',
+      inn: partner.inn || '',
+      ogrn: partner.ogrn || '',
+      kpp: partner.kpp || ''
+    });
+
+    if (partner.address) {
+      this.companyForm.patchValue({
+        address: {
+          country: partner.address.country || 'Россия',
+          region: partner.address.region || '',
+          city: partner.address.city || '',
+          street: partner.address.street || '',
+          house: partner.address.house || '',
+          postIndex: partner.address.postIndex || ''
+        }
+      });
+    }
+
+    this.accountData.company = {
+      id: partner.id,
+      fullName: partner.fullName,
+      shortName: partner.shortName,
+      inn: partner.inn,
+      ogrn: partner.ogrn,
+      kpp: partner.kpp || '',
+      partnerTypeId: partner.partnerType?.id || '',
+      workDirection: partner.workDirection || '',
+      address: partner.address ? {
+        country: partner.address.country || 'Россия',
+        region: partner.address.region || '',
+        city: partner.address.city || '',
+        street: partner.address.street || '',
+        house: partner.address.house || '',
+        postIndex: partner.address.postIndex || ''
+      } : {
+        country: 'Россия',
+        region: '',
+        city: '',
+        street: '',
+        house: '',
+        postIndex: ''
+      }
+    };
+
+    if (partner.bank) {
+    }
+
+    this.updateKppValidation();
+  }
 
   private loadUserData(): void {
     this.userApiService.getData().subscribe({
@@ -262,6 +430,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           agreeToTerms: true
         });
 
+        this.progress.step1 = true;
         this.currentStep = 2;
       },
       error: (error) => {
@@ -409,22 +578,18 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     if (!this.selectedPartnerType) return [];
 
     return this.documentTypes.filter((doc: any) => {
-      // Проверяем, что документ нужен для текущего типа партнера
       const isForPartnerType = doc.requiredFor.includes(this.selectedPartnerType!.code);
 
       if (!isForPartnerType) return false;
 
-      // Если нет даты регистрации, показываем документы, у которых нет condition
       if (!this.companyRegistrationDate && doc.condition) {
         return false;
       }
 
-      // Если есть дата, проверяем условия
       if (doc.condition && this.companyRegistrationDate) {
         return this.checkDocumentCondition(doc);
       }
 
-      // Документы без условий всегда показываем
       return true;
     });
   }
@@ -445,7 +610,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Progress methods
   getProgressPercentage(): number {
     let progress = 0;
     if (this.progress.step1) progress += 33;
@@ -454,7 +618,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     return progress;
   }
 
-  // Step navigation
   nextStep(): void {
     if (!this.validateCurrentStep()) {
       this.markCurrentStepAsTouched();
@@ -497,7 +660,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   validateDocumentsStep(): boolean {
-    if (!this.selectedPartnerType || !this.companyRegistrationDate) return false;
+    if (!this.selectedPartnerType) return false;
 
     if (this.uploadMethod === 'single') {
       const requiredDocs = this.getRequiredDocuments();
@@ -531,10 +694,8 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     switch (this.currentStep) {
       case 1:
         this.accountData.user = this.userForm.value;
-
         this.userForm.markAsPristine();
         this.progress.step1 = true;
-
         break;
       case 2:
         const formData = this.companyForm.value;
@@ -542,7 +703,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           ...formData,
           registrationDate: this.companyRegistrationDate
         };
-
         this.progress.step2 = true;
         break;
       case 3:
@@ -560,7 +720,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     return descriptions[this.currentStep] || '';
   }
 
-  // UI Helpers
   getCurrentStepTitle(): string {
     switch (this.currentStep) {
       case 1: return 'Создание пользователя';
@@ -571,6 +730,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepTitle(step: number): string {
+    if (this.hideFirstTwoSteps && step < 3) {
+      return '';
+    }
+
     switch (step) {
       case 1: return 'Пользователь';
       case 2: return 'Компания';
@@ -580,6 +743,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepSubtitle(step: number): string {
+    if (this.hideFirstTwoSteps && step < 3) {
+      return '';
+    }
+
     switch (step) {
       case 1: return 'Контактные данные';
       case 2: return 'Реквизиты организации';
@@ -589,6 +756,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepStatus(step: number): string {
+    if (this.hideFirstTwoSteps && step < 3) {
+      return 'completed';
+    }
+
     if (this.currentStep === step) return 'active';
     if (step === 1 && this.progress.step1) return 'completed';
     if (step === 2 && this.progress.step2) return 'completed';
@@ -597,6 +768,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepGuideText(): string {
+    if (this.hideFirstTwoSteps && this.currentStep === 3) {
+      return 'Загрузите необходимые документы для завершения регистрации';
+    }
+
     switch (this.currentStep) {
       case 1: return 'Заполните все поля для создания учетной записи';
       case 2: return 'Укажите точные данные вашей компании';
@@ -606,6 +781,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getStepHint(): string {
+    if (this.hideFirstTwoSteps && this.currentStep === 3) {
+      return 'Данные компании уже предзаполнены. Осталось загрузить документы.';
+    }
+
     switch (this.currentStep) {
       case 1: return 'Используйте надежный пароль с буквами, цифрами и символами';
       case 2: return 'Данные должны совпадать с юридическими документами';
@@ -615,6 +794,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   getCurrentStepHelp(): string {
+    if (this.hideFirstTwoSteps && this.currentStep === 3) {
+      return 'Данные компании уже загружены. Вам нужно только загрузить документы для завершения регистрации.';
+    }
+
     switch (this.currentStep) {
       case 1: return 'Заполните точные контактные данные. Это важно для восстановления доступа и получения уведомлений.';
       case 2: return 'Убедитесь, что юридические данные совпадают с документами. Это ускорит проверку.';
@@ -623,12 +806,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Help methods
   toggleHelp(): void {
     this.showHelp = !this.showHelp;
   }
 
-  // Form field helpers
   getEmailErrorMessage(): string {
     const errors = this.userForm.get('email')?.errors;
     if (errors?.['required']) return 'Введите email';
@@ -636,7 +817,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  // Password methods
   onPasswordChange(): void {
     const password = this.userForm.get('password')?.value;
     this.updatePasswordStrength(password);
@@ -652,7 +832,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
     let level = 0;
 
-    // Length check
     if (password.length >= 8) {
       level++;
       this.passwordStrength.hints.push({
@@ -666,7 +845,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Letter check
     if (/[A-Za-z]/.test(password)) {
       level++;
       this.passwordStrength.hints.push({
@@ -680,7 +858,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Digit check
     if (/\d/.test(password)) {
       level++;
       this.passwordStrength.hints.push({
@@ -694,7 +871,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Special character check
     if (/[^A-Za-z0-9]/.test(password)) {
       level++;
       this.passwordStrength.hints.push({
@@ -708,7 +884,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Mixed case check
     if (/[A-Z]/.test(password) && /[a-z]/.test(password)) {
       level++;
       this.passwordStrength.hints.push({
@@ -753,7 +928,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Company methods
   selectPartnerType(type: PartnerType): void {
     this.selectedPartnerType = type;
     this.companyForm.patchValue({
@@ -785,7 +959,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }
   }
 
-  // File handling methods
   onFileSelected(event: Event, documentTypeId: number): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -840,7 +1013,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     return this.uploadedDocuments.find(doc => doc.type === typeId);
   }
 
-  // Document checklist methods
   toggleDocumentUpload(docId: number, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
     if (!checkbox.checked) {
@@ -890,7 +1062,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     ).length;
   }
 
-  // Cloud storage methods
   validateCloudLink(): void {
     if (!this.cloudLink) {
       this.error = 'Введите ссылку на облачное хранилище';
@@ -906,7 +1077,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.error = null;
   }
 
-  // Archive methods
   @HostListener('window:dragover', ['$event'])
   onWindowDragOver(event: DragEvent): void {
     if (event.dataTransfer?.types.includes('Files')) {
@@ -1001,7 +1171,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  // Utility methods
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -1014,7 +1183,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Success state methods
   createAnother(): void {
     this.success = false;
     this.resetAllForms();
@@ -1051,22 +1219,88 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.isSubmitting = true;
     this.error = null;
 
-    // Обновляем данные пользователя из формы
+    if (this.companyId && this.isActiveUser) {
+      this.submitDocumentsForExistingPartner();
+    } else {
+      this.submitFullRegistration();
+    }
+  }
+
+  private submitDocumentsForExistingPartner(): void {
+    const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+    if (!authToken) {
+      this.error = 'Необходимо авторизоваться';
+      this.isSubmitting = false;
+      return;
+    }
+
+    this.userApiService.getData().pipe(
+      switchMap((userResponse) => {
+        const user = userResponse.data;
+
+        return this.wholesaleOrderService.createOrder({
+          beginDateTime: null,
+          endDateTime: null,
+          partnerInstanceId: this.companyId,
+          userInstanceId: user.id
+        }).pipe(
+          map((orderResponse) => ({
+            user,
+            orderId: orderResponse.data.id
+          }))
+        );
+      }),
+      switchMap(({ user, orderId }) => {
+        if (this.accountData.documents?.length > 0) {
+          let files: File[] = [];
+
+          if (this.uploadMethod === 'single') {
+            files = this.accountData.documents
+              .filter(doc => doc.file)
+              .map(doc => doc.file);
+          } else if (this.uploadMethod === 'archive' && this.archiveFile) {
+            files = [this.archiveFile];
+          }
+
+          if (files.length > 0) {
+            return this.wholesaleOrderService.addDocuments(orderId, files).pipe(
+              map(() => orderId)
+            );
+          }
+        }
+
+        return of(orderId);
+      }),
+      switchMap((orderId) => {
+        if (this.uploadMethod === 'cloud' && this.cloudLink) {
+        }
+        return of(orderId);
+      })
+    ).subscribe({
+      next: (orderId) => {
+        this.isSubmitting = false;
+        this.success = true;
+        this.router.navigate(['/profile/companies']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.error = error.message || 'Ошибка при загрузке документов';
+        console.error('Error uploading documents:', error);
+      }
+    });
+  }
+
+  private submitFullRegistration(): void {
+
     this.accountData.user = this.userForm.value;
 
-    // Регистрируем пользователя
     const registerData = {
       email: this.accountData.user.email,
       password: this.accountData.user.password,
       isEmailSend: 'false',
     };
 
-    if (this.isActiveUser == false) {
-
-    }
-
     this.authService.register(registerData).pipe(
-      // После успешной регистрации сохраняем токен и обновляем данные пользователя
       switchMap((response) => {
         StorageUtils.setLocalStorageCache(
           localStorageEnvironment.auth.key,
@@ -1083,12 +1317,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           email: this.accountData.user.email
         };
 
-        // Обновляем данные пользователя и затем получаем обновленные данные
         return this.userApiService.updateData(userFormData).pipe(
           switchMap(() => this.userApiService.getData())
         );
       }),
-      // После получения данных пользователя создаем партнера
       switchMap((userData) => {
         this.userService.setUser(userData.data, 'session', true);
         this.userForm.markAsPristine();
@@ -1115,7 +1347,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           partnerCreateDTO: partnerCreateDTO
         };
 
-        // Создаем партнера и возвращаем результат вместе с userInstance
         return this.partnerService.setPartnerUser(newPartner).pipe(
           map((partnerResponse) => ({
             userInstance,
@@ -1123,7 +1354,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }))
         );
       }),
-      // После создания партнера создаем заказ
       switchMap(({ userInstance, partnerInstance }) => {
         return this.wholesaleOrderService.createOrder({
           beginDateTime: null,
@@ -1134,26 +1364,23 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           map((orderResponse) => ({
             userInstance,
             partnerInstance,
-            orderId: orderResponse.data.id // предполагаем, что id заказа приходит в ответе
+            orderId: orderResponse.data.id
           }))
         );
       }),
-      // После создания заказа загружаем документы
       switchMap(({ userInstance, partnerInstance, orderId }) => {
-        // Если есть документы для загрузки
+
         if (this.accountData.documents?.length > 0) {
           let files: File[] = [];
 
           if (this.uploadMethod === 'single') {
-            // Собираем все файлы из documents
             files = this.accountData.documents
-              .filter(doc => doc.file) // отфильтровываем документы без файлов
+              .filter(doc => doc.file)
               .map(doc => doc.file);
           } else if (this.uploadMethod === 'archive' && this.archiveFile) {
             files = [this.archiveFile];
           }
 
-          // Если есть файлы для загрузки
           if (files.length > 0) {
             return this.wholesaleOrderService.addDocuments(orderId, files).pipe(
               map(() => ({
@@ -1165,36 +1392,21 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }
         }
 
-        // Если документов нет или метод загрузки 'cloud'
-        // Возвращаем тот же объект без загрузки документов
         return of({ userInstance, partnerInstance, orderId });
       })
     ).subscribe({
       next: (result) => {
         this.isSubmitting = false;
+        this.success = true;
 
-        // Если метод загрузки 'cloud', нужно обработать cloudLink отдельно
         if (this.uploadMethod === 'cloud' && this.cloudLink) {
-          // Здесь логика для сохранения cloudLink
           console.log('Cloud link:', this.cloudLink, 'Provider:', this.selectedProvider);
-          // Возможно, нужно отправить cloudLink отдельным запросом
-          // this.wholesaleOrderService.addCloudLink(result.orderId, this.cloudLink, this.selectedProvider).subscribe(...)
         }
-
-
-        // Например, редирект на страницу успеха
-        // this.router.navigate(['/success'], { queryParams: { orderId: result.orderId } });
-
-        // Или показать уведомление
-        // this.notificationService.showSuccess('Компания успешно зарегистрирована');
       },
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Произошла ошибка при регистрации';
-        console.error('Ошибка при регистрации:', error);
-
-        // Показать уведомление об ошибке
-        // this.notificationService.showError(this.error);
+        console.error('Error during registration:', error);
       }
     });
   }
@@ -1217,9 +1429,16 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.archiveFile = null;
     this.uploadMethod = 'single';
     this.passwordStrength = { level: 0, hints: [] };
+    this.hideFirstTwoSteps = false;
+    this.companyId = '';
+    this.existingPartner = null;
   }
 
   canSubmitDocuments(): boolean {
     return this.validateDocumentsStep();
+  }
+
+  isExistingPartnerMode(): boolean {
+    return !!this.companyId && this.isActiveUser;
   }
 }

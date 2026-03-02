@@ -66,8 +66,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['productData']) {
-      console.log('Product data changed:', changes['productData']);
-
       const currentValue = changes['productData'].currentValue;
       const previousValue = changes['productData'].previousValue;
 
@@ -99,24 +97,24 @@ export class ProductCardComponent implements OnInit, OnChanges {
     return baskets;
   }
 
-validateQuantity(): void {
-  // Сохраняем предыдущее значение для сравнения
-  const previousQuantity = this.selectedQuantity;
-  
-  // Валидация минимального значения
-  if (this.selectedQuantity < 1) {
-    this.selectedQuantity = 1;
-  }
+  validateQuantity(): void {
+    // Сохраняем предыдущее значение для сравнения
+    const previousQuantity = this.selectedQuantity;
 
-  // Валидация максимального значения
-  const maxQuantity = 9999; // или другое ограничение
-  if (this.selectedQuantity > maxQuantity) {
-    this.selectedQuantity = maxQuantity;
-    this.showNotification(`Максимальное количество: ${maxQuantity}`, 'warning');
-  }
+    // Валидация минимального значения
+    if (this.selectedQuantity < 1) {
+      this.selectedQuantity = 1;
+    }
 
-  
-}
+    // Валидация максимального значения
+    const maxQuantity = 9999; // или другое ограничение
+    if (this.selectedQuantity > maxQuantity) {
+      this.selectedQuantity = maxQuantity;
+      this.showNotification(`Максимальное количество: ${maxQuantity}`, 'warning');
+    }
+
+
+  }
 
   // Проверяем, есть ли товар в активной корзине
   isInActiveBasket(): boolean {
@@ -186,79 +184,79 @@ validateQuantity(): void {
   }
 
   // Обновляем количество товара в активной корзине
-updateActiveBasketQty(delta: number): void {
-  const activeBasketId = this.activeBasketId;
-  if (!activeBasketId) return;
+  updateActiveBasketQty(delta: number): void {
+    const activeBasketId = this.activeBasketId;
+    if (!activeBasketId) return;
 
-  const currentCount = this.getActiveBasketCount();
-  const newCount = currentCount + delta;
+    const currentCount = this.getActiveBasketCount();
+    const newCount = currentCount + delta;
 
-  if (newCount <= 0) {
-    this.removeFromBasket(activeBasketId);
-    return;
+    if (newCount <= 0) {
+      this.removeFromBasket(activeBasketId);
+      return;
+    }
+
+    // Используем changeProductFromBasket вместо addProduct
+    this.basketsService
+      .changeProductFromBasket(activeBasketId, this.productData.id, newCount)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.loadUpdatedProductData();
+          this.userApiService.getOperativeInfo();
+          this.showNotification('Количество обновлено', 'success');
+        },
+        error: (err) =>
+          console.error('Ошибка при обновлении количества в активной корзине:', err),
+      });
   }
-
-  // Используем changeProductFromBasket вместо addProduct
-  this.basketsService
-    .changeProductFromBasket(activeBasketId, this.productData.id, newCount)
-    .pipe(take(1))
-    .subscribe({
-      next: () => {
-        this.loadUpdatedProductData();
-        this.userApiService.getOperativeInfo();
-        this.showNotification('Количество обновлено', 'success');
-      },
-      error: (err) =>
-        console.error('Ошибка при обновлении количества в активной корзине:', err),
-    });
-}
   // Обновляем количество из поля ввода
-updateActiveBasketQtyFromInput(event: any): void {
-  const value = parseInt(event.target.value, 10);
-  if (isNaN(value) || value < 1) return;
+  updateActiveBasketQtyFromInput(event: any): void {
+    const value = parseInt(event.target.value, 10);
+    if (isNaN(value) || value < 1) return;
 
-  const activeBasketId = this.activeBasketId;
-  if (!activeBasketId) return;
+    const activeBasketId = this.activeBasketId;
+    if (!activeBasketId) return;
 
-  // Используем changeProductFromBasket вместо addProduct
-  this.basketsService
-    .changeProductFromBasket(activeBasketId, this.productData.id, value)
-    .pipe(take(1))
-    .subscribe({
-      next: () => {
-        this.loadUpdatedProductData();
-        this.userApiService.getOperativeInfo();
-        this.showNotification('Количество обновлено', 'success');
-      },
-      error: (err) =>
-        console.error('Ошибка при обновлении количества из поля ввода:', err),
-    });
-}
+    // Используем changeProductFromBasket вместо addProduct
+    this.basketsService
+      .changeProductFromBasket(activeBasketId, this.productData.id, value)
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.loadUpdatedProductData();
+          this.userApiService.getOperativeInfo();
+          this.showNotification('Количество обновлено', 'success');
+        },
+        error: (err) =>
+          console.error('Ошибка при обновлении количества из поля ввода:', err),
+      });
+  }
 
 
   // Обновление количества в конкретной корзине
-updateBasketItemQuantity(basketId: string, delta: number): void {
-  const item = this.getBasketItem(basketId);
-  if (!item) return;
+  updateBasketItemQuantity(basketId: string, delta: number): void {
+    const item = this.getBasketItem(basketId);
+    if (!item) return;
 
-  const newCount = item.count + delta;
+    const newCount = item.count + delta;
 
-  if (newCount <= 0) {
-    this.removeFromBasket(basketId);
-    return;
+    if (newCount <= 0) {
+      this.removeFromBasket(basketId);
+      return;
+    }
+
+    // Используем changeProductFromBasket вместо addProduct
+    this.basketsService.changeProductFromBasket(basketId, this.productData.id, newCount)
+      .pipe(take(1)).subscribe({
+        next: () => {
+          this.loadUpdatedProductData();
+          this.userApiService.getOperativeInfo();
+          this.showNotification('Количество обновлено', 'success');
+        },
+        error: (err) => console.error('Ошибка при обновлении количества:', err)
+      });
   }
-
-  // Используем changeProductFromBasket вместо addProduct
-  this.basketsService.changeProductFromBasket(basketId, this.productData.id, newCount)
-    .pipe(take(1)).subscribe({
-      next: () => {
-        this.loadUpdatedProductData();
-        this.userApiService.getOperativeInfo();
-        this.showNotification('Количество обновлено', 'success');
-      },
-      error: (err) => console.error('Ошибка при обновлении количества:', err)
-    });
-}
 
 
   // Получить элемент корзины для конкретной корзины
@@ -308,39 +306,11 @@ updateBasketItemQuantity(basketId: string, delta: number): void {
           this.loadUpdatedProductData();
           this.userApiService.getOperativeInfo();
           this.showNotification(`Товар удален из корзины "${basket?.name || ''}"`, 'success');
+          if (basketId == this.activeBasketId) {
+            this.selectedQuantity = 0;
+          }
         },
         error: (err) => console.error('Ошибка при удалении из корзины:', err)
-      });
-  }
-
-  // Добавление в активную корзину (1 штука)
-  addOneToCart(): void {
-    const authToken = StorageUtils.getLocalStorageCache(
-      localStorageEnvironment.auth.key,
-    );
-
-    if (!authToken) {
-      this.authService.changeVisible(true);
-      return;
-    }
-
-    const basketId = this.activeBasketId;
-    if (!basketId) {
-      console.error('Активная корзина не найдена');
-      return;
-    }
-
-    this.basketsService
-      .addProduct({ productId: this.productData.id, basketId, count: this.selectedQuantity })
-      .pipe(take(1))
-      .subscribe({
-        next: () => {
-          this.loadUpdatedProductData();
-          this.userApiService.getOperativeInfo();
-          this.quantitySelectorVisible = true;
-          this.showNotification('Товар добавлен в корзину', 'success');
-        },
-        error: (err) => console.error('Ошибка при добавлении товара', err),
       });
   }
 

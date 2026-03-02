@@ -18,7 +18,6 @@ declare global {
   }
 }
 
-// Интерфейс для городов из JSON файла
 interface CityFromJson {
   coords: {
     lat: string;
@@ -30,7 +29,6 @@ interface CityFromJson {
   subject: string;
 }
 
-// Интерфейсы для API транспортных компаний
 interface CdekPickupPoint {
   code: string;
   name: string;
@@ -62,6 +60,7 @@ interface MapPoint {
   longitude: number;
   phone?: string;
   work_time?: string;
+  isDeleted?: boolean;
   postal_code?: string;
   code?: string;
   type: 'cdek' | 'dellin' | 'manual';
@@ -78,27 +77,25 @@ interface MapPoint {
 export class DeliveryAddressesComponent implements OnInit, OnDestroy {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
 
-  // Все адреса
   addresses: Address[] = [];
 
-  // Фильтрованные адреса по типу
+  activeAddresses: Address[] = [];
+  archivedAddresses: Address[] = [];
+
   personalAddresses: Address[] = [];
   transportCompanyAddresses: Address[] = [];
 
-  // Группировка адресов транспортных компаний
   groupedTransportAddresses: Map<number, Address[]> = new Map();
 
-  // Названия транспортных компаний
   transportCompanyNames: { [key: number]: string } = {
     1: 'СДЭК',
     2: 'Байкал Сервис',
     3: 'Деловые линии'
   };
 
-  // Текущий активный таб
   activeTab: 'personal' | 'transport' = 'personal';
+  viewMode: 'active' | 'archived' = 'active';
 
-  // Состояния загрузки
   loading = false;
   saving = false;
   deleting = false;
@@ -107,36 +104,42 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
   error: string | null = null;
   success: string | null = null;
 
-  // Модальные окна
   isModalOpen = false;
   isMapModalOpen = false;
   isDeleteConfirmOpen = false;
   isEditing = false;
   editingAddress: Address | null = null;
 
-  // Форма
   addressForm!: FormGroup;
   addressType: 'personal' | 'transport' = 'personal';
-  selectedTransportCompany: number = 1; // СДЭК по умолчанию
+  selectedTransportCompany: number = 1;
 
-  // Яндекс Карта
   ymaps: any;
   map: any;
   placemarks: any[] = [];
 
-  // Список ПВЗ для выбора
   pickupPoints: MapPoint[] = [];
   selectedPickupPoint: MapPoint | null = null;
   searchCity = '';
   cityCoordinates: { lat: number; lng: number } | null = null;
   cdekCityCode: number | null = null;
 
-  // Список городов из JSON файла
   citiesFromJson: CityFromJson[] = [];
   filteredCities: CityFromJson[] = [];
 
-  // Для управления подписками
   private destroy$ = new Subject<void>();
+
+  mapViewMode: 'map' | 'list' = 'map';
+
+  setMapViewMode(mode: 'map' | 'list'): void {
+    this.mapViewMode = mode;
+
+    if (mode === 'map' && this.map && this.selectedPickupPoint) {
+      setTimeout(() => {
+        this.map.setCenter([this.selectedPickupPoint!.latitude, this.selectedPickupPoint!.longitude], 15);
+      }, 100);
+    }
+  }
 
   constructor(
     private addressesService: AddressesService,
@@ -173,7 +176,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       longitude: [null],
       system: ['web'],
       transportCompanyType: [0],
-      // Эти поля для отображения, но не отправляются
       pickupPointName: [''],
       pickupPointCode: [''],
       pickupPointPhone: [''],
@@ -184,7 +186,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
   private async loadCitiesFromJson(): Promise<void> {
     try {
       this.citiesFromJson = await this.http.get<CityFromJson[]>('/russian-cities.json').toPromise() || [];
-      console.log(`Загружено ${this.citiesFromJson.length} городов из JSON файла`);
     } catch (error) {
       console.error('Ошибка при загрузке городов из JSON:', error);
       this.citiesFromJson = [];
@@ -196,19 +197,16 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
     const searchName = cityName.toLowerCase().trim();
 
-    // Ищем точное совпадение
     let city = this.citiesFromJson.find(c =>
       c.name.toLowerCase() === searchName
     );
 
-    // Если не нашли, ищем частичное совпадение
     if (!city) {
       city = this.citiesFromJson.find(c =>
         c.name.toLowerCase().includes(searchName)
       );
     }
 
-    // Если все еще не нашли, ищем среди субъектов
     if (!city) {
       city = this.citiesFromJson.find(c =>
         c.subject.toLowerCase().includes(searchName)
@@ -229,13 +227,12 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Получены адреса:', response);
           if (response && response.data) {
             this.addresses = Array.isArray(response.data) ? response.data : [];
           } else {
             this.addresses = [];
           }
-          this.filterAndGroupAddresses();
+          this.filterAddresses();
         },
         error: (error) => {
           console.error('Ошибка при загрузке адресов:', error);
@@ -245,12 +242,15 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       });
   }
 
-  filterAndGroupAddresses(): void {
-    this.personalAddresses = this.addresses.filter(address =>
+  filterAddresses(): void {
+    this.activeAddresses = this.addresses.filter((address: any) => !address.isDeleted);
+    this.archivedAddresses = this.addresses.filter((address: any) => address.isDeleted);
+
+    this.personalAddresses = this.activeAddresses.filter(address =>
       !address.transportCompanyType || address.transportCompanyType === 0
     );
 
-    this.transportCompanyAddresses = this.addresses.filter(address =>
+    this.transportCompanyAddresses = this.activeAddresses.filter(address =>
       address.transportCompanyType && address.transportCompanyType > 0
     );
 
@@ -265,8 +265,28 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     });
   }
 
+  getPersonalAddressesCount(): number {
+    if (this.viewMode === 'active') {
+      return this.personalAddresses.length;
+    } else {
+      return this.archivedAddresses.filter(a => !a.transportCompanyType).length;
+    }
+  }
+
+  getTransportAddressesCount(): number {
+    if (this.viewMode === 'active') {
+      return this.transportCompanyAddresses.length;
+    } else {
+      return this.archivedAddresses.filter(a => a.transportCompanyType).length;
+    }
+  }
+
   switchTab(tab: 'personal' | 'transport'): void {
     this.activeTab = tab;
+  }
+
+  setViewMode(mode: 'active' | 'archived'): void {
+    this.viewMode = mode;
   }
 
   openAddModal(type: 'personal' | 'transport' = 'personal', companyType?: number): void {
@@ -297,7 +317,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       this.selectedTransportCompany = address.transportCompanyType;
     }
 
-    // Заполняем форму данными адреса
     this.addressForm.patchValue({
       id: address.id,
       region: address.region || '',
@@ -313,7 +332,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       longitude: address.longitude || null,
       system: address.system || 'web',
       transportCompanyType: address.transportCompanyType || 0,
-      // Заполняем отображаемые поля из pickupPointName
       pickupPointName: address.pickupPointName || ''
     });
 
@@ -327,11 +345,13 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     this.searchCity = this.addressForm.get('city')?.value || '';
     this.pickupPoints = [];
     this.selectedPickupPoint = null;
+    this.mapViewMode = 'list';
 
     setTimeout(() => {
       this.initMap();
     }, 100);
   }
+
 
   closeMapModal(): void {
     this.isMapModalOpen = false;
@@ -340,6 +360,7 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     this.selectedPickupPoint = null;
     this.placemarks = [];
     this.searchCity = '';
+    this.mapViewMode = 'list';
   }
 
   async loadPickupPoints(): Promise<void> {
@@ -352,11 +373,9 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     this.error = null;
 
     try {
-      // Сначала центрируем карту на городе
       const success = await this.centerMapOnCityFromJson(this.searchCity);
 
       if (success && this.cityCoordinates) {
-        // Загружаем ПВЗ
         if (this.selectedTransportCompany === 1) {
           await this.loadCdekPoints(this.searchCity);
         } else if (this.selectedTransportCompany === 3) {
@@ -516,7 +535,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
   private async loadCdekPoints(city: string): Promise<void> {
     try {
-      // Получаем код города
       const cityResponse: any = await this.http.get(
         `https://xn--o1ab.xn--80akonecy.xn--p1ai/transport/cdek/city_code/?city=${encodeURIComponent(city)}`
       ).toPromise();
@@ -524,7 +542,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       if (cityResponse?.code) {
         this.cdekCityCode = cityResponse.code;
 
-        // Получаем точки выдачи
         const pointsResponse: any = await this.http.get(
           `https://xn--o1ab.xn--80akonecy.xn--p1ai/transport/cdek/deliverypoints/?city_code=${this.cdekCityCode}&size=1000&page=0`
         ).toPromise();
@@ -639,6 +656,10 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
     if (this.map && point.latitude && point.longitude) {
       this.map.setCenter([point.latitude, point.longitude], 15);
+
+      if (window.innerWidth <= 768) {
+        this.mapViewMode = 'map';
+      }
     }
   }
 
@@ -648,32 +669,26 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Разбираем полный адрес на компоненты
     this.parseAddressFromPickupPoint();
-
     this.closeMapModal();
+    this.mapViewMode = 'list';
   }
 
-  // Главное изменение: парсим адрес из ПВЗ в поля формы
   private parseAddressFromPickupPoint(): void {
     if (!this.selectedPickupPoint) return;
 
     const point = this.selectedPickupPoint;
 
-    // Для СДЭК есть полный адрес, можно его парсить
     if (point.full_address) {
-      // Пример парсинга: "656039, Россия, Алтайский край, Барнаул, ул. Малахова, 83"
       const addressParts = point.full_address.split(', ');
 
       if (addressParts.length >= 4) {
-        // Индекс
         if (addressParts[0]) {
           this.addressForm.patchValue({ postIndex: addressParts[0] });
         }
 
-        // Город (обычно 3-я или 4-я часть)
         const cityPart = addressParts.find(part =>
-          !part.match(/^\d+$/) && // не индекс
+          !part.match(/^\d+$/) &&
           !['Россия', 'г.', 'ул.', 'улица', 'дом', 'д.'].includes(part.toLowerCase())
         );
 
@@ -683,7 +698,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.addressForm.patchValue({ city: this.searchCity });
         }
 
-        // Улица и дом
         const streetAndHouse = addressParts.find(part =>
           part.toLowerCase().includes('ул.') ||
           part.toLowerCase().includes('улица') ||
@@ -694,7 +708,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         if (streetAndHouse) {
           const streetMatch = streetAndHouse.match(/(ул\.|улица|пр\.|проспект)\s+(.+)/i);
           if (streetMatch && streetMatch[2]) {
-            // Пытаемся выделить номер дома
             const streetParts = streetMatch[2].split(/[\s,]+/);
             if (streetParts.length > 1) {
               this.addressForm.patchValue({
@@ -708,8 +721,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         }
       }
     } else {
-      // Для других транспортных компаний или если нет полного адреса
-      // Просто заполняем основные поля
       this.addressForm.patchValue({
         city: this.searchCity,
         street: point.address,
@@ -719,7 +730,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Заполняем дополнительные данные для отображения
     this.addressForm.patchValue({
       pickupPointName: point.name,
       pickupPointCode: point.code || point.id,
@@ -793,7 +803,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     this.pickupPoints.push(manualPoint);
     this.selectedPickupPoint = manualPoint;
 
-    // Заполняем форму координатами
     this.addressForm.patchValue({
       latitude: lat,
       longitude: lng
@@ -830,18 +839,16 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     this.saving = true;
     this.error = null;
     this.success = null;
-    // Подготавливаем данные для отправки
+
     const formValue = this.addressForm.value;
     const transportCompanyType = this.addressType === 'personal' ? 0 : this.selectedTransportCompany;
 
-    // Объект для маппинга transportCompanyType -> system
     const systemMapping: { [key: number]: string } = {
       1: 'sdek',
       2: 'baikal',
       3: 'dellin'
     };
 
-    // Определяем значение для поля system
     const systemValue = this.addressType === 'personal'
       ? 'web'
       : (systemMapping[transportCompanyType] || 'web');
@@ -859,13 +866,10 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       postIndex: formValue.postIndex || '',
       latitude: formValue.latitude,
       longitude: formValue.longitude,
-      system: systemValue, // Используем вычисленное значение
+      system: systemValue,
       transportCompanyType: transportCompanyType,
-      // Важное изменение: сохраняем название ПВЗ в pickupPointName
       pickupPointName: this.addressType === 'transport' ? formValue.pickupPointName : ''
     };
-
-    console.log('Отправляемые данные:', addressData);
 
     const saveOperation = this.isEditing && addressData.id
       ? this.addressesService.updateAddress(addressData)
@@ -878,7 +882,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          console.log('Ответ от сервера:', response);
           this.success = this.isEditing
             ? 'Адрес успешно обновлен!'
             : 'Новый адрес успешно добавлен!';
@@ -933,6 +936,28 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Ошибка при удалении адреса:', error);
           this.error = 'Не удалось удалить адрес. Пожалуйста, попробуйте позже.';
+        }
+      });
+  }
+
+  restoreAddress(address: Address): void {
+    if (!address.id) return;
+
+    const restoredAddress = { ...address, isDeleted: false };
+
+    this.addressesService.updateAddress(restoredAddress)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadAddresses();
+          this.success = 'Адрес восстановлен из архива!';
+          setTimeout(() => {
+            this.success = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Ошибка при восстановлении адреса:', error);
+          this.error = 'Не удалось восстановить адрес.';
         }
       });
   }

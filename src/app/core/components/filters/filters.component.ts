@@ -18,6 +18,7 @@ interface Filter {
   };
   uniqueValues: string[] | null;
   filterType: number;
+  hasMultipleValues?: boolean; // Флаг для проверки наличия нескольких значений
 }
 
 interface RangeValue {
@@ -54,8 +55,10 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
   @Output() filtersChange = new EventEmitter<any[]>();
   @Output() filtersApplied = new EventEmitter<void>();
 
+  private readonly STEP_PRECISION = 1;
   searchQuery: string = '';
-  filteredFilters: Filter[] = [];
+  filteredFilters: Filter[] = []; // Будет содержать только фильтры с несколькими значениями
+  allFilters: Filter[] = []; // Все фильтры (для внутреннего использования)
   activeFilters: ActiveFilter[] = [];
   expandedFilters: Set<string> = new Set();
   rangeValues: { [key: string]: RangeValue } = {};
@@ -63,16 +66,20 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
   isMobileOpen: boolean = false;
   filterStats: { [key: string]: { [value: string]: number } } = {};
   loadingFilters: Set<string> = new Set();
-  
+
   // Для двухстороннего связывания ползунков
   rangeMinValues: { [key: string]: number } = {};
   rangeMaxValues: { [key: string]: number } = {};
-  
+
+  // Храним оригинальные min/max значения для каждого фильтра
+  private originalRangeMins: { [key: string]: number } = {};
+  private originalRangeMaxs: { [key: string]: number } = {};
+
   // Для предотвращения повторных запросов
   private loadedFilters: Set<string> = new Set();
   private readonly apiUrl = `${environment.production}/api/Entities/ProductProperty/GetUniqueValues`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.checkMobile();
@@ -83,7 +90,7 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
       this.initializeFilters();
       this.loadFiltersData();
     }
-    
+
     if (changes['categoryId'] && this.categoryId) {
       // При изменении категории перезагружаем фильтры
       this.loadedFilters.clear();
@@ -108,8 +115,12 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   initializeFilters() {
-    this.filteredFilters = [...this.filters];
+    // Сохраняем все фильтры
+    this.allFilters = [...this.filters];
     
+    // Инициализируем filteredFilters позже, после загрузки данных
+    this.filteredFilters = [];
+
     // Инициализация значений для ползунков
     this.filters.forEach(filter => {
       if (filter.filterType === 1) {
@@ -120,56 +131,87 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         this.rangeValues[filter.id] = initialValue;
         this.rangeMinValues[filter.id] = initialValue.min;
         this.rangeMaxValues[filter.id] = initialValue.max;
+        this.originalRangeMins[filter.id] = initialValue.min;
+        this.originalRangeMaxs[filter.id] = initialValue.max;
       }
     });
   }
 
+  /**
+   * Фильтрует фильтры, оставляя только те, у которых больше одного значения
+   */
+  private filterFiltersByValueCount(): void {
+    this.filteredFilters = this.allFilters.filter(filter => {
+      // Для чекбокс фильтров проверяем количество уникальных значений
+      if (filter.filterType === 0) {
+        const uniqueValuesCount = filter.uniqueValues?.length || 0;
+        // Сохраняем флаг для возможного использования в шаблоне
+        filter.hasMultipleValues = uniqueValuesCount > 1;
+        return uniqueValuesCount > 1;
+      }
+      
+      // Для диапазонных фильтров всегда показываем (если есть диапазон)
+      if (filter.filterType === 1) {
+        return true;
+      }
+      
+      return true;
+    });
+
+    console.log('Отфильтрованные фильтры (только с несколькими значениями):', 
+      this.filteredFilters.map(f => ({
+        name: f.fullName,
+        valuesCount: f.uniqueValues?.length
+      }))
+    );
+  }
+
   async loadFiltersData() {
     if (!this.filters || this.filters.length === 0) return;
-    
+
     // Загружаем только те фильтры, которые еще не загружены
-    const filtersToLoad = this.filters.filter(filter => 
-      !this.loadedFilters.has(filter.id) && 
+    const filtersToLoad = this.filters.filter(filter =>
+      !this.loadedFilters.has(filter.id) &&
       !this.loadingFilters.has(filter.id)
     );
-    
+
     const promises = filtersToLoad.map(filter => this.loadFilterData(filter));
     await Promise.all(promises);
+    
+    // После загрузки всех данных фильтруем фильтры
+    this.filterFiltersByValueCount();
   }
 
   async loadFilterData(filter: Filter): Promise<void> {
     if (this.loadingFilters.has(filter.id) || this.loadedFilters.has(filter.id)) return;
-    
+
     this.loadingFilters.add(filter.id);
-    
+
     try {
 
       const response = await firstValueFrom(
-        this.http.get<ApiResponse>(`${this.apiUrl}/${filter.id}`)
+        this.http.get<ApiResponse>(`${this.apiUrl}/${filter.id}/${this.categoryId}`)
       );
 
       if (response.data) {
         const filterData: any = response.data;
-        
+
         // Обновляем фильтр
-        const index = this.filters.findIndex(f => f.id === filter.id);
+        const index = this.allFilters.findIndex(f => f.id === filter.id);
         if (index !== -1) {
           // Сохраняем оригинальные данные, добавляем уникальные значения
-          this.filters[index] = {
-            ...this.filters[index],
+          this.allFilters[index] = {
+            ...this.allFilters[index],
             uniqueValues: filterData.uniqueValues || [],
-            filterType: filterData.filterType || this.filters[index].filterType
+            filterType: filterData.filterType || this.allFilters[index].filterType
           };
 
           // Для диапазонных фильтров загружаем min/max
           if (filterData.filterType === 1) {
             await this.loadRangeValues(filter.id);
           }
-          
-          // Обновляем filteredFilters
-          this.updateFilteredFilters(filter.id, this.filters[index]);
         }
-        
+
         this.loadedFilters.add(filter.id);
       } else {
         // Если API не вернул данные, используем пустые значения
@@ -182,11 +224,15 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private updateFilteredFilters(filterId: string, updatedFilter: Filter) {
-    const filteredIndex = this.filteredFilters.findIndex(f => f.id === filterId);
-    if (filteredIndex !== -1) {
-      this.filteredFilters[filteredIndex] = updatedFilter;
+  private setFallbackValues(filter: Filter): void {
+    const index = this.allFilters.findIndex(f => f.id === filter.id);
+    if (index === -1) return;
+
+    if (filter.filterType === 0) {
+      this.allFilters[index].uniqueValues = [];
     }
+
+    this.loadedFilters.add(filter.id);
   }
 
   async loadRangeValues(filterId: string): Promise<void> {
@@ -214,44 +260,79 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
       if (minResponse.status === 0) {
         const minValue = this.extractNumericValue(minResponse.data?.[0]);
         const maxValue = this.extractNumericValue(maxResponse.data?.[0]);
-        
+
         if (minValue !== null && maxValue !== null) {
+          // Убеждаемся, что min <= max
+          const min = Math.min(minValue, maxValue);
+          const max = Math.max(minValue, maxValue);
+
           this.rangeValues[filterId] = {
-            min: minValue,
-            max: maxValue
+            min: min,
+            max: max
           };
-          this.rangeMinValues[filterId] = minValue;
-          this.rangeMaxValues[filterId] = maxValue;
+          this.rangeMinValues[filterId] = min;
+          this.rangeMaxValues[filterId] = max;
+          this.originalRangeMins[filterId] = min;
+          this.originalRangeMaxs[filterId] = max;
+
+          // Обновляем ползунки
+          this.updateRangeSlider(filterId);
         }
       }
     } catch (error) {
       this.rangeValues[filterId] = { min: 0, max: 100 };
       this.rangeMinValues[filterId] = 0;
       this.rangeMaxValues[filterId] = 100;
+      this.originalRangeMins[filterId] = 0;
+      this.originalRangeMaxs[filterId] = 100;
+      this.updateRangeSlider(filterId);
     }
   }
 
   private extractNumericValue(data: any): number | null {
     if (!data) return null;
-    
+
     // Пробуем разные поля
     const possibleFields = ['value', 'numericValue', 'minValue', 'maxValue', 'amount'];
     for (const field of possibleFields) {
       if (data[field] !== undefined && !isNaN(parseFloat(data[field]))) {
-        return parseFloat(data[field]);
+        return Math.round(parseFloat(data[field]));
       }
     }
-    
-    // Если объект - число
-    if (typeof data === 'number') return data;
-    
-    // Пробуем преобразовать строку
+
+    if (typeof data === 'number') return Math.round(data);
     if (typeof data === 'string') {
       const num = parseFloat(data);
-      if (!isNaN(num)) return num;
+      if (!isNaN(num)) return Math.round(num);
     }
-    
+
     return null;
+  }
+
+  private updateRangeSlider(filterId: string) {
+    setTimeout(() => {
+      const minInput = document.querySelector(`.range-min[data-filter-id="${filterId}"]`) as HTMLInputElement;
+      const maxInput = document.querySelector(`.range-max[data-filter-id="${filterId}"]`) as HTMLInputElement;
+
+      if (minInput) {
+        minInput.value = this.rangeMinValues[filterId]?.toString() || this.originalRangeMins[filterId]?.toString() || '0';
+      }
+      if (maxInput) {
+        maxInput.value = this.rangeMaxValues[filterId]?.toString() || this.originalRangeMaxs[filterId]?.toString() || '100';
+      }
+
+      // Принудительно обновляем выделенную область
+      this.updateRangeSelection(filterId);
+    }, 0);
+  }
+
+  private updateRangeSelection(filterId: string) {
+    const filter = this.filters.find(f => f.id === filterId);
+    if (!filter) return;
+
+    // Это вызовет пересчет стилей через getSelectedRangeLeft/Right
+    const left = this.getSelectedRangeLeft(filter);
+    const right = this.getSelectedRangeRight(filter);
   }
 
   private buildRequestFilters(filterId: string): any[] {
@@ -287,17 +368,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
     return filters;
   }
 
-  private setFallbackValues(filter: Filter): void {
-    const index = this.filters.findIndex(f => f.id === filter.id);
-    if (index === -1) return;
-
-    if (filter.filterType === 0) {
-      this.filters[index].uniqueValues = [];
-    }
-    
-    this.loadedFilters.add(filter.id);
-  }
-
   toggleMobileFilters() {
     this.isMobileOpen = !this.isMobileOpen;
     if (this.isMobileOpen) {
@@ -314,20 +384,33 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   filterFilters() {
     if (!this.searchQuery.trim()) {
-      this.filteredFilters = [...this.filters];
+      // Если поиск пустой, показываем все отфильтрованные фильтры
+      this.filteredFilters = this.allFilters.filter(filter => {
+        if (filter.filterType === 0) {
+          return (filter.uniqueValues?.length || 0) > 1;
+        }
+        return true;
+      });
       return;
     }
-    
+
     const query = this.searchQuery.toLowerCase();
-    this.filteredFilters = this.filters.filter(filter => 
-      filter.fullName.toLowerCase().includes(query) ||
-      filter.description.toLowerCase().includes(query)
-    );
+    // Поиск только среди фильтров с несколькими значениями
+    this.filteredFilters = this.allFilters.filter(filter => {
+      // Проверяем, что фильтр имеет несколько значений
+      if (filter.filterType === 0 && (filter.uniqueValues?.length || 0) <= 1) {
+        return false;
+      }
+      
+      // Проверяем совпадение с поиском
+      return filter.fullName.toLowerCase().includes(query) ||
+             filter.description.toLowerCase().includes(query);
+    });
   }
 
   toggleFilterGroup(filterId: string) {
     if (this.loadingFilters.has(filterId)) return;
-    
+
     if (this.expandedFilters.has(filterId)) {
       this.expandedFilters.delete(filterId);
     } else {
@@ -349,9 +432,9 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   toggleCheckbox(filter: Filter, value: string) {
     if (this.loadingFilters.has(filter.id)) return;
-    
+
     const activeFilter = this.activeFilters.find(f => f.filterId === filter.id);
-    
+
     if (activeFilter && activeFilter.values) {
       const index = activeFilter.values.indexOf(value);
       if (index > -1) {
@@ -370,7 +453,7 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         values: [value]
       });
     }
-    
+
     this.emitFiltersChange();
     this.reloadOtherFilters(filter.id);
   }
@@ -380,11 +463,13 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
     const otherFilters = this.filters
       .filter(f => f.id !== changedFilterId)
       .map(f => f.id);
-    
+
     otherFilters.forEach(id => this.loadedFilters.delete(id));
-    
-    // Загружаем заново
-    // await this.loadFiltersData();
+
+    // После перезагрузки других фильтров, снова фильтруем
+    setTimeout(() => {
+      this.filterFiltersByValueCount();
+    }, 500);
   }
 
   isChecked(filterId: string, value: string): boolean {
@@ -393,143 +478,212 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getRangeMin(filter: Filter): number {
-    return this.rangeValues[filter.id]?.min || 0;
+    return this.originalRangeMins[filter.id] !== undefined ? this.originalRangeMins[filter.id] : 0;
   }
 
   getRangeMax(filter: Filter): number {
-    return this.rangeValues[filter.id]?.max || 100;
+    return this.originalRangeMaxs[filter.id] !== undefined ? this.originalRangeMaxs[filter.id] : 100;
   }
 
   getRangeStep(filter: Filter): number {
     const range = this.getRangeMax(filter) - this.getRangeMin(filter);
     if (range > 1000) return 10;
     if (range > 100) return 1;
-    if (range > 10) return 0.1;
-    return 0.01;
+    return 1;
   }
 
   getRangeValue(filter: Filter, type: 'min' | 'max'): string {
-    const value = this.rangeValues[filter.id]?.[type] || 0;
+    const value = type === 'min'
+      ? this.rangeMinValues[filter.id]
+      : this.rangeMaxValues[filter.id];
+
+    const displayValue = value !== undefined ? value : this.getRangeMin(filter);
     const unit = filter.measurementUnit?.shortName || '';
-    return `${value}${unit ? ' ' + unit : ''}`;
+    return `${displayValue}${unit ? ' ' + unit : ''}`;
   }
 
   onRangeMinChange(filterId: string, event: Event) {
     if (this.loadingFilters.has(filterId)) return;
-    
+
     const input = event.target as HTMLInputElement;
-    const value = parseFloat(input.value);
-    
+    let value = parseFloat(input.value);
+
     const filter = this.filters.find(f => f.id === filterId);
     if (!filter) return;
 
+    // Округляем до целого числа
+    value = Math.round(value);
+
+    const maxValue = this.rangeMaxValues[filterId] !== undefined
+      ? this.rangeMaxValues[filterId]
+      : this.getRangeMax(filter);
+
+    const minValue = this.getRangeMin(filter);
+
+    // Убеждаемся, что значение в допустимых пределах
+    value = Math.max(minValue, Math.min(value, maxValue));
+
+    // Обновляем значения
     this.rangeMinValues[filterId] = value;
-    
-    // Обновляем rangeValues
+
     if (this.rangeValues[filterId]) {
       this.rangeValues[filterId].min = value;
-      
-      // Проверка чтобы min не был больше max
-      if (value > this.rangeValues[filterId].max) {
-        this.rangeValues[filterId].max = value;
-        this.rangeMaxValues[filterId] = value;
-      }
-      
-      this.updateRangeFilter(filter, this.rangeValues[filterId]);
-      this.reloadOtherFilters(filter.id);
     }
+
+    // Обновляем input value для синхронизации
+    input.value = value.toString();
+
+    this.updateRangeFilter(filter, this.rangeValues[filterId] || { min: value, max: maxValue });
+    this.emitFiltersChange();
+    this.reloadOtherFilters(filter.id);
+
+    // Обновляем выделенную область
+    this.updateRangeSelection(filterId);
   }
 
   onRangeMaxChange(filterId: string, event: Event) {
     if (this.loadingFilters.has(filterId)) return;
-    
+
     const input = event.target as HTMLInputElement;
-    const value = parseFloat(input.value);
-    
+    let value = parseFloat(input.value);
+
     const filter = this.filters.find(f => f.id === filterId);
     if (!filter) return;
 
+    // Округляем до целого числа
+    value = Math.round(value);
+
+    const minValue = this.rangeMinValues[filterId] !== undefined
+      ? this.rangeMinValues[filterId]
+      : this.getRangeMin(filter);
+
+    const maxValue = this.getRangeMax(filter);
+
+    // Убеждаемся, что значение в допустимых пределах
+    value = Math.max(minValue, Math.min(value, maxValue));
+
+    // Обновляем значения
     this.rangeMaxValues[filterId] = value;
-    
-    // Обновляем rangeValues
+
     if (this.rangeValues[filterId]) {
       this.rangeValues[filterId].max = value;
-      
-      // Проверка чтобы max не был меньше min
-      if (value < this.rangeValues[filterId].min) {
-        this.rangeValues[filterId].min = value;
-        this.rangeMinValues[filterId] = value;
-      }
-      
-      this.updateRangeFilter(filter, this.rangeValues[filterId]);
-      this.reloadOtherFilters(filter.id);
     }
+
+    // Обновляем input value для синхронизации
+    input.value = value.toString();
+
+    this.updateRangeFilter(filter, this.rangeValues[filterId] || { min: minValue, max: value });
+    this.emitFiltersChange();
+    this.reloadOtherFilters(filter.id);
+
+    // Обновляем выделенную область
+    this.updateRangeSelection(filterId);
   }
 
   onRangeInputMinChange(filterId: string, event: Event) {
     if (this.loadingFilters.has(filterId)) return;
-    
+
     const input = event.target as HTMLInputElement;
-    const value = parseFloat(input.value);
-    
+    let value = parseFloat(input.value);
+
     const filter = this.filters.find(f => f.id === filterId);
     if (!filter) return;
 
+    // Проверяем на NaN
+    if (isNaN(value)) {
+      value = this.getRangeMin(filter);
+    }
+
+    // Округляем до целого числа
+    value = Math.round(value);
+
     const minValue = this.getRangeMin(filter);
-    const maxValue = this.getRangeMax(filter);
-    
-    const clampedValue = Math.max(minValue, Math.min(maxValue, value));
-    
+    const currentMax = this.rangeMaxValues[filterId] !== undefined
+      ? this.rangeMaxValues[filterId]
+      : this.getRangeMax(filter);
+
+    // Проверяем и корректируем значение
+    const clampedValue = Math.max(minValue, Math.min(currentMax, value));
+
+    // Обновляем значения
     this.rangeMinValues[filterId] = clampedValue;
-    
+
     if (this.rangeValues[filterId]) {
       this.rangeValues[filterId].min = clampedValue;
-      
-      if (clampedValue > this.rangeValues[filterId].max) {
-        this.rangeValues[filterId].max = clampedValue;
-        this.rangeMaxValues[filterId] = clampedValue;
-      }
-      
-      this.updateRangeFilter(filter, this.rangeValues[filterId]);
-      this.reloadOtherFilters(filter.id);
     }
+
+    // Обновляем оба input для синхронизации
+    const minRangeInput = document.querySelector(`.range-min[data-filter-id="${filterId}"]`) as HTMLInputElement;
+    if (minRangeInput) {
+      minRangeInput.value = clampedValue.toString();
+    }
+
+    // Обновляем текстовый input
+    input.value = clampedValue.toString();
+
+    this.updateRangeFilter(filter, this.rangeValues[filterId] || { min: clampedValue, max: currentMax });
+    this.emitFiltersChange();
+    this.reloadOtherFilters(filter.id);
+
+    // Обновляем выделенную область
+    this.updateRangeSelection(filterId);
   }
 
   onRangeInputMaxChange(filterId: string, event: Event) {
     if (this.loadingFilters.has(filterId)) return;
-    
+
     const input = event.target as HTMLInputElement;
-    const value = parseFloat(input.value);
-    
+    let value = parseFloat(input.value);
+
     const filter = this.filters.find(f => f.id === filterId);
     if (!filter) return;
 
-    const minValue = this.getRangeMin(filter);
+    // Проверяем на NaN
+    if (isNaN(value)) {
+      value = this.getRangeMax(filter);
+    }
+
+    // Округляем до целого числа
+    value = Math.round(value);
+
     const maxValue = this.getRangeMax(filter);
-    
-    const clampedValue = Math.max(minValue, Math.min(maxValue, value));
-    
+    const currentMin = this.rangeMinValues[filterId] !== undefined
+      ? this.rangeMinValues[filterId]
+      : this.getRangeMin(filter);
+
+    // Проверяем и корректируем значение
+    const clampedValue = Math.max(currentMin, Math.min(maxValue, value));
+
+    // Обновляем значения
     this.rangeMaxValues[filterId] = clampedValue;
-    
+
     if (this.rangeValues[filterId]) {
       this.rangeValues[filterId].max = clampedValue;
-      
-      if (clampedValue < this.rangeValues[filterId].min) {
-        this.rangeValues[filterId].min = clampedValue;
-        this.rangeMinValues[filterId] = clampedValue;
-      }
-      
-      this.updateRangeFilter(filter, this.rangeValues[filterId]);
-      this.reloadOtherFilters(filter.id);
     }
+
+    // Обновляем оба input для синхронизации
+    const maxRangeInput = document.querySelector(`.range-max[data-filter-id="${filterId}"]`) as HTMLInputElement;
+    if (maxRangeInput) {
+      maxRangeInput.value = clampedValue.toString();
+    }
+
+    // Обновляем текстовый input
+    input.value = clampedValue.toString();
+
+    this.updateRangeFilter(filter, this.rangeValues[filterId] || { min: currentMin, max: clampedValue });
+    this.emitFiltersChange();
+    this.reloadOtherFilters(filter.id);
+
+    // Обновляем выделенную область
+    this.updateRangeSelection(filterId);
   }
 
   updateRangeFilter(filter: Filter, range: RangeValue) {
     const existingIndex = this.activeFilters.findIndex(f => f.filterId === filter.id);
-    
+
     const defaultMin = this.getRangeMin(filter);
     const defaultMax = this.getRangeMax(filter);
-    
+
     if (range.min === defaultMin && range.max === defaultMax) {
       if (existingIndex > -1) {
         this.activeFilters.splice(existingIndex, 1);
@@ -541,38 +695,40 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         type: 'range',
         range: { ...range }
       };
-      
+
       if (existingIndex > -1) {
         this.activeFilters[existingIndex] = activeFilter;
       } else {
         this.activeFilters.push(activeFilter);
       }
     }
-    
+
     this.emitFiltersChange();
   }
 
   getSelectedRangeLeft(filter: Filter): string {
-    const range = this.rangeValues[filter.id];
-    if (!range) return '0%';
-    
     const min = this.getRangeMin(filter);
     const max = this.getRangeMax(filter);
+    const currentMin = this.rangeMinValues[filter.id] !== undefined
+      ? this.rangeMinValues[filter.id]
+      : min;
+
     if (max === min) return '0%';
-    
-    const percentage = ((range.min - min) / (max - min)) * 100;
+
+    const percentage = ((currentMin - min) / (max - min)) * 100;
     return `${Math.min(Math.max(percentage, 0), 100)}%`;
   }
 
   getSelectedRangeRight(filter: Filter): string {
-    const range = this.rangeValues[filter.id];
-    if (!range) return '0%';
-    
     const min = this.getRangeMin(filter);
     const max = this.getRangeMax(filter);
+    const currentMax = this.rangeMaxValues[filter.id] !== undefined
+      ? this.rangeMaxValues[filter.id]
+      : max;
+
     if (max === min) return '0%';
-    
-    const percentage = ((max - range.max) / (max - min)) * 100;
+
+    const percentage = ((max - currentMax) / (max - min)) * 100;
     return `${Math.min(Math.max(percentage, 0), 100)}%`;
   }
 
@@ -587,39 +743,56 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   removeFilter(filter: ActiveFilter) {
     this.activeFilters = this.activeFilters.filter(f => f.filterId !== filter.filterId);
-    
+
     if (filter.type === 'range') {
       const originalFilter = this.filters.find(f => f.id === filter.filterId);
       if (originalFilter) {
+        const defaultMin = this.getRangeMin(originalFilter);
+        const defaultMax = this.getRangeMax(originalFilter);
+
         this.rangeValues[filter.filterId] = {
-          min: this.getRangeMin(originalFilter),
-          max: this.getRangeMax(originalFilter)
+          min: defaultMin,
+          max: defaultMax
         };
-        this.rangeMinValues[filter.filterId] = this.getRangeMin(originalFilter);
-        this.rangeMaxValues[filter.filterId] = this.getRangeMax(originalFilter);
+        this.rangeMinValues[filter.filterId] = defaultMin;
+        this.rangeMaxValues[filter.filterId] = defaultMax;
+
+        // Обновляем ползунки
+        this.updateRangeSlider(filter.filterId);
       }
     }
-    
+
     this.emitFiltersChange();
     this.reloadOtherFilters(filter.filterId);
   }
 
   clearAllFilters() {
-    if (this.loadingFilters.size > 0) return;
-    
+    if (this.loadingFilters.size > 0) {
+      this.closeMobileFilters();
+      return;
+    }
+
     this.activeFilters = [];
+    this.closeMobileFilters();
+
     this.filters.forEach(filter => {
       if (filter.filterType === 1) {
+        const defaultMin = this.getRangeMin(filter);
+        const defaultMax = this.getRangeMax(filter);
+
         this.rangeValues[filter.id] = {
-          min: this.getRangeMin(filter),
-          max: this.getRangeMax(filter)
+          min: defaultMin,
+          max: defaultMax
         };
-        this.rangeMinValues[filter.id] = this.getRangeMin(filter);
-        this.rangeMaxValues[filter.id] = this.getRangeMax(filter);
+        this.rangeMinValues[filter.id] = defaultMin;
+        this.rangeMaxValues[filter.id] = defaultMax;
+
+        // Обновляем ползунки
+        this.updateRangeSlider(filter.id);
       }
     });
     this.emitFiltersChange();
-    
+
     // Сбрасываем все загруженные фильтры и загружаем заново
     this.loadedFilters.clear();
     this.loadFiltersData();
@@ -632,7 +805,7 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   applyFilters() {
     if (this.loadingFilters.size > 0) return;
-    
+
     this.filtersApplied.emit();
     if (this.isMobile) {
       this.closeMobileFilters();
@@ -649,7 +822,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   emitFiltersChange() {
     const filters = this.activeFilters.map(filter => {
-      console.log('filterfilter',filter)
       if (filter.type === 'checkbox') {
         return {
           field: filter.filterName,
@@ -665,7 +837,7 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         };
       }
     });
-    
+
     this.filtersChange.emit(filters);
   }
 }

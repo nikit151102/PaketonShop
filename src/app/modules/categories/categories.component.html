@@ -17,12 +17,12 @@
     <div *ngIf="subCategories?.length" class="subcategories-section">
         <app-category-section [categories]="subCategories"></app-category-section>
     </div>
-
+    
     <!-- Основной контент -->
     <div class="main-content">
         <!-- Сайдбар с фильтрами -->
         <aside class="filters-sidebar">
-            <app-filters [filters]="filters" [productsCount]="products.length" (filtersChange)="onFiltersChange($event)"
+            <app-filters [filters]="filters" [productsCount]="products.length" [categoryId]="categoryData.id" (filtersChange)="onFiltersChange($event)"
                 (filtersApplied)="applyFilters()">
             </app-filters>
         </aside>

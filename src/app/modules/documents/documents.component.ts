@@ -30,7 +30,7 @@ export class DocumentsComponent implements OnInit {
       title: 'Соглашение о сотрудничестве',
       type: 'partnership',
       icon: 'handshake',
-      description: 'Правила для зарегистрированных партнеров',
+      description: 'Правила для зарегистрированных компаний',
       lastUpdated: '01.01.2026',
       version: 'текущая редакция',
       route: '/documents/partnership',

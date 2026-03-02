@@ -34,6 +34,8 @@
     display: flex;
     align-items: center;
     height: 52px;
+
+
   }
 
   &__icon {
@@ -860,12 +862,12 @@
 }
 
 // Медиа-запросы
-@media (max-width: 768px) {
+@media (max-width: 1199px) {
   .search-bar {
     border-radius: 30px;
 
     &__wrapper {
-      height: 44px;
+      height: 40px;
     }
 
     &__input {

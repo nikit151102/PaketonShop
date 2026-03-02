@@ -13,17 +13,23 @@ export class PartnerService {
     return this.http.post(
       `${environment.production}/api/Profile/UserCompanies/Filter`,
       {
-         "filters": [
-  ],
-  "sorts": [
-  ],
-  "page": 0,
-  "pageSize": 100
+        "filters": [
+        ],
+        "sorts": [
+        ],
+        "page": 0,
+        "pageSize": 100
       },
     );
   }
 
-  getPartnerUser(partnerId: string): Observable<any> {
+  getPartnerById(partnerId: string): Observable<any> {
+    return this.http.get(
+      `${environment.production}/api/Profile/UserCompanies/${partnerId}`,
+    );
+  }
+
+    getPartnerUser(partnerId: string): Observable<any> {
     return this.http.get(
       `${environment.production}/api/Profile/UserCompanies/${partnerId}`,
     );

@@ -109,7 +109,7 @@
 
                 <!-- Информация о партнере -->
                 <div class="partner-section" *ngIf="shop.partner">
-                    <h4 class="partner-title">Информация о партнере</h4>
+                    <h4 class="partner-title">Информация о компании</h4>
                     <div class="partner-info">
                         <div class="partner-item">
                             <strong>Название:</strong> {{ shop.partner.shortName }}
@@ -181,7 +181,7 @@
                         <h3 class="section-title">О нашем магазине</h3>
                         <p class="description" *ngIf="shop.fullName">
                             Магазин "{{ shop.fullName }}" расположен в {{ shop.address?.city }}.
-                            {{ shop.partner?.fullName ? 'Официальный партнер: ' + shop.partner.fullName + '.' : '' }}
+                            {{ shop.partner?.fullName ? 'Официальная компания: ' + shop.partner.fullName + '.' : '' }}
                         </p>
                         <p class="description" *ngIf="!shop.fullName">
                             Информация о магазине будет добавлена в ближайшее время.

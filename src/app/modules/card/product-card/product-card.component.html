@@ -3,10 +3,10 @@
   <nav class="breadcrumb-nav" *ngIf="breadCrumbs && breadCrumbs.length > 0" aria-label="Хлебные крошки">
     <ol class="breadcrumb-list">
       <li class="breadcrumb-item">
-        <a routerLink="/catalog" class="breadcrumb-link">Каталог</a>
+        <a routerLink="#" class="breadcrumb-link">Главная</a>
       </li>
       <li class="breadcrumb-item" *ngFor="let crumb of breadCrumbs; let last = last">
-        <a *ngIf="!last" [routerLink]="['/catalog', crumb.id]" class="breadcrumb-link">
+        <a *ngIf="!last" [routerLink]="['/category', crumb.id]" class="breadcrumb-link">
           {{crumb.name}}
         </a>
         <span *ngIf="last" class="breadcrumb-current" aria-current="page">{{crumb.name}}</span>
@@ -181,7 +181,7 @@
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <span *ngIf="selectedQuantity > 0">В корзине {{ getActiveBasketCount() }} шт</span>
-              <span *ngIf="selectedQuantity <= 0">В корзину</span>
+              <span *ngIf="selectedQuantity == 0">В корзину</span>
             </button>
             <button class="btn btn-outline" (click)="removeFromBasket(activeBasketId!)">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -193,7 +193,7 @@
 
           <!-- Состояние: товара нет в активной корзине -->
           <div *ngIf="!isInActiveBasket()" class="add-to-cart-modern">
-            <button class="btn btn-primary btn-large" (click)="addOneToCart()">
+            <button class="btn btn-primary btn-large" (click)="updateActiveBasketQty(1)">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M5 7h14l-1 10H6L5 7z" />
                 <circle cx="8" cy="20" r="1.5" />

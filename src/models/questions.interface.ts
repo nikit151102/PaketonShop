@@ -20,6 +20,7 @@ export interface FeedBackMessageCreateDTO {
   text: string;
   /** Дата и время создания сообщения */
   dateTime: string;
+  isAnonymous: any;
 }
 
 /**

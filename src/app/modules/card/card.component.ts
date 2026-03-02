@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ProductCardComponent } from './product-card/product-card.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductsService } from '../../core/services/products.service';
 import { QuestionsComponent } from './questions/questions.component';
 import { ReviewsComponent } from './reviews/reviews.component';
@@ -15,6 +15,7 @@ import { ReviewsComponent } from './reviews/reviews.component';
     ProductCardComponent,
     QuestionsComponent,
     ReviewsComponent,
+    RouterLink
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
@@ -31,7 +32,8 @@ import { ReviewsComponent } from './reviews/reviews.component';
 export class CardComponent {
   activeTab: 'description' | 'features' | 'reviews' | 'questions' = 'description';
   productData: any;
-  
+  breadCrumbs: any;
+
   constructor(
     private route: ActivatedRoute,
     private productsService: ProductsService,
@@ -46,6 +48,7 @@ export class CardComponent {
   loadData(id: string) {
     this.productsService.getById(id).subscribe((values: any) => {
       this.productData = values.data;
+      this.breadCrumbs = values.breadCrumbs;
     });
   }
 

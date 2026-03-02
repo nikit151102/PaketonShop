@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProductComponent } from './product/product.component';
 import { SelectCartButtonComponent } from './select-cart-button/select-cart-button.component';
 import { BasketsService } from '../../core/api/baskets.service';
@@ -22,7 +22,8 @@ import { ProductsService } from '../../core/services/products.service';
     FormsModule,
     ProductComponent,
     SelectCartButtonComponent,
-  ],
+    RouterLink
+],
 })
 export class CartComponent implements OnInit, OnDestroy {
   baskets: any[] = [];
@@ -417,23 +418,43 @@ export class CartComponent implements OnInit, OnDestroy {
 
     if (confirm(`Удалить ${productIds.length} товар(ов) из корзины?`)) {
       this.isLoading = true;
+      
+      const requests = productIds.map(productId =>
+        this.basketsService.changeProductFromBasket(
+          this.activeBasket.id,
+          productId,
+          0
+        )
+      );
+      let completed = 0;
 
-      // this.basketsService.removeProductsFromBasket(this.activeBasket.id, productIds)
-      //   .pipe(
-      //     takeUntil(this.destroy$),
-      //     finalize(() => this.isLoading = false)
-      //   )
-      //   .subscribe({
-      //     next: () => {
-      //       this.selectedProducts.clear();
-      //       this.loadActiveBasket(true);
-      //       this.showNotification(`${productIds.length} товаров удалено`, 'success');
-      //     },
-      //     error: (err) => {
-      //       console.error('Ошибка удаления товаров', err);
-      //       this.showNotification('Не удалось удалить товары', 'error');
-      //     }
-      //   });
+      const processNext = (index: number) => {
+        if (index >= requests.length) {
+          this.isLoading = false;
+          this.selectedProducts.clear();
+          this.loadActiveBasket(true);
+          this.showNotification(`${productIds.length} товаров удалено из корзины`, 'success');
+          return;
+        }
+
+        requests[index].pipe(takeUntil(this.destroy$)).subscribe({
+          next: () => {
+            completed++;
+            processNext(index + 1);
+          },
+          error: (err) => {
+            console.error(`Ошибка удаления товара ${productIds[index]}:`, err);
+            this.showNotification(
+              `Удалено ${completed} из ${productIds.length} товаров. Ошибка при удалении остальных.`,
+              'error'
+            );
+            this.isLoading = false;
+            this.loadActiveBasket(true);
+          }
+        });
+      };
+
+      processNext(0);
     }
   }
 
@@ -455,11 +476,9 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   onProductRemove(data: any): void {
-    if (!this.activeBasket?.products || !this.activeBasket.id) return;
 
     this.isLoading = true;
-
-    this.basketsService.removeProductFromBasket(this.activeBasket.id, data.productId, data.count)
+    this.basketsService.changeProductFromBasket(this.activeBasket.id, data.productId, 0)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.isLoading = false)
