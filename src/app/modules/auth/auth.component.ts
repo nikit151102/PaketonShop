@@ -41,7 +41,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     password: {
       required: 'Пароль обязателен для заполнения',
       minlength: 'Пароль должен содержать минимум 8 символов',
-      pattern: 'Пароль должен содержать буквы и цифры'
+      pattern: 'Пароль должен содержать буквы, цифры и хотя бы одну заглавную букву'
     },
     confirmPassword: {
       required: 'Подтверждение пароля обязательно',
@@ -61,7 +61,7 @@ export class AuthComponent implements OnInit, OnDestroy {
       password: ['', [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d).+$/)
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/) // Измененный паттерн
       ]],
       confirmPassword: ['']
     }, { validators: this.passwordMatchValidator() });
@@ -115,6 +115,18 @@ export class AuthComponent implements OnInit, OnDestroy {
     return /[A-Za-z]/.test(password);
   }
 
+  // Check if password has lowercase letters
+  hasLowercase(password: string | null | undefined): boolean {
+    if (!password) return false;
+    return /[a-z]/.test(password);
+  }
+
+  // Check if password has uppercase letters
+  hasUppercase(password: string | null | undefined): boolean {
+    if (!password) return false;
+    return /[A-Z]/.test(password);
+  }
+
   // Check if password has numbers
   hasNumbers(password: string | null | undefined): boolean {
     if (!password) return false;
@@ -124,7 +136,10 @@ export class AuthComponent implements OnInit, OnDestroy {
   // Check if password meets all requirements
   isPasswordValid(password: string | null | undefined): boolean {
     if (!password) return false;
-    return password.length >= 8 && this.hasLetters(password) && this.hasNumbers(password);
+    return password.length >= 8 && 
+           this.hasLowercase(password) && 
+           this.hasUppercase(password) && 
+           this.hasNumbers(password);
   }
 
   // Update error messages

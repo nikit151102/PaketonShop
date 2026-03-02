@@ -80,7 +80,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
-
+console.log('baskets',baskets)
     if (!baskets || !Array.isArray(baskets)) {
       return null;
     }
@@ -185,9 +185,10 @@ export class ProductCardComponent implements OnInit, OnChanges {
 
   // Обновляем количество товара в активной корзине
   updateActiveBasketQty(delta: number): void {
+    console.log('delta',delta)
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId) return;
-
+  console.log('delta',delta)
     const currentCount = this.getActiveBasketCount();
     const newCount = currentCount + delta;
 

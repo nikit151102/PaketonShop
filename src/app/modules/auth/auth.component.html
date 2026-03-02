@@ -68,13 +68,18 @@
             </div>
           </div>
 
-          <div class="password-requirements" *ngIf="authForm.get('password')?.dirty">
+          <div class="password-requirements">
             <div class="requirement" [class.valid]="authForm.get('password')?.value?.length >= 8">
               • Минимум 8 символов
             </div>
-            <div class="requirement"
-              [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
-              • Буквы и цифры
+            <div class="requirement" [class.valid]="hasLowercase(authForm.get('password')?.value)">
+              • Строчные буквы (a-z)
+            </div>
+            <div class="requirement" [class.valid]="hasUppercase(authForm.get('password')?.value)">
+              • Заглавные буквы (A-Z)
+            </div>
+            <div class="requirement" [class.valid]="hasNumbers(authForm.get('password')?.value)">
+              • Цифры (0-9)
             </div>
           </div>
         </div>
@@ -130,6 +135,9 @@
             <div class="requirement"
               [class.valid]="hasLetters(authForm.get('password')?.value) && hasNumbers(authForm.get('password')?.value)">
               • Буквы и цифры
+            </div>
+            <div class="requirement" [class.valid]="hasUppercase(authForm.get('password')?.value)">
+              • Заглавные буквы (A-Z)
             </div>
           </div>
         </div>
