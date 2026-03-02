@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnChanges, SimpleChanges, inject, NgZone } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnChanges, SimpleChanges, inject, NgZone, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { PageFlip } from 'page-flip';
 import { ProductsService } from '../../services/products.service';
 import { take } from 'rxjs';
@@ -19,7 +19,7 @@ interface Product {
   numericPrice?: number;
   inStock: boolean;
   imageUrl?: string;
-  quantity?: number; 
+  quantity?: number;
 }
 
 interface SubCategory {
@@ -43,7 +43,8 @@ interface NicheData {
   templateUrl: './flipbook.component.html',
   styleUrls: ['./flipbook.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
+  changeDetection: ChangeDetectionStrategy.OnPush 
 })
 export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   @ViewChild('flipbookContainer', { static: true }) flipbookContainer!: ElementRef<HTMLDivElement>;
@@ -61,43 +62,65 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   private initInProgress = false;
   private resizeTimeout: any = null;
   private currentPageIndex = 0;
-  private updateScheduled = false; // Флаг для отложенного обновления
-  private preloadQueue: number[] = []; // Очередь предзагрузки
+  private updateScheduled = false;
+  private preloadQueue: number[] = [];
+  private flipTimeout: any = null; 
+  private lastFlipTime = 0; 
+  private readonly FLIP_DEBOUNCE = 300; 
 
-  // Состояния для корзины
   private isUserBasket: boolean = false;
   private activeBasketId: string | null = null;
   private baskets: any[] = [];
-  
-  // Маппинг для отслеживания количества товаров в корзине на каждой странице
+
   private pageQuantities: Map<number, Map<string, number>> = new Map();
 
+  public pageProductsCache: Map<number, Product[]> = new Map();
+  public pageCategoryCache: Map<number, string> = new Map();
+
   pages: (number | 'empty' | string)[] = ['empty', 'empty', 'content'];
-  categories: { 
-    startPage: number; 
-    name: string; 
-    subCategoryId: string; 
+  categories: {
+    startPage: number;
+    name: string;
+    subCategoryId: string;
     pageCount: number;
     totalProducts?: number;
   }[] = [];
-  
+
   currentPage = 0;
   private categoryProductCounts: Map<string, number> = new Map();
   private loadedCategories: Set<string> = new Set();
 
-  // Инжекты
   private productsService = inject(ProductsService);
   private authService = inject(AuthService);
   private basketsService = inject(BasketsService);
   private userApiService = inject(UserApiService);
-  private ngZone = inject(NgZone); // Добавляем NgZone для оптимизации
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
+  private isVisible = true;
 
   constructor() { }
 
   ngOnInit() {
     this.loadBasketsData();
-  }
 
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          this.isVisible = entry.isIntersecting;
+          if (!this.isVisible && this.pageFlip) {
+            this.pageFlip.turnToPage(this.currentPageIndex);
+            this.preloadQueue = [];
+          }
+        });
+      });
+
+      setTimeout(() => {
+        if (this.flipbookContainer?.nativeElement) {
+          observer.observe(this.flipbookContainer.nativeElement);
+        }
+      }, 1000);
+    }
+  }
   ngOnChanges(changes: SimpleChanges) {
     if ((changes['nicheData'] || changes['subCategories']) && this.hasValidData()) {
       this.dataLoaded = true;
@@ -114,21 +137,25 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
-    
+
     this.resizeTimeout = setTimeout(() => {
-      if (this.pageFlip && this.hasValidData()) {
+      if (this.pageFlip && this.hasValidData() && this.isVisible) {
         this.currentPageIndex = this.pageFlip.getCurrentPageIndex();
         this.updatePageFlipSize();
       }
       this.resizeTimeout = null;
-    }, 150);
+    }, 250); // Увеличил задержку до 250ms
   }
 
   ngOnDestroy() {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
-    
+
+    if (this.flipTimeout) {
+      clearTimeout(this.flipTimeout);
+    }
+
     if (this.pageFlip) {
       try {
         this.pageFlip.destroy();
@@ -157,18 +184,18 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   // Проверка авторизации
   private checkAuth(): boolean {
     const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
-    
+
     if (!authToken) {
       this.authService.setRedirectingToProfile(false);
       this.authService.changeVisible(true);
       return false;
     }
-    
+
     if (!this.isUserBasket) {
       this.authService.changeVisible(true);
       return false;
     }
-    
+
     return true;
   }
 
@@ -276,21 +303,30 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     if (productIndex === -1) return;
 
     products[productIndex].quantity = quantity > 0 ? quantity : undefined;
-    
+
     // Обновляем маппинг количеств
     let pageMap = this.pageQuantities.get(pageIndex);
     if (!pageMap) {
       pageMap = new Map();
       this.pageQuantities.set(pageIndex, pageMap);
     }
-    
+
     if (quantity > 0) {
       pageMap.set(productId, quantity);
     } else {
       pageMap.delete(productId);
     }
 
-    // Не обновляем PageFlip при изменении корзины - только данные
+    // Обновляем кэш для этой страницы
+    this.pageProductsCache.set(pageIndex, [...products]);
+
+    // Запускаем обнаружение изменений только для этой страницы
+    if (this.pageFlip && this.isVisible) {
+      const currentPage = this.pageFlip.getCurrentPageIndex();
+      if (pageIndex === currentPage || pageIndex === currentPage + 1) {
+        this.cdr.markForCheck();
+      }
+    }
   }
 
   // Получение количества товара в корзине
@@ -306,28 +342,32 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   // Показать уведомление
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
     console.log(`[${type}] ${message}`);
-    
-    const notification = document.createElement('div');
-    notification.className = `notification notification--${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 10000;
-      animation: slideIn 0.3s ease;
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.style.animation = 'slideOut 0.3s ease';
-      setTimeout(() => notification.remove(), 300);
-    }, 3000);
+
+    // Используем requestAnimationFrame для плавного показа уведомления
+    requestAnimationFrame(() => {
+      const notification = document.createElement('div');
+      notification.className = `notification notification--${type}`;
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+        pointer-events: none;
+      `;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    });
   }
 
   private hasValidData(): boolean {
@@ -349,10 +389,17 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   }
 
   getCategoryName(pageIndex: number): string {
+    // Используем кэш
+    if (this.pageCategoryCache.has(pageIndex)) {
+      return this.pageCategoryCache.get(pageIndex)!;
+    }
+
     const category = this.categories.find(c =>
       pageIndex >= c.startPage && pageIndex < c.startPage + c.pageCount
     );
-    return category?.name || 'Категория';
+    const name = category?.name || 'Категория';
+    this.pageCategoryCache.set(pageIndex, name);
+    return name;
   }
 
   getCategoryClass(pageIndex: number): string {
@@ -361,25 +408,53 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   }
 
   getProductsForPage(pageIndex: number): Product[] {
-    return this.pageProducts.get(pageIndex) || this.getDefaultProducts('', this.productsPerPage);
+    // Используем кэш для быстрого доступа
+    if (this.pageProductsCache.has(pageIndex)) {
+      return this.pageProductsCache.get(pageIndex)!;
+    }
+
+    const products = this.pageProducts.get(pageIndex) || this.getDefaultProducts('', this.productsPerPage);
+    this.pageProductsCache.set(pageIndex, products);
+    return products;
   }
 
   flipPrev() {
-    if (this.pageFlip) {
-      this.pageFlip.flipPrev();
+    if (this.pageFlip && this.isVisible) {
+      this.throttleFlip(() => this.pageFlip.flipPrev());
     }
   }
 
   flipNext() {
-    if (this.pageFlip) {
-      this.pageFlip.flipNext();
+    if (this.pageFlip && this.isVisible) {
+      this.throttleFlip(() => this.pageFlip.flipNext());
     }
   }
 
   goToPage(pageIndex: number) {
-    if (this.pageFlip) {
-      this.pageFlip.flip(pageIndex);
+    if (this.pageFlip && this.isVisible) {
+      this.throttleFlip(() => this.pageFlip.flip(pageIndex));
     }
+  }
+
+  // Throttle для перелистываний
+  private throttleFlip(fn: () => void) {
+    const now = Date.now();
+    if (now - this.lastFlipTime < this.FLIP_DEBOUNCE) {
+      return;
+    }
+
+    this.lastFlipTime = now;
+
+    if (this.flipTimeout) {
+      clearTimeout(this.flipTimeout);
+    }
+
+    this.flipTimeout = setTimeout(() => {
+      this.ngZone.runOutsideAngular(() => {
+        fn();
+      });
+      this.flipTimeout = null;
+    }, 10);
   }
 
   isString(value: any): boolean {
@@ -392,13 +467,16 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
   private generatePagesFromData() {
     console.log('Generating pages with data:', this.subCategories);
-    
+
+    // Очищаем кэши
     this.loadedPages.clear();
     this.pageProducts.clear();
+    this.pageProductsCache.clear();
+    this.pageCategoryCache.clear();
     this.loadedCategories.clear();
     this.loadingPages.clear();
-    this.preloadQueue = []; // Очищаем очередь предзагрузки
-    
+    this.preloadQueue = [];
+
     this.pages = ['empty'];
 
     if (this.nicheData) {
@@ -412,11 +490,11 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     let currentPage = 3;
     this.categories = [];
     this.loadedCategories.clear();
-    
+
     this.subCategories.forEach((subCat) => {
       const totalProducts = subCat.productCount || 0;
       const pageCount = this.calculatePageCountForCategory(totalProducts);
-      
+
       this.categories.push({
         startPage: currentPage,
         name: subCat.name,
@@ -435,17 +513,20 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     this.pages.push('back-cover');
     this.pages.push('empty');
     this.loadBasketsData();
-    
+
     console.log('Generated pages:', this.pages);
     console.log('Categories:', this.categories);
 
-    setTimeout(() => {
-      if (this.isInitialized && this.pageFlip) {
-        this.recreatePageFlip();
-      } else {
-        this.initPageFlip();
-      }
-    }, 100);
+    // Используем requestAnimationFrame для отложенной инициализации
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (this.isInitialized && this.pageFlip) {
+          this.recreatePageFlip();
+        } else {
+          this.initPageFlip();
+        }
+      }, 100);
+    });
   }
 
   private calculatePageCountForCategory(totalProducts: number): number {
@@ -461,23 +542,24 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
         console.error('Error destroying PageFlip:', e);
       }
     }
-    
+
     setTimeout(() => {
       this.initPageFlip();
-    }, 200);
+    }, 300); // Увеличил задержку
   }
 
   private updatePageFlipSize() {
-    if (!this.pageFlip || !this.flipbookContainer) return;
+    if (!this.pageFlip || !this.flipbookContainer || !this.isVisible) return;
 
     try {
       this.pageFlip.update();
-      
+
+      // Не восстанавливаем позицию сразу, даем время на обновление
       setTimeout(() => {
-        if (this.pageFlip && this.currentPageIndex !== undefined) {
+        if (this.pageFlip && this.currentPageIndex !== undefined && this.isVisible) {
           this.pageFlip.flip(this.currentPageIndex);
         }
-      }, 50);
+      }, 100);
     } catch (e) {
       console.error('Error updating PageFlip size:', e);
     }
@@ -511,11 +593,12 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       .subscribe({
         next: (res) => {
           console.log(`Loaded ${res.data.length} products for page ${pageNum} (pageIndex ${pageIndex})`);
-          
+
           const products = res.data.map((item: any) => this.mapApiProductToLocal(item));
 
           // Сохраняем данные
           this.pageProducts.set(pageNum, products);
+          this.pageProductsCache.set(pageNum, products); // Обновляем кэш
           this.loadedPages.add(pageNum);
           this.loadingPages.delete(pageNum);
 
@@ -523,69 +606,73 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
             this.loadedCategories.add(subCategoryId);
           }
 
-          // Планируем обновление PageFlip только если страница видима
+          // Обновляем только видимые страницы
           const currentPage = this.pageFlip?.getCurrentPageIndex() || 0;
-          if (pageNum === currentPage || pageNum === currentPage + 1) {
+          if ((pageNum === currentPage || pageNum === currentPage + 1) && this.isVisible) {
+            this.cdr.markForCheck();
             this.schedulePageFlipUpdate();
           }
 
-          // Планируем предзагрузку следующей страницы
+          // Планируем предзагрузку следующей страницы с большей задержкой
           this.schedulePreload(subCategoryId, pageIndex, pageNum);
         },
         error: (err) => {
           console.error('Error loading products:', err);
           this.loadingPages.delete(pageNum);
-          this.pageProducts.set(pageNum, this.getDefaultProducts(subCategoryId, this.productsPerPage));
+          const defaultProducts = this.getDefaultProducts(subCategoryId, this.productsPerPage);
+          this.pageProducts.set(pageNum, defaultProducts);
+          this.pageProductsCache.set(pageNum, defaultProducts);
           this.loadedPages.add(pageNum);
-          
+
           // Обновляем только если страница видима
           const currentPage = this.pageFlip?.getCurrentPageIndex() || 0;
-          if (pageNum === currentPage || pageNum === currentPage + 1) {
+          if ((pageNum === currentPage || pageNum === currentPage + 1) && this.isVisible) {
+            this.cdr.markForCheck();
             this.schedulePageFlipUpdate();
           }
         }
       });
   }
 
-  // Планирование предзагрузки с задержкой
+  // Планирование предзагрузки с большей задержкой
   private schedulePreload(subCategoryId: string, pageIndex: number, currentPageNum: number) {
     const nextPageNum = currentPageNum + 1;
-    
+
     if (nextPageNum < this.pages.length) {
       const nextPageType = this.pages[nextPageNum];
-      
+
       if (typeof nextPageType === 'string' && nextPageType.startsWith('category-')) {
         const match = nextPageType.match(/^category-(.+)-(\d+)$/);
         if (match && match[1] === subCategoryId) {
           const nextPageIndex = parseInt(match[2]);
           if (nextPageIndex === pageIndex + 1 && !this.preloadQueue.includes(nextPageNum)) {
             this.preloadQueue.push(nextPageNum);
-            
-            // Загружаем с задержкой, чтобы не блокировать анимацию
+
+            // Увеличиваем задержку предзагрузки
             setTimeout(() => {
               if (this.preloadQueue.includes(nextPageNum)) {
                 this.preloadQueue = this.preloadQueue.filter(p => p !== nextPageNum);
                 this.loadProductsForPage(subCategoryId, nextPageIndex, nextPageNum);
               }
-            }, 500); // Задержка 500ms после завершения текущей загрузки
+            }, 800); // Увеличил до 800ms
           }
         }
       }
     }
   }
 
-  // Планирование обновления PageFlip
+  // Планирование обновления PageFlip с приоритетом
   private schedulePageFlipUpdate() {
-    if (this.updateScheduled) return;
-    
+    if (this.updateScheduled || !this.isVisible) return;
+
     this.updateScheduled = true;
-    
-    // Используем requestAnimationFrame для синхронизации с отрисовкой
+
+    // Используем более плавное обновление
     this.ngZone.runOutsideAngular(() => {
       requestAnimationFrame(() => {
         setTimeout(() => {
           this.ngZone.run(() => {
-            if (this.pageFlip && this.hasValidData()) {
+            if (this.pageFlip && this.hasValidData() && this.isVisible) {
               try {
                 // Обновляем только если страницы действительно изменились
                 this.pageFlip.update();
@@ -595,7 +682,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
             }
             this.updateScheduled = false;
           });
-        }, 100); // Небольшая задержка для завершения анимации
+        }, 150); // Увеличил задержку
       });
     });
   }
@@ -631,91 +718,107 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
   // Оптимизированная инициализация PageFlip
   private initPageFlip() {
-    if (this.initInProgress || !this.hasValidData()) {
-      console.log('Cannot init PageFlip: already in progress or no data');
+    if (this.initInProgress || !this.hasValidData() || !this.isVisible) {
+      console.log('Cannot init PageFlip: already in progress, no data, or not visible');
       return;
     }
 
     this.initInProgress = true;
 
     const container = this.flipbookContainer.nativeElement;
-    
-    setTimeout(() => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      const pages = container.querySelectorAll<HTMLElement>('.page');
 
-      if (pages.length === 0) {
-        console.error('No pages found for PageFlip');
-        this.initInProgress = false;
-        return;
-      }
+    // Используем requestAnimationFrame для синхронизации с отрисовкой
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const pages = container.querySelectorAll<HTMLElement>('.page');
 
-      console.log(`Initializing PageFlip with ${pages.length} pages`);
+        if (pages.length === 0) {
+          console.error('No pages found for PageFlip');
+          this.initInProgress = false;
+          return;
+        }
 
-      try {
-        // Оптимизированные настройки для плавности
-        this.pageFlip = new PageFlip(container, {
-          width,
-          height,
-          minWidth: 315,
-          minHeight: 420,
-          maxWidth: 1000,
-          maxHeight: 1350,
-          maxShadowOpacity: 0.2,
-          flippingTime: 600, // Уменьшаем время для более отзывчивой анимации
-          showCover: false,
-          useMouseEvents: true,
-          mobileScrollSupport: true,
-          usePortrait: true,
-          startPage: this.nicheData ? 2 : 1 // Начинаем с первой содержательной страницы
-        });
+        console.log(`Initializing PageFlip with ${pages.length} pages`);
 
-        this.pageFlip.loadFromHTML(pages);
-        this.isInitialized = true;
-        this.initInProgress = false;
+        try {
+          // Оптимизированные настройки для плавности
+          this.pageFlip = new PageFlip(container, {
+            width,
+            height,
+            minWidth: 315,
+            minHeight: 420,
+            maxWidth: 1000,
+            maxHeight: 1350,
+            maxShadowOpacity: 0.15, // Уменьшил для производительности
+            flippingTime: 500, // Уменьшил для более быстрой анимации
+            showCover: false,
+            useMouseEvents: true,
+            mobileScrollSupport: true,
+            usePortrait: true,
+            startPage: this.nicheData ? 2 : 1
+          });
 
-        this.pageFlip.on('flip', ({ data }) => {
-          const currentPageNum = Number(data);
-          this.currentPage = currentPageNum - 1;
-          this.currentPageIndex = this.currentPage;
-          
-          console.log(`Flipped to page ${this.currentPage}`);
-          
-          // Загружаем текущую страницу, если нужно
-          this.loadPageIfNeeded(this.currentPage);
-          
-          // Планируем предзагрузку соседних страниц с задержкой
+          this.pageFlip.loadFromHTML(pages);
+          this.isInitialized = true;
+          this.initInProgress = false;
+
+          // Оптимизируем обработчик flip
+          let flipHandlerTimeout: any = null;
+          this.pageFlip.on('flip', ({ data }) => {
+            if (flipHandlerTimeout) {
+              clearTimeout(flipHandlerTimeout);
+            }
+
+            flipHandlerTimeout = setTimeout(() => {
+              const currentPageNum = Number(data);
+              this.currentPage = currentPageNum - 1;
+              this.currentPageIndex = this.currentPage;
+
+              console.log(`Flipped to page ${this.currentPage}`);
+
+              // Загружаем текущую страницу, если нужно
+              this.loadPageIfNeeded(this.currentPage);
+
+              // Планируем предзагрузку соседних страниц с задержкой
+              setTimeout(() => {
+                this.preloadAdjacentPages(currentPageNum);
+              }, 500);
+
+              // Обновляем обнаружение изменений
+              this.cdr.markForCheck();
+
+              flipHandlerTimeout = null;
+            }, 50);
+          });
+
+          // Загружаем первую страницу с задержкой
           setTimeout(() => {
-            this.preloadAdjacentPages(currentPageNum);
+            if (this.pageFlip && this.pageFlip.getPageCount() > 1 && this.isVisible) {
+              const firstContentPageIndex = this.nicheData ? 2 : 1;
+              this.loadPageIfNeeded(firstContentPageIndex);
+            }
           }, 300);
-        });
 
-        // Загружаем первую страницу
-        setTimeout(() => {
-          if (this.pageFlip && this.pageFlip.getPageCount() > 1) {
-            const firstContentPageIndex = this.nicheData ? 2 : 1;
-            this.loadPageIfNeeded(firstContentPageIndex);
-          }
-        }, 200);
-        
-      } catch (error) {
-        console.error('Error initializing PageFlip:', error);
-        this.initInProgress = false;
-      }
-    }, 200);
+        } catch (error) {
+          console.error('Error initializing PageFlip:', error);
+          this.initInProgress = false;
+        }
+      }, 200);
+    });
   }
 
   private loadPageIfNeeded(pageNum: number) {
-    if (pageNum >= this.pages.length) return;
-    
+    if (pageNum >= this.pages.length || !this.isVisible) return;
+
     const pageType = this.pages[pageNum];
     if (typeof pageType === 'string' && pageType.startsWith('category-')) {
       const match = pageType.match(/^category-(.+)-(\d+)$/);
       if (match) {
         const subCategoryId = match[1];
         const pageIndex = parseInt(match[2]);
-        
+
         if (!this.loadedPages.has(pageNum) && !this.loadingPages.has(pageNum)) {
           console.log(`Loading page ${pageNum} (${subCategoryId}, index ${pageIndex})`);
           this.loadProductsForPage(subCategoryId, pageIndex, pageNum);
@@ -725,28 +828,35 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   }
 
   private preloadAdjacentPages(currentPageNum: number) {
+    if (!this.isVisible) return;
+
     const pagesToPreload = [];
-    
-    // Предзагружаем следующую страницу (наиболее вероятная)
+
+    // Предзагружаем только следующую страницу
     if (currentPageNum + 1 < this.pages.length) {
       pagesToPreload.push(currentPageNum + 1);
     }
-    
-    // Предзагружаем следующую за следующей (если есть)
-    if (currentPageNum + 2 < this.pages.length) {
-      pagesToPreload.push(currentPageNum + 2);
-    }
 
-    // Загружаем страницы последовательно с небольшими задержками
+    // Загружаем страницы последовательно с большими задержками
     pagesToPreload.forEach((pageToLoad, index) => {
       setTimeout(() => {
         this.loadPageIfNeeded(pageToLoad);
-      }, index * 200); // Задержка между загрузками
+      }, index * 300 + 500); // Увеличил задержки
     });
   }
 
   private updatePageFlip() {
-    // Этот метод оставляем для обратной совместимости, но используем schedulePageFlipUpdate
     this.schedulePageFlipUpdate();
+  }
+
+  // Очистка кэша при необходимости
+  public clearPageCache(pageNum?: number) {
+    if (pageNum !== undefined) {
+      this.pageProductsCache.delete(pageNum);
+      this.pageCategoryCache.delete(pageNum);
+    } else {
+      this.pageProductsCache.clear();
+      this.pageCategoryCache.clear();
+    }
   }
 }
