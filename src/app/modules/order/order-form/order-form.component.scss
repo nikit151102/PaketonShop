@@ -743,3 +743,314 @@ $radius-sm: 10px;
     gap: 4px;
   }
 }
+
+
+
+
+
+
+
+
+// Компактная проверка наличия
+.availability-check {
+  margin-top: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+// Умный индикатор наличия
+.smart-availability {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid $border;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  
+  &--success {
+    background: linear-gradient(135deg, rgba($success, 0.03) 0%, rgba($success, 0.08) 100%);
+    border-color: rgba($success, 0.3);
+  }
+  
+  &--warning {
+    background: linear-gradient(135deg, rgba($error, 0.02) 0%, rgba($error, 0.05) 100%);
+    border-color: rgba($error, 0.2);
+  }
+}
+
+// Статус бар
+.availability-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    &--success {
+      background: rgba($success, 0.15);
+      color: $success;
+    }
+    
+    &--warning {
+      background: rgba($error, 0.1);
+      color: $error;
+    }
+  }
+  
+  &__content {
+    flex: 1;
+  }
+  
+  &__title {
+    font-weight: 600;
+    font-size: 15px;
+    color: $text;
+    margin-bottom: 2px;
+  }
+  
+  &__subtitle {
+    font-size: 13px;
+    color: $text-muted;
+  }
+}
+
+// Прогресс бар наличия
+.availability-progress {
+  margin-bottom: 16px;
+  
+  &__bar {
+    height: 6px;
+    background: $border-light;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  
+  &__fill {
+    height: 100%;
+    background: linear-gradient(90deg, $primary, lighten($primary, 10%));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+  
+  &__text {
+    font-size: 12px;
+    color: $text-muted;
+    display: flex;
+    justify-content: space-between;
+    
+    span:last-child {
+      font-weight: 600;
+      color: $text;
+    }
+  }
+}
+
+// Компактный список товаров
+.availability-items {
+  margin: 12px 0;
+  
+  &__summary {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: $bg-light;
+    border-radius: 20px;
+    
+    &:hover {
+      background: darken($bg-light, 2%);
+    }
+    
+    svg {
+      transition: transform 0.2s ease;
+    }
+    
+    &.expanded svg {
+      transform: rotate(180deg);
+    }
+  }
+  
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}
+
+// Мини-карточка товара
+.mini-product {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: $bg-light;
+  border-radius: 30px;
+  font-size: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: $border;
+    background: $bg;
+  }
+  
+  &__name {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: $text;
+  }
+  
+  &__qty {
+    font-weight: 600;
+    color: $primary;
+    background: rgba($primary, 0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+  }
+  
+  &--unavailable {
+    opacity: 0.7;
+    
+    .mini-product__qty {
+      background: rgba($error, 0.1);
+      color: $error;
+    }
+  }
+}
+
+// Компактные альтернативы
+.compact-alternatives {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed $border;
+  
+  &__title {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    
+    svg {
+      color: $primary;
+    }
+  }
+  
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+// Компактная карточка магазина
+.compact-store {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: $primary;
+    background: $bg-light;
+  }
+  
+  &--best {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+    position: relative;
+    
+    &::before {
+      content: '★';
+      position: absolute;
+      top: -8px;
+      left: 12px;
+      background: $primary;
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+  }
+  
+  &__info {
+    flex: 1;
+  }
+  
+  &__name {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+    margin-bottom: 4px;
+  }
+  
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  &__count {
+    font-size: 12px;
+    font-weight: 500;
+    
+    span {
+      color: $primary;
+      font-weight: 700;
+      margin-right: 2px;
+    }
+  }
+  
+  &__badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: $primary-light;
+    color: $primary;
+    border-radius: 20px;
+  }
+  
+  &__action {
+    padding: 6px 12px;
+    background: $bg;
+    border: 1px solid $primary;
+    border-radius: 30px;
+    color: $primary;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    
+    &:hover {
+      background: $primary;
+      color: white;
+    }
+  }
+}

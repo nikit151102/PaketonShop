@@ -8,6 +8,7 @@ import { PickupDeliveryComponent } from './delivery/pickup-delivery/pickup-deliv
 import { TransportDeliveryComponent } from './delivery/transport-delivery/transport-delivery.component';
 import { CityDeliveryComponent } from './delivery/city-delivery/city-delivery.component';
 import { CompanySelectorComponent } from './company-selector/company-selector.component';
+import { TruncatePipe } from "./truncate.pipe";
 
 interface Company {
   id: number;
@@ -15,19 +16,31 @@ interface Company {
   inn: string;
 }
 
+interface ProductAvailability {
+  productId: string;
+  productName: string;
+  requiredQty: number;
+  availableQty: number;
+  isAvailable: boolean;
+  storeId: string;
+  storeName: string;
+}
+
 @Component({
   selector: 'app-order-form',
-  imports: [CommonModule, FormsModule, PickupDeliveryComponent, TransportDeliveryComponent, CityDeliveryComponent, CompanySelectorComponent],
+  imports: [CommonModule, FormsModule, PickupDeliveryComponent, TransportDeliveryComponent, CityDeliveryComponent, CompanySelectorComponent, TruncatePipe],
   templateUrl: './order-form.component.html',
   styleUrl: './order-form.component.scss',
 })
 export class OrderFormComponent implements OnInit {
   @Input() userBasketId: string | null = '';
+  @Input() orderProducts: any[] = [];
   @Output() orderCreated = new EventEmitter<any>();
   @Output() orderUpdated = new EventEmitter<any>();
   @Output() orderDelivery = new EventEmitter<any>();
   @Output() orderCompany = new EventEmitter<any>();
   @Output() formChanged = new EventEmitter<any>();
+  @Output() deliveryCost = new EventEmitter<any>();
 
   // Данные пользователя
   currentUserData: any = null;
@@ -78,8 +91,25 @@ export class OrderFormComponent implements OnInit {
       });
   }
 
-
   orderDeliveryData: any;
+  allStores: any[] = [];
+  selectedStoreId: string | null = null;
+
+  // Результаты проверки наличия
+  availabilityCheck: {
+    allAvailable: boolean;
+    availableProducts: ProductAvailability[];
+    unavailableProducts: ProductAvailability[];
+    alternativeStores: Array<{
+      storeId: string;
+      storeName: string;
+      storeAddress: string;
+      availableCount: number;
+      totalProducts: number;
+      products: ProductAvailability[];
+    }>;
+    bestAlternativeStore: any;
+  } | null = null;
 
   // Метод для отслеживания изменений в форме
   onFormChange(): void {
@@ -128,17 +158,33 @@ export class OrderFormComponent implements OnInit {
   }
 
   onDeliveryDataChange(type: string, data: any) {
+    console.log('onDeliveryDataChange called with type:', type, 'data:', data);
+
     this.orderDelivery.emit({
       'type': type,
       'id': data.id,
       'shopCity': data?.address?.city ? data.address.city : undefined,
       'shopAddress': data.fullName
     });
+
     this.orderDeliveryData = {
       'type': type,
       'id': data.id
+    };
+this.deliveryCost.emit(data.coast);
+    // ИСПРАВЛЕНИЕ: проверяем что type содержит 'pickup' или равен 'store'
+    if ((type === 'pickup' || type === 'store') && data.id) {
+      this.selectedStoreId = data.id;
+      console.log('Setting selectedStoreId to:', data.id);
+      this.checkAvailabilityInSelectedStore();
     }
+
     this.onFormChange();
+
+    console.log('selectedStoreId:', this.selectedStoreId);
+    console.log('allStores:', this.allStores);
+    console.log('orderProducts:', this.orderProducts);
+    console.log('availabilityCheck:', this.availabilityCheck);
   }
 
   startEditing() {
@@ -159,6 +205,17 @@ export class OrderFormComponent implements OnInit {
     }
 
     this.onFormChange();
+    console.log('orderProducts', this.orderProducts)
+  }
+
+  getAllStores(data: any) {
+    this.allStores = data;
+    console.log('allStores', data)
+
+    // Если уже выбран магазин, проверяем наличие
+    if (this.selectedStoreId) {
+      this.checkAvailabilityInSelectedStore();
+    }
   }
 
   onCompanyAdded(): void {
@@ -212,6 +269,194 @@ export class OrderFormComponent implements OnInit {
       this.onFormChange();
     } else {
       console.log('Нельзя удалить последнюю компанию');
+    }
+  }
+
+  // Добавьте в класс компонента
+showProductsList = false;
+
+// Добавьте метод
+toggleProductsList() {
+  this.showProductsList = !this.showProductsList;
+}
+
+  /**
+   * Проверяет наличие всех товаров в выбранном магазине
+   */
+  private checkAvailabilityInSelectedStore(): void {
+    console.log('checkAvailabilityInSelectedStore called');
+    console.log('selectedStoreId:', this.selectedStoreId);
+    console.log('orderProducts:', this.orderProducts);
+    console.log('allStores:', this.allStores);
+
+    if (!this.selectedStoreId || !this.orderProducts || this.orderProducts.length === 0 || !this.allStores || this.allStores.length === 0) {
+      console.log('Conditions not met for checking availability');
+      this.availabilityCheck = null;
+      return;
+    }
+
+    // Находим выбранный магазин
+    const selectedStore = this.allStores.find(store => store.id === this.selectedStoreId);
+    console.log('selectedStore:', selectedStore);
+
+    if (!selectedStore) {
+      console.log('Selected store not found');
+      this.availabilityCheck = null;
+      return;
+    }
+
+    const availableProducts: any[] = [];
+    const unavailableProducts: any[] = [];
+
+    // Проверяем каждый товар в корзине
+    this.orderProducts.forEach(product => {
+      console.log('Checking product:', product.name, 'remains:', product.remains);
+
+      // Ищем остатки этого товара в выбранном магазине
+      const productRemain = product.remains?.find((remain: any) =>
+        remain.productPlaceId === this.selectedStoreId
+      );
+
+      console.log('productRemain for store:', productRemain);
+
+      const availableQty = productRemain?.count || 0;
+      const requiredQty = product.qty || 1;
+      const isAvailable = availableQty >= requiredQty;
+
+      const availabilityInfo = {
+        productId: product.id,
+        productName: product.name,
+        requiredQty: requiredQty,
+        availableQty: availableQty,
+        isAvailable: isAvailable,
+        storeId: this.selectedStoreId,
+        storeName: selectedStore.fullName || selectedStore.name || 'Выбранный магазин'
+      };
+
+      if (isAvailable) {
+        availableProducts.push(availabilityInfo);
+      } else {
+        unavailableProducts.push(availabilityInfo);
+      }
+    });
+
+    console.log('availableProducts:', availableProducts);
+    console.log('unavailableProducts:', unavailableProducts);
+
+    // Находим альтернативные магазины в том же городе
+    const alternativeStores = this.findAlternativeStores(selectedStore.address?.city);
+    console.log('alternativeStores:', alternativeStores);
+
+    // Формируем результат проверки
+    this.availabilityCheck = {
+      allAvailable: unavailableProducts.length === 0,
+      availableProducts: availableProducts,
+      unavailableProducts: unavailableProducts,
+      alternativeStores: alternativeStores,
+      bestAlternativeStore: alternativeStores.length > 0 ? alternativeStores[0] : null
+    };
+
+    console.log('availabilityCheck result:', this.availabilityCheck);
+  }
+  /**
+   * Находит альтернативные магазины в том же городе с максимальным наличием товаров
+   */
+  private findAlternativeStores(city: string): Array<{
+    storeId: string;
+    storeName: string;
+    storeAddress: string;
+    availableCount: number;
+    totalProducts: number;
+    products: ProductAvailability[];
+  }> {
+    if (!city || !this.allStores || this.allStores.length === 0 || !this.orderProducts) {
+      return [];
+    }
+
+    // Фильтруем магазины в том же городе, исключая текущий выбранный
+    const storesInCity = this.allStores.filter(store =>
+      store.address?.city === city && store.id !== this.selectedStoreId
+    );
+
+    if (storesInCity.length === 0) {
+      return [];
+    }
+
+    const alternatives: Array<{
+      storeId: string;
+      storeName: string;
+      storeAddress: string;
+      availableCount: number;
+      totalProducts: number;
+      products: ProductAvailability[];
+    }> = [];
+
+    // Для каждого магазина проверяем наличие товаров
+    storesInCity.forEach(store => {
+      let availableCount = 0;
+      const productsInStore: ProductAvailability[] = [];
+
+      this.orderProducts.forEach(product => {
+        const productRemain = product.remains?.find((remain: any) =>
+          remain.productPlaceId === store.id
+        );
+
+        const availableQty = productRemain?.count || 0;
+        const requiredQty = product.qty || 1;
+        const isAvailable = availableQty >= requiredQty;
+
+        if (isAvailable) {
+          availableCount++;
+        }
+
+        productsInStore.push({
+          productId: product.id,
+          productName: product.name,
+          requiredQty: requiredQty,
+          availableQty: availableQty,
+          isAvailable: isAvailable,
+          storeId: store.id,
+          storeName: store.fullName || store.name || 'Магазин'
+        });
+      });
+
+      alternatives.push({
+        storeId: store.id,
+        storeName: store.fullName || store.name || 'Магазин',
+        storeAddress: store.fullName || '',
+        availableCount: availableCount,
+        totalProducts: this.orderProducts.length,
+        products: productsInStore
+      });
+    });
+
+    // Сортируем по количеству доступных товаров (от большего к меньшему)
+    return alternatives.sort((a, b) => b.availableCount - a.availableCount);
+  }
+
+  /**
+   * Переключает выбор на альтернативный магазин
+   */
+  selectAlternativeStore(storeId: string): void {
+    const store = this.allStores.find(s => s.id === storeId);
+    if (store) {
+      this.selectedStoreId = storeId;
+      this.checkAvailabilityInSelectedStore();
+
+      // Эмитируем событие выбора нового магазина
+      this.orderDelivery.emit({
+        'type': 'pickup',
+        'id': storeId,
+        'shopCity': store.address?.city,
+        'shopAddress': store.fullName
+      });
+
+      this.orderDeliveryData = {
+        'type': 'pickup',
+        'id': storeId
+      };
+
+      this.onFormChange();
     }
   }
 }

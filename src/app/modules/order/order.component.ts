@@ -37,6 +37,9 @@ export class OrderComponent implements OnInit, OnDestroy {
   savingProgress = 0;
   currentDate = new Date();
 
+  // Новая переменная для способа оплаты
+  paymentMethod: 'online' | 'cash' | 'card' = 'online';
+
   // Пример скидок (можно получать с бекенда)
   discountRules = [
     { minAmount: 10000, discountPercent: 5 },
@@ -95,7 +98,8 @@ export class OrderComponent implements OnInit, OnDestroy {
               price: p.price || 0,
               priceSale: p.priceSale,
               qty: p.count || 1,
-              imageUrl: p.product.productImageLinks[0] || null
+              imageUrl: p.product.productImageLinks[0] || null,
+              remains: p.product.remains
             }));
 
             // Рассчитываем скидку
@@ -145,7 +149,12 @@ export class OrderComponent implements OnInit, OnDestroy {
 
     // Пример: бесплатная доставка от 5000
     const total = this.getProductsTotal();
-    return total >= 5000 ? 0 : 500;
+    this.deliveryCost = total >= 5000 ? 0 : this.deliveryCost;
+    return this.deliveryCost
+  }
+
+  setDeliveryCost(value: any) {
+    this.deliveryCost = value;
   }
 
   getOrderTotal(): number {
@@ -153,7 +162,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   canProceedToPayment(): boolean {
-    return !!this.createdOrderId && !this.isProcessing;
+    return !!this.createdOrderId && !this.isProcessing && this.paymentMethod === 'online';
   }
 
   onOrderCreated(order: any): void {
@@ -204,76 +213,133 @@ export class OrderComponent implements OnInit, OnDestroy {
   paymentToken: any;
 
   /**
-  * Инициализация оплаты
-  */
+   * Новый метод для обработки заказа в зависимости от способа оплаты
+   */
+  processOrder(): void {
+    if (!this.paymentMethod) {
+      console.warn('Выберите способ оплаты');
+      return;
+    }
+
+    if (this.paymentMethod === 'online') {
+      this.initiatePayment();
+    } else {
+      this.createOrderWithCashPayment();
+    }
+  }
+
+  /**
+   * Создание заказа с оплатой при получении
+   */
+  createOrderWithCashPayment(): void {
+    this.isProcessing = true;
+
+    // Здесь должен быть вызов API для создания заказа с пометкой "оплата при получении"
+    // Имитация запроса
+    setTimeout(() => {
+      this.isProcessing = false;
+      this.showSuccessNotification = true;
+
+      // Генерируем тестовый ID заказа если его нет
+      if (!this.createdOrderId) {
+        this.createdOrderId = 'order_' + Math.random().toString(36).substr(2, 9);
+      }
+    }, 1500);
+  }
+
+  /**
+   * Инициализация онлайн оплаты
+   */
   initiatePayment() {
+    // if (!this.createdOrderId) {
+    //   console.warn('Нельзя перейти к оплате: заказ не создан');
+    //   return;
+    // }
 
     this.isProcessing = true;
 
     this.paymentService.createTopUpTransaction(this.getOrderTotal()).subscribe({
       next: (response: any) => {
-        this.paymentToken = response.data.confirmationToken;
-        this.showPaymentWidget = true;
+        if (response.data && response.data.confirmationToken) {
+          this.paymentToken = response.data.confirmationToken;
+          this.showPaymentWidget = true;
+        } else {
+          console.error('Не получен confirmationToken');
+          this.handlePaymentError('Не удалось получить токен оплаты');
+        }
         this.isProcessing = false;
       },
       error: (error) => {
         console.error('Ошибка при создании платежа:', error);
+        this.handlePaymentError(error);
         this.isProcessing = false;
       }
     });
   }
-
 
   /**
    * Обработка успешного платежа
    */
-  handlePaymentSuccess(confirmationToken: string): void {
-    console.log('Платеж успешен, токен:', confirmationToken);
+  handlePaymentSuccess(event: any): void {
+    console.log('Платеж успешен:', event);
+
+    // event может содержать token и amount
+    const token = event.token || event;
 
     this.isProcessing = true;
 
-    this.paymentService.confirmPayment(confirmationToken).subscribe({
+    this.paymentService.confirmPayment(token).subscribe({
       next: (response: any) => {
         console.log('Платеж подтвержден:', response);
 
-
-        // this.successMessage = 'Оплата прошла успешно!';
+        // Показываем уведомление об успешной оплате
+        this.showSuccessNotification = true;
         this.showPaymentWidget = false;
         this.isProcessing = false;
+
+        // Здесь можно обновить статус заказа или баланс
       },
       error: (error) => {
         console.error('Ошибка подтверждения платежа:', error);
-        // this.errorMessage = 'Платеж прошел, но не удалось обновить данные. Обратитесь в поддержку.';
+
+        // Можно показать сообщение, что платеж прошел, но данные не обновились
+        this.handlePaymentError('Платеж прошел, но не удалось обновить данные. Обратитесь в поддержку.');
         this.showPaymentWidget = false;
         this.isProcessing = false;
       }
     });
   }
 
-  handlePaymentFail(confirmationToken: string): void {
-    console.log('Платеж не удался, токен:', confirmationToken);
+  /**
+   * Обработка неудачного платежа
+   */
+  handlePaymentFail(event: any): void {
+    console.log('Платеж не удался:', event);
     this.showPaymentWidget = false;
-    // Обработка ошибки оплаты
+
+    // Можно показать уведомление об ошибке
+    // this.showErrorNotification('Оплата не удалась. Попробуйте снова.');
   }
 
+  /**
+   * Обработка ошибки платежа
+   */
   handlePaymentError(error: any): void {
     console.error('Ошибка платежа:', error);
     this.showPaymentWidget = false;
+
+    // Показать уведомление об ошибке
+    // this.showErrorNotification('Произошла ошибка при оплате');
   }
 
-  onWidgetLoaded(): void {
-    console.log('Виджет загружен');
+  /**
+   * Обработка закрытия виджета
+   */
+  handleWidgetClose(): void {
+    console.log('Виджет закрыт');
+    this.showPaymentWidget = false;
+    this.isProcessing = false;
   }
 
-  // Пример метода создания транзакции
-  private createTransaction(amount: number) {
-    // Здесь ваш HTTP запрос для создания транзакции
-    // Возвращает Observable с confirmationToken
-  }
 
-  // Пример метода подтверждения платежа
-  private confirmPayment(confirmationToken: string) {
-    // Здесь ваш HTTP запрос для подтверждения транзакции
-    // Возвращает Observable с обновленными данными
-  }
 }

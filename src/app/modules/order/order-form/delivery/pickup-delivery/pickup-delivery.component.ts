@@ -19,7 +19,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   @Input() selectedStoreId: string | null = null;
   @Output() storeSelected = new EventEmitter<ProductPlace>();
   @Output() storeUnselected = new EventEmitter<void>();
-
+ @Output() allStoresOut = new EventEmitter<any>();
   @ViewChild('mapContainer') mapContainer!: ElementRef;
 
   // Яндекс.Карты
@@ -104,7 +104,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           console.log('Загружено всех магазинов:', stores?.length || 0);
           this.allStores = stores || [];
           this.storesSubject.next(stores || []);
-          
+          this.allStoresOut.emit(this.allStores)
           // После загрузки магазинов загружаем города
           this.loadCities();
           this.loadingAllStores = false;

@@ -6,7 +6,8 @@
       <div class="form-card__header">
         <div class="form-card__icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
           </svg>
         </div>
         <h2 class="form-card__title">Контактные данные</h2>
@@ -18,7 +19,8 @@
           <span>{{ getInitials() }}</span>
         </div>
         <div class="contact-preview__info">
-          <div class="contact-preview__name">{{ currentUserData.firstName || '' }} {{ currentUserData.lastName || '' }}</div>
+          <div class="contact-preview__name">{{ currentUserData.firstName || '' }} {{ currentUserData.lastName || '' }}
+          </div>
           <div class="contact-preview__contacts">
             <span>{{ currentUserData.phoneNumber || 'Телефон не указан' }}</span>
             <span class="dot">•</span>
@@ -27,7 +29,8 @@
         </div>
         <button class="contact-preview__edit" type="button">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
           </svg>
         </button>
       </div>
@@ -47,7 +50,8 @@
 
         <div class="form-group">
           <label class="form-label">Отчество</label>
-          <input type="text" class="form-input" [(ngModel)]="formData.middleName" name="middleName" placeholder="Иванович">
+          <input type="text" class="form-input" [(ngModel)]="formData.middleName" name="middleName"
+            placeholder="Иванович">
         </div>
 
         <div class="form-row">
@@ -55,12 +59,14 @@
             <label class="form-label">Телефон <span class="required">*</span></label>
             <div class="form-phone">
               <span class="form-phone__prefix">+7</span>
-              <input type="tel" class="form-input form-input--phone" [(ngModel)]="formData.phone" name="phone" placeholder="(999) 123-45-67">
+              <input type="tel" class="form-input form-input--phone" [(ngModel)]="formData.phone" name="phone"
+                placeholder="(999) 123-45-67">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Email <span class="required">*</span></label>
-            <input type="email" class="form-input" [(ngModel)]="formData.email" name="email" placeholder="example@mail.ru">
+            <input type="email" class="form-input" [(ngModel)]="formData.email" name="email"
+              placeholder="example@mail.ru">
           </div>
         </div>
 
@@ -76,15 +82,15 @@
       <div class="form-card__header">
         <div class="form-card__icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z"/>
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z" />
           </svg>
         </div>
         <h2 class="form-card__title">Комментарий к заказу</h2>
       </div>
       <div class="form-card__body">
-        <textarea class="form-textarea" [(ngModel)]="formData.info" name="info" 
-                  placeholder="Напишите, если есть особые пожелания..." rows="2"></textarea>
-        
+        <textarea class="form-textarea" [(ngModel)]="formData.info" name="info"
+          placeholder="Напишите, если есть особые пожелания..." rows="2"></textarea>
+
         <label class="form-checkbox">
           <input type="checkbox" [(ngModel)]="formData.needConsult" name="needConsult">
           <span class="checkbox-custom"></span>
@@ -101,7 +107,8 @@
       <div class="form-card__header">
         <div class="form-card__icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
           </svg>
         </div>
         <h2 class="form-card__title">Тип покупателя</h2>
@@ -109,23 +116,22 @@
 
       <div class="form-card__body">
         <div class="type-toggle">
-          <button type="button" class="type-toggle__btn" [class.active]="formData.personType === 'fiz'" (click)="formData.personType = 'fiz'">
+          <button type="button" class="type-toggle__btn" [class.active]="formData.personType === 'fiz'"
+            (click)="formData.personType = 'fiz'">
             <span class="type-toggle__icon">👤</span>
             <span class="type-toggle__text">Физическое лицо</span>
           </button>
-          <button type="button" class="type-toggle__btn" [class.active]="formData.personType === 'jur'" (click)="formData.personType = 'jur'">
+          <button type="button" class="type-toggle__btn" [class.active]="formData.personType === 'jur'"
+            (click)="formData.personType = 'jur'">
             <span class="type-toggle__icon">🏢</span>
             <span class="type-toggle__text">Юридическое лицо</span>
           </button>
         </div>
 
         <!-- Секция компаний для юрлиц -->
-        <app-company-selector *ngIf="formData.personType === 'jur'" 
-          [selectedCompanyId]="selectedCompanyId"
-          (selectedCompanyChange)="onCompanySelected($event)" 
-          (companyAdded)="onCompanyAdded()"
-          (companyEdited)="onCompanyEdited($event)" 
-          (companyDeleted)="onCompanyDeleted($event)">
+        <app-company-selector *ngIf="formData.personType === 'jur'" [selectedCompanyId]="selectedCompanyId"
+          (selectedCompanyChange)="onCompanySelected($event)" (companyAdded)="onCompanyAdded()"
+          (companyEdited)="onCompanyEdited($event)" (companyDeleted)="onCompanyDeleted($event)">
         </app-company-selector>
       </div>
     </div>
@@ -135,7 +141,8 @@
       <div class="form-card__header">
         <div class="form-card__icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/>
+            <path
+              d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z" />
           </svg>
         </div>
         <h2 class="form-card__title">Способ доставки</h2>
@@ -159,7 +166,7 @@
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
               <span class="delivery-option__title">Транспортная компания</span>
-              <span class="delivery-option__badge">от 500 ₽</span>
+              <!-- <span class="delivery-option__badge">от 500 ₽</span> -->
               <span class="delivery-option__desc">Доставка по всей России</span>
             </span>
           </label>
@@ -169,7 +176,7 @@
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
               <span class="delivery-option__title">Доставка по городу</span>
-              <span class="delivery-option__badge">500 ₽</span>
+              <!-- <span class="delivery-option__badge">500 ₽</span> -->
               <span class="delivery-option__desc">Курьером по вашему адресу</span>
             </span>
           </label>
@@ -178,7 +185,7 @@
         <!-- Детали выбранного способа -->
         <div class="delivery-details" *ngIf="formData.delivery">
           <app-pickup-delivery *ngIf="formData.delivery === 'pickup'"
-            (storeSelected)="onDeliveryDataChange('store', $event)">
+            (storeSelected)="onDeliveryDataChange('store', $event)" (allStoresOut)="getAllStores($event)">
           </app-pickup-delivery>
 
           <app-transport-delivery *ngIf="formData.delivery === 'transport'"
@@ -189,12 +196,129 @@
             (addressSelected)="onDeliveryDataChange('city', $event)">
           </app-city-delivery>
         </div>
+
+
+        <!-- Блок проверки наличия в выбранном магазине -->
+        <div class="availability-check" *ngIf="formData.delivery === 'pickup' && selectedStoreId && availabilityCheck">
+
+          <!-- Умный блок наличия -->
+          <div class="smart-availability" [class.smart-availability--success]="availabilityCheck.allAvailable"
+            [class.smart-availability--warning]="!availabilityCheck.allAvailable">
+
+            <!-- Статус -->
+            <div class="availability-status">
+              <div class="availability-status__icon"
+                [class.availability-status__icon--success]="availabilityCheck.allAvailable"
+                [class.availability-status__icon--warning]="!availabilityCheck.allAvailable">
+                <svg *ngIf="availabilityCheck.allAvailable" width="18" height="18" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+                <svg *ngIf="!availabilityCheck.allAvailable" width="18" height="18" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg>
+              </div>
+              <div class="availability-status__content">
+                <div class="availability-status__title">
+                  {{ availabilityCheck.allAvailable ? 'Все товары в наличии' : 'Часть товаров отсутствует' }}
+                </div>
+                <div class="availability-status__subtitle">
+                  {{ availabilityCheck.allAvailable ? 'Можете забрать заказ сегодня' : 'Проверьте альтернативные
+                  магазины' }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Прогресс наличия (компактный) -->
+            <div class="availability-progress">
+              <div class="availability-progress__bar">
+                <div class="availability-progress__fill"
+                  [style.width.%]="(availabilityCheck.availableProducts.length / (availabilityCheck.availableProducts.length + availabilityCheck.unavailableProducts.length)) * 100">
+                </div>
+              </div>
+              <div class="availability-progress__text">
+                <span>Доступно</span>
+                <span>{{ availabilityCheck.availableProducts.length }} из {{ availabilityCheck.availableProducts.length
+                  + availabilityCheck.unavailableProducts.length }}</span>
+              </div>
+            </div>
+
+            <!-- Компактный список товаров (по умолчанию свернут) -->
+            <div class="availability-items">
+              <div class="availability-items__summary" (click)="toggleProductsList()"
+                [class.expanded]="showProductsList">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                </svg>
+                {{ showProductsList ? 'Скрыть товары' : 'Показать товары' }}
+              </div>
+
+              <div class="availability-items__grid" *ngIf="showProductsList">
+                <!-- Доступные товары -->
+                <div class="mini-product" *ngFor="let product of availabilityCheck.availableProducts">
+                  <span class="mini-product__name" [title]="product.productName">{{ product.productName }}</span>
+                  <span class="mini-product__qty">{{ product.requiredQty }} шт.</span>
+                </div>
+
+                <!-- Недоступные товары -->
+                <div class="mini-product mini-product--unavailable"
+                  *ngFor="let product of availabilityCheck.unavailableProducts">
+                  <span class="mini-product__name" [title]="product.productName">{{ product.productName }}</span>
+                  <span class="mini-product__qty">нет {{ product.requiredQty }} шт.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Компактные альтернативы -->
+            <div class="compact-alternatives"
+              *ngIf="availabilityCheck.alternativeStores.length > 0 && !availabilityCheck.allAvailable">
+              <div class="compact-alternatives__title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+                Другие магазины в городе
+              </div>
+
+              <div class="compact-alternatives__list">
+                <div class="compact-store" *ngFor="let store of availabilityCheck.alternativeStores"
+                  [class.compact-store--best]="store === availabilityCheck.bestAlternativeStore">
+
+                  <div class="compact-store__info">
+                    <div class="compact-store__name">{{ store.storeName | truncate:40 }}</div>
+                    <div class="compact-store__stats">
+                      <div class="compact-store__count">
+                        <span>{{ store.availableCount }}</span>/{{ store.totalProducts }} товаров
+                      </div>
+                      <div class="compact-store__badge" *ngIf="store === availabilityCheck.bestAlternativeStore">
+                        оптимально
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="compact-store__action" (click)="selectAlternativeStore(store.storeId)">
+                    Выбрать
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Нет альтернатив -->
+            <div class="no-alternatives"
+              *ngIf="availabilityCheck.alternativeStores.length === 0 && !availabilityCheck.allAvailable">
+              <p class="no-alternatives__text">В вашем городе нет других магазинов</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Футер с соглашением и кнопкой -->
-  <div class="order-form__footer">
+  <!-- <div class="order-form__footer">
     <label class="agreement-checkbox">
       <input type="checkbox" [(ngModel)]="formData.agreement" name="agreement">
       <span class="agreement-checkbox__custom"></span>
@@ -223,5 +347,5 @@
         <span>{{ isSubmitting ? 'Обработка...' : 'Подтвердить заказ' }}</span>
       </span>
     </button>
-  </div>
+  </div> -->
 </form>

@@ -33,17 +33,23 @@
       </div>
     </ng-container>
 
-    <!-- Страница содержания -->
-    <ng-container *ngIf="page === 'content'">
+    <!-- Страницы содержания (могут быть несколько) -->
+    <ng-container *ngIf="isContentPage(i)">
       <div class="content-page">
         <h2 class="section-title">СОДЕРЖАНИЕ</h2>
         <div class="content-list">
-          <div *ngFor="let category of categories" class="content-item" (click)="goToPage(category.startPage)">
-            <span class="content-section">{{ category.name }}</span>
+          <div *ngFor="let item of getContentPage(i)?.items" class="content-item" (click)="goToPage(item.startPage)">
+            <span class="content-section">{{ item.name }}</span>
             <span class="content-dots"></span>
-            <span class="content-page-num">{{ category.startPage }}</span>
+            <span class="content-page-num">{{ item.startPage }}</span>
           </div>
         </div>
+        
+        <!-- Индикатор страницы содержания -->
+        <div class="content-pagination" *ngIf="contentPages.length > 1">
+          Стр. {{ getContentPage(i)?.pageNumber }} из {{ contentPages.length }}
+        </div>
+        
         <div class="content-note">Нажмите на раздел для перехода</div>
       </div>
     </ng-container>

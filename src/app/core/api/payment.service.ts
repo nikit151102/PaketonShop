@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { delay, Observable } from 'rxjs';
 import { environment } from '../../../environment';
 
 export interface PaymentResponse {
@@ -31,7 +31,7 @@ export interface TransactionData {
 })
 export class PaymentService {
 
-  private readonly baseUrl = `${environment.production}/api/Entities/Payments`;
+  private readonly baseUrl = `${environment.production}/api`;
 
   constructor(private http: HttpClient) { }
 
@@ -41,10 +41,8 @@ export class PaymentService {
    * @returns Observable с confirmationToken
    */
   createTopUpTransaction(amount: number): Observable<PaymentResponse> {
-    return this.http.post<PaymentResponse>(`${this.baseUrl}/topup`, {
-      amount,
-      currency: 'RUB'
-    });
+    return this.http.put<PaymentResponse>(`${this.baseUrl}/Profile/MakeTransaction`, {
+      delta: amount    });
   }
 
   /**

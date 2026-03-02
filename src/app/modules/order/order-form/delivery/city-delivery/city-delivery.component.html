@@ -5,9 +5,9 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
       </svg>
-      <h3>Доставка по городу</h3>
+      <h3>Яндекс.Доставка</h3>
     </div>
-    <p class="header-subtitle">Выберите адрес и способ доставки</p>
+    <p class="header-subtitle">Курьером по вашему адресу</p>
   </div>
 
   <!-- Состояния загрузки/ошибки -->
@@ -119,14 +119,10 @@
           </div>
         </div>
 
-        <div class="form-row form-row--2">
+        <div class="form-row">
           <div class="form-group">
             <label>Этаж</label>
             <input type="text" class="form-input" [(ngModel)]="newAddress.floorNumber" placeholder="5">
-          </div>
-          <div class="form-group">
-            <label>Индекс <span class="required">*</span></label>
-            <input type="text" class="form-input" [(ngModel)]="newAddress.postIndex" placeholder="123456">
           </div>
         </div>
 
@@ -140,28 +136,60 @@
       </div>
 
       <div class="address-form__footer">
-        <button class="btn btn-outline" (click)="cancelSelection()">Отмена</button>
+        <button class="btn btn-outline" type="button" (click)="cancelSelection()">Отмена</button>
         <button class="btn btn-primary" 
-                (click)="addNewAddress()"
-               >
-          Сохранить адрес
+                type="button"
+                [disabled]="!isNewAddressValid()"
+                (click)="addNewAddress()">
+          {{ isSaving ? 'Сохранение...' : 'Сохранить адрес' }}
         </button>
+      </div>
+      
+      <!-- Индикатор загрузки -->
+      <div class="form-saving" *ngIf="isSaving">
+        <div class="saving-spinner"></div>
+        <span>Сохранение адреса...</span>
+      </div>
+    </div>
+
+    <!-- Блок стоимости доставки -->
+    <div class="delivery-cost" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+      <div class="delivery-cost__header">
+        <div class="delivery-cost__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/>
+          </svg>
+        </div>
+        <div class="delivery-cost__info">
+          <span class="delivery-cost__label">Стоимость доставки</span>
+          <span class="delivery-cost__price">{{ deliveryCost }} ₽</span>
+        </div>
+        <div class="delivery-cost__badge">
+          <span>Яндекс.Доставка</span>
+        </div>
+      </div>
+      
+      <div class="delivery-cost__details">
+        <div class="delivery-cost__row">
+          <span>Тариф</span>
+          <span>Курьер</span>
+        </div>
       </div>
     </div>
 
     <!-- Информация о доставке -->
     <div class="delivery-info" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
       <div class="delivery-info__item">
-        <span class="delivery-info__icon">🕒</span>
-        <span>9:00 – 21:00 в рабочие дни</span>
-      </div>
-      <div class="delivery-info__item">
         <span class="delivery-info__icon">📞</span>
-        <span>Курьер позвонит за 30 минут</span>
+        <span>Курьер позвонит за 10 минут</span>
       </div>
       <div class="delivery-info__item">
         <span class="delivery-info__icon">💳</span>
         <span>Оплата наличными или картой</span>
+      </div>
+      <div class="delivery-info__item delivery-info__item--yandex">
+        <span class="delivery-info__icon">🚀</span>
+        <span>Доставка осуществляется Яндекс.Доставкой</span>
       </div>
     </div>
   </div>

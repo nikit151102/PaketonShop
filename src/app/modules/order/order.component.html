@@ -19,9 +19,9 @@
 
         <!-- Форма оформления заказа -->
         <div class="form-container">
-          <app-order-form [userBasketId]="activeBasketId" (orderCreated)="onOrderCreated($event)"
+          <app-order-form [userBasketId]="activeBasketId" [orderProducts]="basketProducts" (orderCreated)="onOrderCreated($event)"
             (orderUpdated)="onOrderUpdated($event)" (orderDelivery)="onOrderDelivery($event)" (orderCompany)="null"
-            (formChanged)="onFormChanged($event)">
+            (formChanged)="onFormChanged($event)" (deliveryCost)="setDeliveryCost($event)">
           </app-order-form>
         </div>
       </div>
@@ -110,8 +110,89 @@
             </div>
           </div>
 
+          <!-- НОВЫЙ БЛОК: Выбор способа оплаты -->
+          <div class="payment-method-card">
+            <div class="payment-method-card__header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+              </svg>
+              <h3>Способ оплаты</h3>
+            </div>
+
+            <div class="payment-method-card__body">
+              <div class="payment-options">
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="online">
+                  <span class="payment-option__custom"></span>
+                  <span class="payment-option__content">
+                    <span class="payment-option__title">Онлайн оплата</span>
+                    <span class="payment-option__badge">Картой онлайн</span>
+                    <!-- <span class="payment-option__desc">Visa, Mastercard, МИР, ЮMoney, SberPay</span> -->
+                  </span>
+                </label>
+
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="cash">
+                  <span class="payment-option__custom"></span>
+                  <span class="payment-option__content">
+                    <span class="payment-option__title">Наличными при получении</span>
+                    <span class="payment-option__badge">Наличные</span>
+                    <span class="payment-option__desc">Оплатите заказ наличными курьеру или в пункте выдачи</span>
+                  </span>
+                </label>
+
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="card">
+                  <span class="payment-option__custom"></span>
+                  <span class="payment-option__content">
+                    <span class="payment-option__title">Картой при получении</span>
+                    <span class="payment-option__badge">Терминал</span>
+                    <span class="payment-option__desc">Оплатите картой курьеру или в пункте выдачи</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Информация о выбранном способе -->
+              <div class="payment-info" *ngIf="paymentMethod === 'online'">
+                <div class="payment-info__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                  </svg>
+                </div>
+                <div class="payment-info__content">
+                  <p class="payment-info__title">Безопасная оплата онлайн</p>
+                  <p class="payment-info__text">После оформления заказа вы будете перенаправлены на защищенную страницу оплаты</p>
+                </div>
+              </div>
+
+              <div class="payment-info" *ngIf="paymentMethod === 'cash'">
+                <div class="payment-info__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                  </svg>
+                </div>
+                <div class="payment-info__content">
+                  <p class="payment-info__title">Оплата наличными</p>
+                  <p class="payment-info__text">Подготовьте точную сумму без сдачи для ускорения получения заказа</p>
+                </div>
+              </div>
+
+              <div class="payment-info" *ngIf="paymentMethod === 'card'">
+                <div class="payment-info__icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                  </svg>
+                </div>
+                <div class="payment-info__content">
+                  <p class="payment-info__title">Оплата картой при получении</p>
+                  <p class="payment-info__text">Терминал для оплаты картой есть в пунктах выдачи</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Безопасность и гарантии -->
-          <div class="security-badges">
+          <!-- <div class="security-badges">
             <div class="security-badge">
               <div class="security-badge__icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -135,21 +216,21 @@
                 <span class="security-badge__subtitle">30 дней</span>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- Кнопки действий -->
           <div class="summary-actions">
-            <button class="summary-actions__btn summary-actions__btn--secondary" [routerLink]="['/cart']">
+            <!-- <button class="summary-actions__btn summary-actions__btn--secondary" [routerLink]="['/cart']">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
               </svg>
               Изменить корзину
-            </button>
+            </button> -->
 
             <button class="summary-actions__btn summary-actions__btn--primary" 
-                    [disabled]="!canProceedToPayment()" 
-                    (click)="initiatePayment()"
-                    [class.loading]="isProcessing">
+                    (click)="processOrder()"
+                    [class.loading]="isProcessing"
+                    [disabled]="!paymentMethod || isProcessing">
               <span class="btn-content">
                 <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" *ngIf="!isProcessing">
                   <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
@@ -158,7 +239,9 @@
                   <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity="0.3"/>
                   <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
                 </svg>
-                <span class="btn-text">{{ isProcessing ? 'Обработка...' : 'Перейти к оплате' }}</span>
+                <span class="btn-text">
+                  {{ isProcessing ? 'Обработка...' : (paymentMethod === 'online' ? 'Перейти к оплате' : 'Оформить заказ') }}
+                </span>
                 <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
               </span>
             </button>
@@ -173,19 +256,27 @@
     </div>
   </div>
 
-  <!-- Платежный виджет -->
-  <app-payment-widget *ngIf="showPaymentWidget" [confirmationToken]="paymentToken" 
-    (onSuccess)="handlePaymentSuccess($event)" (onFail)="handlePaymentFail($event)"
-    (onError)="handlePaymentError($event)" (onWidgetLoaded)="onWidgetLoaded()">
+  <!-- Платежный виджет (только для онлайн оплаты) -->
+  <app-payment-widget 
+    *ngIf="showPaymentWidget && paymentMethod === 'online'"
+    [confirmationToken]="paymentToken"
+    [amount]="getOrderTotal()"
+    (onSuccess)="handlePaymentSuccess($event)"
+    (onFail)="handlePaymentFail($event)"
+    (onError)="handlePaymentError($event)"
+    (onClose)="handleWidgetClose()">
   </app-payment-widget>
 
   <!-- Уведомление об успешном создании заказа -->
   <div class="modal-overlay" *ngIf="showSuccessNotification" (click)="showSuccessNotification = false">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal__header">
-        <div class="modal__icon modal__icon--success">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <div class="modal__icon" [class.modal__icon--success]="paymentMethod === 'online'" [class.modal__icon--info]="paymentMethod !== 'online'">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" *ngIf="paymentMethod === 'online'">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" *ngIf="paymentMethod !== 'online'">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
           </svg>
         </div>
         <button class="modal__close" (click)="showSuccessNotification = false">
@@ -196,13 +287,27 @@
       </div>
 
       <div class="modal__body">
-        <h3>Заказ создан успешно!</h3>
-        <p>Ваш заказ <strong>#{{ createdOrderId?.substring(0, 8) }}</strong> готов к оплате.</p>
+        <h3>{{ paymentMethod === 'online' ? 'Заказ создан успешно!' : 'Заказ оформлен!' }}</h3>
+        <p>
+          {{ paymentMethod === 'online' 
+             ? 'Ваш заказ готов к оплате.' 
+             : 'Ваш заказ принят. Оплата при получении.' }}
+        </p>
 
         <div class="order-details">
           <div class="order-details__row">
+            <span class="order-details__label">Номер заказа:</span>
+            <span class="order-details__value">#{{ createdOrderId?.substring(0, 8) }}</span>
+          </div>
+          <div class="order-details__row">
             <span class="order-details__label">Сумма:</span>
             <span class="order-details__value">{{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
+          </div>
+          <div class="order-details__row">
+            <span class="order-details__label">Способ оплаты:</span>
+            <span class="order-details__value">
+              {{ paymentMethod === 'online' ? 'Онлайн оплата' : (paymentMethod === 'cash' ? 'Наличными при получении' : 'Картой при получении') }}
+            </span>
           </div>
           <div class="order-details__row">
             <span class="order-details__label">Товаров:</span>
@@ -216,10 +321,13 @@
       </div>
 
       <div class="modal__footer">
-        <button class="modal__btn modal__btn--secondary" (click)="showSuccessNotification = false">
-          Продолжить
+        <button class="modal__btn modal__btn--secondary" [routerLink]="['/profile/orders']">
+          Мои заказы
         </button>
-        <button class="modal__btn modal__btn--primary" [routerLink]="['/payment', createdOrderId]">
+        <button class="modal__btn modal__btn--primary" [routerLink]="['/']">
+          На главную
+        </button>
+        <button class="modal__btn modal__btn--primary" *ngIf="paymentMethod === 'online'" (click)="showPaymentWidget = true; showSuccessNotification = false;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
           </svg>

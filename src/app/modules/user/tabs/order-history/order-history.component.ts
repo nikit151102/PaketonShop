@@ -6,7 +6,6 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { OrderStatusService } from '../../../../core/services/order-status.service';
 
-// Интерфейсы
 interface ProductPosition {
   id: string;
   product?: Product;

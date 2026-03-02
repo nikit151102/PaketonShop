@@ -1,5 +1,5 @@
 import { Component, HostListener } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './core/components/header/header.component';
 import { FooterComponent } from './core/components/footer/footer.component';
 import { AuthComponent } from './modules/auth/auth.component';
@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { BasketsService } from './core/api/baskets.service';
 import { StorageUtils } from '../utils/storage.utils';
 import { memoryCacheEnvironment } from '../environment';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -28,17 +29,27 @@ export class AppComponent {
   title = 'PaketonShop';
   isMobile: boolean = false;
 
-  constructor(private basketsService: BasketsService) { }
+  constructor(private basketsService: BasketsService, private router: Router) { }
 
   @HostListener('window:resize', ['$event'])
   onResize() {
-    this.isMobile = window.innerWidth <= 950; // Примерная граница для мобильных устройств
-    console.log('isMobile', this.isMobile);
+    this.isMobile = window.innerWidth <= 950;
   }
 
   ngOnInit() {
     this.isMobile = window.innerWidth <= 950;
     this.loadBaskets();
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+
+    });
   }
 
   /**

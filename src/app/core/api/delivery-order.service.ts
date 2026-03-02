@@ -30,6 +30,7 @@ export class DeliveryOrderService {
 
   /**
    * Обновление существующего заказа
+   * PUT /api/Entities/DeliveryOrder/{id}
    */
   updateOrder(id: string, orderData: DeliveryOrderUpdateDto): Observable<DeliveryOrderUpdateResponse> {
     return this.http.put<DeliveryOrderUpdateResponse>(`${this.apiUrl}/${id}`, orderData);
@@ -51,8 +52,6 @@ export class DeliveryOrderService {
       page: page,
       pageSize: pageSize
     };
-
-
     return this.http.post<DeliveryOrderListResponse>(`${environment.production}/api/Profile/UserDeliveryOrders/Filter`, requestBody);
   }
 
@@ -99,6 +98,7 @@ export class DeliveryOrderService {
       { addressId }
     );
   }
+
 
   /**
    * Обновление типа доставки заказа
@@ -369,4 +369,6 @@ export class DeliveryOrderService {
       { templateId }
     );
   }
+
+
 }

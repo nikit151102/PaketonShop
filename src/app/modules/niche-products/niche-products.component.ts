@@ -117,6 +117,7 @@ export class NicheProductsComponent implements OnInit {
           console.log('subCategories', data.data?.subCategories)
           // this.filters = this.categoryData.properties
           this.subCategories = data.data?.subCategories || [];
+          this.updateVisibleCategories(); // Обновляем видимые категории после загрузки
         },
         error: (err) => {
           console.error('Ошибка загрузки категории:', err);
@@ -125,6 +126,7 @@ export class NicheProductsComponent implements OnInit {
   }
 
   loadProducts(): void {
+    // Упрощаем проверку - только loading и loadingMore
     if (this.loading || this.loadingMore) return;
 
     if (this.currentPage === 0) {
@@ -145,8 +147,9 @@ export class NicheProductsComponent implements OnInit {
 
     const allFilters = [...baseFilters, ...this.appliedFilters];
 
+    // ВАЖНО: Используем тот же метод, что и в categories компоненте - getAllSearch
     this.productsService
-      .getAll(allFilters, null, this.currentPage, this.pageSize)
+      .getAllSearch(allFilters, null, this.currentPage, this.pageSize)
       .subscribe({
         next: (res) => {
           if (this.currentPage === 0) {
@@ -197,6 +200,7 @@ export class NicheProductsComponent implements OnInit {
   }
 
   loadMore(): void {
+    // Упрощаем логику, как в categories компоненте
     this.currentPage++;
     this.loadProducts();
   }
@@ -251,15 +255,106 @@ export class NicheProductsComponent implements OnInit {
   onScroll(): void {
     // Бесконечная прокрутка работает только в режиме карточек
     if (this.viewMode !== 'cards') return;
+    
+    // Упрощаем проверку, как в categories компоненте
     if (this.loading || this.loadingMore || this.products.length >= this.totalItems) return;
 
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
-    const triggerPosition = pageHeight - 500;
+    const triggerPosition = pageHeight - 500; // Возвращаем 500 как в categories
 
     if (scrollPosition >= triggerPosition) {
       this.currentPage++;
       this.loadProducts();
     }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.updateVisibleCategories();
+    }, 100);
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.updateVisibleCategories();
+  }
+
+  showAllTags = false;
+  private maxVisibleRows = 2; // Максимальное количество строк для показа
+  private tagHeight = 40; // Высота одного тега в пикселях (включая отступы)
+  private tagGap = 10; // Отступ между тегами
+  visibleCategories: any[] = [];
+
+  get hasMoreTags(): boolean {
+    return this.subCategories.length > this.visibleCategories.length;
+  }
+
+  get hiddenTagsCount(): number {
+    return this.subCategories.length - this.visibleCategories.length;
+  }
+
+  toggleShowAllTags() {
+    this.showAllTags = !this.showAllTags;
+    this.updateVisibleCategories();
+  }
+
+  private updateVisibleCategories() {
+    if (this.showAllTags) {
+      this.visibleCategories = [...this.subCategories];
+      return;
+    }
+
+    const container = document.querySelector('.category-tags');
+    if (!container) {
+      this.visibleCategories = [...this.subCategories];
+      return;
+    }
+
+    const containerWidth = container.clientWidth;
+    
+    let currentRow = 1;
+    let currentRowWidth = 0;
+    const visibleItems: any[] = [];
+    
+    // Создаем временный элемент для измерения ширины тегов
+    const tempTag = document.createElement('a');
+    tempTag.className = 'category-tag category-tag--measure';
+    tempTag.style.visibility = 'hidden';
+    tempTag.style.position = 'absolute';
+    tempTag.style.whiteSpace = 'nowrap';
+    document.body.appendChild(tempTag);
+    
+    for (let i = 0; i < this.subCategories.length; i++) {
+      const category = this.subCategories[i];
+      
+      // Устанавливаем текст для измерения
+      tempTag.innerHTML = `
+        <span class="category-tag__name">${category.name}</span>
+        ${category.count ? `<span class="category-tag__count">${category.count}</span>` : ''}
+        ${category.subCategories?.length ? '<span class="category-tag__arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></span>' : ''}
+      `;
+      
+      const tagWidth = tempTag.offsetWidth + this.tagGap;
+      
+      // Проверяем, помещается ли тег в текущую строку
+      if (currentRowWidth + tagWidth > containerWidth) {
+        currentRow++;
+        currentRowWidth = 0;
+        
+        // Если превысили максимальное количество строк, останавливаемся
+        if (currentRow > this.maxVisibleRows) {
+          break;
+        }
+      }
+      
+      visibleItems.push(category);
+      currentRowWidth += tagWidth;
+    }
+    
+    // Удаляем временный элемент
+    document.body.removeChild(tempTag);
+    
+    this.visibleCategories = visibleItems;
   }
 }

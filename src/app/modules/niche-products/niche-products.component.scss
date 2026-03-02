@@ -6,6 +6,10 @@
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 }
 
+.category-tags-container {
+  position: relative;
+  width: 100%;
+}
 
 .category-tags {
   display: flex;
@@ -13,6 +17,37 @@
   gap: 10px;
   padding: 8px 0;
   perspective: 1000px;
+  transition: all 0.3s ease;
+  
+  /* Маскируем нижнюю часть если не expanded */
+  &:not(.expanded) {
+    max-height: calc(2 * (40px + 10px)); /* 2 строки * (высота + gap) */
+    overflow: hidden;
+    position: relative;
+    
+    /* Добавляем градиентное затенение внизу */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9));
+      pointer-events: none;
+      z-index: 2;
+    }
+  }
+  
+  /* Плавное раскрытие */
+  &.expanded {
+    max-height: none;
+    overflow: visible;
+    
+    &::after {
+      display: none;
+    }
+  }
 }
 
 .category-tag {
@@ -35,7 +70,18 @@
     0 4px 6px -1px rgba(0, 0, 0, 0.05),
     0 2px 4px -1px rgba(0, 0, 0, 0.03),
     inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-
+  transition: all 0.3s ease;
+  will-change: transform;
+  
+  // Временный класс для измерения
+  &--measure {
+    position: fixed !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+    opacity: 0 !important;
+  }
+  
   // Эффект градиентной обводки при наведении
   &::before {
     content: '';
@@ -66,6 +112,11 @@
   }
 
   &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 
     &::before {
       opacity: 1;
@@ -96,9 +147,20 @@
     line-height: 1;
     position: relative;
     z-index: 1;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #2a5e1c;
+      transition: width 0.3s ease;
+    }
   }
 
-  &__name::after {
+  &:hover &__name::after {
     width: 100%;
   }
 
@@ -128,6 +190,81 @@
     svg {
       width: 14px;
       height: 14px;
+    }
+  }
+}
+
+/* Кнопка "Показать еще" */
+.show-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2a5e1c;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  outline: none;
+  
+  &:hover {
+    background: linear-gradient(145deg, #ffffff, #f0fdf4);
+    border-color: #2a5e1c;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -8px rgba(42, 94, 28, 0.3);
+    
+    .btn-icon {
+      transform: translateY(1px);
+    }
+  }
+  
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+  
+  &.expanded {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #475569;
+    
+    &:hover {
+      background: #e2e8f0;
+    }
+    
+    .btn-icon {
+      transform: rotate(180deg);
+    }
+  }
+  
+  .btn-text {
+    line-height: 1;
+  }
+  
+  .btn-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    background: #2a5e1c;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .btn-icon {
+    transition: transform 0.3s ease;
+    
+    &.rotated {
+      transform: rotate(180deg);
     }
   }
 }
@@ -213,7 +350,40 @@
     transition: transform 0.3s ease;
   }
 
+  &:hover .category-tag__icon {
+    transform: scale(1.1);
+  }
 }
+
+// Адаптивность для мобильных
+@media (max-width: 768px) {
+  .category-tags {
+    gap: 8px;
+    
+    &:not(.expanded) {
+      max-height: calc(2 * (36px + 8px));
+    }
+  }
+  
+  .category-tag {
+    padding: 6px 14px;
+    font-size: 13px;
+    
+    &__count {
+      min-width: 22px;
+      height: 22px;
+      font-size: 11px;
+    }
+  }
+  
+  .show-more-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+
 
 // Адаптивность
 @media (max-width: 768px) {
@@ -413,6 +583,15 @@
       }
     }
   }
+
+
+
+
+
+
+
+
+
 
   // Основной контент
   .main-content {

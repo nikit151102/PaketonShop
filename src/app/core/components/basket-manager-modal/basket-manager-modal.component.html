@@ -21,8 +21,8 @@
         <!-- Информация о товаре -->
         <div class="product-info" *ngIf="product">
             <div class="product-image">
-                <img [src]="product.productImageLinks?.[0] || 'assets/images/no-image.png'" [alt]="product.fullName"
-                    onerror="this.src='assets/images/no-image.png'">
+                <img [src]="product.productImageLinks?.[0] || 'assets/images/no-image.png'" [alt]="product.fullName">
+                    <!-- onerror="this.src='assets/images/no-image.png'" -->
             </div>
             <div class="product-details">
                 <div class="product-name">{{ product.fullName || 'Товар' }}</div>

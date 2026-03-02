@@ -38,6 +38,15 @@ interface NicheData {
   productCount: number;
 }
 
+interface ContentPage {
+  items: {
+    name: string;
+    startPage: number;
+    categoryId: string;
+  }[];
+  pageNumber: number;
+}
+
 @Component({
   selector: 'app-flipbook',
   templateUrl: './flipbook.component.html',
@@ -54,6 +63,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
   private pageFlip!: PageFlip;
   private productsPerPage = 5;
+  private contentItemsPerPage = 15; // Количество пунктов содержания на одной странице
   private loadedPages: Set<number> = new Set();
   private pageProducts: Map<number, Product[]> = new Map();
   private loadingPages: Set<number> = new Set();
@@ -67,6 +77,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   private flipTimeout: any = null; 
   private lastFlipTime = 0; 
   private readonly FLIP_DEBOUNCE = 300; 
+  private observer: IntersectionObserver | null = null;
 
   private isUserBasket: boolean = false;
   private activeBasketId: string | null = null;
@@ -76,8 +87,9 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
   public pageProductsCache: Map<number, Product[]> = new Map();
   public pageCategoryCache: Map<number, string> = new Map();
+  public contentPages: ContentPage[] = []; // Страницы содержания
 
-  pages: (number | 'empty' | string)[] = ['empty', 'empty', 'content'];
+  pages: (number | 'empty' | string)[] = ['empty', 'empty'];
   categories: {
     startPage: number;
     name: string;
@@ -104,11 +116,11 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     this.loadBasketsData();
 
     if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
+      this.observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           this.isVisible = entry.isIntersecting;
           if (!this.isVisible && this.pageFlip) {
-            this.pageFlip.turnToPage(this.currentPageIndex);
+            // Просто очищаем очередь, без вызова несуществующего метода
             this.preloadQueue = [];
           }
         });
@@ -116,11 +128,12 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
       setTimeout(() => {
         if (this.flipbookContainer?.nativeElement) {
-          observer.observe(this.flipbookContainer.nativeElement);
+          this.observer?.observe(this.flipbookContainer.nativeElement);
         }
       }, 1000);
     }
   }
+
   ngOnChanges(changes: SimpleChanges) {
     if ((changes['nicheData'] || changes['subCategories']) && this.hasValidData()) {
       this.dataLoaded = true;
@@ -144,7 +157,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
         this.updatePageFlipSize();
       }
       this.resizeTimeout = null;
-    }, 250); // Увеличил задержку до 250ms
+    }, 250);
   }
 
   ngOnDestroy() {
@@ -154,6 +167,10 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     if (this.flipTimeout) {
       clearTimeout(this.flipTimeout);
+    }
+
+    if (this.observer) {
+      this.observer.disconnect();
     }
 
     if (this.pageFlip) {
@@ -167,7 +184,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     }
   }
 
-  // Загрузка данных о корзинах
   private loadBasketsData(): void {
     const baskets: any = StorageUtils.getMemoryCache('baskets');
     if (!baskets || !Array.isArray(baskets)) {
@@ -181,7 +197,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     this.activeBasketId = activeBasket?.id ?? null;
   }
 
-  // Проверка авторизации
   private checkAuth(): boolean {
     const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
 
@@ -199,7 +214,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     return true;
   }
 
-  // Добавление одного товара в корзину
   addOneToCart(product: Product, pageIndex: number): void {
     if (!this.checkAuth() || !this.activeBasketId) return;
 
@@ -219,7 +233,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Увеличение количества
   increaseQty(product: Product, pageIndex: number): void {
     if (!this.checkAuth() || !this.activeBasketId) return;
 
@@ -237,7 +250,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Уменьшение количества
   decreaseQty(product: Product, pageIndex: number): void {
     if (!this.checkAuth() || !this.activeBasketId) return;
 
@@ -260,7 +272,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Обновление количества из инпута
   updateQtyFromInput(product: Product, pageIndex: number, event: any): void {
     if (!this.checkAuth() || !this.activeBasketId) return;
 
@@ -278,7 +289,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Удаление из корзины
   removeFromCart(product: Product, pageIndex: number): void {
     if (!this.checkAuth() || !this.activeBasketId) return;
 
@@ -294,7 +304,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Обновление количества товара на странице
   private updateProductQuantity(pageIndex: number, productId: string, quantity: number): void {
     const products = this.pageProducts.get(pageIndex);
     if (!products) return;
@@ -304,7 +313,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     products[productIndex].quantity = quantity > 0 ? quantity : undefined;
 
-    // Обновляем маппинг количеств
     let pageMap = this.pageQuantities.get(pageIndex);
     if (!pageMap) {
       pageMap = new Map();
@@ -317,10 +325,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       pageMap.delete(productId);
     }
 
-    // Обновляем кэш для этой страницы
     this.pageProductsCache.set(pageIndex, [...products]);
 
-    // Запускаем обнаружение изменений только для этой страницы
     if (this.pageFlip && this.isVisible) {
       const currentPage = this.pageFlip.getCurrentPageIndex();
       if (pageIndex === currentPage || pageIndex === currentPage + 1) {
@@ -329,21 +335,17 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     }
   }
 
-  // Получение количества товара в корзине
   getProductQuantity(product: Product): number {
     return product.quantity || 0;
   }
 
-  // Проверка наличия товара в корзине
   isProductInCart(product: Product): boolean {
     return (product.quantity || 0) > 0;
   }
 
-  // Показать уведомление
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
     console.log(`[${type}] ${message}`);
 
-    // Используем requestAnimationFrame для плавного показа уведомления
     requestAnimationFrame(() => {
       const notification = document.createElement('div');
       notification.className = `notification notification--${type}`;
@@ -389,7 +391,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   }
 
   getCategoryName(pageIndex: number): string {
-    // Используем кэш
     if (this.pageCategoryCache.has(pageIndex)) {
       return this.pageCategoryCache.get(pageIndex)!;
     }
@@ -408,7 +409,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   }
 
   getProductsForPage(pageIndex: number): Product[] {
-    // Используем кэш для быстрого доступа
     if (this.pageProductsCache.has(pageIndex)) {
       return this.pageProductsCache.get(pageIndex)!;
     }
@@ -416,6 +416,33 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     const products = this.pageProducts.get(pageIndex) || this.getDefaultProducts('', this.productsPerPage);
     this.pageProductsCache.set(pageIndex, products);
     return products;
+  }
+
+  // Получение страницы содержания по индексу
+  getContentPage(pageIndex: number): ContentPage | null {
+    const contentPageIndex = this.getContentPageIndex(pageIndex);
+    if (contentPageIndex >= 0 && contentPageIndex < this.contentPages.length) {
+      return this.contentPages[contentPageIndex];
+    }
+    return null;
+  }
+
+  // Проверка, является ли страница страницей содержания
+  isContentPage(pageIndex: number): boolean {
+    const pageType = this.pages[pageIndex];
+    return pageType === 'content' || (typeof pageType === 'string' && pageType.startsWith('content-'));
+  }
+
+  // Получение номера страницы содержания в массиве contentPages
+  private getContentPageIndex(pageIndex: number): number {
+    const pageType = this.pages[pageIndex];
+    if (pageType === 'content') {
+      return 0;
+    } else if (typeof pageType === 'string' && pageType.startsWith('content-')) {
+      const match = pageType.match(/^content-(\d+)$/);
+      return match ? parseInt(match[1]) : -1;
+    }
+    return -1;
   }
 
   flipPrev() {
@@ -436,7 +463,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     }
   }
 
-  // Throttle для перелистываний
   private throttleFlip(fn: () => void) {
     const now = Date.now();
     if (now - this.lastFlipTime < this.FLIP_DEBOUNCE) {
@@ -468,7 +494,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
   private generatePagesFromData() {
     console.log('Generating pages with data:', this.subCategories);
 
-    // Очищаем кэши
     this.loadedPages.clear();
     this.pageProducts.clear();
     this.pageProductsCache.clear();
@@ -476,7 +501,9 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     this.loadedCategories.clear();
     this.loadingPages.clear();
     this.preloadQueue = [];
+    this.contentPages = [];
 
+    // Начинаем с пустых страниц (форзацы)
     this.pages = ['empty'];
 
     if (this.nicheData) {
@@ -485,9 +512,12 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       this.pages.push('empty');
     }
 
-    this.pages.push('content');
+    // Генерируем страницы содержания
+    this.generateContentPages();
 
-    let currentPage = 3;
+    let currentPage = this.pages.length;
+
+    // Генерируем страницы категорий
     this.categories = [];
     this.loadedCategories.clear();
 
@@ -516,8 +546,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     console.log('Generated pages:', this.pages);
     console.log('Categories:', this.categories);
+    console.log('Content pages:', this.contentPages);
 
-    // Используем requestAnimationFrame для отложенной инициализации
     requestAnimationFrame(() => {
       setTimeout(() => {
         if (this.isInitialized && this.pageFlip) {
@@ -527,6 +557,54 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
         }
       }, 100);
     });
+  }
+
+  // Генерация страниц содержания
+  private generateContentPages() {
+    const contentItems = this.subCategories.map((subCat, index) => ({
+      name: subCat.name,
+      startPage: this.calculateCategoryStartPage(index),
+      categoryId: subCat.id
+    }));
+
+    const totalItems = contentItems.length;
+    const pagesNeeded = Math.ceil(totalItems / this.contentItemsPerPage);
+
+    for (let pageNum = 0; pageNum < pagesNeeded; pageNum++) {
+      const startIdx = pageNum * this.contentItemsPerPage;
+      const endIdx = Math.min(startIdx + this.contentItemsPerPage, totalItems);
+      
+      this.contentPages.push({
+        items: contentItems.slice(startIdx, endIdx),
+        pageNumber: pageNum + 1
+      });
+
+      if (pageNum === 0) {
+        this.pages.push('content'); // Первая страница содержания
+      } else {
+        this.pages.push(`content-${pageNum}`); // Дополнительные страницы содержания
+      }
+    }
+  }
+
+  // Расчет начальной страницы для категории
+  private calculateCategoryStartPage(categoryIndex: number): number {
+    // 2 пустые страницы + обложка (если есть) + страницы содержания
+    let startPage = 2; // пустые страницы
+    
+    if (this.nicheData) {
+      startPage++; // обложка
+    }
+    
+    startPage += this.contentPages.length; // все страницы содержания
+    
+    // Добавляем страницы предыдущих категорий
+    for (let i = 0; i < categoryIndex; i++) {
+      const totalProducts = this.subCategories[i]?.productCount || 0;
+      startPage += this.calculatePageCountForCategory(totalProducts);
+    }
+    
+    return startPage;
   }
 
   private calculatePageCountForCategory(totalProducts: number): number {
@@ -545,7 +623,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     setTimeout(() => {
       this.initPageFlip();
-    }, 300); // Увеличил задержку
+    }, 300);
   }
 
   private updatePageFlipSize() {
@@ -554,7 +632,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     try {
       this.pageFlip.update();
 
-      // Не восстанавливаем позицию сразу, даем время на обновление
       setTimeout(() => {
         if (this.pageFlip && this.currentPageIndex !== undefined && this.isVisible) {
           this.pageFlip.flip(this.currentPageIndex);
@@ -565,7 +642,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     }
   }
 
-  // Оптимизированная загрузка товаров для страницы
   private loadProductsForPage(subCategoryId: string, pageIndex: number, pageNum: number) {
     if (this.loadingPages.has(pageNum) || this.loadedPages.has(pageNum)) {
       console.log(`Page ${pageNum} is already loading or loaded, skipping`);
@@ -596,9 +672,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
           const products = res.data.map((item: any) => this.mapApiProductToLocal(item));
 
-          // Сохраняем данные
           this.pageProducts.set(pageNum, products);
-          this.pageProductsCache.set(pageNum, products); // Обновляем кэш
+          this.pageProductsCache.set(pageNum, products);
           this.loadedPages.add(pageNum);
           this.loadingPages.delete(pageNum);
 
@@ -606,14 +681,12 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
             this.loadedCategories.add(subCategoryId);
           }
 
-          // Обновляем только видимые страницы
           const currentPage = this.pageFlip?.getCurrentPageIndex() || 0;
           if ((pageNum === currentPage || pageNum === currentPage + 1) && this.isVisible) {
             this.cdr.markForCheck();
             this.schedulePageFlipUpdate();
           }
 
-          // Планируем предзагрузку следующей страницы с большей задержкой
           this.schedulePreload(subCategoryId, pageIndex, pageNum);
         },
         error: (err) => {
@@ -624,7 +697,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
           this.pageProductsCache.set(pageNum, defaultProducts);
           this.loadedPages.add(pageNum);
 
-          // Обновляем только если страница видима
           const currentPage = this.pageFlip?.getCurrentPageIndex() || 0;
           if ((pageNum === currentPage || pageNum === currentPage + 1) && this.isVisible) {
             this.cdr.markForCheck();
@@ -634,7 +706,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
       });
   }
 
-  // Планирование предзагрузки с большей задержкой
   private schedulePreload(subCategoryId: string, pageIndex: number, currentPageNum: number) {
     const nextPageNum = currentPageNum + 1;
 
@@ -648,33 +719,29 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
           if (nextPageIndex === pageIndex + 1 && !this.preloadQueue.includes(nextPageNum)) {
             this.preloadQueue.push(nextPageNum);
 
-            // Увеличиваем задержку предзагрузки
             setTimeout(() => {
               if (this.preloadQueue.includes(nextPageNum)) {
                 this.preloadQueue = this.preloadQueue.filter(p => p !== nextPageNum);
                 this.loadProductsForPage(subCategoryId, nextPageIndex, nextPageNum);
               }
-            }, 800); // Увеличил до 800ms
+            }, 800);
           }
         }
       }
     }
   }
 
-  // Планирование обновления PageFlip с приоритетом
   private schedulePageFlipUpdate() {
     if (this.updateScheduled || !this.isVisible) return;
 
     this.updateScheduled = true;
 
-    // Используем более плавное обновление
     this.ngZone.runOutsideAngular(() => {
       requestAnimationFrame(() => {
         setTimeout(() => {
           this.ngZone.run(() => {
             if (this.pageFlip && this.hasValidData() && this.isVisible) {
               try {
-                // Обновляем только если страницы действительно изменились
                 this.pageFlip.update();
               } catch (e) {
                 console.error('Error updating PageFlip:', e);
@@ -682,7 +749,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
             }
             this.updateScheduled = false;
           });
-        }, 150); // Увеличил задержку
+        }, 150);
       });
     });
   }
@@ -716,7 +783,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     return products;
   }
 
-  // Оптимизированная инициализация PageFlip
   private initPageFlip() {
     if (this.initInProgress || !this.hasValidData() || !this.isVisible) {
       console.log('Cannot init PageFlip: already in progress, no data, or not visible');
@@ -727,7 +793,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     const container = this.flipbookContainer.nativeElement;
 
-    // Используем requestAnimationFrame для синхронизации с отрисовкой
     requestAnimationFrame(() => {
       setTimeout(() => {
         const width = container.clientWidth;
@@ -743,7 +808,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
         console.log(`Initializing PageFlip with ${pages.length} pages`);
 
         try {
-          // Оптимизированные настройки для плавности
           this.pageFlip = new PageFlip(container, {
             width,
             height,
@@ -751,8 +815,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
             minHeight: 420,
             maxWidth: 1000,
             maxHeight: 1350,
-            maxShadowOpacity: 0.15, // Уменьшил для производительности
-            flippingTime: 500, // Уменьшил для более быстрой анимации
+            maxShadowOpacity: 0.15,
+            flippingTime: 500,
             showCover: false,
             useMouseEvents: true,
             mobileScrollSupport: true,
@@ -764,7 +828,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
           this.isInitialized = true;
           this.initInProgress = false;
 
-          // Оптимизируем обработчик flip
           let flipHandlerTimeout: any = null;
           this.pageFlip.on('flip', ({ data }) => {
             if (flipHandlerTimeout) {
@@ -778,22 +841,18 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
               console.log(`Flipped to page ${this.currentPage}`);
 
-              // Загружаем текущую страницу, если нужно
               this.loadPageIfNeeded(this.currentPage);
 
-              // Планируем предзагрузку соседних страниц с задержкой
               setTimeout(() => {
                 this.preloadAdjacentPages(currentPageNum);
               }, 500);
 
-              // Обновляем обнаружение изменений
               this.cdr.markForCheck();
 
               flipHandlerTimeout = null;
             }, 50);
           });
 
-          // Загружаем первую страницу с задержкой
           setTimeout(() => {
             if (this.pageFlip && this.pageFlip.getPageCount() > 1 && this.isVisible) {
               const firstContentPageIndex = this.nicheData ? 2 : 1;
@@ -832,16 +891,14 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
 
     const pagesToPreload = [];
 
-    // Предзагружаем только следующую страницу
     if (currentPageNum + 1 < this.pages.length) {
       pagesToPreload.push(currentPageNum + 1);
     }
 
-    // Загружаем страницы последовательно с большими задержками
     pagesToPreload.forEach((pageToLoad, index) => {
       setTimeout(() => {
         this.loadPageIfNeeded(pageToLoad);
-      }, index * 300 + 500); // Увеличил задержки
+      }, index * 300 + 500);
     });
   }
 
@@ -849,7 +906,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges {
     this.schedulePageFlipUpdate();
   }
 
-  // Очистка кэша при необходимости
   public clearPageCache(pageNum?: number) {
     if (pageNum !== undefined) {
       this.pageProductsCache.delete(pageNum);
