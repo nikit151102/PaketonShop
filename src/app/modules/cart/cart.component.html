@@ -29,7 +29,7 @@
           </div>
         </div>
 
-        <button class="add-tab" (click)="openCreatePopup()">
+        <button class="add-tab" (click)="openCreatePopup()" *ngIf="baskets.length < 5">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
@@ -201,31 +201,7 @@
 
           <!-- Пустая корзина -->
           <ng-template #emptyCart>
-            <div class="empty-cart">
-              <div class="empty-illustration">
-                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="60" cy="60" r="52" fill="#F3F4F6" stroke="#E5E7EB" stroke-width="2" />
-                  <path d="M40 40L80 80M80 40L40 80" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" />
-                  <circle cx="60" cy="60" r="12" fill="#3C8A27" fill-opacity="0.2" />
-                </svg>
-              </div>
-              <h2>Корзина пуста</h2>
-              <p>Добавьте товары из каталога, чтобы продолжить покупки</p>
-              <div class="empty-actions">
-                <button class="btn primary" [routerLink]="''">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                  </svg>
-                  Перейти в каталог
-                </button>
-                <button class="btn secondary" (click)="openCreatePopup()">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                  </svg>
-                  Создать новую корзину
-                </button>
-              </div>
-            </div>
+            <app-empty-state type="cart" (buttonClick)="goToCatalog()"></app-empty-state>
           </ng-template>
         </div>
 

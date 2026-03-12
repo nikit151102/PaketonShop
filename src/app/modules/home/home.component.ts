@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
-    
+
   }
 
   loadCategories(): void {
@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit {
         next: (res) => {
           this.categories = res.data;
           StorageUtils.setMemoryCache('categories', res.data, 600);
-          
+
         },
         error: (err) => {
           console.error('Error fetching categories:', err);
@@ -71,12 +71,12 @@ export class HomeComponent implements OnInit {
     this.loading = true;
     const filters = this.selectedCategory
       ? [
-          {
-            field: 'ProductCategories.Id',
-            values: [this.selectedCategory],
-            type: 11,
-          },
-        ]
+        {
+          field: 'ProductCategories.Id',
+          values: [this.selectedCategory],
+          type: 11,
+        },
+      ]
       : [];
 
     this.productsService
@@ -86,6 +86,7 @@ export class HomeComponent implements OnInit {
           this.products = this.products.concat(res.data);
           this.totalItems = res.totalCount;
           this.loading = false;
+          this.currentPage++;
         },
         error: (err) => {
           this.error = 'Произошла ошибка при загрузке продуктов';
@@ -100,7 +101,6 @@ export class HomeComponent implements OnInit {
     const pageHeight = document.documentElement.scrollHeight;
 
     if (scrollPosition >= pageHeight - 350 && !this.loading) {
-      this.currentPage++;
       this.loadProducts();
     }
   }

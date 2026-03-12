@@ -50,6 +50,9 @@
   position: relative;
   z-index: 2;
   padding: 1rem;
+  background: #ffffff;
+  border-radius: 16px;
+  color: #337321;
 }
 
 .front-cover .cover-content h1 {
@@ -208,9 +211,11 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   text-align: left;
-  padding-bottom: 0.4rem;
+  padding: 0.4rem;
+  border-radius: 16px;
   border-bottom: 2px solid #337321;
   flex-shrink: 0;
+  background: #ffffffc4;
 }
 
 /* Таблица товаров - улучшенная версия */
@@ -218,11 +223,11 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  /* background: #ffffff38; */
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(51, 115, 33, 0.08);
-  border: 1px solid rgba(51, 115, 33, 0.1);
+  /* box-shadow: 0 4px 16px rgba(51, 115, 33, 0.08);
+  border: 1px solid rgba(51, 115, 33, 0.1); */
   min-height: 0;
 }
 
@@ -230,7 +235,7 @@
   display: grid;
   grid-template-columns: 80px 2fr 1.2fr 1fr;
   background: #337321;
-  color: white;
+  color: #ffffff;
   font-weight: 600;
   padding: 1rem 1rem;
   font-size: 0.9rem;
@@ -241,12 +246,13 @@
 }
 
 .table-body {
-  flex: 1 1 auto;
-  overflow-y: auto;
+  /* flex: 1 1 auto; */
+  /* overflow-y: auto; */
+  border-radius: 0 0 16px 16px;
   min-height: 0;
   scrollbar-width: thin;
-  scrollbar-color: #337321 #e8f0e8;
-  background: #ffffff;
+  scrollbar-color: #337321 #ffffffc4;
+  background: #ffffffeb;
 }
 
 .table-body::-webkit-scrollbar {
@@ -254,14 +260,14 @@
 }
 
 .table-body::-webkit-scrollbar-track {
-  background: #f0f7f0;
+  background: #ffffff38;
   border-radius: 10px;
 }
 
 .table-body::-webkit-scrollbar-thumb {
   background: #337321;
   border-radius: 10px;
-  border: 1px solid #e8f0e8;
+  border: 1px solid #ffffff38;
 }
 
 .product-row {
@@ -271,7 +277,7 @@
   border-bottom: 1px solid rgba(51, 115, 33, 0.08);
   transition: all 0.2s ease;
   align-items: start;
-  background: #ffffff;
+  /* background: #ffffff9e; */
   gap: 0.5rem;
 }
 
@@ -294,7 +300,6 @@
 
 .product-image-placeholder {
   width: 60px;
-  height: 60px;
   background: linear-gradient(145deg, #f5faf5, #e8f2e8);
   border-radius: 12px;
   display: flex;
@@ -366,7 +371,7 @@
 /* Колонка с ценой */
 .product-price {
   font-weight: 700;
-  color: #1a3a15;
+  color: #337321;
   font-size: 1.1rem;
   white-space: nowrap;
   background: rgba(51, 115, 33, 0.1);
@@ -948,8 +953,9 @@
     width: 50px;
     height: 32px;
     font-size: 18px;
-    background-color: #059669;
+    background-color: #337321;
     border: 1px solid #ffffff;
+    border-radius: 16px;
     color: #ffffff;
     border-radius: 5px;
     display: flex;
@@ -960,7 +966,7 @@
   }
 
   .quantity-btn:hover {
-    background-color: #10b981;
+    background-color: #3a8326;
   }
 
   .input-quantity {
@@ -979,7 +985,7 @@
 
 .add-cart {
   width: 100%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: #337321;
   border: none;
   color: #fff;
   font-weight: 600;
@@ -994,7 +1000,6 @@
   gap: 6px;
 
   &:hover {
-    background: linear-gradient(135deg, #059669, #10b981);
     transform: translateY(-2px);
   }
 }
@@ -1012,4 +1017,31 @@
   left: 50%;
   position: relative;
   transform: translateX(-50%);
+}
+
+.category-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* background: rgba(255, 255, 255, 0.92); */
+  pointer-events: none;
+  z-index: 0;
+}
+
+.category-page>* {
+  position: relative;
+  z-index: 1;
+}
+
+
+.category-page {
+  background-size: cover;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
 }

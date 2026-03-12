@@ -11,6 +11,7 @@ import { Subject, debounceTime, takeUntil, switchMap, finalize } from 'rxjs';
 import { StorageUtils } from '../../../utils/storage.utils';
 import { memoryCacheEnvironment } from '../../../environment';
 import { ProductsService } from '../../core/services/products.service';
+import { EmptyStateComponent } from '../../core/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-cart',
@@ -22,8 +23,9 @@ import { ProductsService } from '../../core/services/products.service';
     FormsModule,
     ProductComponent,
     SelectCartButtonComponent,
-    RouterLink
-],
+    RouterLink,
+    EmptyStateComponent
+  ],
 })
 export class CartComponent implements OnInit, OnDestroy {
   baskets: any[] = [];
@@ -418,7 +420,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
     if (confirm(`Удалить ${productIds.length} товар(ов) из корзины?`)) {
       this.isLoading = true;
-      
+
       const requests = productIds.map(productId =>
         this.basketsService.changeProductFromBasket(
           this.activeBasket.id,
@@ -674,5 +676,9 @@ export class CartComponent implements OnInit, OnDestroy {
   private cdr: any;
   setChangeDetectorRef(cdr: any): void {
     this.cdr = cdr;
+  }
+
+  goToCatalog(): void {
+    this.router.navigate(['']);
   }
 }

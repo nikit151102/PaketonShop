@@ -1,3 +1,16 @@
+.section {
+  padding: 40px 20px;
+  min-height: 60vh;
+
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
+}
+
 .products {
   display: flex;
   flex-wrap: wrap;
@@ -6,5 +19,75 @@
 
   app-product {
     display: contents;
+  }
+}
+
+// Состояние загрузки
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #327220;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 20px;
+  }
+
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+// Индикатор загрузки при подгрузке
+.loading-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px 0;
+  color: #666;
+
+  .spinner-small {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #327220;
+    animation: spin 1s ease-in-out infinite;
+  }
+}
+
+// Анимация
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .section {
+    padding: 20px 10px;
+  }
+
+  .loading-state {
+    min-height: 300px;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+    }
+
+    p {
+      font-size: 1rem;
+    }
   }
 }

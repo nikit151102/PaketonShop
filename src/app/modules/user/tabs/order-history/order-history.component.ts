@@ -3,8 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DeliveryOrderService } from '../../../../core/api/delivery-order.service';
 import { Subject, takeUntil, finalize } from 'rxjs';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OrderStatusService } from '../../../../core/services/order-status.service';
+import { EmptyStateComponent } from '../../../../core/components/empty-state/empty-state.component';
 
 interface ProductPosition {
   id: string;
@@ -94,7 +95,8 @@ interface ApiResponse {
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink,
+    EmptyStateComponent],
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss',
 })
@@ -125,7 +127,8 @@ export class OrderHistoryComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   constructor(private deliveryOrderService: DeliveryOrderService,
-    private orderStatusService:OrderStatusService
+    private orderStatusService: OrderStatusService,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -294,6 +297,10 @@ export class OrderHistoryComponent implements OnInit {
     return id.substring(0, 8).toUpperCase();
   }
 
+  goToCatalog(): void {
+    this.router.navigate(['']);
+  }
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU', {
@@ -367,5 +374,5 @@ export class OrderHistoryComponent implements OnInit {
   getActiveOrdersCount(): number {
     return this.getFilteredOrders().filter(order => [0, 1, 2, 3].includes(order.orderStatus)).length;
   }
- 
+
 }

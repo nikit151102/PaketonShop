@@ -43,7 +43,7 @@ export class ProductPlaceService {
     
     const query: QueryDto = {
       filters: [],
-      sorts: [{ propertyName: 'fullName', direction: 'Ascending' }],
+      sorts: [],
       page: 0,
       pageSize: pageSize
     };

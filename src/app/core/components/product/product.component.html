@@ -255,18 +255,9 @@
 
 
 
-<app-basket-manager-modal
-  [visible]="showBasketPopup"
-  [product]="product"
-  [baskets]="baskets"
-  [selectedBasketId]="selectedBasketId"
-  [searchTerm]="basketSearchTerm"
-  (close)="closeBasketManager()"
-  (selectBasket)="onSelectBasket($event)"
-  (addToBasket)="onAddToBasket($event)"
-  (removeFromBasket)="onRemoveFromBasket($event)"
-  (updateQuantity)="onUpdateQuantity($event)"
-  (updateQuantityFromInput)="onUpdateQuantityFromInput($event)"
-  (createBasket)="onCreateBasket()"
-  (searchChange)="onSearchChange($event)"
-></app-basket-manager-modal>
+<app-basket-manager-modal [visible]="showBasketPopup" [product]="product" [baskets]="baskets"
+  [selectedBasketId]="selectedBasketId" [searchTerm]="basketSearchTerm" (close)="closeBasketManager()"
+  (selectBasket)="onSelectBasket($event)" (addToBasket)="onAddToBasket($event)"
+  (removeFromBasket)="onRemoveFromBasket($event)" (updateQuantity)="onUpdateQuantity($event)"
+  (updateQuantityFromInput)="onUpdateQuantityFromInput($event)" (createBasket)="onCreateBasket()"
+  (searchChange)="onSearchChange($event)"></app-basket-manager-modal>

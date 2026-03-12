@@ -4,6 +4,7 @@ import { PartnerDetailComponent } from './partner-detail/partner-detail.componen
 import { PartnerFormComponent } from './partner-form/partner-form.component';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { PartnerService } from '../../../../core/api/partner.service';
+import { EmptyStateComponent } from '../../../../core/components/empty-state/empty-state.component';
 
 
 interface Partner {
@@ -61,6 +62,7 @@ interface Notification {
     CommonModule,
     PartnerDetailComponent,
     PartnerFormComponent,
+    EmptyStateComponent
   ],
   templateUrl: './partner-cards.component.html',
   styleUrls: ['./partner-cards.component.scss']

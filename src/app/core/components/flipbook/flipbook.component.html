@@ -10,20 +10,17 @@
 
   <!-- Страницы каталога -->
   <div *ngFor="let page of pages; let i = index" class="page" [attr.data-density]="'soft'">
-    <!-- Пустая страница (форзац) -->
-    <ng-container *ngIf="page === 'empty'">
-      <div class="empty-page"></div>
-    </ng-container>
 
-    <!-- Передняя обложка -->
-    <ng-container *ngIf="page === 'cover' && i === 1">
-      <div class="cover-page front-cover">
+    <ng-container *ngIf="page === 'cover'">
+      <div class="cover-page front-cover" [ngStyle]="{'background-image': $any(nicheData)?.imageInstanceLinks && $any(nicheData)?.imageInstanceLinks[0] 
+                ? 'url(' + $any(nicheData).imageInstanceLinks[0] + ')' 
+                : 'none'}">
         <div class="cover-content">
           <h1>{{ nicheData?.name || 'ЭЛЕКТРОННЫЙ КАТАЛОГ' }}</h1>
           <h2>2026</h2>
           <div class="cover-logo">
-            <ng-container *ngIf="nicheData?.imageInstanceLink; else defaultLogo">
-              <img [src]="nicheData?.imageInstanceLink" alt="logo" style="max-width: 100px;">
+            <ng-container
+              *ngIf="$any(nicheData)?.imageInstanceLinks && $any(nicheData)?.imageInstanceLinks[0]; else defaultLogo">
             </ng-container>
             <ng-template #defaultLogo>
               ⚡
@@ -33,7 +30,7 @@
       </div>
     </ng-container>
 
-    <!-- Страницы содержания (могут быть несколько) -->
+    <!-- Страницы содержания -->
     <ng-container *ngIf="isContentPage(i)">
       <div class="content-page">
         <h2 class="section-title">СОДЕРЖАНИЕ</h2>
@@ -44,19 +41,21 @@
             <span class="content-page-num">{{ item.startPage }}</span>
           </div>
         </div>
-        
+
         <!-- Индикатор страницы содержания -->
-        <div class="content-pagination" *ngIf="contentPages.length > 1">
+        <!-- <div class="content-pagination" *ngIf="contentPages.length > 1">
           Стр. {{ getContentPage(i)?.pageNumber }} из {{ contentPages.length }}
-        </div>
-        
+        </div> -->
+
         <div class="content-note">Нажмите на раздел для перехода</div>
       </div>
     </ng-container>
 
     <!-- Внутренние страницы с товарами -->
     <ng-container *ngIf="isString(page) && isCategoryPage(page)">
-      <div class="category-page" [ngClass]="getCategoryClass(i)">
+      <div class="category-page" [ngClass]="getCategoryClass(i)"
+        [ngStyle]="{'background-image': getCategoryBackground(i) ? 'url(' + getCategoryBackground(i) + ')' : 'none'}">
+
         <h2 class="category-title">{{ getCategoryName(i) }}</h2>
 
         <!-- Таблица товаров -->
@@ -90,28 +89,25 @@
               </div>
               <div class="col-actions">
                 <!-- Если товар в корзине, показываем селектор количества -->
-                <div class="cart-controls" *ngIf="isProductInCart(product); else addButton">
+                <div class="cart-controls" *ngIf="isProductInCart(product); else addButton"
+                  (click)="$event.stopPropagation()">
                   <div class="quantity-selector">
-                    <button class="quantity-btn" (click)="decreaseQty(product, i)" 
-                            [disabled]="getProductQuantity(product) <= 1">−</button>
-                    <input class="input-quantity" type="number" 
-                           [ngModel]="getProductQuantity(product)" 
-                           (change)="updateQtyFromInput(product, i, $event)" 
-                           min="1" />
-                    <button class="quantity-btn" (click)="increaseQty(product, i)">+</button>
+                    <button class="quantity-btn" (click)="decreaseQty(product, i); $event.stopPropagation()"
+                      [disabled]="getProductQuantity(product) <= 1">−</button>
+                    <input class="input-quantity" type="number" [ngModel]="getProductQuantity(product)"
+                      (click)="$event.stopPropagation()"
+                      (change)="updateQtyFromInput(product, i, $event); $event.stopPropagation()"
+                      (keydown)="$event.stopPropagation()" min="1" />
+                    <button class="quantity-btn" (click)="increaseQty(product, i); $event.stopPropagation()">+</button>
                   </div>
-                  <span class="in-cart-badge">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
-                    </svg>
-                  </span>
+
                 </div>
-                
+
                 <!-- Кнопка добавления в корзину -->
                 <ng-template #addButton>
-                  <button class="add-cart" (click)="addOneToCart(product, i)">
+                  <button class="add-cart" (click)="addOneToCart(product, i); $event.stopPropagation()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"/>
+                      <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" />
                     </svg>
                     <span>В корзину</span>
                   </button>

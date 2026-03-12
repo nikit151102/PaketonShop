@@ -1,0 +1,60 @@
+<!-- empty-state.component.html -->
+<div class="empty-state" [ngClass]="[customClass, type + '-state']">
+  <!-- Анимированная иконка/изображение -->
+  <div class="empty-state__media">
+    <div class="empty-state__image-wrapper" *ngIf="imageUrl">
+      <img 
+        [src]="imageUrl" 
+        [alt]="title"
+        class="empty-state__image"
+        loading="lazy"
+      >
+    </div>
+    
+    <!-- Заглушка по умолчанию если нет изображения -->
+    <div class="empty-state__placeholder" *ngIf="!imageUrl">
+      <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Контент -->
+  <div class="empty-state__content">
+    <h3 class="empty-state__title">{{ title }}</h3>
+    <p class="empty-state__text" *ngIf="text">{{ text }}</p>
+    
+    <!-- Кнопка действия -->
+    <div class="empty-state__actions" *ngIf="showButton">
+      <a 
+        *ngIf="buttonLink && !buttonClick.observed"
+        [routerLink]="buttonLink" 
+        class="empty-state__button"
+      >
+        <span>{{ buttonText }}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+      
+      <button 
+        *ngIf="buttonClick.observed"
+        (click)="onButtonClick()"
+        class="empty-state__button"
+      >
+        <span>{{ buttonText }}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Декоративные элементы -->
+  <div class="empty-state__decoration">
+    <div class="decoration-circle"></div>
+    <div class="decoration-circle"></div>
+    <div class="decoration-circle"></div>
+  </div>
+</div>

@@ -3,7 +3,8 @@
   <div class="companies__header">
     <div class="companies__title">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/>
+        <path
+          d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z" />
       </svg>
       <div>
         <h2>Мои компании</h2>
@@ -14,7 +15,7 @@
     <div class="companies__actions">
       <button class="companies__add" (click)="openAddPartnerForm()">
         <svg width="16" height="16" viewBox="0 0 24 24">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
         </svg>
         <span>Новая компания</span>
       </button>
@@ -29,7 +30,7 @@
 
   <div class="companies__state error" *ngIf="error && !loading">
     <svg width="32" height="32" viewBox="0 0 24 24">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
     </svg>
     <p>{{ error }}</p>
     <button class="state-btn" (click)="retry()">Повторить</button>
@@ -50,28 +51,15 @@
     </div>
 
     <!-- Пустое состояние -->
-    <div class="companies__empty" *ngIf="visibleCompanies.length === 0">
-      <svg width="48" height="48" viewBox="0 0 24 24">
-        <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/>
-      </svg>
-      <h3>{{ activeTab === 'active' ? 'Нет активных компаний' : 'Архив пуст' }}</h3>
-      <p *ngIf="activeTab === 'active'">Добавьте первую компанию, чтобы начать работу</p>
-      <button *ngIf="activeTab === 'active'" class="empty-btn" (click)="openAddPartnerForm()">
-        <svg width="16" height="16" viewBox="0 0 24 24">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Добавить компанию
-      </button>
-    </div>
+    <app-empty-state *ngIf="!loading && visibleCompanies.length === 0" type="partner"
+      (buttonClick)="openAddPartnerForm()"></app-empty-state>
 
     <!-- Список компаний -->
     <div class="companies__grid" *ngIf="visibleCompanies.length > 0">
-      <div class="company-card" 
-           *ngFor="let company of visibleCompanies; let i = index"
-           [class.company-card--deleted]="company.isDeleted"
-           (click)="detailPartner(company)"
-           [style.animation-delay]="i * 30 + 'ms'">
-        
+      <div class="company-card" *ngFor="let company of visibleCompanies; let i = index"
+        [class.company-card--deleted]="company.isDeleted" (click)="detailPartner(company)"
+        [style.animation-delay]="i * 30 + 'ms'">
+
         <div class="company-card__header">
           <div class="company-card__logo">
             {{ getCompanyLogoText(company) }}
@@ -83,14 +71,14 @@
           <div class="company-card__menu">
             <button class="menu-btn" (click)="openEditPartnerForm(company, $event)">
               <svg width="14" height="14" viewBox="0 0 24 24">
-                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
               </svg>
             </button>
-            <button class="menu-btn" 
-                    [class.menu-btn--danger]="!company.isDeleted"
-                    (click)="deletePartner(company, $event)">
+            <button class="menu-btn" [class.menu-btn--danger]="!company.isDeleted"
+              (click)="deletePartner(company, $event)">
               <svg width="14" height="14" viewBox="0 0 24 24">
-                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
               </svg>
             </button>
           </div>
@@ -114,7 +102,7 @@
         <div class="company-card__footer">
           <span class="company-card__date">
             <svg width="12" height="12" viewBox="0 0 24 24">
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm5 13h-6v-2h6v2zm0-4h-6V9h6v2z"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm5 13h-6v-2h6v2zm0-4h-6V9h6v2z" />
             </svg>
             {{ getUpdatedDate(company) }}
           </span>
@@ -147,15 +135,11 @@
 </section>
 
 <!-- Форма партнера -->
-<app-partner-form *ngIf="showPartnerForm" 
-  [partner]="editingPartner" 
-  (close)="closePartnerForm()"
+<app-partner-form *ngIf="showPartnerForm" [partner]="editingPartner" (close)="closePartnerForm()"
   (saved)="handlePartnerSaved($event)">
 </app-partner-form>
 
 <!-- Детали партнера -->
-<app-partner-detail *ngIf="activePartner" 
-  [partner]="activePartner" 
-  (close)="closePartnerDetail()"
+<app-partner-detail *ngIf="activePartner" [partner]="activePartner" (close)="closePartnerDetail()"
   (edit)="openEditPartnerForm(activePartner, $event)">
 </app-partner-detail>

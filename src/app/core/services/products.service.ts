@@ -88,11 +88,14 @@ export class ProductsService {
     page: number = 0,
     pageSize: number = 20,
   ) {
+
+    const storeIds = localStorage.getItem('pktn_selected_stores');
     const requestBody = {
       filters: filters,
       sort: sort,
       page: page,
       pageSize: pageSize,
+      ...(storeIds && { storeIds: JSON.parse(storeIds) })
     };
     return this.http.post<any>(
       `${environment.production}/api/Entities/ProductInstanceSearch/Filter`,

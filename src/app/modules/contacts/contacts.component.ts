@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { StoreService } from './store.service';
 import { FormsModule } from '@angular/forms';
 import { PhoneLinkPipe } from './phone-link.pipe';
@@ -14,7 +14,7 @@ declare var ymaps: any;
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss',
 })
-export class ContactsComponent implements OnInit {
+export class ContactsComponent implements OnInit, AfterViewInit {
   stores: any[] = [];
   filteredStores: any[] = [];
   selectedCity = 'Барнаул';
@@ -39,6 +39,10 @@ export class ContactsComponent implements OnInit {
     email: '',
     message: '',
   };
+
+  ngAfterViewInit() {
+    this.loadMap();
+  }
 
   onSubmit() {
     console.log('Форма отправлена', this.form);

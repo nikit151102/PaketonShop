@@ -54,7 +54,7 @@ async ngOnInit() {
 }
 
   openCityListModal() {
-    this.locationService.openCityListModal();
+    this.locationService.showCityModal$.next(true)
   }
   setCity(city: City) {
     this.locationService.setCity(city);

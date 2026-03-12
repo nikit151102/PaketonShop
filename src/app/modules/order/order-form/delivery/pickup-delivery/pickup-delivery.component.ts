@@ -5,7 +5,7 @@ import { Subject, takeUntil, debounceTime, distinctUntilChanged, BehaviorSubject
 import { ProductPlace, StoreHoursInfo, TodaySchedule } from '../../../../../../models/product-place.interface';
 import { ProductPlaceService } from '../../../../../core/api/product-place.service';
 
-declare const ymaps: any; 
+declare const ymaps: any;
 type ViewMode = 'city' | 'list' | 'map' | any;
 
 @Component({
@@ -17,9 +17,9 @@ type ViewMode = 'city' | 'list' | 'map' | any;
 })
 export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() selectedStoreId: string | null = null;
-  @Output() storeSelected = new EventEmitter<ProductPlace>();
+  @Output() storeSelected = new EventEmitter<any>();
   @Output() storeUnselected = new EventEmitter<void>();
- @Output() allStoresOut = new EventEmitter<any>();
+  @Output() allStoresOut = new EventEmitter<any>();
   @ViewChild('mapContainer') mapContainer!: ElementRef;
 
   // Яндекс.Карты
@@ -27,20 +27,20 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   private mapMarkers: any[] = [];
   private userMarker: any = null;
   private selectedMarker: any = null;
-  
+
   // Состояния UI
   viewMode: ViewMode = 'city';
   selectedCity: string | null = null;
   searchQuery: string = '';
   showOnlyOpen: boolean = false;
-  
+
   // Данные
   cities: string[] = [];
   allStores: ProductPlace[] = []; // Все магазины с сервера
   stores: ProductPlace[] = []; // Магазины в выбранном городе
   filteredStores: ProductPlace[] = []; // Отфильтрованные магазины
   selectedStore: ProductPlace | null = null;
-  
+
   // UI состояния
   loading = false;
   loadingAllStores = false; // Флаг загрузки всех магазинов
@@ -49,26 +49,26 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   error: string | null = null;
   useGeolocation = false;
   userLocation: { lat: number; lng: number } | null = null;
-  
+
   // Для карты
   mapCenter: { lat: number; lng: number } = { lat: 55.7558, lng: 37.6173 }; // Москва по умолчанию
   mapZoom = 10;
   mapReady = false;
-  
+
   // BehaviorSubject для данных
   private storesSubject = new BehaviorSubject<ProductPlace[]>([]);
-  
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private productPlaceService: ProductPlaceService,
     private renderer: Renderer2
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Сначала загружаем все магазины
     this.loadAllStores();
-    
+
     if (this.selectedStoreId) {
       this.loadSelectedStore();
     }
@@ -96,7 +96,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   private loadAllStores(): void {
     this.loadingAllStores = true;
     this.error = null;
-    
+
     this.productPlaceService.getAllProductPlaces()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -113,7 +113,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           console.error('Ошибка загрузки всех магазинов:', err);
           this.error = 'Не удалось загрузить список магазинов';
           this.loadingAllStores = false;
-          
+
           // Пробуем повторную загрузку через 5 секунд
           setTimeout(() => {
             if (!this.allStores.length) {
@@ -131,13 +131,13 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       this.cities = [];
       return;
     }
-    
+
     this.loadingCities = true;
-    
+
     // Получаем уникальные города из загруженных магазинов
     const uniqueCities = this.getUniqueCities(this.allStores);
     this.cities = uniqueCities.sort();
-    
+
     console.log('Найдено городов:', this.cities.length);
     this.loadingCities = false;
   }
@@ -145,13 +145,13 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   // Метод для получения уникальных городов из массива магазинов
   private getUniqueCities(stores: ProductPlace[]): string[] {
     const cities = new Set<string>();
-    
+
     stores.forEach(store => {
       if (store.address?.city && store.address.city.trim()) {
         cities.add(store.address.city.trim());
       }
     });
-    
+
     return Array.from(cities);
   }
 
@@ -172,16 +172,16 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     ymaps.ready(() => {
       try {
         this.mapReady = true;
-        
+
         // Создаем карту с проверкой контейнера
         const mapElement = this.mapContainer.nativeElement;
         if (!mapElement) {
           throw new Error('Контейнер карты не найден в DOM');
         }
-        
+
         // Очищаем контейнер перед инициализацией
         this.renderer.setProperty(mapElement, 'innerHTML', '');
-        
+
         this.ymap = new ymaps.Map(mapElement, {
           center: [this.mapCenter.lat, this.mapCenter.lng],
           zoom: this.mapZoom,
@@ -228,17 +228,17 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   loadStoresByCity(city: string): void {
     this.loadingStores = true;
     this.error = null;
-    
+
     // Фильтруем магазины по городу из уже загруженных данных
-    const storesInCity = this.allStores.filter(store => 
+    const storesInCity = this.allStores.filter(store =>
       store.address?.city?.toLowerCase() === city.toLowerCase()
     );
-    
+
     console.log(`Магазинов в городе ${city}:`, storesInCity.length);
-    
+
     this.stores = storesInCity;
     this.filteredStores = [...storesInCity];
-    
+
     // Если в городе нет магазинов, показываем сообщение
     if (storesInCity.length === 0) {
       this.error = `В городе ${city} нет пунктов выдачи`;
@@ -246,12 +246,12 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       this.loadingStores = false;
       return;
     }
-    
+
     // Если есть координаты пользователя, сортируем по расстоянию
     if (this.userLocation) {
       this.sortStoresByDistance();
     }
-    
+
     // Обновляем центр карты, если есть магазины с координатами
     const storeWithCoords = storesInCity.find(s => s.address?.latitude && s.address?.longitude);
     if (storeWithCoords) {
@@ -259,31 +259,31 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         lat: storeWithCoords.address.latitude,
         lng: storeWithCoords.address.longitude
       };
-      
+
       // Если карта уже инициализирована, обновляем центр
       if (this.mapReady && this.ymap) {
         this.ymap.setCenter([this.mapCenter.lat, this.mapCenter.lng], 12);
         this.addStoreMarkers();
       }
     }
-    
+
     this.loadingStores = false;
   }
 
   loadSelectedStore(): void {
     if (!this.selectedStoreId) return;
-    
+
     this.loading = true;
-    
+
     // Сначала ищем в уже загруженных магазинах
     const storeFromCache = this.allStores.find(s => s.id === this.selectedStoreId);
-    
+
     if (storeFromCache) {
       this.handleSelectedStore(storeFromCache);
       this.loading = false;
       return;
     }
-    
+
     // Если не нашли в кэше, загружаем с сервера
     this.productPlaceService.getProductPlaceById(this.selectedStoreId)
       .pipe(takeUntil(this.destroy$))
@@ -305,19 +305,19 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.selectedStore = store;
     this.selectedCity = store.address?.city || null;
     this.viewMode = 'city';
-    
+
     // Если этого магазина нет в общем списке, добавляем его
     const existingStore = this.allStores.find(s => s.id === store.id);
     if (!existingStore) {
       this.allStores.push(store);
     }
-    
+
     // Если город не в списке, добавляем его
     if (store.address?.city && !this.cities.includes(store.address.city)) {
       this.cities.push(store.address.city);
       this.cities.sort();
     }
-    
+
     // Центрируем карту на выбранном магазине
     if (store.address?.latitude && store.address?.longitude && this.mapReady && this.ymap) {
       this.centerMapOnStore(store);
@@ -327,10 +327,10 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   // Методы для работы с Яндекс.Картами
   private addStoreMarkers(): void {
     if (!this.ymap || !this.mapReady) return;
-    
+
     // Очищаем старые маркеры
     this.clearMarkers();
-    
+
     this.stores.forEach(store => {
       if (store.address?.latitude && store.address?.longitude) {
         const marker = this.createStoreMarker(store);
@@ -338,7 +338,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         this.ymap.geoObjects.add(marker);
       }
     });
-    
+
     // Автоматически подбираем масштаб карты
     if (this.mapMarkers.length > 0) {
       try {
@@ -355,7 +355,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   private createStoreMarker(store: ProductPlace): any {
     const isOpen = this.isStoreOpen(store);
     const isSelected = this.selectedStore?.id === store.id;
-    
+
     // Создаем содержимое балуна
     const balloonContent = `
       <div class="store-balloon">
@@ -379,11 +379,11 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         </div>
       </div>
     `;
-    
+
     // Определяем цвет маркера
     let markerColor = isOpen ? 'green' : 'gray';
     if (isSelected) markerColor = 'red';
-    
+
     // Создаем метку
     const marker = new ymaps.Placemark(
       [store.address.latitude, store.address.longitude],
@@ -400,13 +400,13 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         hideIconOnBalloonOpen: false
       }
     );
-    
+
     // Добавляем обработчик клика
     marker.events.add('click', (e: any) => {
       e.preventDefault();
       this.selectStoreFromMap(store);
     });
-    
+
     return marker;
   }
 
@@ -418,13 +418,13 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       gray: 'https://api-maps.yandex.ru/2.1/?lang=ru_RU#icon=islands#grayStretchyIcon',
       blue: 'https://api-maps.yandex.ru/2.1/?lang=ru_RU#icon=islands#blueStretchyIcon'
     };
-    
+
     return icons[color] || icons['gray'];
   }
 
   private clearMarkers(): void {
     if (!this.ymap) return;
-    
+
     this.mapMarkers.forEach(marker => {
       try {
         this.ymap.geoObjects.remove(marker);
@@ -438,7 +438,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   private centerMapOnStore(store: ProductPlace): void {
     if (store.address?.latitude && store.address?.longitude && this.ymap) {
       this.ymap.setCenter([store.address.latitude, store.address.longitude], 15);
-      
+
       // Выделяем выбранный маркер
       this.highlightSelectedMarker(store);
     }
@@ -446,29 +446,29 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
   private highlightSelectedMarker(store: ProductPlace): void {
     if (!this.ymap) return;
-    
+
     // Сбрасываем предыдущий выделенный маркер
     if (this.selectedMarker) {
       const isOpen = this.isStoreOpen(store);
       const markerColor = isOpen ? 'green' : 'gray';
       this.selectedMarker.options.set('iconImageHref', this.getMarkerIconUrl(markerColor));
     }
-    
+
     // Находим и выделяем новый маркер
     const marker = this.mapMarkers.find(m => {
       try {
         const coords = m.geometry.getCoordinates();
         return Math.abs(coords[0] - (store.address?.latitude || 0)) < 0.0001 &&
-               Math.abs(coords[1] - (store.address?.longitude || 0)) < 0.0001;
+          Math.abs(coords[1] - (store.address?.longitude || 0)) < 0.0001;
       } catch {
         return false;
       }
     });
-    
+
     if (marker) {
       marker.options.set('iconImageHref', this.getMarkerIconUrl('red'));
       this.selectedMarker = marker;
-      
+
       // Открываем балун
       setTimeout(() => {
         try {
@@ -482,12 +482,12 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
   private addUserMarker(): void {
     if (!this.userLocation || !this.ymap) return;
-    
+
     // Очищаем старый маркер пользователя
     if (this.userMarker) {
       this.ymap.geoObjects.remove(this.userMarker);
     }
-    
+
     // Создаем новый маркер
     this.userMarker = new ymaps.Placemark(
       [this.userLocation.lat, this.userLocation.lng],
@@ -502,7 +502,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         iconImageOffset: [-16, -32]
       }
     );
-    
+
     this.ymap.geoObjects.add(this.userMarker);
   }
 
@@ -510,8 +510,12 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   selectStoreFromMap(store: ProductPlace): void {
     this.selectedStore = store;
     this.viewMode = 'city';
-    this.storeSelected.emit(store);
-    
+    this.storeSelected.emit({
+      'type': 'pickup',
+      'id': store.id,
+      'shopCity': store.address.city,
+      'shopAddress': store.address
+    });
     // Центрируем карту на выбранном магазине
     this.centerMapOnStore(store);
   }
@@ -534,7 +538,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
   toggleOpenOnly(): void {
     this.showOnlyOpen = !this.showOnlyOpen;
-    
+
     if (this.showOnlyOpen) {
       this.filteredStores = this.stores.filter(store => this.isStoreOpen(store));
     } else {
@@ -551,27 +555,27 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.useGeolocation = true;
     this.loading = true;
-    
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         this.userLocation = {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        
+
         // Обновляем центр карты
         this.mapCenter = { ...this.userLocation };
-        
+
         if (this.mapReady && this.ymap) {
           this.ymap.setCenter([this.userLocation.lat, this.userLocation.lng], 13);
           this.addUserMarker();
         }
-        
+
         // Сортируем магазины по расстоянию
         if (this.stores.length > 0) {
           this.sortStoresByDistance();
         }
-        
+
         this.loading = false;
       },
       (error) => {
@@ -590,7 +594,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
   sortStoresByDistance(): void {
     if (!this.userLocation || this.stores.length === 0) return;
-    
+
     this.stores.sort((a, b) => {
       const distA = this.calculateDistance(
         this.userLocation!.lat,
@@ -606,7 +610,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       );
       return distA - distB;
     });
-    
+
     this.filteredStores = [...this.stores];
   }
 
@@ -614,8 +618,12 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   selectStore(store: ProductPlace): void {
     this.selectedStore = store;
     this.viewMode = 'city'; // Возвращаемся к виду с выбранным магазином
-    this.storeSelected.emit(store);
-    
+    this.storeSelected.emit({
+      'type': 'pickup',
+      'id': store.id,
+      'shopCity': store.address.city,
+      'shopAddress': store.address
+    });
     // Центрируем карту на выбранном магазине
     if (store.address?.latitude && store.address?.longitude && this.mapReady && this.ymap) {
       this.centerMapOnStore(store);
@@ -639,7 +647,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   switchToMapView(): void {
     if (this.selectedCity && this.stores.length > 0) {
       this.viewMode = 'map';
-      
+
       // Если карта еще не инициализирована, инициализируем
       if (!this.mapReady) {
         setTimeout(() => {
@@ -661,7 +669,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   getFullAddress(store: ProductPlace): string {
     const addr = store.address;
     if (!addr) return 'Адрес не указан';
-    
+
     return `${addr.street || ''} ${addr.house || ''}`.trim();
   }
 
@@ -672,7 +680,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
 
   getStoreDistance(store: ProductPlace): number | null {
     if (!this.userLocation || !store.address?.latitude) return null;
-    
+
     return this.calculateDistance(
       this.userLocation.lat,
       this.userLocation.lng,
@@ -697,9 +705,9 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     const R = 6371000; // Радиус Земли в метрах
     const dLat = this.toRad(lat2 - lat1);
     const dLon = this.toRad(lon2 - lon1);
-    const a = 
+    const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) * 
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
@@ -716,7 +724,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.viewMode = 'city';
     this.filteredStores = [];
     this.stores = [];
-    
+
     // Очищаем маркеры на карте
     if (this.ymap) {
       this.clearMarkers();

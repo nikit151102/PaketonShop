@@ -144,15 +144,8 @@
         </div>
 
         <div *ngIf="personalAddresses.length === 0" class="empty-state">
-          <div class="empty-illustration">🏠</div>
-          <h3>Нет личных адресов</h3>
-          <p>Добавьте свой первый адрес доставки</p>
-          <button class="empty-action" (click)="openAddModal('personal')">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-            </svg>
-            Добавить адрес
-          </button>
+          <app-empty-state *ngIf="!loading && personalAddresses.length === 0" type="addresses"
+            (buttonClick)="openAddModal('personal')"></app-empty-state>
         </div>
       </div>
 
@@ -213,20 +206,18 @@
         </div>
 
         <div *ngIf="transportCompanyAddresses.length === 0" class="empty-state">
-          <div class="empty-illustration">📦</div>
-          <h3>Нет пунктов выдачи</h3>
-          <p>Добавьте пункты выдачи транспортных компаний</p>
+          <app-empty-state *ngIf="!loading && transportCompanyAddresses.length === 0" type="tk"></app-empty-state>
           <div class="empty-actions">
             <button class="empty-action" (click)="openAddModal('transport', 1)">
-              <span class="action-icon">🚚</span>
+              <!-- <span class="action-icon"></span> -->
               СДЭК
             </button>
             <button class="empty-action" (click)="openAddModal('transport', 2)">
-              <span class="action-icon">🚛</span>
+              <!-- <span class="action-icon"></span> -->
               Байкал
             </button>
             <button class="empty-action" (click)="openAddModal('transport', 3)">
-              <span class="action-icon">📦</span>
+              <!-- <span class="action-icon"></span> -->
               Деловые
             </button>
           </div>

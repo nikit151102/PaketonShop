@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { OrderFormComponent } from './order-form/order-form.component';
 import { BasketsService } from '../../core/api/baskets.service';
 import { DeliveryOrderService } from '../../core/api/delivery-order.service';
-import { Subject, takeUntil, interval } from 'rxjs';
+import { Subject, takeUntil, interval, finalize } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { PluralPipe } from "../../core/pipes/plural.pipe";
 import { PaymentService } from '../../core/api/payment.service';
@@ -37,10 +37,13 @@ export class OrderComponent implements OnInit, OnDestroy {
   savingProgress = 0;
   currentDate = new Date();
 
-  // Новая переменная для способа оплаты
+  // Данные формы заказа
+  orderFormData: any = null;
+
+  // Способ оплаты
   paymentMethod: 'online' | 'cash' | 'card' = 'online';
 
-  // Пример скидок (можно получать с бекенда)
+  // Скидки
   discountRules = [
     { minAmount: 10000, discountPercent: 5 },
     { minAmount: 20000, discountPercent: 10 },
@@ -48,6 +51,10 @@ export class OrderComponent implements OnInit, OnDestroy {
   ];
 
   private destroy$ = new Subject<void>();
+
+  // Флаги для отслеживания статуса
+  isOrderCreated = false;
+  isPaymentConfirmed = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,7 +83,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   private updateCurrentTime(): void {
-    interval(60000) // Обновлять каждую минуту
+    interval(60000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.currentDate = new Date();
@@ -98,11 +105,11 @@ export class OrderComponent implements OnInit, OnDestroy {
               price: p.price || 0,
               priceSale: p.priceSale,
               qty: p.count || 1,
-              imageUrl: p.product.productImageLinks[0] || null,
-              remains: p.product.remains
+              imageUrl: p.product.productImageLinks?.[0] || null,
+              remains: p.product.remains,
+              positionId: p.id // Сохраняем ID позиции для обновления
             }));
 
-            // Рассчитываем скидку
             this.calculateDiscount();
           }
           this.isLoading = false;
@@ -118,7 +125,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     const total = this.getProductsTotal();
     let discountPercent = 0;
 
-    // Находим подходящую скидку
     for (const rule of this.discountRules.reverse()) {
       if (total >= rule.minAmount) {
         discountPercent = rule.discountPercent;
@@ -142,15 +148,12 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   getDeliveryCost(): number {
-    // Логика расчета доставки (можно получать из формы)
     if (this.deliveryCost > 0) {
       return this.deliveryCost;
     }
-
-    // Пример: бесплатная доставка от 5000
     const total = this.getProductsTotal();
     this.deliveryCost = total >= 5000 ? 0 : this.deliveryCost;
-    return this.deliveryCost
+    return this.deliveryCost;
   }
 
   setDeliveryCost(value: any) {
@@ -165,29 +168,31 @@ export class OrderComponent implements OnInit, OnDestroy {
     return !!this.createdOrderId && !this.isProcessing && this.paymentMethod === 'online';
   }
 
-  onOrderCreated(order: any): void {
-    this.isSaving = true;
-    this.savingProgress = 0;
-
-    // Симуляция прогресса сохранения
-    const progressInterval = setInterval(() => {
-      this.savingProgress += 20;
-      if (this.savingProgress >= 100) {
-        clearInterval(progressInterval);
-        this.savingProgress = 100;
-        setTimeout(() => {
-          this.isSaving = false;
-          this.createdOrderId = order.id;
-          this.showSuccessNotification = true;
-
-          if (order.deliveryCost) {
-            this.deliveryCost = order.deliveryCost;
-          }
-        }, 500);
-      }
-    }, 100);
+  /**
+   * Сохранение данных из формы заказа
+   */
+  onFormChanged(data: any) {
+    this.orderFormData = data;
+    console.log('Данные формы обновлены:', data);
   }
 
+  /**
+   * Обработка создания заказа
+   */
+  onOrderCreated(order: any): void {
+    this.createdOrderId = order.id;
+    this.isOrderCreated = true;
+
+    if (order.deliveryCost) {
+      this.deliveryCost = order.deliveryCost;
+    }
+
+    this.showSuccessNotification = true;
+  }
+
+  /**
+   * Обработка обновления заказа
+   */
   onOrderUpdated(order: any): void {
     this.createdOrderId = order.id;
 
@@ -202,18 +207,11 @@ export class OrderComponent implements OnInit, OnDestroy {
     'shopCity'?: string,
     'shopAddress'?: string
   }) {
-    console.log('datadatadata', data)
+    console.log('Данные доставки:', data);
   }
-
-  onFormChanged(data: any) {
-    console.log('data---:', data)
-  }
-
-  showPaymentWidget: boolean = false
-  paymentToken: any;
 
   /**
-   * Новый метод для обработки заказа в зависимости от способа оплаты
+   * Основной метод обработки заказа
    */
   processOrder(): void {
     if (!this.paymentMethod) {
@@ -221,43 +219,153 @@ export class OrderComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.orderFormData) {
+      console.warn('Заполните форму заказа');
+      return;
+    }
+
     if (this.paymentMethod === 'online') {
-      this.initiatePayment();
+      this.createOrderAndInitiatePayment();
     } else {
       this.createOrderWithCashPayment();
     }
   }
 
   /**
+   * Создание заказа и инициализация онлайн оплаты
+   */
+  private createOrderAndInitiatePayment(): void {
+    this.isProcessing = true;
+    this.isSaving = true;
+    this.savingProgress = 0;
+
+    // Имитация прогресса
+    const progressInterval = setInterval(() => {
+      this.savingProgress += 20;
+      if (this.savingProgress >= 100) {
+        clearInterval(progressInterval);
+      }
+    }, 100);
+    const orderRequest: any = {
+      id: this.activeBasketId!,
+      addressId: this.orderFormData.orderDeliveryData.id,
+      deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
+        ? '94656a5f-31ff-4a36-8214-555e8507c790'
+        : this.orderFormData.delivery === 'pickup'
+          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+          : undefined,
+      partnerInstanceId: this.orderFormData.selectedCompanyId,
+      promoCodeId: this.orderFormData.promoCodeId,
+      consultation: this.orderFormData.needConsult || false,
+      productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : null
+      // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
+      // productPositionIds: this.basketProducts.map(p => p.positionId)
+    };
+
+    // Создаем заказ
+    this.deliveryOrderService.createOrder(orderRequest)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          clearInterval(progressInterval);
+          this.isSaving = false;
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.createdOrderId = response.data.id;
+          this.isOrderCreated = true;
+
+          // Инициируем оплату
+          this.initiatePayment();
+        },
+        error: (error) => {
+          console.error('Ошибка создания заказа:', error);
+          this.isProcessing = false;
+          // Показать ошибку пользователю
+        }
+      });
+  }
+
+  /**
    * Создание заказа с оплатой при получении
    */
-  createOrderWithCashPayment(): void {
+  private createOrderWithCashPayment(): void {
     this.isProcessing = true;
+    this.isSaving = true;
+    this.savingProgress = 0;
 
-    // Здесь должен быть вызов API для создания заказа с пометкой "оплата при получении"
-    // Имитация запроса
-    setTimeout(() => {
-      this.isProcessing = false;
-      this.showSuccessNotification = true;
-
-      // Генерируем тестовый ID заказа если его нет
-      if (!this.createdOrderId) {
-        this.createdOrderId = 'order_' + Math.random().toString(36).substr(2, 9);
+    const progressInterval = setInterval(() => {
+      this.savingProgress += 20;
+      if (this.savingProgress >= 100) {
+        clearInterval(progressInterval);
       }
-    }, 1500);
+    }, 100);
+
+    const orderRequest: any = {
+      id: this.activeBasketId!,
+      addressId: this.orderFormData.orderDeliveryData.id,
+      deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
+        ? '94656a5f-31ff-4a36-8214-555e8507c790'
+        : this.orderFormData.delivery === 'pickup'
+          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+          : undefined,
+      partnerInstanceId: this.orderFormData.selectedCompanyId,
+      promoCodeId: this.orderFormData.promoCodeId,
+      consultation: this.orderFormData.needConsult || false,
+      productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : null
+      // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
+      // productPositionIds: this.basketProducts.map(p => p.positionId)
+    };
+
+    Object.keys(orderRequest).forEach(key => {
+      if (orderRequest[key] === null || orderRequest[key] === undefined) {
+        delete orderRequest[key];
+      }
+    });
+
+    if (this.activeBasketId) {
+      this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            clearInterval(progressInterval);
+            this.isSaving = false;
+            this.isProcessing = false;
+          })
+        )
+        .subscribe({
+          next: (response: any) => {
+            this.createdOrderId = response.data.id;
+            this.isOrderCreated = true;
+            this.showSuccessNotification = true;
+
+            // setTimeout(() => {
+            //   this.router.navigate(['/order-success', this.createdOrderId]);
+            // }, 2000);
+          },
+          error: (error) => {
+            console.error('Ошибка создания заказа:', error);
+            this.isProcessing = false;
+          }
+        });
+    }
   }
 
   /**
    * Инициализация онлайн оплаты
    */
   initiatePayment() {
-    // if (!this.createdOrderId) {
-    //   console.warn('Нельзя перейти к оплате: заказ не создан');
-    //   return;
-    // }
+    if (!this.createdOrderId) {
+      console.warn('Нельзя перейти к оплате: заказ не создан');
+      return;
+    }
 
     this.isProcessing = true;
 
+    // Создаем транзакцию для оплаты
     this.paymentService.createTopUpTransaction(this.getOrderTotal()).subscribe({
       next: (response: any) => {
         if (response.data && response.data.confirmationToken) {
@@ -277,37 +385,73 @@ export class OrderComponent implements OnInit, OnDestroy {
     });
   }
 
+  showPaymentWidget: boolean = false;
+  paymentToken: any;
+
   /**
    * Обработка успешного платежа
    */
   handlePaymentSuccess(event: any): void {
     console.log('Платеж успешен:', event);
 
-    // event может содержать token и amount
     const token = event.token || event;
-
     this.isProcessing = true;
+    // Создаем DTO для обновления заказа
+    const updateDto: any = {
+      consultation: this.orderFormData?.consultation || false,
+      orderDateTime: new Date().toISOString(),
+      orderStatus: 2, // Статус "Оплачен"
+      productPositionIds: this.basketProducts.map(p => p.positionId)
+    };
 
-    this.paymentService.confirmPayment(token).subscribe({
-      next: (response: any) => {
-        console.log('Платеж подтвержден:', response);
+    // Добавляем адрес если есть
+    if (this.orderFormData?.address) {
+      updateDto.address = this.orderFormData.address;
+    }
 
-        // Показываем уведомление об успешной оплате
-        this.showSuccessNotification = true;
-        this.showPaymentWidget = false;
-        this.isProcessing = false;
+    if (this.orderFormData?.deliveryTypeId) {
+      updateDto.deliveryTypeId = this.orderFormData.deliveryTypeId;
+    }
 
-        // Здесь можно обновить статус заказа или баланс
-      },
-      error: (error) => {
-        console.error('Ошибка подтверждения платежа:', error);
+    if (this.activeBasketId) {
+      // Обновляем заказ с новым статусом
+      this.deliveryOrderService.updateOrder(this.activeBasketId, updateDto)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            this.isProcessing = false;
+          })
+        )
+        .subscribe({
+          next: (response) => {
+            console.log('Заказ обновлен после оплаты:', response);
 
-        // Можно показать сообщение, что платеж прошел, но данные не обновились
-        this.handlePaymentError('Платеж прошел, но не удалось обновить данные. Обратитесь в поддержку.');
-        this.showPaymentWidget = false;
-        this.isProcessing = false;
-      }
-    });
+            // Подтверждаем платеж на сервере
+            this.paymentService.confirmPayment(token).subscribe({
+              next: (confirmResponse) => {
+                console.log('Платеж подтвержден:', confirmResponse);
+
+                this.showPaymentWidget = false;
+                this.isPaymentConfirmed = true;
+                this.showSuccessNotification = true;
+
+                // Перенаправляем на страницу успеха
+                setTimeout(() => {
+                  this.router.navigate(['/order-success', this.createdOrderId]);
+                }, 2000);
+              },
+              error: (error) => {
+                console.error('Ошибка подтверждения платежа:', error);
+                this.handlePaymentError('Платеж прошел, но не удалось подтвердить заказ');
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Ошибка обновления заказа:', error);
+            this.handlePaymentError('Не удалось обновить статус заказа');
+          }
+        });
+    }
   }
 
   /**
@@ -327,9 +471,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   handlePaymentError(error: any): void {
     console.error('Ошибка платежа:', error);
     this.showPaymentWidget = false;
-
-    // Показать уведомление об ошибке
-    // this.showErrorNotification('Произошла ошибка при оплате');
+    this.isProcessing = false;
   }
 
   /**
@@ -340,6 +482,5 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.showPaymentWidget = false;
     this.isProcessing = false;
   }
-
 
 }
