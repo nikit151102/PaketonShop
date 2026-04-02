@@ -3,7 +3,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProductComponent } from './product/product.component';
-import { SelectCartButtonComponent } from './select-cart-button/select-cart-button.component';
 import { BasketsService } from '../../core/api/baskets.service';
 import { UserBasket, CreateBasketDto, BasketProductDto } from '../../../models/baskets.interface';
 import { DeliveryOrderService } from '../../core/api/delivery-order.service';
@@ -22,8 +21,6 @@ import { EmptyStateComponent } from '../../core/components/empty-state/empty-sta
     CommonModule,
     FormsModule,
     ProductComponent,
-    SelectCartButtonComponent,
-    RouterLink,
     EmptyStateComponent
   ],
 })

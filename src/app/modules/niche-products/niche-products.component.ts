@@ -7,6 +7,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { ProductComponent } from '../../core/components/product/product.component';
 import { NicheProductsService } from '../../core/api/niche-products.service';
 import { FlipbookComponent } from '../../core/components/flipbook/flipbook.component';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 @Component({
   selector: 'app-niche-products',
@@ -16,7 +17,8 @@ import { FlipbookComponent } from '../../core/components/flipbook/flipbook.compo
     ProductComponent,
     FiltersComponent,
     RouterLink,
-    FlipbookComponent
+    FlipbookComponent,
+    TitleComponent
   ],
   templateUrl: './niche-products.component.html',
   styleUrl: './niche-products.component.scss'
@@ -137,6 +139,7 @@ export class NicheProductsComponent implements OnInit {
 
     const baseFilters = this.categoryId
       ? [
+        {field: "Text", values: [], type: 0},
           {
             field: 'ProductNiches.Id',
             values: [this.categoryId],

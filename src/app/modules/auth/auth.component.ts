@@ -17,10 +17,12 @@ import { UserService } from '../../core/services/user.service';
 import { Router } from '@angular/router';
 import { UserApiService } from '../../core/api/user.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { VkIdWidgetComponent } from '../../core/components/vk-id-button/vk-id-button.component';
+import { YandexIdButtonComponent } from '../../core/components/yandex-id-button/yandex-id-button.component';
 
 @Component({
   selector: 'app-auth',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, VkIdWidgetComponent,YandexIdButtonComponent],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss',
 })

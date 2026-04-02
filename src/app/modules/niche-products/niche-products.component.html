@@ -1,12 +1,8 @@
 <div class="categories-page">
     <!-- Заголовок категории -->
     <div *ngIf="nicheData" class="category-header">
-        <div class="header-content">
-            <h1 class="category-title">{{ nicheData.name }}</h1>
-            <p *ngIf="nicheData.description" class="category-description">
-                {{ nicheData.description }}
-            </p>
-        </div>
+
+        <app-title [title]="nicheData.name" [description]="nicheData.description"></app-title>
 
         <div class="header-image" *ngIf="nicheData.imageUrl">
             <img [src]="nicheData.imageUrl" [alt]="nicheData.name">

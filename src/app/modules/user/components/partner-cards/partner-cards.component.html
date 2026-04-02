@@ -106,7 +106,9 @@
             </svg>
             {{ getUpdatedDate(company) }}
           </span>
-          <span class="company-card__id" title="ID компании">#{{ company.id?.substring(0, 6) }}</span>
+          @if (company.id) {
+          <span class="company-card__id" title="ID компании">#{{ company.id.substring(0, 6) }}</span>
+          }
         </div>
 
         <!-- Бейдж удаленной компании -->

@@ -82,10 +82,6 @@
       transform: scale(1.08);
     }
 
-    .card-content {
-      background: var(--gray-50);
-    }
-
     .subcategory-badge {
       transform: translateY(0);
       opacity: 1;
@@ -240,21 +236,19 @@
   }
 }
 
-// Кнопка "Показать ещё"
 .more-categories {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: 32px;
-  padding-top: 24px;
+  padding-top: 10px;
   border-top: 1px solid var(--gray-200);
   position: relative;
 }
 
 .more-btn {
   position: relative;
-  padding: 14px 32px;
+  padding: 8px 16px;
   background: var(--white);
   color: var(--gray-800);
   border: 2px solid var(--gray-200);

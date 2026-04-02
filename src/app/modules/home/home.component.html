@@ -7,13 +7,14 @@
   <app-business-block></app-business-block>
   <!-- Категории -->
   <section class="section">
-    <h2>Категории</h2>
+    <app-title [title]="'Категории'" [description]="'Погрузитесь в мир выгодных покупок вместе с нами'"></app-title>
     <app-category-section [categories]="categories"> </app-category-section>
   </section>
 
   <!-- Ниши -->
   <section class="section ready_solutions">
-    <h2>Готовые решения</h2>
+    <app-title [title]="'Готовые решения для вашего бизнеса'"
+      [description]="'Упаковка, которая уже готова решать задачи вашего бизнеса'"></app-title>
     <app-groups-section [showAll]="false"></app-groups-section>
   </section>
 
@@ -26,13 +27,11 @@
 
   <!-- Популярные -->
   <section class="section" (scroll)="onScroll()">
-    <h2>Популярные товары</h2>
+    <app-title [title]="'Популярные товары'"
+      [description]="'Выбирайте и заказывайте хиты продаж прямо сейчас'"></app-title>
     <app-compare-common-btn></app-compare-common-btn>
     <div class="products">
-      <app-product
-        [product]="product"
-        *ngFor="let product of products"
-      ></app-product>
+      <app-product [product]="product" *ngFor="let product of products"></app-product>
     </div>
   </section>
 

@@ -7,7 +7,6 @@ import { IconsComponent } from './components/icons/icons.component';
 import { LogoComponent } from './components/logo/logo.component';
 import { MenuComponent } from './components/menu/menu.component';
 import { SearchComponent } from './components/search/search.component';
-import { CatalogComponent } from './components/catalog/catalog.component';
 import { City, LocationService } from '../location/location.service';
 
 @Component({
@@ -19,7 +18,6 @@ import { City, LocationService } from '../location/location.service';
     MenuComponent,
     SearchComponent,
     IconsComponent,
-    CatalogComponent,
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],

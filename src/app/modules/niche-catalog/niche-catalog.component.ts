@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NewsBannerFilterDto, SortType } from '../../core/api/news-banner.service';
 import { NicheProductsService } from '../../core/api/niche-products.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 export interface Subcategory {
   id: string;
@@ -31,10 +32,11 @@ export interface Category {
 @Component({
   selector: 'app-niche-catalog',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,
+    TitleComponent],
   templateUrl: './niche-catalog.component.html',
   styleUrl: './niche-catalog.component.scss',
-    animations: [
+  animations: [
     trigger('cardAnimation', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),

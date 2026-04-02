@@ -318,7 +318,9 @@
               </div>
               <div class="store-details">
                 <h4 class="store-name">{{ store.fullName }}</h4>
-                <p class="store-address">{{ store.address?.street }}, {{ store.address?.house }}</p>
+                @if(store.address){
+                <p class="store-address">{{ store.address.street }}, {{ store.address.house }}</p>
+                }
                 <div class="store-schedule" [class.closed]="!isStoreOpenNow(store)">
                   <span class="schedule-today" [class.open-now]="isStoreOpenNow(store)">
                     {{ formatWorkingHours(store) }}

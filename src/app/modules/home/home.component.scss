@@ -27,13 +27,14 @@
 }
 
 .products {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
 
   app-product {
-    display: contents;
+    display: block;
+    height: 100%;
   }
 }
 

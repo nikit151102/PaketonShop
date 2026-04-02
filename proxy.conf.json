@@ -1,0 +1,11 @@
+{
+  "/vk-api": {
+    "target": "https://id.vk.ru",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/vk-api": ""
+    },
+    "logLevel": "debug"
+  }
+}

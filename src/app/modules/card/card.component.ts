@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductsService } from '../../core/services/products.service';
 import { QuestionsComponent } from './questions/questions.component';
 import { ReviewsComponent } from './reviews/reviews.component';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 @Component({
   selector: 'app-card',
@@ -15,7 +16,8 @@ import { ReviewsComponent } from './reviews/reviews.component';
     ProductCardComponent,
     QuestionsComponent,
     ReviewsComponent,
-    RouterLink
+    RouterLink,
+    TitleComponent
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
@@ -23,7 +25,7 @@ import { ReviewsComponent } from './reviews/reviews.component';
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(20px)' }),
-        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', 
+        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)',
           style({ opacity: 1, transform: 'translateY(0)' }))
       ])
     ])
@@ -69,7 +71,7 @@ export class CardComponent {
       'мощность', 'емкость', 'производительность', 'гарантия',
       'цена', 'стоимость', 'тип', 'назначение'
     ];
-    return importantProperties.some(prop => 
+    return importantProperties.some(prop =>
       propertyName.toLowerCase().includes(prop)
     );
   }
@@ -77,7 +79,7 @@ export class CardComponent {
   // Копировать описание
   copyDescription(): void {
     if (!this.productData?.description) return;
-    
+
     navigator.clipboard.writeText(this.productData.description)
       .then(() => {
         // Можно добавить временное уведомление

@@ -7,10 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+
+  <script nonce="csp_nonce" src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"
+              onload="console.log('VK SDK loaded successfully')" 
+            onerror="console.error('VK SDK failed to load')"></script>
   </head>
   <body>
     <app-root></app-root>
-    <!-- Подключение скрипта ЮMoney для виджета оплаты -->
     <script src="https://yookassa.ru/checkout-widget/v1/checkout-widget.js"></script>
   </body>
 </html>

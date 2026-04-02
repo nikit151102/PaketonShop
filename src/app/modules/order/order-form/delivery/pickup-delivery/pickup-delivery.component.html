@@ -3,17 +3,16 @@
   <div class="pickup-delivery__header">
     <div class="pickup-delivery__title">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18 1.01L8 1c-1.1 0-2 .9-2 2v3h2V5h10v14H8v-1H6v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM10 15h2V8H5v2h3.59L3 15.59 4.41 17 10 11.41V15z"/>
+        <path
+          d="M18 1.01L8 1c-1.1 0-2 .9-2 2v3h2V5h10v14H8v-1H6v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM10 15h2V8H5v2h3.59L3 15.59 4.41 17 10 11.41V15z" />
       </svg>
       <span>Пункты выдачи</span>
     </div>
-    
-    <button class="pickup-delivery__geo-btn" 
-            *ngIf="!useGeolocation" 
-            (click)="requestGeolocation()"
-            [class.loading]="loading && useGeolocation">
+
+    <button class="pickup-delivery__geo-btn" *ngIf="!useGeolocation" (click)="requestGeolocation()"
+      [class.loading]="loading && useGeolocation">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
       </svg>
       <span>{{ useGeolocation ? 'Определяем...' : 'Рядом со мной' }}</span>
     </button>
@@ -24,7 +23,8 @@
     <div class="selected-preview" (click)="switchToListView()">
       <div class="selected-preview__icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18 1.01L8 1c-1.1 0-2 .9-2 2v3h2V5h10v14H8v-1H6v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM10 15h2V8H5v2h3.59L3 15.59 4.41 17 10 11.41V15z"/>
+          <path
+            d="M18 1.01L8 1c-1.1 0-2 .9-2 2v3h2V5h10v14H8v-1H6v3c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM10 15h2V8H5v2h3.59L3 15.59 4.41 17 10 11.41V15z" />
         </svg>
       </div>
       <div class="selected-preview__info">
@@ -37,7 +37,8 @@
       </div>
       <button class="selected-preview__change" (click)="switchToListView(); $event.stopPropagation()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
         </svg>
       </button>
     </div>
@@ -47,21 +48,18 @@
   <div class="pickup-delivery__cities" *ngIf="viewMode === 'city' && !selectedStore">
     <div class="cities-search" *ngIf="cities.length > 6">
       <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/>
+        <path
+          d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
       </svg>
-      <input type="text" 
-             placeholder="Поиск города..."
-             class="cities-search__input">
+      <input type="text" placeholder="Поиск города..." class="cities-search__input">
     </div>
 
     <div class="cities-grid">
-      <button class="city-card" 
-              *ngFor="let city of cities"
-              (click)="selectCity(city)">
+      <button class="city-card" *ngFor="let city of cities" (click)="selectCity(city)">
         <span class="city-card__name">{{ city }}</span>
         <span class="city-card__arrow">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
           </svg>
         </span>
       </button>
@@ -69,7 +67,7 @@
 
     <div class="cities-empty" *ngIf="cities.length === 0 && !loadingCities">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
       </svg>
       <p>Нет доступных городов</p>
     </div>
@@ -81,7 +79,7 @@
     <div class="list-nav">
       <button class="list-nav__back" (click)="goBackToCitySelection()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
         </svg>
         <span>Все города</span>
       </button>
@@ -89,12 +87,14 @@
       <div class="list-nav__toggle">
         <button class="toggle-btn" [class.active]="viewMode === 'list'" (click)="switchToListView()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
           </svg>
         </button>
-        <button class="toggle-btn" [class.active]="viewMode === 'map'" (click)="switchToMapView()" [disabled]="stores.length === 0">
+        <button class="toggle-btn" [class.active]="viewMode === 'map'" (click)="switchToMapView()"
+          [disabled]="stores.length === 0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
+            <path
+              d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
           </svg>
         </button>
       </div>
@@ -104,25 +104,21 @@
     <div class="list-toolbar" *ngIf="stores.length > 0">
       <div class="search-box">
         <svg class="search-box__icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/>
+          <path
+            d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
         </svg>
-        <input type="text" 
-               [(ngModel)]="searchQuery" 
-               (ngModelChange)="onSearchQueryChange()"
-               placeholder="Поиск по адресу..."
-               class="search-box__input">
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearchQueryChange()"
+          placeholder="Поиск по адресу..." class="search-box__input">
         <button class="search-box__clear" *ngIf="searchQuery" (click)="searchQuery = ''; onSearchQueryChange()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
           </svg>
         </button>
       </div>
 
       <label class="filter-chip" [class.active]="showOnlyOpen">
-        <input type="checkbox" 
-               [(ngModel)]="showOnlyOpen" 
-               (change)="toggleOpenOnly()"
-               class="filter-chip__input">
+        <input type="checkbox" [(ngModel)]="showOnlyOpen" (change)="toggleOpenOnly()" class="filter-chip__input">
         <span class="filter-chip__indicator"></span>
         <span class="filter-chip__text">Открыто</span>
       </label>
@@ -130,9 +126,7 @@
 
     <!-- Список -->
     <div class="list-items">
-      <div class="list-item" 
-           *ngFor="let store of filteredStores"
-           (click)="selectStore(store)">
+      <div class="list-item" *ngFor="let store of filteredStores" (click)="selectStore(store)">
         <div class="list-item__header">
           <span class="list-item__name">{{ store.shortName || store.fullName }}</span>
           <span class="list-item__status" [class.open]="isStoreOpen(store)">
@@ -140,19 +134,20 @@
             {{ isStoreOpen(store) ? 'Открыто' : 'Закрыто' }}
           </span>
         </div>
-        
+
         <div class="list-item__address">{{ getFullAddress(store) }}</div>
-        
+
         <div class="list-item__meta">
           <span class="meta-time">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.1.8-1.2-4.5-2.7V7z"/>
+              <path
+                d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.1.8-1.2-4.5-2.7V7z" />
             </svg>
             {{ getTodaySchedule(store).openTime }}–{{ getTodaySchedule(store).closeTime }}
           </span>
           <span class="meta-distance" *ngIf="getStoreDistance(store)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
             </svg>
             {{ formatDistance(getStoreDistance(store)!) }}
           </span>
@@ -161,7 +156,8 @@
 
       <div class="list-empty" *ngIf="filteredStores.length === 0 && !loadingStores">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12z"/>
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12z" />
         </svg>
         <p>Ничего не найдено</p>
       </div>
@@ -173,20 +169,20 @@
     <div class="map-nav">
       <button class="map-nav__back" (click)="switchToListView()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/>
+          <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
         </svg>
       </button>
       <span class="map-nav__title">{{ selectedCity }} · {{ stores.length }}</span>
       <button class="map-nav__geo" *ngIf="!useGeolocation" (click)="requestGeolocation()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
         </svg>
       </button>
     </div>
 
     <div class="map-container">
       <div #mapContainer class="yandex-map"></div>
-      
+
       <div class="map-legend" *ngIf="mapReady">
         <div class="legend-dot open"></div>
         <span>Открыто</span>
@@ -197,13 +193,13 @@
 
     <!-- Мини-карточки на карте -->
     <div class="map-cards">
-      <div class="map-card" 
-           *ngFor="let store of stores.slice(0, 3)"
-           [class.selected]="selectedStore?.id === store.id"
-           (click)="selectStore(store)">
+      <div class="map-card" *ngFor="let store of stores.slice(0, 3)" [class.selected]="selectedStore?.id === store.id"
+        (click)="selectStore(store)">
         <div class="map-card__info">
           <div class="map-card__name">{{ store.shortName }}</div>
-          <div class="map-card__address">{{ store.address?.street }}, {{ store.address?.house }}</div>
+          @if (store.address) {
+          <div class="map-card__address">{{ store.address.street }}, {{ store.address.house }}</div>
+          }
           <div class="map-card__meta">
             <span class="status-badge" [class.open]="isStoreOpen(store)">
               <span class="status-dot"></span>

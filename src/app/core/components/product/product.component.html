@@ -48,7 +48,7 @@
       <!-- Вторичные цены -->
       <div class="secondary-units">
         <div class="unit-chip highlight" *ngIf="product.packCount > 1">
-          <span class="chip-label">За 1 штуку</span>
+          <span class="chip-label">1 штука</span>
           <span class="chip-value">
             {{ (getPrice(city$ | async) / product.packCount) | number:'1.0-1' }}
           </span>

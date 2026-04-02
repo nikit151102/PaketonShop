@@ -9,6 +9,7 @@ import { StorageUtils } from '../../../utils/storage.utils';
 import { BusinessBlockComponent } from './components/business-block/business-block.component';
 import { CompareCommonBtnComponent } from '../../core/components/compare-common-btn/compare-common-btn.component';
 import { GroupsSectionComponent } from './components/groups-section/groups-section.component';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +21,8 @@ import { GroupsSectionComponent } from './components/groups-section/groups-secti
     ProductComponent,
     BusinessBlockComponent,
     CompareCommonBtnComponent,
-    GroupsSectionComponent
+    GroupsSectionComponent,
+    TitleComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -38,7 +40,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private categoryService: CategoryService,
     private productsService: ProductsService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadCategories();
