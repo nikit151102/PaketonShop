@@ -16,7 +16,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   styles: [':host { display: block; } button:disabled { opacity: 0.6; cursor: not-allowed; }']
 })
 export class YandexIdButtonComponent {
-  @Input() clientId: string = '84c49ef7adbf47128edf60cef9b6d23d';
+  // @Input() clientId: string = '84c49ef7adbf47128edf60cef9b6d23d';
+  @Input() clientId: string = 'b94a5e8ac2d14b009a5040f9c6102ca0';
   @Output() loginSuccess = new EventEmitter<any>();
   @Output() loginError = new EventEmitter<any>();
   
