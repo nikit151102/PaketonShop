@@ -20,65 +20,29 @@
   </div>
 
   <div class="content">
-    <span id="article">артикул: {{ product.article }}</span>
+    <span class="article">арт. {{ product.article }}</span>
     <h4>{{ product.fullName }}</h4>
-    <!-- Вместо старого price-units-block -->
-    <div class="price-display-block" *ngIf="getPrice(city$ | async)">
-      <!-- Старая цена и скидка -->
-      <span class="old-price" *ngIf="product.oldPrice">
-        {{ product.oldPrice }} ₽
+
+    <!-- Компактная информация о товаре -->
+    <div class="product-meta" *ngIf="product.packCount || product.boxCount">
+      <span class="meta-tag" *ngIf="product.packCount">
+        📦 {{ product.packCount }} шт/уп
       </span>
-      <div class="discount-badge" *ngIf="product.oldPrice">
-        -{{ (1 - getPrice(city$ | async) / product.oldPrice) * 100 | number:'1.0-0' }}%
-      </div>
-
-      <!-- Основная цена -->
-      <div class="main-unit-price">
-        <div class="unit-label">
-          <span class="unit-title">Упаковка</span>
-          <span class="unit-details" *ngIf="product.packCount">
-            {{ product.packCount }} шт
-          </span>
-        </div>
-        <span class="unit-value">
-          {{ getPrice(city$ | async) | number:'1.0-0' }}
-        </span>
-      </div>
-
-      <!-- Вторичные цены -->
-      <div class="secondary-units">
-        <div class="unit-chip highlight" *ngIf="product.packCount > 1">
-          <span class="chip-label">1 штука</span>
-          <span class="chip-value">
-            {{ (getPrice(city$ | async) / product.packCount) | number:'1.0-1' }}
-          </span>
-        </div>
-        <div class="unit-chip highlight" *ngIf="getActiveBasketCount() > 0">
-          <span class="chip-label">Итого:</span>
-          <span class="chip-value">
-            {{ (getActiveBasketCount() * getPrice(city$ | async)) | number:'1.0-1' }}
-          </span>
-        </div>
-
-        <div class="unit-chip" *ngIf="product.boxCount && product.packCount">
-          <span class="chip-label">Коробка</span>
-          <span class="chip-value">
-            {{ (getPrice(city$ | async) * product.boxCount) | number:'1.0-0' }}
-          </span>
-          <span class="chip-details">
-            {{ product.boxCount }} уп × {{ product.packCount }} шт
-          </span>
-        </div>
-      </div>
+      <span class="meta-tag" *ngIf="product.boxCount">
+        🧺 {{ product.boxCount }} уп/кор
+      </span>
+      <span class="meta-tag" *ngIf="product.packCount > 1">
+        {{ ( product.viewPrice / product.packCount ) | number:'1.2-2'}} ₽ за шт
+      </span>
     </div>
 
+    <!-- Блок управления корзиной -->
     <div class="cart-control-section">
-      <!-- Если товар есть в одной из корзин -->
-      <div *ngIf="hasProductInBaskets()" class="active-basket-controls">
+      <!-- Если товар есть в активной корзине - показываем контролы количества -->
+      <div *ngIf="isInActiveBasket()" class="active-basket-controls">
         <div class="add-cart-wrapper">
           <div class="quantity-selector">
-            <button class="add-cart" (click)="addToActiveBasket()">В корзине</button>
-            <div class="quantity-controls" *ngIf="isInActiveBasket()">
+            <div class="quantity-controls">
               <button class="quantity-btn" (click)="updateActiveBasketQty(-1)">−</button>
               <input class="input-quantity" type="number" [value]="getActiveBasketCount()" min="1"
                 (change)="updateActiveBasketQtyFromInput($event)" />
@@ -87,28 +51,39 @@
           </div>
 
           <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
-            <span class="arrow-icon"><svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                <linearGradient id="GradientSwatch" gradientUnits="userSpaceOnUse" x1="2" x2="14" y1="3" y2="13">
-                  <stop offset="0" stop-color="#87f1fc"></stop>
-                  <stop offset="0.2557" stop-color="#7fd4fb"></stop>
-                  <stop offset="0.5295" stop-color="#78bcfb"></stop>
-                  <stop offset="0.7844" stop-color="#74aefa"></stop>
-                  <stop offset="1" stop-color="#73a9fa"></stop>
-                </linearGradient>
-                <path
-                  d="M12.5 2.5H10c0 0.1-0.1 0.3-0.2 0.4-0.2 0.3-0.5 0.6-0.9 0.7-0.2 0.1-0.4 0.1-0.6 0.1H7.7c-0.2 0-0.4 0-0.6-0.1-0.4-0.1-0.7-0.4-0.9-0.7-0.1-0.1-0.2-0.3-0.2-0.4H3.5C2.7 2.5 2 3.2 2 4v9c0 0.8 0.7 1.5 1.5 1.5h9c0.8 0 1.5-0.7 1.5-1.5V4c0-0.8-0.7-1.5-1.5-1.5zM11 12H5c-0.3 0-0.5-0.2-0.5-0.5s0.2-0.5 0.5-0.5h6c0.3 0 0.5 0.2 0.5 0.5S11.3 12 11 12zM11 9H5c-0.3 0-0.5-0.2-0.5-0.5S4.7 8 5 8h6c0.3 0 0.5 0.2 0.5 0.5S11.3 9 11 9zM11 6H5C4.7 6 4.5 5.8 4.5 5.5S4.7 5 5 5h6c0.3 0 0.5 0.2 0.5 0.5S11.3 6 11 6zM9 3.5c0 0.3-0.2 0.5-0.5 0.5h-3C5.2 4 5 3.8 5 3.5S5.2 3 5.5 3h3c0.3 0 0.5 0.2 0.5 0.5z"
-                  fill="url(#GradientSwatch)" style="fill: rgb(50, 113, 32);"></path>
-                <circle cx="12.5" cy="4.5" r="1" fill="url(#GradientSwatch)" opacity="0.8"></circle>
-              </svg></span>
+            <span class="arrow-icon">📋</span>
             <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
               {{ getProductBaskets().length }}
             </span>
           </button>
         </div>
+
+        <!-- Доп. информация о количестве -->
+        <div class="basket-info-row">
+          <span class="total-label">Итого:</span>
+          <span class="total-value">{{ (getActiveBasketCount() * product.viewPrice) | number:'1.2-2' }} ₽</span>
+        </div>
+      </div>
+
+      <!-- Если товара нет в активной корзине, но есть в других корзинах -->
+      <div *ngIf="!isInActiveBasket() && hasProductInBaskets()" class="other-baskets-controls">
+        <div class="add-cart-wrapper">
+          <button class="add-cart add-to-active" (click)="addToActiveBasket()">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
+          </button>
+          <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
+            <span class="arrow-icon">📋</span>
+            <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
+              {{ getProductBaskets().length }}
+            </span>
+          </button>
+        </div>
+        <div class="basket-note">В других корзинах: {{ getProductBaskets().length }}</div>
       </div>
 
       <!-- Если товара нет ни в одной корзине -->
-      <div *ngIf="!hasProductInBaskets()" class="add-to-cart-section">
+      <div *ngIf="!hasProductInBaskets()" class="no-basket-controls">
         <div class="add-cart-wrapper">
           <div class="quantity-selector" *ngIf="quantitySelectorVisible">
             <div class="quantity-controls">
@@ -119,76 +94,74 @@
           </div>
 
           <button *ngIf="!quantitySelectorVisible" class="add-cart" (click)="addOneToCart()">
-            В корзину
+            <span class="cart-icon">🛒</span>
+            <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
           <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <linearGradient id="GradientSwatch" gradientUnits="userSpaceOnUse" x1="2" x2="14" y1="3" y2="13">
-                <stop offset="0" stop-color="#87f1fc"></stop>
-                <stop offset="0.2557" stop-color="#7fd4fb"></stop>
-                <stop offset="0.5295" stop-color="#78bcfb"></stop>
-                <stop offset="0.7844" stop-color="#74aefa"></stop>
-                <stop offset="1" stop-color="#73a9fa"></stop>
-              </linearGradient>
-              <path
-                d="M12.5 2.5H10c0 0.1-0.1 0.3-0.2 0.4-0.2 0.3-0.5 0.6-0.9 0.7-0.2 0.1-0.4 0.1-0.6 0.1H7.7c-0.2 0-0.4 0-0.6-0.1-0.4-0.1-0.7-0.4-0.9-0.7-0.1-0.1-0.2-0.3-0.2-0.4H3.5C2.7 2.5 2 3.2 2 4v9c0 0.8 0.7 1.5 1.5 1.5h9c0.8 0 1.5-0.7 1.5-1.5V4c0-0.8-0.7-1.5-1.5-1.5zM11 12H5c-0.3 0-0.5-0.2-0.5-0.5s0.2-0.5 0.5-0.5h6c0.3 0 0.5 0.2 0.5 0.5S11.3 12 11 12zM11 9H5c-0.3 0-0.5-0.2-0.5-0.5S4.7 8 5 8h6c0.3 0 0.5 0.2 0.5 0.5S11.3 9 11 9zM11 6H5C4.7 6 4.5 5.8 4.5 5.5S4.7 5 5 5h6c0.3 0 0.5 0.2 0.5 0.5S11.3 6 11 6zM9 3.5c0 0.3-0.2 0.5-0.5 0.5h-3C5.2 4 5 3.8 5 3.5S5.2 3 5.5 3h3c0.3 0 0.5 0.2 0.5 0.5z"
-                fill="url(#GradientSwatch)" style="fill: rgb(50, 113, 32);"></path>
-              <circle cx="12.5" cy="4.5" r="1" fill="url(#GradientSwatch)" opacity="0.8"></circle>
-            </svg>
-
+            <span class="arrow-icon">📋</span>
             <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
               {{ getProductBaskets().length }}
             </span>
           </button>
-
         </div>
+      </div>
+    </div>
+
+    <!-- Скрытая дополнительная информация при наведении -->
+    <div class="price-hover-info" *ngIf="product.viewPrice">
+      <div class="hover-unit" *ngIf="product.packCount > 1">
+        <span>За шт:</span>
+        <strong>{{ (product.viewPrice / product.packCount) | number:'1.2-2' }} ₽</strong>
+      </div>
+      <div class="hover-unit" *ngIf="product.boxCount && product.packCount">
+        <span>Коробка:</span>
+        <strong>{{ (product.viewPrice * product.boxCount) | number:'1.2-2' }} ₽</strong>
+      </div>
+      <div class="hover-unit" *ngIf="product.oldPrice">
+        <span>Скидка:</span>
+        <strong class="discount-text">-{{ (1 - product.viewPrice / product.oldPrice) * 100 | number:'1.2-2' }}%</strong>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Быстрый просмотр товара -->
+<!-- Быстрый просмотр товара (оставлен без изменений) -->
 <div class="quick-view-modal" *ngIf="showQuickView">
   <div class="overlay" (click)="closeQuickView()"></div>
-
   <div class="modal-content">
     <button class="close" (click)="closeQuickView()">✖</button>
-
     <div class="modal-body">
       <div class="product-left">
         <img [src]="product.productImageLinks[0] || 'assets/images/no-image.png'" alt="{{ product.fullName }}" />
       </div>
-
       <div class="product-right">
         <h3>{{ product.fullName }}</h3>
         <span class="product-id">Артикул: {{ product.article }}</span>
-
         <p class="description">{{ product.description }}</p>
 
-        <!-- Блок цен в модалке -->
+        <!-- Блок цен в модалке (полный вариант) -->
         <div class="price-units-block-modal">
           <div class="price-unit-main">
             <div class="unit-price-large">
               <span class="unit-type">Упаковка:</span>
-              <span class="unit-value-large">{{ getPrice(city$ | async) | number:'1.0-0' }} ₽</span>
+              <span class="unit-value-large">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
               <span *ngIf="product.packCount" class="unit-count">({{ product.packCount }} шт.)</span>
             </div>
             <div class="unit-prices-list">
               <div class="unit-price-item" *ngIf="product.packCount">
                 <span class="item-label">За штуку:</span>
-                <span class="item-value">{{ (getPrice(city$ | async) / product.packCount) | number:'1.0-1' }} ₽</span>
+                <span class="item-value">{{ (product.viewPrice / product.packCount) | number:'1.2-2' }} ₽</span>
               </div>
               <div class="unit-price-item" *ngIf="product.boxCount && product.packCount">
                 <span class="item-label">Коробка ({{ product.boxCount }} уп.):</span>
-                <span class="item-value">{{ (getPrice(city$ | async) * product.boxCount) | number:'1.0-0' }} ₽</span>
+                <span class="item-value">{{ (product.viewPrice * product.boxCount) | number:'1.2-2' }} ₽</span>
               </div>
             </div>
           </div>
-
           <div class="old-price-discount-modal" *ngIf="product.oldPrice">
             <span class="old-price-modal">{{ product.oldPrice }} ₽</span>
             <span class="discount-modal">
-              -{{ (1 - getPrice(city$ | async) / product.oldPrice) * 100 | number:'1.0-0' }}%
+              -{{ (1 - product.viewPrice / product.oldPrice) * 100 | number:'1.0-0' }}%
             </span>
           </div>
         </div>
@@ -216,7 +189,6 @@
           </div>
         </div>
 
-        <!-- Контролы для быстрого просмотра -->
         <div class="cart-control-modal">
           <div *ngIf="isInActiveBasket()" class="active-basket-controls">
             <div class="quantity-selector">
@@ -228,18 +200,15 @@
               </div>
             </div>
           </div>
-
           <div *ngIf="!isInActiveBasket()">
             <div class="quantity-selector">
               <button class="quantity-btn" (click)="decreaseQty()">−</button>
               <input type="number" [(ngModel)]="selectedQuantity" min="1" />
               <button class="quantity-btn" (click)="increaseQty()">+</button>
             </div>
-
             <button class="add-cart" (click)="addToActiveBasket()">Добавить в активную корзину</button>
           </div>
         </div>
-
         <div class="total-price" *ngIf="isInActiveBasket()">
           Общая сумма: {{ getActiveBasketTotal() }} ₽
         </div>
@@ -250,10 +219,6 @@
     </div>
   </div>
 </div>
-
-
-
-
 
 <app-basket-manager-modal [visible]="showBasketPopup" [product]="product" [baskets]="baskets"
   [selectedBasketId]="selectedBasketId" [searchTerm]="basketSearchTerm" (close)="closeBasketManager()"

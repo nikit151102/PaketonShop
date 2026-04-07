@@ -1,4 +1,5 @@
 <section class="groups">
+
   <!-- Индикатор загрузки -->
   <div *ngIf="isLoading" class="loading-state">
     <div class="spinner"></div>
@@ -15,67 +16,98 @@
 
   <!-- Категории -->
   <ng-container *ngIf="!isLoading && !error">
-    <div class="category-container" *ngFor="let category of visibleCategories; let i = index">
-      <div class="category-card" [ngClass]="category.widthClass" (click)="onNicheClick(category)">
-        <!-- Левая часть с контентом -->
-        <div class="category-content">
-          <div class="category-header">
-            <h3 class="category-title">{{ category.name }}</h3>
-            <div class="category-arrow">→</div>
+    <div class="categories-grid">
+      <div class="category-container" *ngFor="let category of visibleCategories; let i = index">
+        <div class="category-card" [ngClass]="[category.widthClass, category.image ? 'has-image' : 'no-image']" 
+             (click)="onNicheClick(category)"
+             [style.animation-delay]="i * 0.05 + 's'">
+          
+          <!-- Декоративный фон -->
+          <div class="card-bg-pattern"></div>
+          
+          <!-- Левая часть с контентом -->
+          <div class="category-content">
+            <div class="category-header">
+              <h3 class="category-title">{{ category.name }}</h3>
+              <div class="category-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Количество товаров -->
+            <div class="product-badge" *ngIf="category.productCount > 0">
+              <span class="product-count">{{ category.productCount }}</span>
+              <span class="product-label">товаров</span>
+            </div>
+
+            <!-- Подкатегории -->
+            <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
+              <span class="tag" *ngFor="let subcategory of category.subcategories.slice(0, 4)">
+                {{ subcategory.name || subcategory }}
+              </span>
+              <span class="tag more-tag" *ngIf="category.subcategories.length > 3">
+                +{{ category.subcategories.length - 3 }}
+              </span>
+            </div>
+
+            <!-- Описание -->
+            <p class="category-description" *ngIf="(!category.subcategories || category.subcategories.length === 0) && category.description">
+              {{ category.description }}
+            </p>
           </div>
 
-          <!-- Количество товаров (если есть) -->
-          <div class="product-count" *ngIf="category.productCount > 0">
-            {{ category.productCount }} товаров
-          </div>
-
-          <!-- Подкатегории -->
-          <div class="category-tags" *ngIf="category.subcategories && category.subcategories.length > 0">
-            <span class="tag" *ngFor="let subcategory of category.subcategories.slice(0, 3)">
-              {{ subcategory.name || subcategory }}
-            </span>
-            <span class="tag more-tag" *ngIf="category.subcategories.length > 3">
-              +{{ category.subcategories.length - 3 }}
-            </span>
-          </div>
-
-          <!-- Описание, если нет подкатегорий -->
-          <div class="category-description" *ngIf="(!category.subcategories || category.subcategories.length === 0) && category.description">
-            {{ category.description }}
+          <!-- Правая часть с изображением -->
+          <div class="category-image" *ngIf="category.image">
+            <div class="image-wrapper">
+              <img [src]="category.image" [alt]="category.name" loading="lazy" />
+              <div class="image-overlay"></div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Правая часть с изображением -->
-        <div class="category-image" *ngIf="category.image">
-          <img [src]="category.image" [alt]="category.name" loading="lazy" 
-             />
+      <!-- Карточка "Другие готовые решения" -->
+      <div class="category-container" *ngIf="categories.length > 0">
+        <div class="category-card other-solutions" [routerLink]="'/niches'">
+          <div class="card-bg-pattern"></div>
+          <div class="category-content">
+            <div class="category-header">
+              <h3 class="category-title">Другие готовые решения</h3>
+              <div class="category-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="solutions-info">
+              <p class="solutions-text">Все товары для вашего бизнеса</p>
+            </div>
+          </div>
+          <div class="category-image">
+            <div class="icon-placeholder">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 7L4 7M20 12L4 12M20 17L4 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="18" cy="7" r="2" stroke="currentColor" stroke-width="2"/>
+                <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="2"/>
+                <circle cx="18" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Карточка "Другие готовые решения" (показываем только если есть категории) -->
-    <div class="category-container" *ngIf="categories.length > 0">
-      <div class="category-card other-solutions" [routerLink]="'/niches'">
-        <div class="category-content">
-          <div class="category-header">
-            <h3 class="category-title">Другие готовые решения</h3>
-            <div class="category-arrow">→</div>
-          </div>
-          <div class="category-description">
-            Все категории товаров
-          </div>
-        </div>
-        <div class="category-image">
-          <div class="icon-placeholder">📦</div>
-        </div>
-      </div>
+    <!-- Кнопка "Показать все" -->
+    <div class="toggle-button-container" *ngIf="categories.length > 2 * maxPerRow">
+      <button class="toggle-button" (click)="toggleShowAll()">
+        <span>{{ showAll ? 'Свернуть' : 'Показать все' }}</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" 
+             [class.rotated]="showAll">
+          <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
   </ng-container>
-
-  <!-- Кнопка "Показать все/свернуть" (если нужно) -->
-  <div class="toggle-button-container" *ngIf="categories.length > 2 * maxPerRow">
-    <button class="toggle-button" (click)="toggleShowAll()">
-      {{ showAll ? 'Свернуть' : 'Показать все' }}
-    </button>
-  </div>
 </section>

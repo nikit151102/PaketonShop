@@ -13,6 +13,12 @@ export const routes: Routes = [
       import('./modules/user/user-routes').then((m) => m.userRoutes),
   },
   {
+    path: 'auth/yandex-callback',
+    loadComponent: () =>
+      import('./modules/home/home.component').then((m) => m.HomeComponent),
+    data: { reuse: true }
+  },
+  {
     path: 'product/:id',
     loadComponent: () =>
       import('./modules/card/card.component').then((m) => m.CardComponent),
@@ -34,12 +40,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/about/about.component').then((m) => m.AboutComponent),
   },
-    {
+  {
     path: 'news',
     loadComponent: () =>
       import('./modules/news/news.component').then((m) => m.NewsComponent),
   },
-      {
+  {
     path: 'news/:id',
     loadComponent: () =>
       import('./modules/news-detail/news-detail.component').then((m) => m.NewsDetailComponent),

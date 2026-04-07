@@ -9,7 +9,10 @@
                     <circle cx="8" cy="20" r="1.5" stroke="#327120" stroke-width="1.5" />
                     <circle cx="16" cy="20" r="1.5" stroke="#327120" stroke-width="1.5" />
                 </svg>
-                <h3>Управление корзинами</h3>
+                <div class="header-text">
+                    <h3>Управление корзинами</h3>
+                    <p class="header-subtitle">Создавайте корзины и управляйте количеством товаров</p>
+                </div>
             </div>
             <button class="close-btn" (click)="close.emit()">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -22,7 +25,7 @@
         <div class="product-info" *ngIf="product">
             <div class="product-image">
                 <img [src]="product.productImageLinks?.[0] || 'assets/images/no-image.png'" [alt]="product.fullName">
-                    <!-- onerror="this.src='assets/images/no-image.png'" -->
+                <!-- onerror="this.src='assets/images/no-image.png'" -->
             </div>
             <div class="product-details">
                 <div class="product-name">{{ product.fullName || 'Товар' }}</div>
@@ -83,8 +86,7 @@
                         </button>
 
                         <input type="number" class="quantity-input" [value]="item.count" min="1"
-                            (change)="updateQuantityInput($event, basket.id)"
-                            (click)="$event.stopPropagation()">
+                            (change)="updateQuantityInput($event, basket.id)" (click)="$event.stopPropagation()">
 
                         <button class="quantity-btn plus"
                             (click)="updateQuantity.emit({basketId: basket.id, delta: 1})">

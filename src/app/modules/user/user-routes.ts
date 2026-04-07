@@ -21,14 +21,13 @@ export const userRoutes: Routes = [
             (m) => m.UserDataComponent,
           ),
       },
-            {
+      {
         path: 'companies',
         loadComponent: () =>
           import('./tabs/companies/companies.component').then(
             (m) => m.CompaniesComponent,
           ),
       },
-      
       {
         path: 'dashboard',
         loadComponent: () =>
@@ -36,7 +35,6 @@ export const userRoutes: Routes = [
             (m) => m.DashboardComponent,
           ),
       },
-
       {
         path: 'orderHistory',
         loadComponent: () =>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, Input, OnInit } from '@angular/core';
+import { Component, computed, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from '../../pipes/clear-url';
@@ -25,7 +25,8 @@ export class ProductComponent implements OnInit {
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
   @Input() product!: any;
-
+  @Output() onFavoriteRemoved = new EventEmitter<{ productId: string, product: any, undo: () => void }>();
+  
   isUserBasket: boolean = false;
   city$!: typeof this.locationService.city$;
   inCart: boolean = false;
@@ -135,6 +136,10 @@ export class ProductComponent implements OnInit {
       this.inCart = true;
       this.quantitySelectorVisible = true;
       this.selectedQuantity = this.getTotalProductCount();
+    } else {
+      this.inCart = false;
+      this.quantitySelectorVisible = false;
+      this.selectedQuantity = 1;
     }
   }
 
@@ -181,10 +186,24 @@ export class ProductComponent implements OnInit {
     const newCount = currentCount + delta;
 
     if (newCount <= 0) {
-      this.removeFromSpecificBasket({ userBasketId: activeBasketId });
+      // Удаляем товар из корзины
+      this.basketsService
+        .changeProductFromBasket(activeBasketId, this.product.id, 0)
+        .pipe(take(1))
+        .subscribe({
+          next: () => {
+            this.loadUpdatedProductData();
+            // Сбрасываем состояние после удаления
+            this.inCart = false;
+            this.quantitySelectorVisible = false;
+            this.selectedQuantity = 1;
+          },
+          error: (err) => console.error('Ошибка при удалении товара из корзины:', err),
+        });
       return;
     }
 
+    // Обновляем количество
     this.basketsService
       .addProduct({
         productId: this.product.id,
@@ -254,6 +273,12 @@ export class ProductComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadUpdatedProductData();
+          // Сбрасываем состояние для текущего товара
+          if (basketItem.userBasketId === this.activeBasketId) {
+            this.inCart = false;
+            this.quantitySelectorVisible = false;
+            this.selectedQuantity = 1;
+          }
         },
         error: (err) =>
           console.error('Ошибка при удалении товара из корзины:', err),
@@ -263,12 +288,12 @@ export class ProductComponent implements OnInit {
   private loadUpdatedProductData(): void {
     this.productsService.getById(this.product.id).subscribe((values: any) => {
       this.product = values.data;
-    });
-    setTimeout(() => {
+      // Обновляем состояние корзины после загрузки
       this.checkProductInBaskets();
       this.hideBasketDetails();
-    }, 300);
+    });
   }
+
 
   getPrice(city: any | null): number {
     if (city === 'Барнаул') {

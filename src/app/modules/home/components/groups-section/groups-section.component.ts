@@ -12,7 +12,7 @@ import { NicheProductsService, NewsBannerFilterDto, SortType } from '../../../..
 export class GroupsSectionComponent implements OnInit {
   @Input() showAll = true;
   @Input() maxPerRow = 5;
-  @Input() pageSize = 3; // Количество ниш для загрузки
+  @Input() pageSize = 5; // Количество ниш для загрузки
 
   categories: any[] = [];
   isLoading = false;
@@ -21,7 +21,7 @@ export class GroupsSectionComponent implements OnInit {
   constructor(
     private router: Router,
     private nicheProductsService: NicheProductsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadNicheCategories();
@@ -63,50 +63,8 @@ export class GroupsSectionComponent implements OnInit {
         console.error('Ошибка загрузки ниш:', error);
         this.error = 'Не удалось загрузить категории';
         this.isLoading = false;
-        
-        // Если API не работает, используем тестовые данные
-        this.loadMockData();
       }
     });
-  }
-
-  // Метод для тестовых данных, если API недоступно
-  private loadMockData(): void {
-    this.categories = [
-      {
-        id: '1',
-        name: 'Одноразовая посуда',
-        description: 'Широкий выбор одноразовой посуды',
-        image: 'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
-        productCount: 45,
-        subcategories: [
-          { name: 'Бумажная посуда', slug: 'paper-tableware' },
-          { name: 'Пластиковая посуда', slug: 'plastic-tableware' },
-          { name: 'Посуда премиум-класса', slug: 'premium-tableware' },
-        ],
-        widthClass: this.getRandomWidthClass()
-      },
-      {
-        id: '2',
-        name: 'Биоразлагаемая посуда',
-        image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80',
-        productCount: 32,
-        subcategories: [
-          { name: 'Набор тарелок биоразлагаемых', slug: 'biodegradable-plates-set' },
-          { name: 'Стаканы', slug: 'cups' },
-          { name: 'Столовые приборы', slug: 'cutlery' },
-        ],
-        widthClass: this.getRandomWidthClass()
-      },
-      {
-        id: '3',
-        name: 'Кемпинг',
-        description: 'Всё для отдыха на природе',
-        productCount: 28,
-        subcategories: [],
-        widthClass: this.getRandomWidthClass()
-      }
-    ];
   }
 
   // Получаем изображение по умолчанию на основе названия категории
@@ -117,7 +75,7 @@ export class GroupsSectionComponent implements OnInit {
       'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=400&q=80',
       'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=400&q=80'
     ];
-    
+
     // Используем хеш названия для выбора изображения
     const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return defaultImages[hash % defaultImages.length];

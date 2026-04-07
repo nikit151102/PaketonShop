@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit, ElementRef, ViewChild, Input, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environment';
+import { lastValueFrom } from 'rxjs';
 
 declare global {
   interface Window {
@@ -13,12 +16,6 @@ declare global {
   imports: [CommonModule],
   template: `
     <div #vkWidgetContainer></div>
-    
-    <!-- Блок для отображения данных пользователя -->
-    <div *ngIf="userData" class="user-info" style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
-      <h3>Данные пользователя:</h3>
-      <pre style="background: #eee; padding: 10px; border-radius: 4px; overflow: auto;">{{ userData | json }}</pre>
-    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -32,19 +29,31 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
   
   userData: any = null;
   private isWidgetInitialized = false;
+  isLoading = false;
 
-  constructor(private router: Router, private ngZone: NgZone) {}
+  constructor(
+    private router: Router, 
+    private ngZone: NgZone,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
-    // Загружаем сохраненные данные
     this.loadUserData();
-    
-    // Слушаем сообщения из iframe/popup
-    window.addEventListener('message', this.handleMessage.bind(this));
+    this.checkUrlForCode();
   }
 
-  ngOnDestroy() {
-    window.removeEventListener('message', this.handleMessage.bind(this));
+  private checkUrlForCode(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code && state) {
+      console.log('🔑 Найден code в URL:', code);
+      // Очищаем URL от параметров
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Отправляем код на бекенд
+      this.exchangeCodeForToken(code);
+    }
   }
 
   private loadUserData(): void {
@@ -59,16 +68,6 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
     this.userData = data;
     localStorage.setItem('vk_user_data', JSON.stringify(data));
     console.log('💾 Сохранены данные пользователя:', data);
-  }
-
-  private handleMessage(event: MessageEvent): void {
-    // Проверяем, что сообщение пришло от VK
-    if (event.data && event.data.type === 'VKID_AUTH_SUCCESS') {
-      this.ngZone.run(() => {
-        console.log('✅ Получены данные авторизации:', event.data.payload);
-        this.saveUserData(event.data.payload);
-      });
-    }
   }
 
   ngAfterViewInit(): void {
@@ -101,100 +100,99 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
       
       console.log('🚀 VKID SDK загружен, инициализация...');
       
-      // Очищаем контейнер
       this.containerRef.nativeElement.innerHTML = '';
 
       const widgetContainer = document.createElement('div');
       widgetContainer.id = 'vkid-one-tap-container';
       this.containerRef.nativeElement.appendChild(widgetContainer);
 
-      // Используем Callback режим для получения данных без редиректа
+      // Инициализация конфигурации - используем редирект режим
       VKID.Config.init({
         app: this.appId,
-        redirectUrl: this.redirectUrl,
-        responseMode: VKID.ConfigResponseMode.Callback, // Важно: Callback режим
+        redirectUrl: this.redirectUrl, // После авторизации редирект сюда же с code в URL
+        responseMode: VKID.ConfigResponseMode.Redirect, // Меняем на Redirect режим
         source: VKID.ConfigSource.LOWCODE,
         scope: 'email phone',
-        state: this.generateState() // Добавляем state для безопасности
+        state: this.generateState()
       });
 
       const oneTap = new VKID.OneTap();
 
       oneTap.render({
         container: widgetContainer,
-        showAlternativeLogin: true,
-        oauthList: ['ok_ru', 'mail_ru'],
+        // showAlternativeLogin: true,
+        oauthList: ['vkid', 'ok_ru', 'mail_ru'],
         styles: {
           borderRadius: 16,
           height: 48
         }
       });
 
-      // Обработка успешной авторизации (для Callback режима)
+      // Обработка успешной авторизации (для Redirect режима)
       oneTap.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload: any) => {
-        console.log('🎉 Успешная авторизация VK ID!');
-        console.log('📊 Полученные данные:', payload);
-        
-        // Получаем токен доступа
-        const accessToken = payload.access_token;
-        
-        if (accessToken) {
-          // Запрашиваем данные пользователя через API VK
-          this.getVKUserInfo(accessToken);
-        } else {
-          console.log('Данные из payload:', payload);
-          this.saveUserData(payload);
-        }
+        console.log('🎉 LOGIN_SUCCESS:', payload);
+        this.ngZone.run(() => {
+          // В Redirect режиме payload может содержать code
+          if (payload.code) {
+            this.exchangeCodeForToken(payload.code);
+          }
+        });
       });
 
       oneTap.on(VKID.WidgetEvents.ERROR, (error: any) => {
         console.error('❌ Ошибка VK виджета:', error);
       });
 
-      // Обработка токена (если пришел сразу)
-      oneTap.on(VKID.WidgetEvents.TOKEN_RECEIVED, (tokenData: any) => {
-        console.log('🔑 Получен токен:', tokenData);
-        this.getVKUserInfo(tokenData.access_token);
-      });
-
       this.isWidgetInitialized = true;
-      console.log('✅ VK виджет инициализирован в Callback режиме');
+      console.log('✅ VK виджет инициализирован в Redirect режиме');
+      console.log('📋 Redirect URL:', this.redirectUrl);
       
     } catch (error) {
       console.error('❌ Ошибка инициализации VK виджета:', error);
     }
   }
 
-  private getVKUserInfo(accessToken: string): void {
-    console.log('🔄 Запрашиваем данные пользователя через API VK...');
+  private async exchangeCodeForToken(code: string): Promise<void> {
+    console.log('🔄 Обмен code на токен через бекенд...');
+    console.log('📝 Code:', code);
+    this.isLoading = true;
     
-    // Запрашиваем данные пользователя через VK API
-    fetch(`https://api.vk.com/method/users.get?access_token=${accessToken}&v=5.131&fields=email,phone,photo_50,photo_100`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.response && data.response[0]) {
-          const userInfo = data.response[0];
-          console.log('👤 Данные пользователя из VK API:', userInfo);
-          
-          const fullUserData = {
-            id: userInfo.id,
-            first_name: userInfo.first_name,
-            last_name: userInfo.last_name,
-            email: userInfo.email || null,
-            phone: userInfo.phone || null,
-            photo: userInfo.photo_100 || userInfo.photo_50,
-            access_token: accessToken
-          };
-          
-          console.log('✅ Полные данные пользователя:', fullUserData);
-          this.saveUserData(fullUserData);
-        } else {
-          console.warn('⚠️ Не удалось получить данные пользователя:', data);
-        }
-      })
-      .catch(error => {
-        console.error('❌ Ошибка при запросе данных VK API:', error);
-      });
+    try {
+      const apiUrl = `${environment.production}/api/project/testRequestBody`;
+      console.log('📡 URL запроса:', apiUrl);
+      
+      const requestData = {
+        provider: 'vk',
+        code: code,
+        redirectUrl: this.redirectUrl,
+        appId: this.appId
+      };
+      console.log('📤 Данные запроса:', requestData);
+      
+      const response = await lastValueFrom(
+        this.http.post<any>(apiUrl, requestData)
+      );
+      
+      console.log('✅ Ответ от бекенда:', response);
+      
+      if (response) {
+        this.saveUserData(response);
+        this.isLoading = false;
+        
+        // Можно сделать редирект или показать уведомление
+        // this.router.navigate(['/profile']);
+      }
+      
+    } catch (error: any) {
+      console.error('❌ Ошибка при обмене code на токен:', error);
+      if (error.status === 404) {
+        console.error('❌ Эндпоинт не найден! Проверьте URL:', `${environment.production}/api/project/testRequestBody`);
+      }
+      if (error.status === 401) {
+        console.error('❌ Ошибка авторизации');
+      }
+      this.isLoading = false;
+    }
   }
 
   private generateState(): string {

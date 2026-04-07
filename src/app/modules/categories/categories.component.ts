@@ -32,7 +32,7 @@ export class CategoriesComponent implements OnInit {
   loading: boolean = false;
   loadingMore: boolean = false;
   error: string = '';
-  currentPage: number = 0;
+  currentPage: number = 1;
   pageSize: number = 20;
   totalItems: number = 0;
   totalPages: number = 0;

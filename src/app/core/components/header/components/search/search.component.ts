@@ -419,14 +419,10 @@ private setupScrollListener() {
   }
 
 onSearch() {
-  console.log('onSearch called with:', JSON.stringify(this.searchQuery));
-  console.log('Input value after space:', this.searchInput?.nativeElement?.value);
-  
   // Принудительно обновляем модель из DOM, если нужно
   if (this.searchInput && this.searchInput.nativeElement) {
     const domValue = this.searchInput.nativeElement.value;
     if (domValue !== this.searchQuery) {
-      console.log('DOM value differs:', JSON.stringify(domValue));
       this.searchQuery = domValue;
     }
   }

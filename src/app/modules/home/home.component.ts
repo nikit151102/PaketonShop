@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
   products: any[] = [];
   loading: boolean = false;
   error: string = '';
-  currentPage: number = 0;
+  currentPage: number = 1;
   pageSize: number = 20;
   totalItems: number = 0;
   selectedCategory: string = '';
