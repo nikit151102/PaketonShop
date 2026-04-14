@@ -22,7 +22,7 @@ import { YandexIdButtonComponent } from '../../core/components/yandex-id-button/
 
 @Component({
   selector: 'app-auth',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, VkIdWidgetComponent,YandexIdButtonComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, VkIdWidgetComponent, YandexIdButtonComponent],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss',
 })
@@ -138,10 +138,10 @@ export class AuthComponent implements OnInit, OnDestroy {
   // Check if password meets all requirements
   isPasswordValid(password: string | null | undefined): boolean {
     if (!password) return false;
-    return password.length >= 8 && 
-           this.hasLowercase(password) && 
-           this.hasUppercase(password) && 
-           this.hasNumbers(password);
+    return password.length >= 8 &&
+      this.hasLowercase(password) &&
+      this.hasUppercase(password) &&
+      this.hasNumbers(password);
   }
 
   // Update error messages
@@ -191,6 +191,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           this.handleLoginSuccess(response);
           this.userApiService.getOperativeInfo();
+          this.userService.updateIsAuthUser(true);
         },
         error: (error) => {
           this.handleError(error);
@@ -210,6 +211,7 @@ export class AuthComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.handleRegistrationSuccess(res);
           this.userApiService.getOperativeInfo();
+          this.userService.updateIsAuthUser(true);
         },
         error: (err) => {
           this.handleError(err);

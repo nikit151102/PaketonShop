@@ -1,6 +1,3 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 :host {
   display: block;
   min-height: 100vh;
@@ -284,7 +281,7 @@
       .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-        gap: 24px;
+        gap: 10px;
         margin-bottom: 40px;
         
         .product-card {

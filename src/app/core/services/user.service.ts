@@ -2,9 +2,11 @@ import { Injectable, signal, Signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   localStorageEnvironment,
+  memoryCacheEnvironment,
   sessionStorageEnvironment,
 } from '../../../environment';
 import { HttpClient } from '@angular/common/http';
+import { StorageUtils } from '../../../utils/storage.utils';
 
 export interface User {
   id: string;
@@ -19,6 +21,26 @@ export interface User {
 export class UserService {
   private userSubject: BehaviorSubject<User | null>;
   public user$: Observable<User | null>;
+
+
+  public authUser = signal<boolean>(false);
+  public isAuthUser = this.authUser.asReadonly();
+
+  private basketsSignal = signal<any[] | null>(null);
+  public baskets = this.basketsSignal.asReadonly();
+
+  updateIsAuthUser(value: boolean): void {
+    this.authUser.set(value);
+  }
+
+   updateBaskets(baskets: any[] | null): void {
+    this.basketsSignal.set(baskets);
+  }
+  
+  loadBaskets(): void {
+    const baskets = StorageUtils.getMemoryCache(memoryCacheEnvironment.baskets.key);
+    this.updateBaskets(Array.isArray(baskets) ? baskets : null);
+  }
 
   constructor(private http: HttpClient) {
     const savedUser =

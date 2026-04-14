@@ -8,11 +8,11 @@
 
   <div class="image-wrapper">
     <img *ngIf="product.imageLinks" [src]="
-        product.imageLinks[0] || 'assets/images/no-image.png'
+        product.imageLinks[0] || 'no-image.png'
           | cleanStringLink
       " alt="{{ product.fullName }}" />
     <img *ngIf="product.productImageLinks" [src]="
-        product.productImageLinks[0] || 'assets/images/no-image.png'
+        product.productImageLinks[0] || 'no-image.png'
           | cleanStringLink
       " alt="{{ product.fullName }}" />
 

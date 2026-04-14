@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Inject, inject, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from '../../pipes/clear-url';
@@ -14,6 +14,7 @@ import { ProductsService } from '../../services/products.service';
 import { AuthService } from '../../services/auth.service';
 import { UserApiService } from '../../api/user.service';
 import { BasketManagerModalComponent } from '../basket-manager-modal/basket-manager-modal.component';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-product',
@@ -26,7 +27,7 @@ export class ProductComponent implements OnInit {
   @Input() showCompare: boolean = true;
   @Input() product!: any;
   @Output() onFavoriteRemoved = new EventEmitter<{ productId: string, product: any, undo: () => void }>();
-  
+
   isUserBasket: boolean = false;
   city$!: typeof this.locationService.city$;
   inCart: boolean = false;
@@ -44,10 +45,13 @@ export class ProductComponent implements OnInit {
     private basketsService: BasketsService,
     private productsService: ProductsService,
     private comparingService: ComparingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private userService: UserService
   ) { }
 
   private userApiService = inject(UserApiService);
+
+
 
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
@@ -56,27 +60,38 @@ export class ProductComponent implements OnInit {
   }
 
   private get activeBasketId(): string | null {
-    const baskets: any = StorageUtils.getMemoryCache(
-      memoryCacheEnvironment.baskets.key,
-    );
+    if (this.userService.authUser()) {
+      const baskets: any = StorageUtils.getMemoryCache(
+        memoryCacheEnvironment.baskets.key,
+      );
 
-    if (!baskets || !Array.isArray(baskets)) {
-      this.isUserBasket = false;
+      if (!baskets || !Array.isArray(baskets)) {
+        this.isUserBasket = false;
+        return null;
+      }
+
+      this.isUserBasket = true;
+      const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
+      return activeBasket?.id ?? null;
+    }
+    else {
       return null;
     }
 
-    this.isUserBasket = true;
-    const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
-    return activeBasket?.id ?? null;
   }
 
   public get baskets(): any | null {
-    const baskets: any = StorageUtils.getMemoryCache(
-      memoryCacheEnvironment.baskets.key,
-    );
-    this.filteredBaskets = baskets;
-    this.isUserBasket = true;
-    return baskets;
+    if (this.userService.authUser()) {
+      const baskets: any = StorageUtils.getMemoryCache(
+        memoryCacheEnvironment.baskets.key,
+      );
+      this.filteredBaskets = baskets;
+      this.isUserBasket = true;
+      return baskets;
+    }
+    else {
+      return null;
+    }
   }
 
   isInActiveBasket(): boolean {
