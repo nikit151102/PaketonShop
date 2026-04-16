@@ -713,6 +713,7 @@
             display: flex;
             gap: 12px;
             margin-top: 16px;
+            flex-direction: row;
         }
 
         .range-input-group {
@@ -874,11 +875,14 @@
     }
 }
 
+.filters-panel.close {
+    opacity: 0;
+}
+
 @media (max-width: 640px) {
     .filters-wrapper {
         .filters-panel.mobile {
             padding: 16px;
-            max-width: 100%;
         }
 
         .range-inputs {

@@ -141,6 +141,7 @@ private setupAutocomplete() {
     if (response?.data) {
       this.totalAutocompleteResults = response.total || response.data.length;
       this.autocompleteResults = this.mapAutocompleteResults(response.data);
+      console.log('autocompleteResults',this.autocompleteResults)
       this.hasMoreAutocomplete = response.data.length === this.pageSize;
 
       setTimeout(() => this.setupScrollListener(), 100);
@@ -240,7 +241,7 @@ private setupScrollListener() {
       name: product.fullName || product.name,
       sku: product.article || product.sku,
       image: this.getProductImage(product),
-      price: product.price || 0,
+      price: product.viewPrice || 0,
       inStock: product.inStock || false,
       category: product.category?.name
     }));
@@ -486,15 +487,7 @@ onSearch() {
     this.productsService.searchProducts(searchRequest).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-
-        // Навигация на страницу результатов
-        this.router.navigate(['/search'], {
-          queryParams: {
-            q: trimmedQuery,
-            ...this.getFilterParams()
-          }
-        });
-
+        
         // Показываем количество результатов
         if (response.total) {
           this.showNotification(`Найдено ${response.total} товаров`);

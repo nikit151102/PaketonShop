@@ -4,24 +4,17 @@
   <div class="search-bar" [class.focused]="isInputFocused" [class.has-results]="autocompleteResults.length">
     <div class="search-bar__wrapper">
       <!-- Иконка поиска -->
-      <svg class="search-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z" 
-              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <svg class="search-bar__icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M21 21L16.65 16.65M19 11C19 15.4183 15.4183 19 11 19C6.58172 19 3 15.4183 3 11C3 6.58172 6.58172 3 11 3C15.4183 3 19 6.58172 19 11Z"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
 
       <!-- Поле ввода -->
-      <input #searchInput
-             type="text"
-             class="search-bar__input"
-             placeholder="Поиск товаров..."
-             [(ngModel)]="searchQuery"
-             (input)="onSearch()"
-             (keyup.enter)="performSearch()"
-             (focus)="onInputFocus()"
-             (blur)="onInputBlur()"
-             (scroll)="onInputScroll()"
-             [attr.aria-label]="'Поиск'"
-      />
+      <input #searchInput type="text" class="search-bar__input" placeholder="Поиск товаров..." [(ngModel)]="searchQuery"
+        (input)="onSearch()" (keyup.enter)="performSearch()" (focus)="onInputFocus()" (blur)="onInputBlur()"
+        (scroll)="onInputScroll()" [attr.aria-label]="'Поиск'" />
 
       <!-- Индикатор загрузки -->
       <div class="search-bar__loader" *ngIf="isLoading">
@@ -29,20 +22,14 @@
       </div>
 
       <!-- Кнопка очистки -->
-      <button class="search-bar__clear" 
-              *ngIf="searchQuery" 
-              (click)="clearSearch()"
-              aria-label="Очистить поиск">
+      <button class="search-bar__clear" *ngIf="searchQuery" (click)="clearSearch()" aria-label="Очистить поиск">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
 
       <!-- Кнопка поиска -->
-      <button class="search-bar__submit" 
-              (click)="performSearch()"
-              [disabled]="isLoading"
-              aria-label="Найти">
+      <button class="search-bar__submit" (click)="performSearch()" [disabled]="isLoading" aria-label="Найти">
         Найти
       </button>
     </div>
@@ -62,58 +49,89 @@
     </button> -->
   </div>
 
-<!-- Выпадающий список автокомплита с нативным скроллом -->
-<div class="autocomplete-dropdown" 
-     *ngIf="autocompleteResults.length && isInputFocused"
-     #autocompleteDropdown>
-  
-  <div class="autocomplete-header">
-    <span class="autocomplete-title">Товары</span>
-    <!-- <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span> -->
-  </div>
+  <!-- Выпадающий список автокомплита с нативным скроллом -->
+  <!-- search.component.html (только часть с автокомплитом) -->
 
-  <div class="autocomplete-list" #autocompleteList>
-    <div class="autocomplete-item" 
-         *ngFor="let item of autocompleteResults; let i = index"
-         (click)="selectItem(item)"
-         [class.last]="i === autocompleteResults.length - 1">
-      
-      <div class="item-image">
-        <img [src]="item.image" 
-             [alt]="item.name"
-             loading="lazy"
-             (error)="handleImageError($event)">
-      </div>
-      
-      <div class="item-info">
-        <span class="item-name">{{ item.name }}</span>
-        <div class="item-details">
-          <span class="item-sku">Артикул: {{ item.sku }}</span>
-          <!-- <span class="item-price">{{ item.price | currency:'RUB':'symbol-narrow':'1.0-0' }}</span> -->
+  <!-- Выпадающий список автокомплита -->
+  <div class="autocomplete-dropdown" *ngIf="autocompleteResults.length && isInputFocused" #autocompleteDropdown>
+
+    <div class="autocomplete-header">
+      <span class="autocomplete-title">
+        Товары
+      </span>
+      <span class="autocomplete-count">{{ totalAutocompleteResults }} результатов</span>
+    </div>
+
+    <div class="autocomplete-list" #autocompleteList>
+      <div class="autocomplete-item" *ngFor="let item of autocompleteResults; let i = index" (click)="selectItem(item)">
+
+        <!-- Изображение товара -->
+        <div class="item-image">
+          <img [src]="item.image" [alt]="item.name" loading="lazy" (error)="handleImageError($event)">
+          <div class="item-stock" [class.in-stock]="item.inStock">
+            {{ item.inStock ? '✓' : '⏱' }}
+          </div>
         </div>
-        <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
+
+        <!-- Информация о товаре -->
+        <div class="item-info">
+          <div class="item-name-wrapper">
+            <span class="item-name">{{ item.name }}</span>
+            <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
+          </div>
+
+          <div class="item-details">
+            <div class="item-sku">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4L20 4M4 12L20 12M4 20L20 20M8 8L8 16M16 8L16 16" />
+              </svg>
+              Арт: {{ item.sku }}
+            </div>
+
+            <div class="item-price">
+              <span class="price-value">{{ item.price }} ₽</span>
+              <span class="price-unit" *ngIf="item.price > 0">/шт</span>
+            </div>
+          </div>
+
+          <!-- Дополнительная информация при наличии -->
+          <div class="item-extras" *ngIf="item.inStock">
+            <span class="delivery-badge">🚚 Доставка завтра</span>
+          </div>
+        </div>
+
+        <!-- Стрелка перехода -->
+        <div class="item-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18L15 12L9 6" />
+          </svg>
+        </div>
       </div>
 
-      <!-- <div class="item-status" [class.in-stock]="item.inStock">
-        {{ item.inStock ? 'В наличии' : 'Под заказ' }}
-      </div> -->
-    </div>
-
-    <!-- Индикатор загрузки при подгрузке -->
-    <div class="autocomplete-loader" *ngIf="isLoadingMore">
-      <div class="loader-dots">
-        <span></span>
-        <span></span>
-        <span></span>
+      <!-- Индикатор загрузки при подгрузке -->
+      <div class="autocomplete-loader" *ngIf="isLoadingMore">
+        <div class="loader-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
-    </div>
 
-    <!-- Сообщение о конце списка -->
-    <div class="autocomplete-end" *ngIf="!hasMoreAutocomplete && autocompleteResults.length > 0">
-      Больше нет товаров
+      <!-- Сообщение о конце списка -->
+      <div class="autocomplete-end" *ngIf="!hasMoreAutocomplete && autocompleteResults.length > 0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8V12M12 16H12.01" />
+        </svg>
+        Показаны все товары ({{ totalAutocompleteResults }})
+      </div>
+
+      <!-- Подсказка по навигации -->
+      <div class="autocomplete-hint" *ngIf="autocompleteResults.length && !isLoadingMore">
+        <span>↵ Enter</span> для перехода к полному поиску
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Панель фильтров -->
   <div class="filters-panel" *ngIf="filtersOpen" [class.mobile-open]="filtersOpen">
@@ -121,7 +139,7 @@
       <h3>Фильтры</h3>
       <button class="filters-close" (click)="closeFilters()" aria-label="Закрыть">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
     </div>
@@ -129,8 +147,8 @@
     <!-- Сообщение об ошибке -->
     <div class="error-message" *ngIf="errorMessage">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+        <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
       {{ errorMessage }}
     </div>
@@ -142,20 +160,13 @@
         <div class="price-range">
           <div class="price-input">
             <span class="price-prefix">от</span>
-            <input type="number" 
-                   [(ngModel)]="filters.priceMin" 
-                   placeholder="0"
-                   min="0"
-                   (input)="validatePrice('min')">
+            <input type="number" [(ngModel)]="filters.priceMin" placeholder="0" min="0" (input)="validatePrice('min')">
           </div>
           <div class="price-separator">—</div>
           <div class="price-input">
             <span class="price-prefix">до</span>
-            <input type="number" 
-                   [(ngModel)]="filters.priceMax" 
-                   placeholder="999 999"
-                   min="0"
-                   (input)="validatePrice('max')">
+            <input type="number" [(ngModel)]="filters.priceMax" placeholder="999 999" min="0"
+              (input)="validatePrice('max')">
           </div>
         </div>
       </div>
@@ -190,10 +201,8 @@
       <div class="filter-section">
         <label class="filter-label">Популярные бренды</label>
         <div class="brand-chips">
-          <button class="brand-chip" 
-                  *ngFor="let brand of popularBrands"
-                  [class.active]="selectedBrands.includes(brand)"
-                  (click)="toggleBrand(brand)">
+          <button class="brand-chip" *ngFor="let brand of popularBrands" [class.active]="selectedBrands.includes(brand)"
+            (click)="toggleBrand(brand)">
             {{ brand }}
           </button>
         </div>
@@ -214,17 +223,12 @@
     </div>
 
     <div class="filters-actions">
-      <button class="btn-apply" 
-              (click)="applyFilters()"
-              [disabled]="isLoading">
+      <button class="btn-apply" (click)="applyFilters()" [disabled]="isLoading">
         {{ isLoading ? 'Применение...' : 'Применить' }}
       </button>
-      <button class="btn-reset" 
-              (click)="resetFilters()"
-              [disabled]="isLoading">
+      <button class="btn-reset" (click)="resetFilters()" [disabled]="isLoading">
         Сбросить
       </button>
     </div>
   </div>
 </div>
-

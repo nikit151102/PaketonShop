@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ComparingService } from '../../core/api/comparing.service';
 import { Subject, takeUntil } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 interface ProductProperty {
   id: string;
@@ -70,7 +71,7 @@ interface ComparisonCategory {
 @Component({
   selector: 'app-compare-products',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TitleComponent],
   templateUrl: './compare-products.component.html',
   styleUrl: './compare-products.component.scss',
 })

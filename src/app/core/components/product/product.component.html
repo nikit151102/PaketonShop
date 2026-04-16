@@ -16,7 +16,7 @@
           | cleanStringLink
       " alt="{{ product.fullName }}" />
 
-    <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button>
+    <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
   </div>
 
   <div class="content">
@@ -26,10 +26,10 @@
     <!-- Компактная информация о товаре -->
     <div class="product-meta" *ngIf="product.packCount || product.boxCount">
       <span class="meta-tag" *ngIf="product.packCount">
-        📦 {{ product.packCount }} шт/уп
+        {{ product.packCount }} шт/уп
       </span>
       <span class="meta-tag" *ngIf="product.boxCount">
-        🧺 {{ product.boxCount }} уп/кор
+        {{ product.boxCount }} уп/кор
       </span>
       <span class="meta-tag" *ngIf="product.packCount > 1">
         {{ ( product.viewPrice / product.packCount ) | number:'1.2-2'}} ₽ за шт

@@ -4,10 +4,11 @@
       [routerLink]="['/category', category.id]" [style.--index]="i"
       [class.has-subcategories]="category.subCategories?.length > 0">
       <div class="card-content">
-        <h3 class="category-name">{{ category.name }}</h3>
+        <h3 class="ca+tegory-name">{{ category.name }} </h3>
+        {{category.shortCode}}
       </div>
       <div class="card-image">
-        <img [src]="getFirstImage(category?.imageInstanceLinks?.[0]) || ''" [alt]="category.name" loading="lazy"
+        <img [src]="getFirstImage(category?.imageInstanceLinks?.[0]) || ''" [alt]="category.name"
           class="category-img" />
         <div class="image-gradient"></div>
 

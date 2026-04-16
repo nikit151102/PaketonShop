@@ -12,7 +12,7 @@
     <div class="filters-overlay" *ngIf="isMobile && isMobileOpen" (click)="closeMobileFilters()"></div>
 
     <!-- Основной блок фильтров -->
-    <aside class="filters-panel" [class.mobile]="isMobile" [class.active]="!isMobile || isMobileOpen">
+    <aside class="filters-panel" [class.mobile]="isMobile" [class.close]="isMobile && isMobileOpen == false" [class.active]="!isMobile || isMobileOpen">
         <!-- Заголовок для мобильных -->
         <div class="filters-panel__header" *ngIf="isMobile">
             <h3>Фильтры</h3>

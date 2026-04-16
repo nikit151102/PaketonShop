@@ -27,8 +27,7 @@ $transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 16px;
 
   @media (min-width: 768px) and (max-width: 1199px) {
     grid-template-columns: repeat(2, 1fr);

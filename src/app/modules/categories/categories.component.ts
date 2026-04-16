@@ -58,7 +58,7 @@ export class CategoriesComponent implements OnInit {
     this.categoryData = null;
     this.subCategories = [];
     this.products = [];
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.totalItems = 0;
     this.totalPages = 0;
     this.error = '';
@@ -86,20 +86,16 @@ export class CategoriesComponent implements OnInit {
   loadProducts(): void {
     if (this.loading || this.loadingMore) return;
 
-    if (this.currentPage === 0) {
-      this.loading = true;
-    } else {
-      this.loadingMore = true;
-    }
+    this.loadingMore = true;
 
     const baseFilters = this.categoryId
       ? [
-         {
-      field: "Text",
-      values: [
-      ],
-      type: 0
-    },
+        {
+          field: "Text",
+          values: [
+          ],
+          type: 0
+        },
         {
           field: 'ProductCategories.Id',
           values: [this.categoryId],

@@ -30,6 +30,18 @@
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 20px;
   padding: 8px 4px;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.collapsed {
+    mask-image: linear-gradient(to bottom,
+        black 0%,
+        black calc(100% - 80px),
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom,
+        black 0%,
+        black calc(100% - 80px),
+        transparent 100%);
+  }
 
   @media (max-width: 1200px) {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -57,7 +69,7 @@
   }
 }
 
-// Карточка категории
+// Карточка категории (без анимации появления)
 .category-card {
   position: relative;
   background: var(--white);
@@ -69,10 +81,9 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  animation: cardAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: calc(var(--index, 0) * 0.05s);
-  opacity: 0;
-  transform: translateY(20px);
+  // Убираем opacity, transform и animation
+  opacity: 1;
+  transform: none;
 
   &:hover {
     transform: translateY(-4px);
@@ -86,17 +97,6 @@
       transform: translateY(0);
       opacity: 1;
     }
-
-
-    .card-decoration {
-      .decoration-line {
-        width: 100%;
-      }
-
-      .decoration-dot {
-        transform: translateX(0) scale(1);
-      }
-    }
   }
 }
 
@@ -105,24 +105,19 @@
   position: relative;
   height: 175px;
   overflow: hidden;
+  margin: 0 auto;
 
   @media (max-width: 1199px) {
     height: 150px;
   }
 
   @media (max-width: 576px) {
-    height: 140px;
+    height: 125px;
   }
 }
 
 .category-img {
-  width: 100%;
-  height: 180px;
-
-  @media (max-width: 1199px) {
-    height: auto;
-  }
-
+  height: inherit;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -168,16 +163,12 @@
 
 // Контент карточки
 .card-content {
-  padding: 16px 12px;
+  padding: 10px 10px 0px 10px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   transition: var(--transition);
   position: relative;
-
-  @media (max-width: 768px) {
-    padding: 12px 10px;
-  }
 }
 
 .category-name {
@@ -197,7 +188,6 @@
     margin-bottom: 10px;
   }
 }
-
 
 .more-preview {
   padding: 4px 8px;
@@ -350,19 +340,7 @@
   }
 }
 
-// Анимации
-@keyframes cardAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+// Анимации (оставляем только нужные)
 @keyframes pulse {
 
   0%,
@@ -425,22 +403,14 @@
   }
 }
 
-
-
-// Добавьте в category-section.component.scss
-
+// Режим частичного просмотра
 .category-section {
-  position: relative;
-  padding: 0 8px;
-
-  // Контейнер для режима просмотра "частично"
   &:not(.show-all) {
     .grid-container {
-      max-height: calc(140px * 2 + 20px * 1 + 140px * 0.4); // 2 полных ряда + 40% третьего
+      max-height: calc(140px * 2 + 20px * 1 + 140px * 0.4);
       overflow: hidden;
       position: relative;
 
-      // Градиент для плавного перехода в конце
       &::after {
         content: '';
         position: absolute;
@@ -452,72 +422,6 @@
         pointer-events: none;
         z-index: 1;
       }
-    }
-
-    .category-card {
-      &:nth-child(n + 6):nth-child(-n + 8) {
-        opacity: 0.9;
-        transform: scale(0.98);
-
-        &:hover {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-    }
-  }
-}
-
-// Обновим сетку для лучшего контроля над рядами
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 20px;
-  padding: 8px 4px;
-  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &.collapsed {
-    mask-image: linear-gradient(to bottom,
-        black 0%,
-        black calc(100% - 80px),
-        transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom,
-        black 0%,
-        black calc(100% - 80px),
-        transparent 100%);
-  }
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 18px;
-  }
-
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 14px;
-  }
-
-  @media (max-width: 576px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  @media (max-width: 360px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
-
-// Обновим анимацию для плавного разворачивания
-.more-btn {
-  &.expanded {
-    .btn-icon {
-      transform: rotate(180deg);
     }
   }
 }
