@@ -1,0 +1,10 @@
+<div *ngIf="visible" class="custom-context-menu" [style.top.px]="position.y" [style.left.px]="position.x">
+  <div *ngFor="let item of items" 
+       class="menu-item" 
+       [class.disabled]="item.disabled" 
+       (click)="onMenuItemClick(item)">
+    <div class="menu-icon" [innerHTML]="getSvgIcon(item.action)"></div>
+    <span class="menu-label">{{ item.label }}</span>
+    <span *ngIf="item.disabled" class="menu-badge">Запрещено</span>
+  </div>
+</div>

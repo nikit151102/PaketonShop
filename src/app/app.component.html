@@ -7,3 +7,7 @@
 <app-auth></app-auth>
 <app-location></app-location>
 <app-mobile-bottom-nav></app-mobile-bottom-nav>
+<app-custom-context-menu 
+  #contextMenu
+  (menuAction)="handleContextMenuAction($event)"
+></app-custom-context-menu>
