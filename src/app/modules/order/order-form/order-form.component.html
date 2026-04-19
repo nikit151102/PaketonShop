@@ -88,11 +88,12 @@
         <h2 class="form-card__title">Комментарий к заказу</h2>
       </div>
       <div class="form-card__body">
-        <textarea class="form-textarea" [(ngModel)]="formData.info" name="info"
+        <textarea class="form-textarea" [(ngModel)]="formData.info" name="info" (ngModelChange)="onInfoChange($event)"
           placeholder="Напишите, если есть особые пожелания..." rows="2"></textarea>
 
         <label class="form-checkbox">
-          <input type="checkbox" [(ngModel)]="formData.needConsult" name="needConsult">
+          <input type="checkbox" [(ngModel)]="formData.needConsult" name="needConsult"
+            (ngModelChange)="onConsultChange($event)">
           <span class="checkbox-custom"></span>
           <span class="checkbox-label">
             <strong>Требуется консультация</strong>

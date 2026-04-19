@@ -6,10 +6,10 @@ export const userRoutes: Routes = [
     path: '',
     component: UserComponent,
     children: [
-      { 
-        path: '', 
-        redirectTo: 'profile', 
-        pathMatch: 'full' 
+      {
+        path: '',
+        redirectTo: 'profile',
+        pathMatch: 'full'
       },
       {
         path: 'profile',
@@ -34,6 +34,10 @@ export const userRoutes: Routes = [
           description: 'Изменить личные данные, телефон, email, пароль. Управление аккаунтом.',
           keywords: 'редактировать профиль, смена пароля, личные данные'
         }
+      },
+      {
+        path: 'transactions',
+        loadComponent: () => import('./tabs/transaction-history/transaction-history.component').then(m => m.TransactionHistoryComponent)
       },
       {
         path: 'companies',

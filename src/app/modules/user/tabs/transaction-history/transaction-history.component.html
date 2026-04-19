@@ -1,0 +1,113 @@
+<div class="transaction-history">
+    <!-- Header -->
+    <div class="transaction-header">
+        <button class="back-btn" (click)="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+            </svg>
+            Назад
+        </button>
+        <app-title [title]="'История транзакций'" [description]="'Все операции по вашему счету'">
+        </app-title>
+    </div>
+
+    <!-- Balance Cards -->
+    <div class="balance-cards">
+        <div class="balance-card balance-card--income">
+            <div class="balance-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+            </div>
+            <div class="balance-card__info">
+                <span class="balance-card__label">Пополнения</span>
+                <span class="balance-card__value">{{ formatCurrency(totalIncome) }}</span>
+            </div>
+        </div>
+
+        <div class="balance-card balance-card--expense">
+            <div class="balance-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                </svg>
+            </div>
+            <div class="balance-card__info">
+                <span class="balance-card__label">Списания</span>
+                <span class="balance-card__value">{{ formatCurrency(totalExpense) }}</span>
+            </div>
+        </div>
+
+        <div class="balance-card balance-card--total">
+            <div class="balance-card__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" />
+                </svg>
+            </div>
+            <div class="balance-card__info">
+                <span class="balance-card__label">Текущий баланс</span>
+                <span class="balance-card__value">{{ formatCurrency(currentBalance) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Info -->
+    <div class="results-info" *ngIf="!loading && !error && transactions.length > 0">
+        <span>Найдено <strong>{{ getFilteredCount() }}</strong> {{ getFilteredCount() === 1 ? 'транзакция' :
+            getFilteredCount() < 5 ? 'транзакции' : 'транзакций' }}</span>
+    </div>
+
+    <!-- Loading State -->
+    <div class="state-container" *ngIf="loading">
+        <div class="loading-spinner"></div>
+        <h3>Загрузка транзакций...</h3>
+        <p>Пожалуйста, подождите</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="!loading && error">
+        <h3>Ошибка загрузки</h3>
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadTransactions()">Повторить</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && transactions.length === 0">
+        <h3>История транзакций пуста</h3>
+        <p>У вас пока нет операций по счету</p>
+        <button class="empty-btn" (click)="goBack()">Назад в профиль</button>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="transactions-container" *ngIf="!loading && !error && transactions.length > 0">
+        <div class="transactions-list">
+            <div class="transaction-card" *ngFor="let transaction of transactions">
+                <div class="transaction-card__icon" [class.income]="transaction.isPositive"
+                    [class.expense]="!transaction.isPositive">
+                    <span>{{ transaction.isPositive ? '↑' : '↓' }}</span>
+                </div>
+
+                <div class="transaction-card__info">
+                    <div class="transaction-card__description">{{ transaction.description }}</div>
+                    <div class="transaction-card__date">{{ formatDate(transaction.date) }}</div>
+                    <!-- <div class="transaction-card__id" *ngIf="transaction.id">ID: {{ transaction.id.substring(0, 8) }} -->
+                    <!-- </div> -->
+                </div>
+
+                <div class="transaction-card__amount" [class.income]="transaction.isPositive"
+                    [class.expense]="!transaction.isPositive">
+                    {{ transaction.isPositive ? '+' : '-' }} {{ formatCurrency(getAbsValue(transaction.delta)) }}
+                </div>
+
+                <div class="transaction-card__status">
+                    <span class="status-badge" [class]="'status-' + transaction.statusColor">
+                        <!-- <span class="status-icon">{{ transaction.statusIcon }}</span> -->
+                        <span class="status-text">{{ transaction.statusText }}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

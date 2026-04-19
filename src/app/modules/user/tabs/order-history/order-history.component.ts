@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DeliveryOrderService } from '../../../../core/api/delivery-order.service';
 import { Subject, takeUntil, finalize } from 'rxjs';
@@ -75,22 +75,10 @@ interface Order {
   productPlace?: ProductPlace;
   productPositions?: ProductPosition[];
 
-  // Дополнительные поля для UI
   statusText: string;
   statusColor: string;
   statusIcon: string;
   isExpanded: boolean;
-}
-
-// Удалите старый ApiResponse и используйте этот
-interface ApiResponse {
-  message: string;
-  status: number;
-  pageCount: number;
-  page: number;
-  pageSize: number;
-  data: any[];
-  breadCrumbs: string[];
 }
 
 @Component({
@@ -102,39 +90,29 @@ interface ApiResponse {
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss',
 })
-export class OrderHistoryComponent implements OnInit {
-  orders: any[] = [];
+export class OrderHistoryComponent implements OnInit, OnDestroy {
+  orders: Order[] = [];
   loading = false;
+  loadingMore = false;
   error: string | null = null;
 
-  // Пагинация
+  // Пагинация для бесконечного скролла
   currentPage = 0;
   pageSize = 10;
   totalPages = 0;
-  totalOrders = 0;
-
-  // Фильтры
-  searchTerm = '';
-  statusFilter: 'all' | 'active' | 'completed' | 'cancelled' = 'all';
-  dateFilter: 'all' | 'week' | 'month' | 'quarter' = 'all';
-
-  // Сортировка
-  sortBy: 'date' | 'amount' | 'status' = 'date';
-  sortDirection: 'asc' | 'desc' = 'desc';
-
-  // Состояния
-  showFilters = false;
-  selectedOrder: any | null = null;
+  hasMore = true;
+  private scrollThreshold = 200; // Порог срабатывания в пикселях
 
   private destroy$ = new Subject<void>();
 
-  constructor(private deliveryOrderService: DeliveryOrderService,
+  constructor(
+    private deliveryOrderService: DeliveryOrderService,
     private orderStatusService: OrderStatusService,
     private router: Router,
   ) { }
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.loadOrders(true);
   }
 
   ngOnDestroy(): void {
@@ -142,28 +120,73 @@ export class OrderHistoryComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  loadOrders(): void {
-    this.loading = true;
+  // Слушаем событие скролла
+  @HostListener('window:scroll', ['$event'])
+  onScroll(): void {
+    if (this.loadingMore || !this.hasMore) return;
+
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollPosition >= documentHeight - this.scrollThreshold) {
+      this.loadMoreOrders();
+    }
+  }
+
+  loadOrders(reset: boolean = true): void {
+    if (reset) {
+      this.orders = [];
+      this.currentPage = 0;
+      this.hasMore = true;
+    }
+
+    this.loading = reset;
     this.error = null;
 
     this.deliveryOrderService.getOrders(this.currentPage, this.pageSize)
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.loading = false)
+        finalize(() => {
+          this.loading = false;
+          this.loadingMore = false;
+        })
       )
       .subscribe({
         next: (response: any) => {
           if (response.data && Array.isArray(response.data)) {
-            this.orders = this.transformApiData(response.data);
+            const transformedOrders = this.transformApiData(response.data);
+            
+            if (reset) {
+              this.orders = transformedOrders;
+            } else {
+              this.orders = [...this.orders, ...transformedOrders];
+            }
+            
+            // Обновляем информацию о пагинации
             this.totalPages = response.pageCount || 1;
-            this.totalOrders = (response.pageSize || 10) * (response.pageCount || 1);
+            this.hasMore = this.currentPage + 1 < this.totalPages;
+          } else {
+            this.hasMore = false;
           }
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке заказов';
           console.error('Ошибка загрузки заказов:', err);
+          this.hasMore = false;
         }
       });
+  }
+
+  loadMoreOrders(): void {
+    if (!this.hasMore || this.loadingMore || this.loading) return;
+    
+    this.loadingMore = true;
+    this.currentPage++;
+    this.loadOrders(false);
+  }
+
+  refreshOrders(): void {
+    this.loadOrders(true);
   }
 
   transformApiData(apiData: any[]): Order[] {
@@ -194,113 +217,21 @@ export class OrderHistoryComponent implements OnInit {
     });
   }
 
-
-
-  getFilteredOrders(): Order[] {
-    let filtered = [...this.orders];
-
-    // Поиск
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.id.toLowerCase().includes(term) ||
-        (order.deliveryType?.shortName?.toLowerCase() || '').includes(term) ||
-        (order.partnerInstance?.partner?.shortName?.toLowerCase() || '').includes(term)
-      );
-    }
-
-    // Фильтр по статусу
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(order => {
-        switch (this.statusFilter) {
-          case 'active':
-            return [0, 1, 2, 3].includes(order.orderStatus);
-          case 'completed':
-            return order.orderStatus === 4;
-          case 'cancelled':
-            return order.orderStatus === 5;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Фильтр по дате
-    if (this.dateFilter !== 'all') {
-      const now = new Date();
-      filtered = filtered.filter(order => {
-        const orderDate = new Date(order.orderDateTime);
-        const diffDays = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 3600 * 24));
-
-        switch (this.dateFilter) {
-          case 'week': return diffDays <= 7;
-          case 'month': return diffDays <= 30;
-          case 'quarter': return diffDays <= 90;
-          default: return true;
-        }
-      });
-    }
-
-    // Сортировка
-    filtered.sort((a, b) => {
-      let aVal: any, bVal: any;
-
-      switch (this.sortBy) {
-        case 'date':
-          aVal = new Date(a.orderDateTime).getTime();
-          bVal = new Date(b.orderDateTime).getTime();
-          break;
-        case 'amount':
-          aVal = a.totalCost;
-          bVal = b.totalCost;
-          break;
-        case 'status':
-          aVal = a.orderStatus;
-          bVal = b.orderStatus;
-          break;
-      }
-
-      return this.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-    });
-
-    return filtered;
-  }
-
   toggleOrderExpansion(order: Order): void {
     order.isExpanded = !order.isExpanded;
   }
 
-  selectOrder(order: Order): void {
-    this.selectedOrder = order;
-  }
-
-  closeOrderDetail(): void {
-    this.selectedOrder = null;
-  }
-
   repeatOrder(order: Order): void {
-    console.log('Повторить заказ:', order.id);
-    // Здесь будет логика повторения заказа
-  }
-
-  downloadInvoice(order: Order): void {
-    console.log('Скачать счет для заказа:', order.id);
-    // Здесь будет логика скачивания счета
-  }
-
-  getPluralSuffix(count: number): string {
-    if (count % 10 === 1 && count % 100 !== 11) return '';
-    if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return 'а';
-    return 'ов';
-  }
-
-  formatAddress(address: any): string {
-    if (!address) return 'Не указан';
-    const parts = [];
-    if (address.city) parts.push(`г. ${address.city}`);
-    if (address.street) parts.push(`ул. ${address.street}`);
-    if (address.house) parts.push(`д. ${address.house}`);
-    return parts.join(', ') || 'Не указан';
+    this.deliveryOrderService.repeatOrder(order.id).subscribe({
+      next: (response: any) => {
+        if (response && response.data) {
+          this.orders.unshift(response.data);
+        }
+      },
+      error: (error) => {
+        console.error('Ошибка при повторении заказа:', error);
+      }
+    });
   }
 
   cancelOrder(order: Order): void {
@@ -337,59 +268,45 @@ export class OrderHistoryComponent implements OnInit {
     }).format(amount);
   }
 
-  changePage(page: number): void {
-    if (page >= 0 && page < this.totalPages) {
-      this.currentPage = page;
-      this.loadOrders();
-    }
+  formatAddress(address: any): string {
+    if (!address) return 'Не указан';
+    const parts = [];
+    if (address.city) parts.push(`г. ${address.city}`);
+    if (address.street) parts.push(`ул. ${address.street}`);
+    if (address.house) parts.push(`д. ${address.house}`);
+    return parts.join(', ') || 'Не указан';
   }
 
-  // Метод для получения номеров страниц для пагинации
-  getPageNumbers(): number[] {
-    const pages: number[] = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(0, this.currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(this.totalPages - 1, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(0, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
+  getStatusText(status: number): string {
+    const statusMap: { [key: number]: string } = {
+      0: 'Черновик',
+      1: 'Обработка',
+      2: 'Подтвержден',
+      3: 'В сборке',
+      4: 'Передан в доставку',
+      8: 'Готов к выдаче',
+      9: 'Завершен',
+      10: 'Отложен',
+      11: 'Отменен пользователем',
+      12: 'Отменен администратором',
+    };
+    return statusMap[status] || 'Неизвестно';
   }
 
-  toggleFilters(): void {
-    this.showFilters = !this.showFilters;
+  getStatusClass(status: number): string {
+    if (status === 0) return 'draft';
+    if (status === 1 || status === 2 || status === 3) return 'processing';
+    if (status === 4) return 'delivering';
+    if (status === 8) return 'arrived';
+    if (status === 9) return 'completed';
+    if (status === 10) return 'draft';
+    if (status === 11 || status === 12) return 'canceled';
+    return 'default';
   }
 
-  resetFilters(): void {
-    this.searchTerm = '';
-    this.statusFilter = 'all';
-    this.dateFilter = 'all';
-    this.sortBy = 'date';
-    this.sortDirection = 'desc';
+  getProductWord(count: number): string {
+    if (count % 10 === 1 && count % 100 !== 11) return 'товар';
+    if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return 'товара';
+    return 'товаров';
   }
-
-  getTotalSum(): number {
-    return this.getFilteredOrders().reduce((sum, order) => sum + order.totalCost, 0);
-  }
-
-  getAverageOrderValue(): number {
-    const filtered = this.getFilteredOrders();
-    return filtered.length > 0 ? Math.round(this.getTotalSum() / filtered.length) : 0;
-  }
-
-  // Вспомогательные методы для статистики
-  getCompletedOrdersCount(): number {
-    return this.getFilteredOrders().filter(order => order.orderStatus === 4).length;
-  }
-
-  getActiveOrdersCount(): number {
-    return this.getFilteredOrders().filter(order => [0, 1, 2, 3].includes(order.orderStatus)).length;
-  }
-
 }

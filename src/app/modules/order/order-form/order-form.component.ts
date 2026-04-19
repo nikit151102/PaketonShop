@@ -144,6 +144,14 @@ export class OrderFormComponent implements OnInit {
     this.initializeFromOrderData();
   }
 
+  onInfoChange(value: string): void {
+    this.onFormChange();
+  }
+
+  onConsultChange(value: boolean): void {
+    this.onFormChange();
+  }
+
   /**
    * Инициализация формы из существующего заказа
    */
@@ -183,7 +191,7 @@ export class OrderFormComponent implements OnInit {
 
     // 2. Заполняем данные о компании (если есть)
     if (this.orderData.partnerInstance?.partner) {
-      this.selectedCompanyId = this.orderData.partnerInstance.partner.id;
+      this.selectedCompanyId = this.orderData.partnerInstance.id;
       this.formData.personType = 'jur';
     }
 
@@ -400,10 +408,6 @@ export class OrderFormComponent implements OnInit {
 
     this.onFormChange();
 
-    console.log('selectedStoreId:', this.selectedStoreId);
-    console.log('allStores:', this.allStores);
-    console.log('orderProducts:', this.orderProducts);
-    console.log('availabilityCheck:', this.availabilityCheck);
   }
 
   startEditing() {

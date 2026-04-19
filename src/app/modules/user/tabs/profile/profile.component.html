@@ -1,284 +1,235 @@
 <div class="profile-page">
-    <!-- Заголовок страницы -->
-    <app-title [title]="'Личный кабинет'"
-        [description]="'Управляйте своими данными, заказами и настройками в одном месте'"></app-title>
+    <!-- Hero Section -->
+    <div class="profile-hero">
+        <div class="profile-hero__content">
+            <div class="profile-hero__avatar" (click)="editAvatar()">
+                <div class="avatar-image" [style.background-image]="'url(' + user?.avatarUrl + ')'">
+                    <div class="avatar-overlay">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="avatar-status" [class.online]="true"></div>
+            </div>
+            <div class="profile-hero__info">
+                <h1 class="profile-name">{{ user?.firstName }} {{ user?.lastName }}</h1>
+                <div class="profile-meta">
+                    <!-- <span class="meta-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        ID: {{ user?.userNumber || 'Не указан' }}
+                    </span> -->
+                    <span class="meta-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
+                        </svg>
+                        {{ user?.email || 'Email не указан' }}
+                    </span>
+                    <span class="meta-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        {{ user?.phoneNumber || 'Телефон не указан' }}
+                    </span>
+                </div>
+            </div>
+            <button class="profile-edit-btn" [routerLink]="['/profile/profile/edit']">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                </svg>
+                <span>Редактировать</span>
+            </button>
+        </div>
+    </div>
 
     <div class="profile-container">
-        <!-- Левый блок - информация о пользователе -->
+        <!-- Левая колонка - Статистика и баланс -->
         <div class="profile-sidebar">
-            <div class="profile-card">
-                <div class="profile-avatar-container">
-                    <div class="profile-avatar" [style.background-image]="'url(' + user?.avatarUrl + ')'">
-                        <div class="avatar-edit" (click)="editAvatar()">
-                            <svg width="20" height="20" viewBox="0 0 24 24">
-                                <path
-                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                                    fill="white" />
-                            </svg>
-                        </div>
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card__icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z"/>
+                        </svg>
                     </div>
-                    <!-- <div class="profile-loyalty-badge" *ngIf="user?.loyaltyProgramLevel">
-                        Уровень {{ user.loyaltyProgramLevel }}
-                    </div> -->
+                    <div class="stat-card__info">
+                        <div class="stat-card__value">{{ operativeInfo().activeDeliveryOrdersCount || 0 }}</div>
+                        <div class="stat-card__label">Активных заказов</div>
+                    </div>
                 </div>
-
-                <div class="profile-info">
-                    <h2 class="profile-name">
-                        {{ user?.firstName }} {{ user?.lastName }}
-                    </h2>
-                    <p class="profile-number">
-                        ID: {{ user?.userNumber || 'Не указан' }}
-                    </p>
-
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <div class="stat-value">{{ operativeInfo().activeDeliveryOrdersCount || 0 }}</div>
-                            <div class="stat-label">Активных заказов</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ operativeInfo().favoriteCount || 0 }}</div>
-                            <div class="stat-label">Избранное</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ operativeInfo().userCompaniesCount || 0 }}</div>
-                            <div class="stat-label">Компании</div>
-                        </div>
+                <div class="stat-card">
+                    <div class="stat-card__icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
                     </div>
-
-                    <div class="profile-contact-info">
-                        <div class="contact-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path
-                                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
-                            </svg>
-                            <span>{{ user?.email || 'Email не указан' }}</span>
-                        </div>
-                        <div class="contact-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path
-                                    d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                            </svg>
-                            <span>{{ user?.phoneNumber || 'Телефон не указан' }}</span>
-                        </div>
+                    <div class="stat-card__info">
+                        <div class="stat-card__value">{{ operativeInfo().favoriteCount || 0 }}</div>
+                        <div class="stat-card__label">Избранное</div>
                     </div>
-
-                    <div class="profile-actions">
-                        <button class="btn-edit" [routerLink]="['/profile/profile/edit']">
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path
-                                    d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                            </svg>
-                            Редактировать профиль
-                        </button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <div class="stat-card__info">
+                        <div class="stat-card__value">{{ operativeInfo().userCompaniesCount || 0 }}</div>
+                        <div class="stat-card__label">Компании</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Статусы и подписки -->
-            <!-- <div class="profile-status">
-        <div class="status-item" [class.active]="user?.isMailSubscribed">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
-          </svg>
-          <div>
-            <div class="status-title">Подписка на рассылку</div>
-            <div class="status-description">
-              {{ user?.isMailSubscribed ? 'Активна' : 'Не активна' }}
+            <!-- Balance Widget -->
+            <div class="balance-widget">
+                <div class="balance-widget__header">
+                    <div class="balance-widget__icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                        </svg>
+                    </div>
+                    <span class="balance-widget__label">Баланс</span>
+                </div>
+                <div class="balance-widget__amount">{{ operativeInfo().balance || 0 }}</div>
+                <div class="balance-widget__actions">
+                    <button class="balance-action-btn primary" (click)="openTopUpModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        <span>Пополнить</span>
+                    </button>
+                    <button class="balance-action-btn secondary" (click)="goToTransactionHistory()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 13c-2.33 0-4.31-1.46-5.11-3.5h10.22c-.8 2.04-2.78 3.5-5.11 3.5z"/>
+                        </svg>
+                        <span>История</span>
+                    </button>
+                </div>
             </div>
-          </div>
-        </div>
-        <div class="status-item">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-            <circle cx="12" cy="12" r="5"/>
-          </svg>
-          <div>
-            <div class="status-title">Статус аккаунта</div>
-            <div class="status-description" [class.banned]="user?.isBanned">
-              {{ user?.isBanned ? 'Заблокирован' : 'Активен' }}
-            </div>
-          </div>
-        </div>
-      </div> -->
         </div>
 
-        <!-- Правый блок - карточки меню -->
+        <!-- Правая колонка - Меню -->
         <div class="profile-content">
-            <div class="profile-grid">
-                <!-- Карточка заказов -->
-                <a [routerLink]="['/profile/orderHistory']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
-                                </svg>
-                            </div>
-                            <!-- <div class="card-notification" *ngIf="unreadOrdersCount > 0">
-                                {{ unreadOrdersCount }}
-                            </div> -->
-                        </div>
-                        <div class="card-title">История заказов</div>
-                        <!-- <div class="card-description">
-                            {{ user?.ordersCount || 0 }} заказов
-                        </div> -->
-                        <div class="card-action">
-                            <span>Посмотреть все</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+            <div class="menu-grid">
+                <!-- Order History -->
+                <a [routerLink]="['/profile/orderHistory']" class="menu-card">
+                    <div class="menu-card__icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                        </svg>
+                    </div>
+                    <div class="menu-card__content">
+                        <h3 class="menu-card__title">История заказов</h3>
+                        <p class="menu-card__desc">Все ваши покупки</p>
+                    </div>
+                    <div class="menu-card__arrow">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
                     </div>
                 </a>
 
-                <!-- Карточка избранного -->
-                <a [routerLink]="['/profile/favorites']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="card-title">Избранное</div>
-                        <div class="card-description" *ngIf="operativeInfo() && operativeInfo().favoriteCount">
-                            {{ operativeInfo().favoriteCount }} товаров
-                        </div>
-                        <div class="card-action">
-                            <span>Посмотреть все</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+                <!-- Favorites -->
+                <a [routerLink]="['/profile/favorites']" class="menu-card">
+                    <div class="menu-card__icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                    <div class="menu-card__content">
+                        <h3 class="menu-card__title">Избранное</h3>
+                        <p class="menu-card__desc">{{ operativeInfo().favoriteCount || 0 }} товаров</p>
+                    </div>
+                    <div class="menu-card__arrow">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
                     </div>
                 </a>
 
-                <!-- Карточка адресов -->
-                <a [routerLink]="['/profile/delivery-addresses']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="card-title">Адреса доставки</div>
-                        <div class="card-description" *ngIf="operativeInfo() && operativeInfo().addressCount">
-                            {{ operativeInfo().addressCount }} адресов
-                        </div>
-                        <div class="card-action">
-                            <span>Управлять адресами</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+                <!-- Delivery Addresses -->
+                <a [routerLink]="['/profile/delivery-addresses']" class="menu-card">
+                    <div class="menu-card__icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    </div>
+                    <div class="menu-card__content">
+                        <h3 class="menu-card__title">Адреса доставки</h3>
+                        <p class="menu-card__desc">{{ operativeInfo().addressCount || 0 }} адресов</p>
+                    </div>
+                    <div class="menu-card__arrow">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
                     </div>
                 </a>
 
-                <!-- Карточка вопросов -->
-                <!-- <a [routerLink]="['/profile/questions']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z" />
-                                </svg>
-                            </div>
-                            <div class="card-notification" *ngIf="unreadAnswersCount > 0">
-                                {{ unreadAnswersCount }}
-                            </div>
-                        </div>
-                        <div class="card-title">Вопросы и ответы</div>
-                        <div class="card-description">
-                            Мои обращения
-                        </div>
-                        <div class="card-action">
-                            <span>Перейти к вопросам</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+                <!-- Companies -->
+                <a [routerLink]="['/profile/companies']" class="menu-card">
+                    <div class="menu-card__icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
                     </div>
-                </a> -->
-
-                <!-- Карточка поддержки -->
-                <!-- <a [routerLink]="['/profile/support']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="card-title">Поддержка</div>
-                        <div class="card-description">
-                            Помощь и консультации
-                        </div>
-                        <div class="card-action">
-                            <span>Написать в поддержку</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+                    <div class="menu-card__content">
+                        <h3 class="menu-card__title">Мои компании</h3>
+                        <p class="menu-card__desc">{{ operativeInfo().userCompaniesCount || 0 }} компаний</p>
                     </div>
-                </a> -->
-
-                <!-- Карточка настроек -->
-                <!-- <a [routerLink]="['/profile/settings']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="card-title">Настройки</div>
-                        <div class="card-description">
-                            Настройки аккаунта
-                        </div>
-                        <div class="card-action">
-                            <span>Изменить настройки</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
-                    </div>
-                </a> -->
-
-                <a [routerLink]="['/profile/companies']" class="profile-card-link">
-                    <div class="profile-menu-card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                    <path
-                                        d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="card-title">Мои компании</div>
-                        <div class="card-description" *ngIf=" operativeInfo() && operativeInfo().userCompaniesCount">
-                            {{ operativeInfo().userCompaniesCount || 0 }} компании
-                        </div>
-                        <div class="card-action">
-                            <span>Посмотреть все</span>
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                            </svg>
-                        </div>
+                    <div class="menu-card__arrow">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                        </svg>
                     </div>
                 </a>
 
+                <!-- Logout -->
+                <div class="menu-card menu-card--logout" (click)="logout()">
+                    <div class="menu-card__icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                    </div>
+                    <div class="menu-card__content">
+                        <h3 class="menu-card__title">Выйти</h3>
+                        <p class="menu-card__desc">Завершить сеанс</p>
+                    </div>
+                    <div class="menu-card__arrow">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+
+
+
+
+
+<app-topup-modal 
+    [isOpen]="showTopupModal"
+    [currentBalance]="operativeInfo().balance || 0"
+    [minAmount]="100"
+    [maxAmount]="100000"
+    [presetAmounts]="[500, 1000, 2000, 5000]"
+    (close)="showTopupModal = false"
+    (topup)="handleTopup($event)">
+</app-topup-modal>
+
+<!-- Платежный виджет -->
+<app-payment-widget *ngIf="showPaymentWidget && paymentToken" 
+                    [confirmationToken]="paymentToken"
+                    [amount]="topupAmount"
+                    (onSuccess)="handlePaymentSuccess($event)"
+                    (onFail)="handlePaymentFail($event)"
+                    (onError)="handlePaymentError($event)"
+                    (onClose)="handleWidgetClose()">
+</app-payment-widget>

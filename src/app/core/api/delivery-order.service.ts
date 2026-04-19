@@ -55,6 +55,7 @@ export class DeliveryOrderService {
     return this.http.post<DeliveryOrderListResponse>(`${environment.production}/api/Profile/UserDeliveryOrders/Filter`, requestBody);
   }
 
+
   /**
    * Получение заказов текущего пользователя
    */
@@ -73,6 +74,13 @@ export class DeliveryOrderService {
   }
 
   /**
+  * Повторить заказ
+  */
+  repeatOrder(orderId: string): Observable<any> {
+    return this.http.post<DeliveryOrderDetailResponse>(`${this.apiUrl}/RepeatOrder/${orderId}`, {});
+  }
+
+  /**
    * Добавление промокода к заказу
    */
   addPromoCode(orderId: string, promoCodeId: string): Observable<DeliveryOrderDetailResponse> {
@@ -88,6 +96,9 @@ export class DeliveryOrderService {
   removePromoCode(orderId: string): Observable<DeliveryOrderDetailResponse> {
     return this.http.delete<DeliveryOrderDetailResponse>(`${this.apiUrl}/${orderId}/promocode`);
   }
+
+
+
 
   /**
    * Обновление адреса доставки заказа

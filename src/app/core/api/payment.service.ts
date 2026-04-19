@@ -42,7 +42,22 @@ export class PaymentService {
    */
   createTopUpTransaction(amount: number): Observable<PaymentResponse> {
     return this.http.put<PaymentResponse>(`${this.baseUrl}/Profile/MakeTransaction`, {
-      delta: amount    });
+      delta: amount
+    });
+  }
+
+
+  payForTheOrderTransaction(id: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/Entities/DeliveryOrder/PayForTheOrder/${id}`, {});
+  }
+
+  getTransactions(requestData?: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/Profile/GetTransactions`, requestData || {
+      filters: [],
+      sorts: [],
+      page: 0,
+      pageSize: 20
+    });
   }
 
   /**

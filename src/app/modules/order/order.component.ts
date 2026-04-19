@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { OrderFormComponent } from './order-form/order-form.component';
@@ -10,6 +10,9 @@ import { PluralPipe } from "../../core/pipes/plural.pipe";
 import { PaymentService } from '../../core/api/payment.service';
 import { PaymentWidgetComponent } from '../../core/components/payment-widget/payment-widget.component';
 import { InvoiceDeliveryComponent, InvoiceDeliveryMethod } from './invoice-delivery/invoice-delivery.component';
+import { TitleComponent } from '../../core/components/title/title.component';
+import { TopupModalComponent } from '../../core/components/topup-modal/topup-modal.component';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-order',
@@ -21,7 +24,9 @@ import { InvoiceDeliveryComponent, InvoiceDeliveryMethod } from './invoice-deliv
     FormsModule,
     PluralPipe,
     PaymentWidgetComponent,
-    InvoiceDeliveryComponent
+    InvoiceDeliveryComponent,
+    TitleComponent,
+    TopupModalComponent
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
@@ -32,12 +37,15 @@ export class OrderComponent implements OnInit, OnDestroy {
   createdOrderId: string | null = null;
   discount: number = 0;
   deliveryCost: number = 0;
-  showSuccessNotification = false;
+  showsuccessNotification = false;
   isLoading = false;
   isSaving = false;
   isProcessing = false;
   savingProgress = 0;
   currentDate = new Date();
+
+  operativeInfo = computed(() => this.userService.operativeInfo())
+
 
   orderData: any;
   // Данные формы заказа
@@ -59,6 +67,14 @@ export class OrderComponent implements OnInit, OnDestroy {
   isOrderCreated = false;
   isPaymentConfirmed = false;
 
+  // Пополнение баланса
+  showTopupModal: boolean = false;
+  topupAmount: number = 0;
+  topupMinAmount: number = 0;
+  isProcessingTopup: boolean = false;
+  paymentToken: string | null = null;
+  showPaymentWidget: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -67,6 +83,8 @@ export class OrderComponent implements OnInit, OnDestroy {
     private paymentService: PaymentService
   ) { }
 
+  private userService = inject(UserService);
+  
   ngOnInit(): void {
     this.updateCurrentTime();
 
@@ -193,7 +211,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       this.deliveryCost = order.deliveryCost;
     }
 
-    this.showSuccessNotification = true;
+    this.showsuccessNotification = true;
   }
 
   /**
@@ -263,38 +281,49 @@ export class OrderComponent implements OnInit, OnDestroy {
         : this.orderFormData.delivery === 'pickup'
           ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
           : undefined,
+      edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
+      contactType: this.orderFormData.contactType,
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
+      // this.orderFormData.info
       productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : null
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
     };
 
-    // Создаем заказ
-    this.deliveryOrderService.createOrder(orderRequest)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          clearInterval(progressInterval);
-          this.isSaving = false;
-        })
-      )
-      .subscribe({
-        next: (response: any) => {
-          this.createdOrderId = response.data.id;
-          this.isOrderCreated = true;
+    Object.keys(orderRequest).forEach(key => {
+      if (orderRequest[key] === null || orderRequest[key] === undefined) {
+        delete orderRequest[key];
+      }
+    });
 
-          // Инициируем оплату
-          this.initiatePayment();
-        },
-        error: (error) => {
-          console.error('Ошибка создания заказа:', error);
-          this.isProcessing = false;
-          // Показать ошибку пользователю
-        }
-      });
+
+    if (this.activeBasketId) {
+      this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => {
+            clearInterval(progressInterval);
+            this.isSaving = false;
+          })
+        )
+        .subscribe({
+          next: (response: any) => {
+            this.createdOrderId = response.data.id;
+            this.isOrderCreated = true;
+
+            // Инициируем оплату
+            this.initiatePayForTheOrderTransaction();
+          },
+          error: (error) => {
+            console.error('Ошибка создания заказа:', error);
+            this.isProcessing = false;
+            this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
+          }
+        });
+    }
   }
 
   /**
@@ -325,8 +354,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       contactType: this.orderFormData.contactType,
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
+      // this.orderFormData.info
       productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : null
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
     };
@@ -351,7 +381,7 @@ export class OrderComponent implements OnInit, OnDestroy {
           next: (response: any) => {
             this.createdOrderId = response.data.id;
             this.isOrderCreated = true;
-            this.showSuccessNotification = true;
+            this.showsuccessNotification = true;
 
             // setTimeout(() => {
             //   this.router.navigate(['/order-success', this.createdOrderId]);
@@ -360,9 +390,144 @@ export class OrderComponent implements OnInit, OnDestroy {
           error: (error) => {
             console.error('Ошибка создания заказа:', error);
             this.isProcessing = false;
+            this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
           }
         });
     }
+  }
+
+  /**
+   * Инициализация оплаты заказа с проверкой баланса
+   */
+  initiatePayForTheOrderTransaction(): void {
+    if (!this.createdOrderId) {
+      console.warn('Нельзя перейти к оплате: заказ не создан');
+      return;
+    }
+
+    this.isProcessing = true;
+
+    this.paymentService.payForTheOrderTransaction(this.createdOrderId).subscribe({
+      next: (response: any) => {
+        this.isProcessing = false;
+
+        // Проверяем наличие ошибки
+        if (response.errorMessage && response.errorMessage !== null) {
+          // Если есть сообщение об ошибке - показываем его
+          this.showErrorNotification(response.errorMessage);
+          return;
+        }
+
+        // Если ошибки нет, проверяем costDelta
+        if (response.costDelta && response.costDelta > 0) {
+          // Не хватает средств - показываем диалог пополнения
+          this.topupMinAmount = response.costDelta;
+          this.showInsufficientFundsDialog(response.costDelta, response.totalCost);
+        } else {
+          // Средств достаточно - переходим к оплате
+          this.initiatePayment();
+        }
+      },
+      error: (error) => {
+        console.error('Ошибка при проверке оплаты заказа:', error);
+        this.isProcessing = false;
+        this.handlePaymentError(error.error?.message || 'Произошла ошибка при проверке оплаты');
+      }
+    });
+  }
+
+  /**
+   * Показывает диалог о недостаточности средств
+   */
+  private showInsufficientFundsDialog(costDelta: number, totalCost: number): void {
+    const message = `Недостаточно средств на балансе. Не хватает ${this.formatCurrency(costDelta)}.\n\nОбщая стоимость заказа: ${this.formatCurrency(totalCost)}\n\nПополнить баланс?`;
+
+    const userChoice = confirm(message + '\n\nНажмите "ОК" для пополнения баланса или "Отмена" для выбора другого способа оплаты');
+
+    if (userChoice) {
+      // Пополнение баланса
+      this.topupAmount = costDelta;
+      this.showTopupModal = true;
+    } else {
+      // Предложить выбрать другой способ оплаты
+      this.suggestAlternativePaymentMethod();
+    }
+  }
+
+  /**
+   * Предлагает выбрать альтернативный способ оплаты
+   */
+  private suggestAlternativePaymentMethod(): void {
+    const message = 'Вы можете выбрать другой способ оплаты: наличными или картой при получении.';
+    const userChoice = confirm(message + '\n\nНажмите "ОК" для выбора другого способа оплаты');
+
+    if (userChoice) {
+      // Меняем способ оплаты на наличные
+      this.paymentMethod = 'cash';
+      // Обновляем заказ с новым способом оплаты
+      this.updateOrderPaymentMethod();
+    }
+  }
+
+  /**
+   * Обновляет способ оплаты заказа
+   */
+  private updateOrderPaymentMethod(): void {
+    const orderRequest: any = {
+      id: this.activeBasketId!,
+      paymentType: 1 // Наличные при получении
+    };
+
+    if (this.activeBasketId) {
+      this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response: any) => {
+            console.log('Способ оплаты обновлен:', response);
+            this.showSuccessNotification('Способ оплаты изменен на "Наличными при получении"');
+          },
+          error: (error) => {
+            console.error('Ошибка обновления способа оплаты:', error);
+          }
+        });
+    }
+  }
+
+  /**
+   * Обработка пополнения баланса из модального окна
+   */
+  handleTopup(amount: number): void {
+    this.topupAmount = amount;
+    this.isProcessingTopup = true;
+
+    this.paymentService.createTopUpTransaction(amount).pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        this.isProcessingTopup = false;
+      })
+    ).subscribe({
+      next: (response: any) => {
+        if (response.data && response.data.confirmationToken) {
+          this.paymentToken = response.data.confirmationToken;
+          this.showPaymentWidget = true;
+          this.showTopupModal = false;
+        } else {
+          console.error('Не получен confirmationToken');
+          this.handlePaymentError('Не удалось получить токен оплаты');
+        }
+      },
+      error: (error) => {
+        console.error('Ошибка при создании платежа:', error);
+        this.handlePaymentError(error);
+      }
+    });
+  }
+
+  /**
+   * Закрыть модальное окно пополнения
+   */
+  closeTopupModal(): void {
+    this.showTopupModal = false;
   }
 
   /**
@@ -395,9 +560,6 @@ export class OrderComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  showPaymentWidget: boolean = false;
-  paymentToken: any;
 
   /**
    * Обработка успешного платежа
@@ -444,7 +606,7 @@ export class OrderComponent implements OnInit, OnDestroy {
 
                 this.showPaymentWidget = false;
                 this.isPaymentConfirmed = true;
-                this.showSuccessNotification = true;
+                this.showsuccessNotification = true;
 
                 // Перенаправляем на страницу успеха
                 setTimeout(() => {
@@ -471,9 +633,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   handlePaymentFail(event: any): void {
     console.log('Платеж не удался:', event);
     this.showPaymentWidget = false;
-
-    // Можно показать уведомление об ошибке
-    // this.showErrorNotification('Оплата не удалась. Попробуйте снова.');
+    this.showErrorNotification('Оплата не удалась. Попробуйте снова.');
   }
 
   /**
@@ -483,6 +643,8 @@ export class OrderComponent implements OnInit, OnDestroy {
     console.error('Ошибка платежа:', error);
     this.showPaymentWidget = false;
     this.isProcessing = false;
+    const errorMessage = typeof error === 'string' ? error : error?.message || 'Произошла ошибка при оплате';
+    this.showErrorNotification(errorMessage);
   }
 
   /**
@@ -492,6 +654,32 @@ export class OrderComponent implements OnInit, OnDestroy {
     console.log('Виджет закрыт');
     this.showPaymentWidget = false;
     this.isProcessing = false;
+  }
+
+  /**
+   * Показать уведомление об успехе
+   */
+  private showSuccessNotification(message: string): void {
+    alert(message);
+  }
+
+  /**
+   * Показать уведомление об ошибке
+   */
+  private showErrorNotification(message: string): void {
+    alert(message);
+  }
+
+  /**
+   * Форматирование валюты
+   */
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    }).format(amount);
   }
 
   invoiceDeliveryMethod: InvoiceDeliveryMethod = 'email';
@@ -515,4 +703,3 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
   }
 }
-
