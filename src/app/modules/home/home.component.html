@@ -31,7 +31,9 @@
       [description]="'Выбирайте и заказывайте хиты продаж прямо сейчас'"></app-title>
     <app-compare-common-btn></app-compare-common-btn>
     <div class="products">
-      <app-product [product]="product" *ngFor="let product of products"></app-product>
+      <app-product [product]="product"
+        *ngFor="let product of products">
+      </app-product>
     </div>
   </section>
 

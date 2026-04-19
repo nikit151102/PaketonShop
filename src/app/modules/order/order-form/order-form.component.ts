@@ -9,6 +9,7 @@ import { TransportDeliveryComponent } from './delivery/transport-delivery/transp
 import { CityDeliveryComponent } from './delivery/city-delivery/city-delivery.component';
 import { CompanySelectorComponent } from './company-selector/company-selector.component';
 import { TruncatePipe } from "./truncate.pipe";
+import { ContactTypeEnum, ContactTypeSelectorComponent } from './contact-type-selector/contact-type-selector.component';
 
 interface Company {
   id: number;
@@ -28,12 +29,13 @@ interface ProductAvailability {
 
 @Component({
   selector: 'app-order-form',
-  imports: [CommonModule, FormsModule, PickupDeliveryComponent, TransportDeliveryComponent, CityDeliveryComponent, CompanySelectorComponent, TruncatePipe],
+  imports: [CommonModule, FormsModule, PickupDeliveryComponent, TransportDeliveryComponent, CityDeliveryComponent, CompanySelectorComponent, TruncatePipe, ContactTypeSelectorComponent],
   templateUrl: './order-form.component.html',
   styleUrl: './order-form.component.scss',
 })
 export class OrderFormComponent implements OnInit {
   @Input() userBasketId: string | null = '';
+  @Input() orderData: any;
   @Input() orderProducts: any[] = [];
   @Output() orderCreated = new EventEmitter<any>();
   @Output() orderUpdated = new EventEmitter<any>();
@@ -60,7 +62,28 @@ export class OrderFormComponent implements OnInit {
     agreement: false,
     personType: 'fiz',
     delivery: 'pickup',
+    contactType: 0
   };
+
+  selectedContactType = ContactTypeEnum.Call;
+
+  onContactTypeChange(value: number): void {
+    console.log('Выбран тип связи:', value);
+    // value: 0 - позвонить, 1 - заменить, 2 - удалить
+    this.formData.contactType = value
+    this.formChanged.emit(this.formData);
+    switch (value) {
+      case ContactTypeEnum.Call:
+        console.log('Будет звонок клиенту');
+        break;
+      case ContactTypeEnum.DoNotCallAndReplace:
+        console.log('Замена на аналог без звонка');
+        break;
+      case ContactTypeEnum.DoNotCallAndDelete:
+        console.log('Удаление позиции без звонка');
+        break;
+    }
+  }
 
   // Для оптимизации отправки (дебаунс)
   private formChangeSubject = new Subject<any>();
@@ -137,6 +160,7 @@ export class OrderFormComponent implements OnInit {
       agreement: false,
       personType: 'fiz',
       delivery: 'pickup',
+      contactType: 0
     };
 
     // Отправляем начальные данные
@@ -171,7 +195,7 @@ export class OrderFormComponent implements OnInit {
       'type': type,
       'id': data.id
     };
-this.deliveryCost.emit(data.coast);
+    this.deliveryCost.emit(data.coast);
     // ИСПРАВЛЕНИЕ: проверяем что type содержит 'pickup' или равен 'store'
     if ((type === 'pickup' || type === 'store') && data.id) {
       this.selectedStoreId = data.id;
@@ -273,12 +297,12 @@ this.deliveryCost.emit(data.coast);
   }
 
   // Добавьте в класс компонента
-showProductsList = false;
+  showProductsList = false;
 
-// Добавьте метод
-toggleProductsList() {
-  this.showProductsList = !this.showProductsList;
-}
+  // Добавьте метод
+  toggleProductsList() {
+    this.showProductsList = !this.showProductsList;
+  }
 
   /**
    * Проверяет наличие всех товаров в выбранном магазине

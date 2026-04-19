@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { PluralPipe } from "../../core/pipes/plural.pipe";
 import { PaymentService } from '../../core/api/payment.service';
 import { PaymentWidgetComponent } from '../../core/components/payment-widget/payment-widget.component';
+import { InvoiceDeliveryComponent, InvoiceDeliveryMethod } from './invoice-delivery/invoice-delivery.component';
 
 @Component({
   selector: 'app-order',
@@ -19,7 +20,8 @@ import { PaymentWidgetComponent } from '../../core/components/payment-widget/pay
     OrderFormComponent,
     FormsModule,
     PluralPipe,
-    PaymentWidgetComponent
+    PaymentWidgetComponent,
+    InvoiceDeliveryComponent
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
@@ -37,11 +39,12 @@ export class OrderComponent implements OnInit, OnDestroy {
   savingProgress = 0;
   currentDate = new Date();
 
+  orderData: any;
   // Данные формы заказа
   orderFormData: any = null;
 
   // Способ оплаты
-  paymentMethod: 'online' | 'cash' | 'card' = 'online';
+  paymentMethod: 'online' | 'cash' | 'card' | 'invoice' = 'online';
 
   // Скидки
   discountRules = [
@@ -98,6 +101,8 @@ export class OrderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
+          this.orderData = response.data;
+          console.log('vdvd',response.data)
           if (response.data?.productPositions) {
             this.basketProducts = response.data.productPositions.map((p: any) => ({
               id: p.product.id,
@@ -311,7 +316,9 @@ export class OrderComponent implements OnInit, OnDestroy {
         : this.orderFormData.delivery === 'pickup'
           ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
           : undefined,
+      edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
+      contactType: this.orderFormData.contactType,
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
       productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
@@ -483,4 +490,25 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.isProcessing = false;
   }
 
+  invoiceDeliveryMethod: InvoiceDeliveryMethod = 'email';
+  invoiceEmail: string = '';
+
+  // Метод
+  onInvoiceDeliverySelected(data: { method: InvoiceDeliveryMethod; email: string }): void {
+    console.log('Способ доставки счета:', data.method);
+    console.log('Email для счета:', data.email);
+
+    // Здесь можно отправить данные на сервер
+    if (data.method === 'email') {
+      this.orderFormData.edoType = 0;
+      // Отправка на email
+    } else if (data.method === 'sbis') {
+      this.orderFormData.edoType = 1;
+      // Отправка через СБИС
+    } else if (data.method === 'kontur') {
+      this.orderFormData.edoType = 2;
+      // Отправка через Контур
+    }
+  }
 }
+

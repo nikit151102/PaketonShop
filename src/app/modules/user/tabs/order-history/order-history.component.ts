@@ -6,6 +6,7 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { Router, RouterLink } from '@angular/router';
 import { OrderStatusService } from '../../../../core/services/order-status.service';
 import { EmptyStateComponent } from '../../../../core/components/empty-state/empty-state.component';
+import { TitleComponent } from '../../../../core/components/title/title.component';
 
 interface ProductPosition {
   id: string;
@@ -96,6 +97,7 @@ interface ApiResponse {
   selector: 'app-order-history',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink,
+    TitleComponent,
     EmptyStateComponent],
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss',
@@ -284,6 +286,21 @@ export class OrderHistoryComponent implements OnInit {
   downloadInvoice(order: Order): void {
     console.log('Скачать счет для заказа:', order.id);
     // Здесь будет логика скачивания счета
+  }
+
+  getPluralSuffix(count: number): string {
+    if (count % 10 === 1 && count % 100 !== 11) return '';
+    if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return 'а';
+    return 'ов';
+  }
+
+  formatAddress(address: any): string {
+    if (!address) return 'Не указан';
+    const parts = [];
+    if (address.city) parts.push(`г. ${address.city}`);
+    if (address.street) parts.push(`ул. ${address.street}`);
+    if (address.house) parts.push(`д. ${address.house}`);
+    return parts.join(', ') || 'Не указан';
   }
 
   cancelOrder(order: Order): void {

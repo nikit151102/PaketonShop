@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-export type EmptyStateType = 'favorites' | 'cart' | 'search' | 'orders' | 'partner' | 'addresses' | 'tk' | 'custom';
+export type EmptyStateType = 'favorites' | 'cart' | 'search' | 'orders' | 'errorOrders' | 'partner' | 'addresses' | 'tk' | 'custom';
 
 @Component({
   selector: 'app-empty-state',
@@ -51,6 +51,13 @@ export class EmptyStateComponent {
       text: 'Ознакомьтесь с нашим каталогом и сделайте первый заказ',
       imageUrl: 'paketoshka/empty-cart.png',
       buttonText: 'Перейти в каталог',
+      buttonLink: ''
+    },
+    errorOrders: {
+      title: 'Ошибка загрузки заказов',
+      text: 'Не удалось загрузить ваши заказы. Попробуйте позже или свяжитесь с поддержкой',
+      imageUrl: 'paketoshka/empty-cart.png',
+      buttonText: 'Перейти в каталог товаров',
       buttonLink: ''
     },
     partner: {

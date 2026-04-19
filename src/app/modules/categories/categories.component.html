@@ -1,12 +1,7 @@
 <div class="categories-page">
     <!-- Заголовок категории -->
     <div *ngIf="categoryData" class="category-header">
-        <div class="header-content">
-            <h1 class="category-title">{{ categoryData.name }}</h1>
-            <p *ngIf="categoryData.description" class="category-description">
-                {{ categoryData.description }}
-            </p>
-        </div>
+        <app-title [title]="categoryData.name" [description]=" categoryData.description "></app-title>
 
         <div class="header-image" *ngIf="categoryData.imageUrl">
             <img [src]="categoryData.imageUrl" [alt]="categoryData.name">
@@ -17,13 +12,13 @@
     <div *ngIf="subCategories?.length" class="subcategories-section">
         <app-category-section [categories]="subCategories"></app-category-section>
     </div>
-    
+
     <!-- Основной контент -->
     <div class="main-content">
         <!-- Сайдбар с фильтрами -->
         <aside class="filters-sidebar">
-            <app-filters [filters]="filters" [productsCount]="products.length" [categoryId]="categoryData.id" (filtersChange)="onFiltersChange($event)"
-                (filtersApplied)="applyFilters()">
+            <app-filters [filters]="filters" [productsCount]="products.length" [categoryId]="categoryData.id"
+                (filtersChange)="onFiltersChange($event)" (filtersApplied)="applyFilters()">
             </app-filters>
         </aside>
 

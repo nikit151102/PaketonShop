@@ -12,13 +12,15 @@ import {
   ValidatorFn,
 } from '@angular/forms';
 import { StorageUtils } from '../../../utils/storage.utils';
-import { localStorageEnvironment } from '../../../environment';
+import { localStorageEnvironment, memoryCacheEnvironment } from '../../../environment';
 import { UserService } from '../../core/services/user.service';
 import { Router } from '@angular/router';
 import { UserApiService } from '../../core/api/user.service';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
 import { VkIdWidgetComponent } from '../../core/components/vk-id-button/vk-id-button.component';
 import { YandexIdButtonComponent } from '../../core/components/yandex-id-button/yandex-id-button.component';
+import { BasketsService } from '../../core/api/baskets.service';
+import { BasketsStateService } from '../../core/services/baskets-state.service';
 
 @Component({
   selector: 'app-auth',
@@ -57,6 +59,8 @@ export class AuthComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private router: Router,
     private userApiService: UserApiService,
+    private basketsService: BasketsService,
+    private basketsStateService: BasketsStateService,
   ) {
     this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -173,7 +177,6 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.authForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
       Object.keys(this.authForm.controls).forEach(key => {
         const control = this.authForm.get(key);
         control?.markAsTouched();
@@ -223,6 +226,24 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  private loadBaskets(): void {
+    this.basketsService
+      .filterBaskets({
+        filters: [],
+        sorts: [],
+        page: 0,
+        pageSize: 10,
+      })
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.basketsStateService.updateBaskets(res.data);
+        },
+        error: (err) => console.error('Ошибка загрузки корзин', err),
+      });
+  }
+
   private handleLoginSuccess(response: any): void {
     StorageUtils.setLocalStorageCache(
       localStorageEnvironment.auth.key,
@@ -233,7 +254,9 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.userApiService.getData().subscribe((data) => {
       this.userService.setUser(data.data, 'session', true);
       this.closePopUp();
-      console.log('isRedirecting', this.isRedirecting())
+
+      this.loadBaskets();
+
       if (this.isRedirecting() == true) {
         this.router.navigate(['/profile']);
       }

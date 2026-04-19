@@ -50,17 +50,19 @@
             </div>
           </div>
 
-          <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
+          <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
             <span class="arrow-icon">📋</span>
-            <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
-              {{ getProductBaskets().length }}
+            <span class="basket-badge" *ngIf="productBasketsCount > 0">
+              {{ productBasketsCount }}
             </span>
           </button>
         </div>
 
-        <!-- Доп. информация о количестве -->
         <div class="basket-info-row">
-          <span class="total-label">Итого:</span>
+          <span class="total-label">Итого: <span class="meta-tag" *ngIf="product.packCount">
+              {{ product.packCount * getActiveBasketCount() }} шт
+            </span></span>
+
           <span class="total-value">{{ (getActiveBasketCount() * product.viewPrice) | number:'1.2-2' }} ₽</span>
         </div>
       </div>
@@ -68,18 +70,18 @@
       <!-- Если товара нет в активной корзине, но есть в других корзинах -->
       <div *ngIf="!isInActiveBasket() && hasProductInBaskets()" class="other-baskets-controls">
         <div class="add-cart-wrapper">
-          <button class="add-cart add-to-active" (click)="addToActiveBasket()">
+          <button class="add-cart" (click)="addToActiveBasket()">
             <span class="cart-icon">🛒</span>
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
-          <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
+          <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
             <span class="arrow-icon">📋</span>
-            <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
-              {{ getProductBaskets().length }}
+            <span class="basket-badge" *ngIf="productBasketsCount > 0">
+              {{ productBasketsCount }}
             </span>
           </button>
         </div>
-        <div class="basket-note">В других корзинах: {{ getProductBaskets().length }}</div>
+
       </div>
 
       <!-- Если товара нет ни в одной корзине -->
@@ -97,10 +99,10 @@
             <span class="cart-icon">🛒</span>
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
-          <button class="cart-arrow" *ngIf="baskets?.length" (click)="toggleBasketPopup($event)">
+          <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
             <span class="arrow-icon">📋</span>
-            <span class="basket-badge" *ngIf="getProductBaskets().length > 0">
-              {{ getProductBaskets().length }}
+            <span class="basket-badge" *ngIf="productBasketsCount > 0">
+              {{ productBasketsCount }}
             </span>
           </button>
         </div>
@@ -220,7 +222,7 @@
   </div>
 </div>
 
-<app-basket-manager-modal [visible]="showBasketPopup" [product]="product" [baskets]="baskets"
+<app-basket-manager-modal [visible]="showBasketPopup" [product]="product" [baskets]="basketsData"
   [selectedBasketId]="selectedBasketId" [searchTerm]="basketSearchTerm" (close)="closeBasketManager()"
   (selectBasket)="onSelectBasket($event)" (addToBasket)="onAddToBasket($event)"
   (removeFromBasket)="onRemoveFromBasket($event)" (updateQuantity)="onUpdateQuantity($event)"

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -25,8 +25,7 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   @Output() searchChange = new EventEmitter<string>();
 
   filteredBaskets: any[] = [];
-
-  constructor(private elementRef: ElementRef) {}
+  showHelp: boolean = false;
 
   ngOnInit() {
     this.filterBaskets();
@@ -41,6 +40,13 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.body.style.overflow = 'auto';
+    // Сохраняем состояние помощи
+    localStorage.setItem('basketManagerHelpShown', String(this.showHelp));
+  }
+
+  toggleHelp() {
+    this.showHelp = !this.showHelp;
+    localStorage.setItem('basketManagerHelpShown', String(this.showHelp));
   }
 
   onSearch(event: any) {
@@ -66,9 +72,11 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
 
   private sortBaskets(baskets: any[]): any[] {
     return baskets.sort((a, b) => {
+      // Активная корзина вверх
       if (a.isActiveBasket && !b.isActiveBasket) return -1;
       if (!a.isActiveBasket && b.isActiveBasket) return 1;
       
+      // Корзины с товаром выше
       const aHasProduct = this.isProductInBasket(a.id);
       const bHasProduct = this.isProductInBasket(b.id);
       
@@ -89,11 +97,18 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   }
 
   getPrice(): number {
-    // Реализуйте логику получения цены в зависимости от города
-    return this.product?.retailPrice || 0;
+    // Можно расширить логику в зависимости от города пользователя
+    // Сейчас возвращает розничную цену
+    return this.product?.retailPrice || this.product?.viewPrice || 0;
   }
 
-  updateQuantityInput(event: any, basket: any){
-    this.updateQuantityFromInput.emit({basketId: basket.id, value: event.target.value})
+  updateQuantityInput(event: any, basketId: string) {
+    const value = parseInt(event.target.value, 10);
+    if (!isNaN(value) && value >= 1) {
+      this.updateQuantityFromInput.emit({basketId: basketId, value: value});
+    } else {
+      // Сброс на 1 если введено некорректное значение
+      this.updateQuantityFromInput.emit({basketId: basketId, value: 1});
+    }
   }
 }

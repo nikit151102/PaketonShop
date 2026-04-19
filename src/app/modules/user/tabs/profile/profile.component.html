@@ -1,9 +1,7 @@
 <div class="profile-page">
     <!-- Заголовок страницы -->
-    <div class="page-header">
-        <h1 class="page-title">Личный кабинет</h1>
-        <p class="page-subtitle">Управление вашими данными и заказами</p>
-    </div>
+    <app-title [title]="'Личный кабинет'"
+        [description]="'Управляйте своими данными, заказами и настройками в одном месте'"></app-title>
 
     <div class="profile-container">
         <!-- Левый блок - информация о пользователе -->
@@ -38,7 +36,7 @@
                             <div class="stat-label">Активных заказов</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ operativeInfo().favoriteCount || 0  }}</div>
+                            <div class="stat-value">{{ operativeInfo().favoriteCount || 0 }}</div>
                             <div class="stat-label">Избранное</div>
                         </div>
                         <div class="stat-item">

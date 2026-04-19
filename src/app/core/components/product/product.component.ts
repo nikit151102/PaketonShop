@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, Inject, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Input, OnInit, Output, ChangeDetectorRef, OnDestroy, SimpleChanges, inject, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LocationService } from '../location/location.service';
 import { CleanStringLinkPipe } from '../../pipes/clear-url';
@@ -8,13 +8,14 @@ import { ProductFavoriteService } from '../../api/product-favorite.service';
 import { BasketsService } from '../../api/baskets.service';
 import { StorageUtils } from '../../../../utils/storage.utils';
 import { localStorageEnvironment, memoryCacheEnvironment } from '../../../../environment';
-import { take } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { ComparingService } from '../../api/comparing.service';
 import { ProductsService } from '../../services/products.service';
 import { AuthService } from '../../services/auth.service';
 import { UserApiService } from '../../api/user.service';
 import { BasketManagerModalComponent } from '../basket-manager-modal/basket-manager-modal.component';
 import { UserService } from '../../services/user.service';
+import { BasketsStateService } from '../../services/baskets-state.service';
 
 @Component({
   selector: 'app-product',
@@ -22,10 +23,11 @@ import { UserService } from '../../services/user.service';
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss',
 })
-export class ProductComponent implements OnInit {
+export class ProductComponent implements OnInit, OnDestroy {
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
   @Input() product!: any;
+
   @Output() onFavoriteRemoved = new EventEmitter<{ productId: string, product: any, undo: () => void }>();
 
   isUserBasket: boolean = false;
@@ -38,6 +40,17 @@ export class ProductComponent implements OnInit {
   showBasketDetailPopup = false;
   isRedirecting = computed(() => this.authService.isRedirectingToProfile())
 
+  // Для шаблона
+  hasBaskets: boolean = false;
+  productBasketsCount: number = 0;
+  filteredBaskets: any[] = [];
+  basketSearchTerm: string = '';
+  selectedBasketId: string | null = null;
+
+  // Данные корзин из сервиса
+  basketsData: any[] = [];
+  private destroy$ = new Subject<void>();
+
   constructor(
     public locationService: LocationService,
     private router: Router,
@@ -46,52 +59,92 @@ export class ProductComponent implements OnInit {
     private productsService: ProductsService,
     private comparingService: ComparingService,
     private authService: AuthService,
-    private userService: UserService
-  ) { }
+    private userService: UserService,
+    private basketsStateService: BasketsStateService,
+    private cdr: ChangeDetectorRef,
+  ) {
+    // Эффект для отслеживания изменений авторизации
+    effect(() => {
+      const isAuth = this.userService.authUser();
+      if (this.product?.id && isAuth) {
+        this.refreshProductBasketsInfo();
+      }
+      this.updateProductState();
+    });
+  }
 
   private userApiService = inject(UserApiService);
 
-
-
   ngOnInit(): void {
     this.city$ = this.locationService.city$;
+
+    // ПОДПИСЫВАЕМСЯ НА ИЗМЕНЕНИЯ КОРЗИН - УБИРАЕМ take(1)
+    this.basketsStateService.baskets$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(baskets => {
+        console.log('ProductComponent: получены новые корзины', baskets);
+        this.basketsData = baskets || [];
+        this.updateProductState();
+        // Принудительно обновляем UI
+        this.cdr.detectChanges();
+      });
+
+    this.updateProductState();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Обновляем состояние при изменении входных данных
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['product']) {
+      this.updateProductState();
+    }
+  }
+
+  /**
+   * Обновляет информацию о корзинах в продукте
+   */
+  private refreshProductBasketsInfo(): void {
+    if (!this.product?.id) return;
+
+    this.productsService.getById(this.product.id).pipe(take(1)).subscribe({
+      next: (response: any) => {
+        if (response?.data) {
+          this.product.userBaskets = response.data.userBaskets;
+          this.updateProductState();
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Ошибка обновления продукта:', err);
+      }
+    });
+  }
+
+  private updateProductState(): void {
+    // Обновляем данные корзин из сервиса
+    const baskets = this.basketsStateService.getCurrentBaskets() || [];
+    this.basketsData = baskets;
+    this.hasBaskets = baskets.length > 0;
+    this.isUserBasket = baskets.length > 0 && this.userService.authUser();
+    this.productBasketsCount = this.getProductBaskets().length;
     this.checkProductInBaskets();
-    this.filterBaskets
+    this.filteredBaskets = [...baskets]; // Создаем новую ссылку для триггера
   }
 
   private get activeBasketId(): string | null {
-    if (this.userService.authUser()) {
-      const baskets: any = StorageUtils.getMemoryCache(
-        memoryCacheEnvironment.baskets.key,
-      );
+    if (!this.userService.authUser()) return null;
 
-      if (!baskets || !Array.isArray(baskets)) {
-        this.isUserBasket = false;
-        return null;
-      }
-
-      this.isUserBasket = true;
-      const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
-      return activeBasket?.id ?? null;
-    }
-    else {
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    if (!baskets || !Array.isArray(baskets) || baskets.length === 0) {
       return null;
     }
 
-  }
-
-  public get baskets(): any | null {
-    if (this.userService.authUser()) {
-      const baskets: any = StorageUtils.getMemoryCache(
-        memoryCacheEnvironment.baskets.key,
-      );
-      this.filteredBaskets = baskets;
-      this.isUserBasket = true;
-      return baskets;
-    }
-    else {
-      return null;
-    }
+    const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
+    return activeBasket?.id ?? null;
   }
 
   isInActiveBasket(): boolean {
@@ -140,14 +193,16 @@ export class ProductComponent implements OnInit {
   }
 
   getBasketName(basketId: string): string {
-    const baskets = this.baskets;
-    if (!baskets) return 'Корзина';
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    if (!baskets || baskets.length === 0) return 'Корзина';
     const basket = baskets.find((b: any) => b.id === basketId);
     return basket?.name || 'Корзина';
   }
 
   private checkProductInBaskets(): void {
-    if (this.hasProductInBaskets()) {
+    const hasProducts = this.hasProductInBaskets();
+
+    if (hasProducts) {
       this.inCart = true;
       this.quantitySelectorVisible = true;
       this.selectedQuantity = this.getTotalProductCount();
@@ -158,16 +213,19 @@ export class ProductComponent implements OnInit {
     }
   }
 
-  showBasketPopup = false;
-
   toggleBasketPopup(event: MouseEvent): void {
     event.stopPropagation();
     this.showBasketPopup = !this.showBasketPopup;
+    if (this.showBasketPopup) {
+      const baskets = this.basketsStateService.getCurrentBaskets();
+      this.filteredBaskets = baskets || [];
+      this.basketSearchTerm = '';
+    }
   }
 
   addToActiveBasket(): void {
-
     if (this.isUserBasket == false) {
+      this.authService.changeVisible(true);
       return;
     }
 
@@ -201,14 +259,12 @@ export class ProductComponent implements OnInit {
     const newCount = currentCount + delta;
 
     if (newCount <= 0) {
-      // Удаляем товар из корзины
       this.basketsService
         .changeProductFromBasket(activeBasketId, this.product.id, 0)
         .pipe(take(1))
         .subscribe({
           next: () => {
             this.loadUpdatedProductData();
-            // Сбрасываем состояние после удаления
             this.inCart = false;
             this.quantitySelectorVisible = false;
             this.selectedQuantity = 1;
@@ -218,7 +274,6 @@ export class ProductComponent implements OnInit {
       return;
     }
 
-    // Обновляем количество
     this.basketsService
       .addProduct({
         productId: this.product.id,
@@ -288,7 +343,6 @@ export class ProductComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadUpdatedProductData();
-          // Сбрасываем состояние для текущего товара
           if (basketItem.userBasketId === this.activeBasketId) {
             this.inCart = false;
             this.quantitySelectorVisible = false;
@@ -301,14 +355,13 @@ export class ProductComponent implements OnInit {
   }
 
   private loadUpdatedProductData(): void {
-    this.productsService.getById(this.product.id).subscribe((values: any) => {
+    this.productsService.getById(this.product.id).pipe(take(1)).subscribe((values: any) => {
       this.product = values.data;
-      // Обновляем состояние корзины после загрузки
-      this.checkProductInBaskets();
+      this.updateProductState();
       this.hideBasketDetails();
+      this.cdr.detectChanges();
     });
   }
-
 
   getPrice(city: any | null): number {
     if (city === 'Барнаул') {
@@ -397,10 +450,9 @@ export class ProductComponent implements OnInit {
 
   decreaseQty(): void {
     const newQty = this.selectedQuantity - 1;
-    if (newQty <= 0) return this.removeFromBasket(this.product.id);
+    if (newQty <= 0) return;
     this.updateBasket(newQty);
   }
-
 
   addToCart(event: MouseEvent): void {
     event.stopPropagation();
@@ -430,6 +482,7 @@ export class ProductComponent implements OnInit {
       event.stopPropagation();
       return;
     }
+
     this.router.navigate(['/product', this.product.id]);
   }
 
@@ -440,8 +493,9 @@ export class ProductComponent implements OnInit {
     if (isFavorite) {
       this.productFavoriteService
         .removeFromFavorites(this.product.id)
+        .pipe(take(1))
         .subscribe({
-          next: (value: any) => {
+          next: () => {
             this.userApiService.getOperativeInfo();
             this.product.isFavorite = false;
           },
@@ -457,8 +511,9 @@ export class ProductComponent implements OnInit {
     } else {
       this.productFavoriteService
         .addToFavorites(this.product.id)
+        .pipe(take(1))
         .subscribe({
-          next: (value: any) => {
+          next: () => {
             this.product.isFavorite = true;
             this.userApiService.getOperativeInfo();
           },
@@ -472,7 +527,6 @@ export class ProductComponent implements OnInit {
           }
         });
     }
-
   }
 
   toggleCompare(event: MouseEvent) {
@@ -483,7 +537,7 @@ export class ProductComponent implements OnInit {
       ? this.comparingService.deleteCompareProduct(this.product.id)
       : this.comparingService.setCompareProduct(this.product.id);
 
-    serviceCall.subscribe({
+    serviceCall.pipe(take(1)).subscribe({
       next: () => this.product.compareProduct = !this.product.compareProduct,
       error: (error) => {
         if (error.status === 401) {
@@ -504,15 +558,7 @@ export class ProductComponent implements OnInit {
     this.showQuickView = false;
   }
 
-
-
-
-
-
-  filteredBaskets: any[] = [];
-  selectedBasketId: string | null = null;
-  currentProduct: any = null;
-  basketSearchTerm: string = '';
+  showBasketPopup = false;
 
   showBasketDetails(event: Event, basket: any) {
     event.stopPropagation();
@@ -550,7 +596,6 @@ export class ProductComponent implements OnInit {
     if (!this.filteredBaskets) return [];
 
     return [...this.filteredBaskets].sort((a, b) => {
-
       if (a.isActiveBasket && !b.isActiveBasket) return -1;
       if (!a.isActiveBasket && b.isActiveBasket) return 1;
 
@@ -575,23 +620,16 @@ export class ProductComponent implements OnInit {
 
   filterBaskets(event: any): void {
     this.basketSearchTerm = event.target.value.toLowerCase();
-    this.filteredBaskets = this.baskets.filter((basket: any) =>
-      basket.name.toLowerCase().includes(this.basketSearchTerm)
-    );
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    if (baskets && baskets.length > 0) {
+      this.filteredBaskets = baskets.filter((basket: any) =>
+        basket.name.toLowerCase().includes(this.basketSearchTerm)
+      );
+    }
   }
 
-  // Выбор корзины (делаем активной)
   selectBasket(basket: any): void {
     if (basket.isActiveBasket) return;
-
-    // this.basketsService.setActiveBasket(basket.id).subscribe({
-    //   next: () => {
-    //     this.selectedBasketId = basket.id;
-    //     this.loadUpdatedProductData();
-    //     this.showNotification(`Корзина "${basket.name}" теперь активна`);
-    //   },
-    //   error: (err:any) => console.error('Ошибка при смене активной корзины:', err)
-    // });
   }
 
   updateBasketItemQuantity(basketId: string, delta: number): void {
@@ -643,7 +681,8 @@ export class ProductComponent implements OnInit {
   }
 
   removeFromBasket(basketId: string): void {
-    const basket = this.baskets?.find((b: any) => b.id === basketId);
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    const basket = baskets?.find((b: any) => b.id === basketId);
 
     this.basketsService.changeProductFromBasket(basketId, this.product.id, 0).pipe(take(1)).subscribe({
       next: () => {
@@ -661,8 +700,8 @@ export class ProductComponent implements OnInit {
     this.basketsService.createBasket({
       name: basketName,
       products: []
-    }).subscribe({
-      next: (newBasket) => {
+    }).pipe(take(1)).subscribe({
+      next: () => {
         this.loadUpdatedProductData();
         this.showNotification(`Корзина "${basketName}" создана`);
       },
@@ -675,7 +714,10 @@ export class ProductComponent implements OnInit {
   closeBasketPopup(): void {
     this.showBasketPopup = false;
     this.basketSearchTerm = '';
-    this.filteredBaskets = this.baskets;
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    if (baskets && baskets.length > 0) {
+      this.filteredBaskets = baskets;
+    }
     document.body.style.overflow = 'auto';
   }
 
@@ -712,5 +754,4 @@ export class ProductComponent implements OnInit {
     this.basketSearchTerm = '';
     document.body.style.overflow = 'auto';
   }
-
 }

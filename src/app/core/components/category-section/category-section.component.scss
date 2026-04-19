@@ -19,6 +19,11 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
+h3 {
+  margin: 0;
+}
+
 .category-section {
   position: relative;
   padding: 0 8px;
@@ -103,17 +108,9 @@
 // Изображение
 .card-image {
   position: relative;
-  height: 175px;
+  height: 125px;
   overflow: hidden;
   margin: 0 auto;
-
-  @media (max-width: 1199px) {
-    height: 150px;
-  }
-
-  @media (max-width: 576px) {
-    height: 125px;
-  }
 }
 
 .category-img {

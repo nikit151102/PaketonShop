@@ -1,0 +1,81 @@
+<div class="contact-type-selector" [class.compact]="variant === 'compact'" [class.cards]="variant === 'cards'">
+  
+  <div class="contact-type-options" *ngIf="variant === 'default'">
+    <div 
+      class="contact-type-option"
+      *ngFor="let option of options"
+      [class.selected]="selectedValue === option.value"
+      [class.disabled]="disabled"
+      (click)="selectType(option.value)">
+      
+      <div class="option-radio">
+        <div class="radio-circle" [class.checked]="selectedValue === option.value">
+          <div class="radio-dot" *ngIf="selectedValue === option.value"></div>
+        </div>
+      </div>
+      
+      <div class="option-content">
+        <div class="option-header">
+          <span class="option-icon">{{ option.icon }}</span>
+          <span class="option-label" *ngIf="showLabels">{{ option.label }}</span>
+        </div>
+        
+        <div class="option-description" *ngIf="showDescriptions">
+          {{ option.description }}
+        </div>
+      </div>
+      
+      <div class="option-badge" *ngIf="selectedValue === option.value">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-type-pills" *ngIf="variant === 'compact'">
+    <button
+      *ngFor="let option of options"
+      class="pill"
+      [class.active]="selectedValue === option.value"
+      [class.disabled]="disabled"
+      [style.background]="selectedValue === option.value ? option.bgColor : 'transparent'"
+      [style.border-color]="selectedValue === option.value ? option.color : '#e5e7eb'"
+      (click)="selectType(option.value)"
+      [disabled]="disabled">
+      
+      <span class="pill-icon">{{ option.icon }}</span>
+      <span class="pill-label" *ngIf="showLabels">{{ option.label }}</span>
+    </button>
+  </div>
+
+  <div class="contact-type-cards" *ngIf="variant === 'cards'">
+    <div
+      *ngFor="let option of options"
+      class="card"
+      [class.selected]="selectedValue === option.value"
+      [class.disabled]="disabled"
+      [style.border-color]="selectedValue === option.value ? option.color : '#e5e7eb'"
+      (click)="selectType(option.value)">
+      
+      <div class="card-header">
+        <div class="card-icon" [style.background]="option.bgColor" [style.color]="option.color">
+          {{ option.icon }}
+        </div>
+        <div class="card-radio" *ngIf="selectedValue === option.value">
+          <div class="card-radio-inner" [style.background]="option.color"></div>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="card-title" *ngIf="showLabels">{{ option.label }}</div>
+        <div class="card-description" *ngIf="showDescriptions">{{ option.description }}</div>
+      </div>
+      
+      <div class="card-footer" *ngIf="selectedValue === option.value">
+        <span class="selected-badge" [style.background]="option.color">Выбрано</span>
+      </div>
+    </div>
+  </div>
+
+</div>

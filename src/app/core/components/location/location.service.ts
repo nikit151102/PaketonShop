@@ -469,7 +469,7 @@ export class LocationService {
       );
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
+        // (pos) => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
         () => console.warn('Не удалось получить геолокацию'),
       );
     }
@@ -485,41 +485,41 @@ export class LocationService {
     return false;
   }
 
-  // Получение города по координатам
-  private async getCityFromCoords(lat: number, lon: number) {
-    try {
-      const res = await fetch(
-        'https://песочница.пакетон.рф/api/auth/authentication',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'Admin1', password: 'QweQwe', lat, lon }),
-        },
-      );
+  // // Получение города по координатам
+  // private async getCityFromCoords(lat: number, lon: number) {
+  //   try {
+  //     const res = await fetch(
+  //       'https://песочница.пакетон.рф/api/auth/authentication',
+  //       {
+  //         method: 'POST',
+  //         headers: { 'Content-Type': 'application/json' },
+  //         body: JSON.stringify({ email: 'Admin1', password: 'QweQwe', lat, lon }),
+  //       },
+  //     );
 
-      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+  //     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
-      const data = await res.json();
-      const cityName = data.address?.city || data.address?.town || data.address?.village;
+  //     const data = await res.json();
+  //     const cityName = data.address?.city || data.address?.town || data.address?.village;
 
-      if (cityName) {
-        this.detectedCity$.next(cityName);
+  //     if (cityName) {
+  //       this.detectedCity$.next(cityName);
 
-        const foundCity = this.cities.find(city =>
-          city.name.toLowerCase().includes(cityName.toLowerCase()) ||
-          cityName.toLowerCase().includes(city.name.toLowerCase())
-        );
+  //       const foundCity = this.cities.find(city =>
+  //         city.name.toLowerCase().includes(cityName.toLowerCase()) ||
+  //         cityName.toLowerCase().includes(city.name.toLowerCase())
+  //       );
 
-        if (foundCity) {
-          this.city$.next(foundCity);
-          localStorage.setItem(this.STORAGE_KEYS.CITY, foundCity.name);
-        } else {
-          this.showCityModal$.next(true);
-        }
-      }
-    } catch (err) {
-      console.error('Error detecting city:', err);
-      this.showCityModal$.next(true);
-    }
-  }
+  //       if (foundCity) {
+  //         this.city$.next(foundCity);
+  //         localStorage.setItem(this.STORAGE_KEYS.CITY, foundCity.name);
+  //       } else {
+  //         this.showCityModal$.next(true);
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error('Error detecting city:', err);
+  //     this.showCityModal$.next(true);
+  //   }
+  // }
 }

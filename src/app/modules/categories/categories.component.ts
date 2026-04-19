@@ -7,6 +7,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { CommonModule } from '@angular/common';
 import { FiltersComponent } from '../../core/components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
+import { TitleComponent } from '../../core/components/title/title.component';
 
 @Component({
   selector: 'app-categories',
@@ -17,6 +18,7 @@ import { FormsModule } from '@angular/forms';
     CategorySectionComponent,
     ProductComponent,
     FiltersComponent,
+    TitleComponent,
     RouterLink
   ],
   templateUrl: './categories.component.html',

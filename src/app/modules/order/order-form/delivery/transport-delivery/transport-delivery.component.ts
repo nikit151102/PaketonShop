@@ -66,8 +66,11 @@ export class TransportDeliveryComponent implements OnInit {
       latitude: [null],
       longitude: [null],
       pickupPointName: [''],
+      pickupPointPhone: [''], // Добавлен недостающий control
+      pickupPointWorkTime: [''], // Добавлен недостающий control
       transportCompanyType: [1, Validators.required],
-      system: ['web']
+      system: ['web'],
+      comment: [''] // Добавлен для комментария
     });
   }
 
@@ -139,8 +142,11 @@ export class TransportDeliveryComponent implements OnInit {
         latitude: address.latitude || null,
         longitude: address.longitude || null,
         pickupPointName: address.pickupPointName || '',
+        pickupPointPhone: (address as any).pickupPointPhone || '',
+        pickupPointWorkTime: (address as any).pickupPointWorkTime || '',
         transportCompanyType: address.transportCompanyType || 1,
-        system: address.system || 'web'
+        system: address.system || 'web',
+        comment: (address as any).comment || ''
       });
     } else {
       this.isEditing = false;
@@ -148,7 +154,10 @@ export class TransportDeliveryComponent implements OnInit {
       this.addressForm.reset({
         country: 'Россия',
         transportCompanyType: this.selectedTransportCompany,
-        system: 'web'
+        system: 'web',
+        pickupPointPhone: '',
+        pickupPointWorkTime: '',
+        comment: ''
       });
     }
     
@@ -161,7 +170,10 @@ export class TransportDeliveryComponent implements OnInit {
     this.addressForm.reset({
       country: 'Россия',
       transportCompanyType: 1,
-      system: 'web'
+      system: 'web',
+      pickupPointPhone: '',
+      pickupPointWorkTime: '',
+      comment: ''
     });
     this.error = null;
   }
@@ -178,7 +190,7 @@ export class TransportDeliveryComponent implements OnInit {
     const formValue = this.addressForm.value;
     
     // Подготавливаем данные в соответствии с интерфейсом Address
-    const addressData: Address = {
+    const addressData: any = {
       id: formValue.id,
       region: formValue.region || '',
       area: formValue.area || '',
@@ -194,7 +206,10 @@ export class TransportDeliveryComponent implements OnInit {
       longitude: formValue.longitude || undefined,
       system: formValue.system || 'web',
       transportCompanyType: formValue.transportCompanyType,
-      pickupPointName: formValue.pickupPointName || undefined
+      pickupPointName: formValue.pickupPointName || undefined,
+      pickupPointPhone: formValue.pickupPointPhone || undefined,
+      pickupPointWorkTime: formValue.pickupPointWorkTime || undefined,
+      comment: formValue.comment || undefined
     };
 
     // Если это новый адрес, удаляем id
@@ -226,7 +241,7 @@ export class TransportDeliveryComponent implements OnInit {
         },
         error: (err) => {
           console.error('Ошибка сохранения адреса:', err);
-          this.error = 'Не удалось сохранить пункт выдачи. Попробуйте позже.';
+          this.error = 'Не удалось сохранить пункт выдачи. Попробуте позже.';
           
           if (err.error?.message) {
             this.error = err.error.message;

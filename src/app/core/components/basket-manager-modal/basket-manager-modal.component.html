@@ -25,26 +25,51 @@
         <div class="product-info" *ngIf="product">
             <div class="product-image">
                 <img [src]="product.productImageLinks?.[0] || 'assets/images/no-image.png'" [alt]="product.fullName">
-                <!-- onerror="this.src='assets/images/no-image.png'" -->
             </div>
             <div class="product-details">
                 <div class="product-name">{{ product.fullName || 'Товар' }}</div>
                 <div class="product-article">Арт: {{ product.article }}</div>
-                <div class="product-price">{{ getPrice() | number:'1.0-0' }} ₽</div>
+                <div class="product-price-block">
+                    <div class="product-price">{{ getPrice() | number:'1.2-2' }} ₽ / шт</div>
+                    <div class="product-price-hint">цена за 1 штуку</div>
+                </div>
             </div>
         </div>
 
-        <!-- Поиск корзин -->
-        <!-- <div class="search-box" *ngIf="baskets && baskets?.length > 3">
-            <div class="search-wrapper">
-                <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="7" cy="7" r="5" stroke="#327120" stroke-width="1.5" />
-                    <path d="M11 11L14 14" stroke="#327120" stroke-width="1.5" stroke-linecap="round" />
+        <!-- Подсказка-помощник -->
+        <div class="help-section" [class.expanded]="showHelp">
+            <div class="help-header" (click)="toggleHelp()">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <circle cx="9" cy="9" r="7.5" stroke="#327120" stroke-width="1.5" />
+                    <path d="M9 6V9M9 12V12.5" stroke="#327120" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
-                <input type="text" placeholder="Поиск корзины..." (input)="onSearch($event)" class="search-input"
-                    [value]="searchTerm">
+                <span>Как управлять корзинами?</span>
+                <svg class="help-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"
+                    [class.rotated]="showHelp">
+                    <path d="M3 5L7 9L11 5" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
             </div>
-        </div> -->
+            <div class="help-content" *ngIf="showHelp">
+                <div class="help-item">
+                    <span><strong>Активная корзина</strong> — звездочка ★ означает корзину, которая используется по умолчанию</span>
+                </div>
+                <div class="help-item">
+                    <span><strong>Добавление товара</strong> — нажмите "Добавить в корзину" для добавления товара в выбранную корзину</span>
+                </div>
+                <div class="help-item">
+                    <span><strong>Изменение количества</strong> — используйте кнопки +/- или введите число в поле</span>
+                </div>
+                <div class="help-item">
+                    <span><strong>Удаление</strong> — красная кнопка удаляет товар из корзины</span>
+                </div>
+                <!-- <div class="help-item">
+                    <span><strong>Смена активной корзины</strong> — нажмите на любую корзину, чтобы сделать её активной</span>
+                </div> -->
+                <div class="help-item">
+                    <span><strong>Создание новой корзины</strong> — кнопка внизу для создания новой корзины</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Список корзин -->
         <div class="baskets-list" *ngIf="filteredBaskets?.length; else noBaskets">
@@ -69,36 +94,40 @@
                         </div>
                         <div class="basket-stats">
                             <span class="total-items">{{ basket.productCount || 0 }} товаров</span>
-                            <span class="total-sum" *ngIf="basket.totalSum">{{ basket.totalSum }} ₽</span>
+                            <span class="total-sum" *ngIf="basket.totalSum">{{ basket.totalSum | number:'1.0-0' }} ₽</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Блок управления товаром -->
                 <div class="product-controls" *ngIf="getBasketItem(basket.id) as item">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn minus"
-                            (click)="updateQuantity.emit({basketId: basket.id, delta: -1})"
-                            [disabled]="item.count <= 1">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                            </svg>
-                        </button>
+                    <div class="quantity-info">
+                        <span class="quantity-label">Количество:</span>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus"
+                                (click)="updateQuantity.emit({basketId: basket.id, delta: -1})"
+                                [disabled]="item.count <= 1">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
+                            </button>
 
-                        <input type="number" class="quantity-input" [value]="item.count" min="1"
-                            (change)="updateQuantityInput($event, basket.id)" (click)="$event.stopPropagation()">
+                            <input type="number" class="quantity-input" [value]="item.count" min="1"
+                                (change)="updateQuantityInput($event, basket.id)" (click)="$event.stopPropagation()">
 
-                        <button class="quantity-btn plus"
-                            (click)="updateQuantity.emit({basketId: basket.id, delta: 1})">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.5"
-                                    stroke-linecap="round" />
-                            </svg>
-                        </button>
+                            <button class="quantity-btn plus"
+                                (click)="updateQuantity.emit({basketId: basket.id, delta: 1})">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.5"
+                                        stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="item-total">
-                        {{ item.totalCost | number:'1.0-0' }} ₽
+                    <div class="price-info">
+                        <div class="unit-price">{{ getPrice() | number:'1.2-2' }} ₽/шт</div>
+                        <div class="item-total">{{ item.totalCost | number:'1.2-2' }} ₽</div>
                     </div>
 
                     <button class="remove-btn" (click)="removeFromBasket.emit(basket.id)" title="Удалить из корзины">
@@ -117,7 +146,7 @@
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                     </svg>
-                    Добавить в корзину
+                    Добавить в корзину ({{ getPrice() | number:'1.2-2' }} ₽/шт)
                 </button>
             </div>
         </div>
@@ -131,6 +160,7 @@
                     <path d="M32 20L28 24L32 28" stroke="#327120" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
                 <div class="empty-text">Корзины не найдены</div>
+                <div class="empty-hint">Нажмите "Создать новую корзину" чтобы начать</div>
             </div>
         </ng-template>
 
@@ -142,15 +172,6 @@
                 </svg>
                 Создать новую корзину
             </button>
-        </div>
-
-        <!-- Подсказка -->
-        <div class="help-tip">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6" stroke="#327120" stroke-width="1.5" />
-                <path d="M8 5V9M8 11V11.5" stroke="#327120" stroke-width="1.5" stroke-linecap="round" />
-            </svg>
-            <span>Нажмите на корзину, чтобы сделать её активной</span>
         </div>
     </div>
 </div>

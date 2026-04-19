@@ -28,7 +28,7 @@
     <!-- Выбранный адрес (режим просмотра) -->
     <div class="address-preview" *ngIf="selectedAddress && !showAddressList && !showNewAddressForm">
       <div class="address-preview__info">
-        <div class="address-preview__icon">📍</div>
+        <!-- <div class="address-preview__icon">📍</div> -->
         <div class="address-preview__details">
           <span class="address-preview__label">Пункт выдачи</span>
           <span class="address-preview__text">{{ getFullAddress(selectedAddress) }}</span>
@@ -96,20 +96,17 @@
     </div>
 
     <!-- Информация о доставке -->
-    <div class="delivery-info" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+    <!-- <div class="delivery-info" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
       <div class="delivery-info__item">
-        <span class="delivery-info__icon">🕒</span>
         <span>Срок доставки: 3-7 дней</span>
       </div>
       <div class="delivery-info__item">
-        <span class="delivery-info__icon">📦</span>
         <span>Отслеживание по номеру</span>
       </div>
       <div class="delivery-info__item">
-        <span class="delivery-info__icon">💰</span>
         <span>Оплата при получении</span>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <!-- Модальное окно для добавления/редактирования адреса -->
@@ -127,7 +124,7 @@
             <button type="button" *ngFor="let company of [1,2,3]" class="company-option"
               [class.active]="selectedTransportCompany === company"
               (click)="selectCompany(company)">
-              <span class="company-icon">{{ getTransportCompanyIcon(company) }}</span>
+              <!-- <span class="company-icon">{{ getTransportCompanyIcon(company) }}</span> -->
               <span class="company-name">{{ getTransportCompanyName(company) }}</span>
             </button>
           </div>

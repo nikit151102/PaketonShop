@@ -20,20 +20,18 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
   companies: any[] = [];
   loading = false;
   error: string | null = null;
-  
-  // Состояния UI
+
   isSelectionMode = false;
   previewedCompany: any | null = null;
   hoveredCompanyId: string | null = null;
-  
-  // Модальные окна
+
   showModal = false;
   modalMode: 'add' | 'edit' = 'add';
   selectedCompanyForEdit: any | null = null;
 
   private destroy$ = new Subject<void>();
 
-  constructor(private partnerService: PartnerService) {}
+  constructor(private partnerService: PartnerService) { }
 
   ngOnInit(): void {
     this.loadCompanies();
@@ -54,9 +52,8 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
         next: (response) => {
           if (response.data) {
             this.companies = response.data;
-            // Если есть выбранная компания, устанавливаем её для превью
             if (this.selectedCompanyId) {
-              const selected = this.companies.find(c => c.id.toString() === this.selectedCompanyId);
+              const selected = this.companies.find(c => c.id === this.selectedCompanyId);
               if (selected) {
                 this.previewedCompany = selected;
               }
@@ -72,58 +69,50 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Обработка клика по компании в обычном режиме
   onCompanyClick(company: any): void {
     this.previewedCompany = company;
     this.isSelectionMode = true;
   }
 
-  // Вход в режим выбора
   enterSelectionMode(): void {
     this.isSelectionMode = true;
     if (this.selectedCompanyId) {
-      const selected = this.companies.find(c => c.id.toString() === this.selectedCompanyId);
+      const selected = this.companies.find(c => c.id === this.selectedCompanyId);
       if (selected) {
         this.previewedCompany = selected;
       }
     }
   }
 
-  // Предпросмотр компании в режиме выбора
   previewCompany(company: any): void {
     this.previewedCompany = company;
   }
 
-  // Подтверждение выбора
   confirmSelection(): void {
     if (!this.previewedCompany) return;
-    
-    this.selectedCompanyId = this.previewedCompany.id.toString();
+
+    this.selectedCompanyId = this.previewedCompany.id;
     this.selectedCompanyChange.emit(this.selectedCompanyId);
     this.isSelectionMode = false;
   }
 
-  // Отмена выбора
   cancelSelection(): void {
     this.isSelectionMode = false;
     this.previewedCompany = null;
   }
 
-  // Отмена выбранной компании
   unselectCompany(): void {
     this.selectedCompanyId = null;
     this.selectedCompanyChange.emit(null);
     this.previewedCompany = null;
   }
 
-  // Модальное окно добавления
   openAddModal(): void {
     this.modalMode = 'add';
     this.selectedCompanyForEdit = null;
     this.showModal = true;
   }
 
-  // Модальное окно редактирования
   openEditModal(company: any, event?: Event): void {
     if (event) event.stopPropagation();
     this.modalMode = 'edit';
@@ -136,11 +125,10 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     this.selectedCompanyForEdit = null;
   }
 
-  // Обработка сохранения компании
   onCompanySaved(company: any): void {
-    this.loadCompanies(); // Перезагружаем список
+    this.loadCompanies();
     this.closeModal();
-    
+
     if (this.modalMode === 'add') {
       this.companyAdded.emit();
     } else {
@@ -148,10 +136,26 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Удаление компании
+  selectCompany(companyId: string): void {
+    this.selectedCompanyId = companyId;
+    this.selectedCompanyChange.emit(companyId);
+
+    const selected = this.companies.find(c => c.id === companyId);
+    if (selected) {
+      this.previewedCompany = selected;
+    }
+  }
+
+  clearSelection(): void {
+    this.selectedCompanyId = null;
+    this.selectedCompanyChange.emit(null);
+    this.previewedCompany = null;
+  }
+
+  // Добавьте метод для удаления
   deleteCompany(companyId: string, event: Event): void {
     event.stopPropagation();
-    
+
     if (!confirm('Вы уверены, что хотите удалить эту компанию?')) {
       return;
     }
@@ -161,18 +165,13 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.companies = this.companies.filter(c => c.id.toString() !== companyId);
-            
+            this.companies = this.companies.filter(c => c.id !== companyId);
+
             // Если удаляем выбранную компанию
             if (this.selectedCompanyId === companyId) {
-              this.unselectCompany();
+              this.clearSelection();
             }
-            
-            // Если удаляем preview компанию
-            if (this.previewedCompany?.id.toString() === companyId) {
-              this.previewedCompany = null;
-            }
-            
+
             this.companyDeleted.emit(companyId);
           }
         },
@@ -183,22 +182,40 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Вспомогательные методы
   getSelectedCompany(): any | undefined {
-    return this.companies.find(c => c.id.toString() === this.selectedCompanyId);
+    return this.companies.find(c => c.id === this.selectedCompanyId);
   }
 
   getCompanyDisplayName(company: any): string {
-    if (company.shortName) {
-      return company.shortName;
+    // Используем partner.shortName или partner.fullName если есть, иначе shortName/fullName из company
+    if (company.partner) {
+      return company.partner.shortName || company.partner.fullName || company.partner.firstName || 'Без названия';
     }
-    return company.fullName;
+    return company.shortName || company.fullName || company.partner?.firstName || 'Без названия';
   }
 
-  getCompanyDetails(company: any): string {
-    const details = [];
-    if (company.inn) details.push(`ИНН: ${company.inn}`);
-    if (company.kpp) details.push(`КПП: ${company.kpp}`);
-    return details.join(' • ');
+  getCompanyInn(company: any): string {
+    if (company.partner) {
+      return company.partner.inn || '—';
+    }
+    return company.inn || '—';
+  }
+
+  getCompanyKpp(company: any): string {
+    if (company.partner) {
+      return company.partner.kpp;
+    }
+    return company.kpp;
+  }
+
+
+  getCompanyType(company: any): string {
+    if (company.partnerType) {
+      return company.partnerType.shortName || company.partnerType.name || 'Юридическое лицо';
+    }
+    if (company.partner?.partnerType) {
+      return company.partner.partnerType.shortName || 'Юридическое лицо';
+    }
+    return 'Юридическое лицо';
   }
 }

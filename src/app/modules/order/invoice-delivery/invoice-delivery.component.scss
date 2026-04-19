@@ -1,0 +1,161 @@
+.invoice-delivery {
+  margin-top: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  animation: fadeIn 0.3s ease;
+
+  &__title {
+    margin: 0 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+
+    @media (max-width: 480px) {
+      flex-direction: column;
+    }
+  }
+}
+
+.delivery-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #3c8a27;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(60, 138, 39, 0.1);
+  }
+
+  &.active {
+    border-color: #3c8a27;
+    background: linear-gradient(135deg, #e6f4ea 0%, #ffffff 100%);
+    color: #3c8a27;
+    box-shadow: 0 2px 8px rgba(60, 138, 39, 0.15);
+  }
+
+  &__icon {
+    font-size: 18px;
+  }
+
+  &__text {
+    font-size: 14px;
+  }
+}
+
+.invoice-email-field {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease;
+}
+
+.invoice-email__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.invoice-email__input {
+  width: stretch;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #3c8a27;
+    box-shadow: 0 0 0 3px rgba(60, 138, 39, 0.1);
+  }
+
+  &.invalid {
+    border-color: #ef4444;
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+}
+
+.invoice-email__hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.invoice-email__error {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.invoice-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(60, 138, 39, 0.05);
+  border-radius: 10px;
+  border-left: 3px solid #3c8a27;
+
+  svg {
+    flex-shrink: 0;
+    color: #3c8a27;
+  }
+
+  span {
+    font-size: 12px;
+    color: #475569;
+    line-height: 1.4;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

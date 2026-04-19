@@ -1,0 +1,288 @@
+$primary: #3c8a27;
+$border: #e5e7eb;
+$text: #1a1a1a;
+$text-secondary: #4b5563;
+$text-muted: #9ca3af;
+$bg: #ffffff;
+$bg-hover: #f9fafb;
+$shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+$radius: 12px;
+$radius-sm: 8px;
+$transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+.contact-type-selector {
+    width: 100%;
+}
+
+.contact-type-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px;
+}
+
+.contact-type-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 10px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: $radius;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(.disabled) {
+        background: $bg-hover;
+        transform: translateX(4px);
+        border-color: $primary;
+    }
+
+    &.selected {
+        border-color: $primary;
+        background: rgba($primary, 0.05);
+        box-shadow: 0 2px 8px rgba($primary, 0.1);
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.option-radio {
+    flex-shrink: 0;
+    padding-top: 2px;
+}
+
+.radio-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $border;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition;
+
+    &.checked {
+        border-color: $primary;
+    }
+}
+
+.radio-dot {
+    width: 10px;
+    height: 10px;
+    background: $primary;
+    border-radius: 50%;
+    animation: scaleIn 0.2s ease;
+}
+
+.option-content {
+    flex: 1;
+}
+
+.option-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.option-icon {
+    font-size: 20px;
+}
+
+.option-label {
+    font-weight: 600;
+    font-size: 14px;
+    color: $text;
+}
+
+.option-description {
+    font-size: 12px;
+    color: $text-secondary;
+    line-height: 1.4;
+}
+
+.option-badge {
+    flex-shrink: 0;
+    color: $primary;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.contact-type-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid $border;
+    border-radius: 40px;
+    background: $bg;
+    cursor: pointer;
+    transition: $transition;
+    font-size: 13px;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: $shadow;
+    }
+
+    &.active {
+        border-width: 1.5px;
+
+        .pill-icon {
+            transform: scale(1.05);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .pill-icon {
+        font-size: 16px;
+        transition: transform 0.2s;
+    }
+
+    .pill-label {
+        color: $text;
+    }
+}
+
+.contact-type-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: $radius;
+    padding: 16px;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(.disabled) {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    &.selected {
+        border-width: 2px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: $transition;
+}
+
+.card-radio {
+    width: 22px;
+    height: 22px;
+    border: 2px solid $primary;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-radio-inner {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: scaleIn 0.2s ease;
+}
+
+.card-body {
+    margin-bottom: 12px;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: $text;
+    margin-bottom: 6px;
+}
+
+.card-description {
+    font-size: 12px;
+    color: $text-secondary;
+    line-height: 1.4;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.selected-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    color: white;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .contact-type-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-type-option {
+        padding: 12px;
+    }
+
+    .pill {
+        padding: 6px 12px;
+
+        .pill-label {
+            font-size: 12px;
+        }
+    }
+}

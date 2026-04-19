@@ -303,6 +303,17 @@
         color: #64748b;
       }
 
+      .meta-tag {
+        font-size: 11px;
+        padding: 3px 8px;
+        background: #f1f5f9;
+        border-radius: 20px;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
       .total-value {
         font-weight: 700;
         color: #327220;

@@ -25,7 +25,6 @@ export class UserApiService {
   }
 
   private operativeInfo(): Observable<any> {
-    console.log('getOperativeInfo вызван');
 
     return this.http.post(`${environment.production}/api/Profile/GetOperativeInfo`, {}).pipe(
       tap({
@@ -46,7 +45,7 @@ export class UserApiService {
   
   getOperativeInfo(){
     this.operativeInfo().subscribe((value:any)=>{
-
+      this.userService.updateIsAuthUser(true);
     })
   }
 

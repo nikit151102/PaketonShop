@@ -2,7 +2,7 @@
   <app-product-card [productData]="productData" [breadCrumbs]="breadCrumbs"></app-product-card>
 
 
-  @if (productData?.productNiches) {
+  @if (productData?.productNiches.length > 0) {
   <div class="product-niches">
 
     <app-title [title]="'Готовые решения для вашего бизнеса'"

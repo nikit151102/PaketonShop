@@ -1,5 +1,6 @@
 <section class="section" (scroll)="onScroll()">
-  <h2>Избранные товары</h2>
+  <app-title [title]="'Избранное'"
+    [description]="'Сохраняйте понравившиеся товары — они всегда будут под рукой'"></app-title>
 
   <!-- Состояние загрузки -->
   <div class="loading-state" *ngIf="loading && products.length === 0">
@@ -9,18 +10,12 @@
 
   <!-- Список товаров -->
   <div class="products" *ngIf="products.length > 0">
-    <app-product 
-      [product]="product" 
-      *ngFor="let product of products"
-    ></app-product>
+    <app-product [product]="product" *ngFor="let product of products"></app-product>
   </div>
 
   <!-- Пустое состояние -->
-  <app-empty-state
-    *ngIf="!loading && products.length === 0"
-    type="favorites"
-    (buttonClick)="goToCatalog()"
-  ></app-empty-state>
+  <app-empty-state *ngIf="!loading && products.length === 0" type="favorites"
+    (buttonClick)="goToCatalog()"></app-empty-state>
 
   <!-- Индикатор загрузки при подгрузке -->
   <div class="loading-more" *ngIf="loading && products.length > 0">

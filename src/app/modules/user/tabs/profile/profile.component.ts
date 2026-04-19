@@ -4,10 +4,11 @@ import { CommonModule } from '@angular/common';
 import { UserApiService } from '../../../../core/api/user.service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { UserService } from '../../../../core/services/user.service';
+import { TitleComponent } from '../../../../core/components/title/title.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, TitleComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [

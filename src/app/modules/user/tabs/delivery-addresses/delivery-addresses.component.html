@@ -13,25 +13,8 @@
     </div>
   </div>
 
-  <div class="hero-section">
-    <div class="hero-content">
-      <div class="hero-header">
-        <h1 class="hero-title">Мои адреса</h1>
-        <p class="hero-subtitle">Управляйте адресами доставки и пунктами выдачи</p>
-      </div>
-
-      <div class="hero-stats">
-        <div class="stat-card">
-          <span class="stat-value">{{ activeAddresses.length }}</span>
-          <span class="stat-label">активных</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value">{{ archivedAddresses.length }}</span>
-          <span class="stat-label">в архиве</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-title [title]="'Мои адреса'"
+    [description]="'Куда будем доставлять? Сохраните любимые адреса и пункты выдачи'"></app-title>
 
   <div class="main-content">
     <div class="controls-bar">

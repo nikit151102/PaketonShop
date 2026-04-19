@@ -12,6 +12,7 @@ import { AddressesService } from '../../../../core/api/addresses.service';
 import { Address } from '../../../../../models/address.interface';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { EmptyStateComponent } from '../../../../core/components/empty-state/empty-state.component';
+import { TitleComponent } from '../../../../core/components/title/title.component';
 
 declare global {
   interface Window {
@@ -71,7 +72,7 @@ interface MapPoint {
 @Component({
   selector: 'app-delivery-addresses',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, EmptyStateComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, EmptyStateComponent, TitleComponent],
   templateUrl: './delivery-addresses.component.html',
   styleUrls: ['./delivery-addresses.component.scss']
 })

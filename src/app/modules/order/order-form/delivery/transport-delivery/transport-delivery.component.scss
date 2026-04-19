@@ -19,7 +19,9 @@ $radius-sm: 8px;
 
 // Анимации
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes slideDown {
@@ -27,6 +29,7 @@ $radius-sm: 8px;
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -34,8 +37,13 @@ $radius-sm: 8px;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
@@ -43,6 +51,7 @@ $radius-sm: 8px;
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -254,6 +263,7 @@ $radius-sm: 8px;
       &::-webkit-scrollbar {
         width: 4px;
       }
+
       &::-webkit-scrollbar-thumb {
         background: $border;
         border-radius: 2px;
@@ -461,7 +471,7 @@ $radius-sm: 8px;
   }
 
   .form-input {
-    width: 100%;
+    width: stretch;
     padding: 10px 12px;
     border: 2px solid $border;
     border-radius: $radius-sm;
@@ -481,7 +491,7 @@ $radius-sm: 8px;
   }
 
   .form-textarea {
-    width: 100%;
+    width: stretch;
     padding: 10px 12px;
     border: 2px solid $border;
     border-radius: $radius-sm;
@@ -679,7 +689,8 @@ $radius-sm: 8px;
   }
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 14px 16px;
   border: 2px solid #e2e8f0;
@@ -843,6 +854,7 @@ $radius-sm: 8px;
   }
 
   .form-row {
+
     &--2,
     &--3 {
       grid-template-columns: 1fr;
@@ -894,7 +906,7 @@ $radius-sm: 8px;
 
   .address-item {
     flex-wrap: wrap;
-    
+
     &__text {
       width: calc(100% - 100px);
     }

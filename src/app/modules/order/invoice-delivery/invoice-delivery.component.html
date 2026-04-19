@@ -1,0 +1,50 @@
+<div class="invoice-delivery">
+  <p class="invoice-delivery__title">Куда отправить счет?</p>
+  
+  <div class="invoice-delivery__buttons">
+    <button type="button" 
+            class="delivery-btn" 
+            [class.active]="deliveryMethod === 'sbis'"
+            (click)="selectMethod('sbis')">
+      <span class="delivery-btn__icon">📄</span>
+      <span class="delivery-btn__text">СБИС</span>
+    </button>
+    
+    <button type="button" 
+            class="delivery-btn" 
+            [class.active]="deliveryMethod === 'kontur'"
+            (click)="selectMethod('kontur')">
+      <span class="delivery-btn__icon">🔐</span>
+      <span class="delivery-btn__text">Контур</span>
+    </button>
+    
+    <button type="button" 
+            class="delivery-btn" 
+            [class.active]="deliveryMethod === 'email'"
+            (click)="selectMethod('email')">
+      <span class="delivery-btn__icon">📧</span>
+      <span class="delivery-btn__text">На почту</span>
+    </button>
+  </div>
+
+  <!-- Поле для email -->
+  <div class="invoice-email-field" *ngIf="deliveryMethod === 'email' && showEmailField">
+    <label class="invoice-email__label">Электронная почта</label>
+    <input type="email" 
+           class="invoice-email__input" 
+           [class.invalid]="email && !isValidEmail(email)"
+           [(ngModel)]="email"
+           (ngModelChange)="onEmailChange($event)"
+           placeholder="example@mail.com">
+    <p class="invoice-email__hint" *ngIf="!email">Укажите email для получения счета</p>
+    <p class="invoice-email__error" *ngIf="email && !isValidEmail(email)">Введите корректный email</p>
+  </div>
+
+  <!-- Информация для СБИС и Контур -->
+  <div class="invoice-info" *ngIf="deliveryMethod !== 'email'">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+    </svg>
+    <span>Счет будет отправлен через систему {{ deliveryMethod === 'sbis' ? 'СБИС' : 'Контур.Диадок' }}</span>
+  </div>
+</div>
