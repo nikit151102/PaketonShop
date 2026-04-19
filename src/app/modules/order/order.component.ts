@@ -83,7 +83,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   ) { }
 
   private userService = inject(UserService);
-  
+
   ngOnInit(): void {
     this.updateCurrentTime();
 
@@ -276,9 +276,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
       deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-        ? '94656a5f-31ff-4a36-8214-555e8507c790'
+        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
         : this.orderFormData.delivery === 'pickup'
-          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+          ? '94656a5f-31ff-4a36-8214-555e8507c790'
           : undefined,
       edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
@@ -344,9 +344,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
       deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-        ? '94656a5f-31ff-4a36-8214-555e8507c790'
+        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
         : this.orderFormData.delivery === 'pickup'
-          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+          ? '94656a5f-31ff-4a36-8214-555e8507c790'
           : undefined,
       edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
