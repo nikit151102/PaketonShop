@@ -70,7 +70,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onScroll(): void {
     if (this.loadingMore || !this.hasMore) return;
 

@@ -22,7 +22,6 @@ import { UserService } from '../../core/services/user.service';
     RouterModule,
     OrderFormComponent,
     FormsModule,
-    PluralPipe,
     PaymentWidgetComponent,
     InvoiceDeliveryComponent,
     TitleComponent,
@@ -412,17 +411,17 @@ export class OrderComponent implements OnInit, OnDestroy {
         this.isProcessing = false;
 
         // Проверяем наличие ошибки
-        if (response.errorMessage && response.errorMessage !== null) {
+        if (response.data.errorMessage && response.data.errorMessage !== null) {
           // Если есть сообщение об ошибке - показываем его
           this.showErrorNotification(response.errorMessage);
           return;
         }
 
         // Если ошибки нет, проверяем costDelta
-        if (response.costDelta && response.costDelta > 0) {
+        if (response.data.costDelta && response.data.costDelta > 0) {
           // Не хватает средств - показываем диалог пополнения
-          this.topupMinAmount = response.costDelta;
-          this.showInsufficientFundsDialog(response.costDelta, response.totalCost);
+          this.topupMinAmount = response.data.costDelta;
+          this.showInsufficientFundsDialog(response.data.costDelta, response.data.totalCost);
         } else {
           // Средств достаточно - переходим к оплате
           this.initiatePayment();

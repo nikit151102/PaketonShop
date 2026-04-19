@@ -24,7 +24,7 @@ import { BasketsStateService } from '../../core/services/baskets-state.service';
 
 @Component({
   selector: 'app-auth',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, VkIdWidgetComponent, YandexIdButtonComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss',
 })

@@ -85,8 +85,7 @@ interface Order {
   selector: 'app-order-history',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink,
-    TitleComponent,
-    EmptyStateComponent],
+    TitleComponent],
   templateUrl: './order-history.component.html',
   styleUrl: './order-history.component.scss',
 })
@@ -121,7 +120,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   }
 
   // Слушаем событие скролла
-  @HostListener('window:scroll', ['$event'])
+  @HostListener('window:scroll')
   onScroll(): void {
     if (this.loadingMore || !this.hasMore) return;
 

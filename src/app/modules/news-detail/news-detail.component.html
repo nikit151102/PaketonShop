@@ -33,7 +33,7 @@
   <!-- Детальная информация о новости -->
   <div *ngIf="!isLoading && !error && news" class="news-content">
     <!-- Героическая секция с изображением -->
-    <div class="hero-section" [style.background-image]="'url(' + news.imageInstanceLinks?.[currentImageIndex] + ')'">
+    <div class="hero-section" [style.background-image]="'url(' + news.imageInstanceLinks[currentImageIndex] + ')'">
       <div class="hero-overlay"></div>
       <div class="container hero-container">
         <!-- Навигация по изображениям (если их несколько) -->

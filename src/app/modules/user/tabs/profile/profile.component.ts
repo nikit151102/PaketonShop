@@ -15,7 +15,7 @@ import { TopupModalComponent } from '../../../../core/components/topup-modal/top
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule, TitleComponent, FormsModule, PaymentWidgetComponent, TopupModalComponent],
+  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [
