@@ -102,7 +102,8 @@ export class OrderComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: any) => {
           this.orderData = response.data;
-          console.log('vdvd',response.data)
+          console.log('Order data loaded:', this.orderData);
+
           if (response.data?.productPositions) {
             this.basketProducts = response.data.productPositions.map((p: any) => ({
               id: p.product.id,
@@ -112,7 +113,7 @@ export class OrderComponent implements OnInit, OnDestroy {
               qty: p.count || 1,
               imageUrl: p.product.productImageLinks?.[0] || null,
               remains: p.product.remains,
-              positionId: p.id // Сохраняем ID позиции для обновления
+              positionId: p.id
             }));
 
             this.calculateDiscount();
@@ -210,9 +211,12 @@ export class OrderComponent implements OnInit, OnDestroy {
     'type': string,
     'id': string,
     'shopCity'?: string,
+    'addressId'?: string,
     'shopAddress'?: string
   }) {
+    this.orderFormData.addressId = data.addressId;
     console.log('Данные доставки:', data);
+
   }
 
   /**

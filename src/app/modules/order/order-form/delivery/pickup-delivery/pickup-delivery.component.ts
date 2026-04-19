@@ -513,6 +513,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.storeSelected.emit({
       'type': 'pickup',
       'id': store.id,
+      'addressId': store.address.id,
       'shopCity': store.address.city,
       'shopAddress': store.address
     });
@@ -621,6 +622,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.storeSelected.emit({
       'type': 'pickup',
       'id': store.id,
+      'addressId': store.address.id,
       'shopCity': store.address.city,
       'shopAddress': store.address
     });

@@ -264,6 +264,7 @@ export class TransportDeliveryComponent implements OnInit {
         'shopCity': this.selectedAddress.city,
         'shopAddress': this.getFullAddress(this.selectedAddress),
         'companyType': this.selectedAddress.transportCompanyType,
+        'addressId': this.selectedAddress.id,
         'companyName': this.getTransportCompanyName(this.selectedAddress.transportCompanyType || 1),
         'pickupPointName': this.selectedAddress.pickupPointName
       };

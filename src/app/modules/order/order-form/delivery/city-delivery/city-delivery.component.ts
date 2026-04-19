@@ -218,6 +218,7 @@ export class CityDeliveryComponent implements OnInit {
         'type': 'city',
         'id': this.selectedAddress.id,
         'shopCity': this.selectedAddress.city,
+        'addressId': this.selectedAddress.id,
         'shopAddress': this.getFullAddress(this.selectedAddress),
         'coast': this.deliveryCost
       });

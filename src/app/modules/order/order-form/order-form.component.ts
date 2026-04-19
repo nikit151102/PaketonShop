@@ -35,7 +35,16 @@ interface ProductAvailability {
 })
 export class OrderFormComponent implements OnInit {
   @Input() userBasketId: string | null = '';
-  @Input() orderData: any;
+  @Input() set orderData(value: any) {
+    this._orderData = value;
+    if (value && !this.isInitialized) {
+      // Небольшая задержка для загрузки дочерних компонентов
+      setTimeout(() => {
+        this.initializeFromOrderData();
+        this.isInitialized = true;
+      }, 100);
+    }
+  }
   @Input() orderProducts: any[] = [];
   @Output() orderCreated = new EventEmitter<any>();
   @Output() orderUpdated = new EventEmitter<any>();
@@ -43,6 +52,9 @@ export class OrderFormComponent implements OnInit {
   @Output() orderCompany = new EventEmitter<any>();
   @Output() formChanged = new EventEmitter<any>();
   @Output() deliveryCost = new EventEmitter<any>();
+
+  private _orderData: any = null;
+  private isInitialized = false;
 
   // Данные пользователя
   currentUserData: any = null;
@@ -66,6 +78,21 @@ export class OrderFormComponent implements OnInit {
   };
 
   selectedContactType = ContactTypeEnum.Call;
+
+  get orderData(): any {
+    return this._orderData;
+  }
+
+
+  ngOnChanges(changes: any): void {
+    // Если orderData изменился после загрузки
+    if (changes.orderData && changes.orderData.currentValue && !this.isInitialized) {
+      setTimeout(() => {
+        this.initializeFromOrderData();
+        this.isInitialized = true;
+      }, 100);
+    }
+  }
 
   onContactTypeChange(value: number): void {
     console.log('Выбран тип связи:', value);
@@ -106,13 +133,180 @@ export class OrderFormComponent implements OnInit {
     // Подписываемся на изменения с дебаунсом
     this.formChangeSubject
       .pipe(
-        debounceTime(300), // Задержка 300 мс перед отправкой
+        debounceTime(300),
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
       )
       .subscribe(formData => {
         this.formChanged.emit(formData);
       });
+
+    // Инициализация из orderData
+    this.initializeFromOrderData();
   }
+
+  /**
+   * Инициализация формы из существующего заказа
+   */
+  private initializeFromOrderData(): void {
+    if (!this.orderData) return;
+
+    console.log('Initializing from orderData:', this.orderData);
+
+    // 1. Заполняем данные пользователя
+    if (this.orderData.userInstance) {
+      const user = this.orderData.userInstance;
+      this.formData = {
+        ...this.formData,
+        lastName: user.lastName || '',
+        firstName: user.firstName || '',
+        middleName: user.middleName || '',
+        phone: user.phoneNumber || '',
+        email: user.email || '',
+        info: this.orderData.consultation?.comment || '',
+        needConsult: !!this.orderData.consultation,
+        agreement: true,
+        personType: this.orderData.partnerInstance ? 'jur' : 'fiz',
+        delivery: this.getDeliveryTypeFromOrder(this.orderData.deliveryType),
+        contactType: this.orderData.contactType ?? 0
+      };
+
+      // Обновляем данные пользователя
+      this.currentUserData = {
+        ...this.currentUserData,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        email: user.email,
+        phoneNumber: user.phoneNumber
+      };
+    }
+
+    // 2. Заполняем данные о компании (если есть)
+    if (this.orderData.partnerInstance?.partner) {
+      this.selectedCompanyId = this.orderData.partnerInstance.partner.id;
+      this.formData.personType = 'jur';
+    }
+
+    // 3. Устанавливаем selectedContactType
+    this.selectedContactType = this.orderData.contactType ?? ContactTypeEnum.Call;
+
+    // 4. Заполняем данные о доставке после инициализации дочерних компонентов
+    setTimeout(() => {
+      this.initializeDeliveryData();
+    }, 300);
+
+    // Отправляем начальные данные
+    setTimeout(() => this.onFormChange(), 200);
+  }
+
+  /**
+   * Инициализирует данные доставки из заказа
+   */
+  private initializeDeliveryData(): void {
+    const deliveryType = this.formData.delivery;
+
+    console.log('Initializing delivery data for type:', deliveryType);
+    console.log('Order data:', this.orderData);
+
+    if (deliveryType === 'pickup' && this.orderData.productPlace) {
+      // Для самовывоза
+      this.orderDeliveryData = {
+        type: 'pickup',
+        id: this.orderData.productPlace.id
+      };
+
+      // Устанавливаем выбранный магазин
+      this.selectedStoreId = this.orderData.productPlace.id;
+
+      // Эмитируем событие для дочернего компонента
+      setTimeout(() => {
+        this.orderDelivery.emit({
+          type: 'store',
+          id: this.orderData.productPlace.id,
+          shopCity: this.orderData.productPlace.address?.city,
+          shopAddress: this.orderData.productPlace.fullName,
+          coast: this.orderData.deliveryCost || 0
+        });
+
+        this.deliveryCost.emit(this.orderData.deliveryCost || 0);
+
+        // Проверяем наличие товаров
+        if (this.orderData.productPlace.id) {
+          this.checkAvailabilityInSelectedStore();
+        }
+      }, 400);
+
+    } else if (deliveryType === 'transport' && this.orderData.address) {
+      // Для транспортной компании
+      this.orderDeliveryData = {
+        type: 'transport',
+        id: this.orderData.address.id
+      };
+
+      setTimeout(() => {
+        this.orderDelivery.emit({
+          type: 'transport',
+          id: this.orderData.address.id,
+          shopCity: this.orderData.address.city,
+          shopAddress: this.getFullAddress(this.orderData.address),
+          coast: this.orderData.deliveryCost || 0
+        });
+
+        this.deliveryCost.emit(this.orderData.deliveryCost || 0);
+      }, 400);
+
+    } else if (deliveryType === 'city' && this.orderData.address) {
+      // Для городской доставки
+      this.orderDeliveryData = {
+        type: 'city',
+        id: this.orderData.address.id
+      };
+
+      setTimeout(() => {
+        this.orderDelivery.emit({
+          type: 'city',
+          id: this.orderData.address.id,
+          shopCity: this.orderData.address.city,
+          shopAddress: this.getFullAddress(this.orderData.address),
+          coast: this.orderData.deliveryCost || 0
+        });
+
+        this.deliveryCost.emit(this.orderData.deliveryCost || 0);
+      }, 400);
+    }
+  }
+
+  // Добавьте метод для получения полного адреса (если еще нет)
+  private getFullAddress(address: any): string {
+    if (!address) return '';
+
+    const parts = [];
+    if (address.postIndex) parts.push(address.postIndex);
+    if (address.city) parts.push(`г. ${address.city}`);
+    if (address.street) parts.push(`ул. ${address.street}`);
+    if (address.house) parts.push(`д. ${address.house}`);
+    if (address.housing) parts.push(`корп. ${address.housing}`);
+    if (address.office) parts.push(`офис/кв. ${address.office}`);
+
+    return parts.join(', ');
+  }
+
+  /**
+   * Определяет тип доставки из данных заказа
+   */
+  private getDeliveryTypeFromOrder(deliveryType: any): string {
+    if (!deliveryType) return 'pickup';
+
+    const code = deliveryType.code;
+    const shortName = deliveryType.shortName;
+
+    if (code === 1 || shortName === 'Транспортная компания') return 'transport';
+    if (code === 2 || shortName === 'Самовывоз') return 'pickup';
+    if (code === 3 || shortName === 'Доставка по городу') return 'city';
+
+    return 'pickup';
+  }
+
 
   orderDeliveryData: any;
   allStores: any[] = [];
@@ -187,13 +381,14 @@ export class OrderFormComponent implements OnInit {
     this.orderDelivery.emit({
       'type': type,
       'id': data.id,
+      'addressId': data?.addressId,
       'shopCity': data?.address?.city ? data.address.city : undefined,
       'shopAddress': data.fullName
     });
 
     this.orderDeliveryData = {
       'type': type,
-      'id': data.id
+      'id': data.addressId
     };
     this.deliveryCost.emit(data.coast);
     // ИСПРАВЛЕНИЕ: проверяем что type содержит 'pickup' или равен 'store'
