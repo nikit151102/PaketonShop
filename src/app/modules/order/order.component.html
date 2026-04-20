@@ -124,7 +124,17 @@
                     <span class="payment-option__badge">Картой онлайн</span>
                   </span>
                 </label>
-
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="balance">
+                  <span class="payment-option__custom"></span>
+                  <span class="payment-option__content">
+                    <span class="payment-option__title">Списание с баланса</span>
+                    <span class="payment-option__badge" *ngIf="operativeInfo().balance">Доступно: {{
+                      operativeInfo().balance
+                      }} руб.</span>
+                    <span class="payment-option__desc">Оплатите заказ средствами с вашего лицевого счета</span>
+                  </span>
+                </label>
                 <label class="payment-option">
                   <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="cash">
                   <span class="payment-option__custom"></span>
@@ -165,7 +175,8 @@
                 </div>
                 <div class="payment-info__content">
                   <p class="payment-info__title">Безопасная оплата онлайн</p>
-                  <p class="payment-info__text">После оформления заказа вы будете перенаправлены на защищенную страницу оплаты</p>
+                  <p class="payment-info__text">После оформления заказа вы будете перенаправлены на защищенную страницу
+                    оплаты</p>
                 </div>
               </div>
 
@@ -216,7 +227,8 @@
                   <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
                 </svg>
                 <span class="btn-text">
-                  {{ isProcessing ? 'Обработка...' : (paymentMethod === 'online' ? 'Перейти к оплате' : 'Оформить заказ') }}
+                  {{ isProcessing ? 'Обработка...' : (paymentMethod === 'online' ? 'Перейти к оплате' : 'Оформить
+                  заказ') }}
                 </span>
                 <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
               </span>
@@ -233,9 +245,9 @@
   </div>
 
   <!-- Платежный виджет (только для онлайн оплаты) -->
-  <app-payment-widget *ngIf="showPaymentWidget && paymentToken && paymentMethod === 'online'" [confirmationToken]="paymentToken"
-    [amount]="getOrderTotal()" (onSuccess)="handlePaymentSuccess($event)" (onFail)="handlePaymentFail($event)"
-    (onError)="handlePaymentError($event)" (onClose)="handleWidgetClose()">
+  <app-payment-widget *ngIf="showPaymentWidget && paymentToken && paymentMethod === 'online'"
+    [confirmationToken]="paymentToken" [amount]="getOrderTotal()" (onSuccess)="handlePaymentSuccess($event)"
+    (onFail)="handlePaymentFail($event)" (onError)="handlePaymentError($event)" (onClose)="handleWidgetClose()">
   </app-payment-widget>
 
   <!-- Уведомление об успешном создании заказа -->
@@ -281,7 +293,8 @@
           <div class="order-details__row">
             <span class="order-details__label">Способ оплаты:</span>
             <span class="order-details__value">
-              {{ paymentMethod === 'online' ? 'Онлайн оплата' : (paymentMethod === 'cash' ? 'Наличными при получении' : 'Картой при получении') }}
+              {{ paymentMethod === 'online' ? 'Онлайн оплата' : (paymentMethod === 'cash' ? 'Наличными при получении' :
+              'Картой при получении') }}
             </span>
           </div>
           <div class="order-details__row">
@@ -296,7 +309,7 @@
       </div>
 
       <div class="modal__footer">
-        <button class="modal__btn modal__btn--secondary" [routerLink]="['/profile/orders']">
+        <button class="modal__btn modal__btn--secondary" [routerLink]="['/profile/orderHistory']">
           Мои заказы
         </button>
         <button class="modal__btn modal__btn--primary" [routerLink]="['/']">
@@ -325,22 +338,12 @@
 </div>
 
 <!-- Модальное окно пополнения баланса -->
-<app-topup-modal 
-    [isOpen]="showTopupModal"
-    [currentBalance]="0"
-    [minAmount]="topupMinAmount || 100"
-    [maxAmount]="100000"
-    [presetAmounts]="[500, 1000, 2000, 5000]"
-    (close)="closeTopupModal()"
-    (topup)="handleTopup($event)">
+<app-topup-modal [isOpen]="showTopupModal" [currentBalance]="0" [minAmount]="topupMinAmount || 100" [maxAmount]="100000"
+  [presetAmounts]="[500, 1000, 2000, 5000]" (close)="closeTopupModal()" (topup)="handleTopup($event)">
 </app-topup-modal>
 
 <!-- Платежный виджет для пополнения -->
-<app-payment-widget *ngIf="showPaymentWidget && paymentToken" 
-                    [confirmationToken]="paymentToken"
-                    [amount]="topupAmount"
-                    (onSuccess)="handlePaymentSuccess($event)"
-                    (onFail)="handlePaymentFail($event)"
-                    (onError)="handlePaymentError($event)"
-                    (onClose)="handleWidgetClose()">
+<app-payment-widget *ngIf="showPaymentWidget && paymentToken" [confirmationToken]="paymentToken" [amount]="topupAmount"
+  (onSuccess)="handlePaymentSuccess($event)" (onFail)="handlePaymentFail($event)" (onError)="handlePaymentError($event)"
+  (onClose)="handleWidgetClose()">
 </app-payment-widget>

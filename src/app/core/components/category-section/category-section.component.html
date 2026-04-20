@@ -7,7 +7,7 @@
         <h3 class="ca+tegory-name">{{ category.name }} </h3>
       </div>
       <div class="card-image">
-        <img [src]="getFirstImage(category?.imageInstanceLinks?.[0]) || ''" [alt]="category.name"
+        <img [src]="getFirstImage(category?.imageInstanceLinks?.[0]) || category?.imageInstanceLink || '' " [alt]="category.name"
           class="category-img" />
         <div class="image-gradient"></div>
 

@@ -287,7 +287,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
       productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : null,
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
     };
@@ -355,7 +355,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
       productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : null,
+      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
     };
