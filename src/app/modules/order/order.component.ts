@@ -232,6 +232,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     'shopAddress'?: string
   }) {
     this.orderFormData.addressId = data.addressId;
+    this.orderFormData.productPlaceId = data.id;
     console.log('Данные доставки:', data);
 
   }
@@ -276,9 +277,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
       deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+        ? '94656a5f-31ff-4a36-8214-555e8507c790'
         : this.orderFormData.delivery === 'pickup'
-          ? '94656a5f-31ff-4a36-8214-555e8507c790'
+          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
           : undefined,
       edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
@@ -286,7 +287,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
-      productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
+      productPlaceId: this.orderFormData.delivery === 'pickup'
+        ? this.orderFormData.orderDeliveryData.productPlaceId
+        : undefined,
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
@@ -344,9 +347,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
       deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+        ? '94656a5f-31ff-4a36-8214-555e8507c790'
         : this.orderFormData.delivery === 'pickup'
-          ? '94656a5f-31ff-4a36-8214-555e8507c790'
+          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
           : undefined,
       edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
       partnerInstanceId: this.orderFormData.selectedCompanyId,
@@ -354,7 +357,9 @@ export class OrderComponent implements OnInit, OnDestroy {
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
-      productPlaceId: this.orderFormData.orderDeliveryData.shopAddress,
+      productPlaceId: this.orderFormData.delivery === 'pickup'
+        ? this.orderFormData.orderDeliveryData.productPlaceId
+        : undefined,
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)

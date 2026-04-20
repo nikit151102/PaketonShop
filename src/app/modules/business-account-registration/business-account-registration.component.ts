@@ -15,6 +15,35 @@ import { PartnerService } from '../../core/api/partner.service';
 import { WholesaleOrderService } from '../../core/api/wholesale-order.service';
 import { PartnerBankService } from '../../core/api/partner-bank.service';
 
+interface ContractorDetails {
+  id: string;
+  shortName: string;
+  fullName: string;
+  inn: string;
+  ogrn: string;
+  kpp: string;
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+  korAccount?: string;
+  workDirection?: string;
+  phoneNumber?: string;
+  email?: string;
+  address?: {
+    region: string;
+    city: string;
+    street: string;
+    house: string;
+    postIndex: string;
+  };
+  partnerType?: {
+    id: string;
+    code: number;
+    fullName: string;
+    shortName: string;
+  };
+}
+
 const animations = [
   trigger('fadeSlide', [
     transition(':enter', [
@@ -406,6 +435,153 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.updateKppValidation();
   }
 
+
+  sSearchingByInn = false;
+  innSearchResult: ContractorDetails | null = null;
+  innSearchError: string | null = null;
+  showManualForm = false;
+  isSearchingByInn = false;
+  // Добавьте метод для поиска по ИНН
+  searchByInn(): void {
+    const inn = this.companyForm.get('inn')?.value;
+
+    if (!inn || inn.length === 0) {
+      this.innSearchError = 'Введите ИНН для поиска';
+      return;
+    }
+
+    // Проверка длины ИНН
+    const isValidInn = /^\d{10}$|^\d{12}$/.test(inn);
+    if (!isValidInn) {
+      this.innSearchError = 'ИНН должен содержать 10 или 12 цифр';
+      return;
+    }
+
+    this.isSearchingByInn = true;
+    this.innSearchError = null;
+    this.innSearchResult = null;
+
+    this.partnerService.getPartnerByInn(inn).pipe(
+      catchError(error => {
+        if (error.status === 404) {
+          this.innSearchError = 'Контрагент с таким ИНН не найден. Пожалуйста, заполните данные вручную.';
+          this.showManualForm = true;
+        } else {
+          this.innSearchError = 'Ошибка при поиске. Попробуйте позже или заполните данные вручную.';
+        }
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSearchingByInn = false;
+      })
+    ).subscribe(result => {
+      if (result && result.data) {
+        this.innSearchResult = result.data;
+        this.showManualForm = false;
+        this.fillFormWithContractorData(result.data);
+
+        // Показываем успешное уведомление
+        this.showSuccessToast('Контрагент найден! Данные автоматически заполнены.');
+      }
+    });
+  }
+
+  // Метод для заполнения формы данными контрагента
+  fillFormWithContractorData(contractor: ContractorDetails): void {
+    // Заполняем данные компании
+    this.companyForm.patchValue({
+      fullName: contractor.fullName || '',
+      shortName: contractor.shortName || '',
+      inn: contractor.inn || '',
+      ogrn: contractor.ogrn || '',
+      kpp: contractor.kpp || '',
+      workDirection: contractor.workDirection || ''
+    });
+
+    // Если есть тип партнера
+    if (contractor.partnerType) {
+      this.selectedPartnerType = contractor.partnerType;
+      this.companyForm.patchValue({
+        partnerTypeId: contractor.partnerType.id
+      });
+      this.updateKppValidation();
+    }
+
+    // Если есть адрес
+    if (contractor.address) {
+      this.companyForm.patchValue({
+        address: {
+          country: 'Россия',
+          region: contractor.address.region || '',
+          city: contractor.address.city || '',
+          street: contractor.address.street || '',
+          house: contractor.address.house || '',
+          postIndex: contractor.address.postIndex || ''
+        }
+      });
+    }
+
+    // Если есть контактные данные пользователя (для ИП)
+    if (contractor.lastName || contractor.firstName) {
+      this.userForm.patchValue({
+        lastName: contractor.lastName || '',
+        firstName: contractor.firstName || '',
+        middleName: contractor.middleName || '',
+        phoneNumber: contractor.phoneNumber || '',
+        email: contractor.email || ''
+      });
+    }
+
+    // Отмечаем прогресс
+    this.progress.step2 = true;
+
+    // Прокручиваем к форме
+    setTimeout(() => {
+      const formElement = document.querySelector('.company-details-section');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
+  // Метод для отображения успешного уведомления
+  showSuccessToast(message: string): void {
+    // Можно использовать существующий механизм error, но с зеленым цветом
+    // Или создать отдельный toast
+    const toast = document.createElement('div');
+    toast.className = 'success-toast';
+    toast.innerHTML = `
+          <div class="toast-content">
+            <div class="toast-icon">✓</div>
+            <div class="toast-message">${message}</div>
+          </div>
+        `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }, 10);
+  }
+
+  // Метод для ручного заполнения
+  showManualFormFields(): void {
+    this.showManualForm = true;
+    this.innSearchResult = null;
+    this.innSearchError = null;
+  }
+
+  // Метод для сброса поиска
+  resetInnSearch(): void {
+    this.innSearchResult = null;
+    this.innSearchError = null;
+    this.showManualForm = false;
+    this.isSearchingByInn = false;
+  }
+
   private loadUserData(): void {
     this.userApiService.getData().subscribe({
       next: (response) => {
@@ -464,7 +640,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       shortName: ['', [Validators.required, Validators.maxLength(50)]],
       partnerTypeId: ['', Validators.required],
       workDirection: ['', Validators.required],
-      inn: ['', [Validators.required, Validators.pattern(/^\d{10}$|^\d{12}$/)]],
+      inn: ['', [Validators.required, this.innValidator]],
       ogrn: ['', [Validators.required, Validators.pattern(/^\d{13}$|^\d{15}$/)]],
       kpp: ['', this.kppValidator],
       registrationDate: [''],
@@ -477,6 +653,20 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         postIndex: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
       })
     });
+  }
+
+  private innValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    const cleanValue = value.replace(/\D/g, '');
+
+    // ИНН может быть 10 или 12 цифр
+    if (cleanValue.length === 10 || cleanValue.length === 12) {
+      return null;
+    }
+
+    return { invalidInn: true };
   }
 
   private passwordMatchValidator(g: FormGroup): ValidationErrors | null {

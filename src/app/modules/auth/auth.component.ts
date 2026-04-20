@@ -24,7 +24,7 @@ import { BasketsStateService } from '../../core/services/baskets-state.service';
 
 @Component({
   selector: 'app-auth',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss',
 })
@@ -264,16 +264,22 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   private handleRegistrationSuccess(res: any): void {
-    // Show success message and switch to login mode
+    const userEmail = this.authForm.get('email')?.value;
+
     this.authMode = 'login';
+
+    this.resetForm();
+
     this.authForm.patchValue({
-      email: this.authForm.get('email')?.value,
+      email: userEmail,
       password: '',
       confirmPassword: ''
     });
 
-    // Show success toast or message
-    console.log('Registration successful! Please login.');
+    this.authForm.get('email')?.markAsTouched();
+    this.authForm.get('password')?.markAsTouched();
+
+    this.authForm.updateValueAndValidity();
   }
 
   private handleError(error: any): void {
@@ -295,17 +301,28 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   resetForm(): void {
-    this.authForm.reset();
+    this.authForm.reset({
+      email: '',
+      password: '',
+      confirmPassword: ''
+    });
+
     this.formErrors = {};
     this.isSubmitting = false;
 
-    // Reset validators based on mode
+    const confirmPasswordControl = this.authForm.get('confirmPassword');
+
     if (this.authMode === 'login') {
-      this.authForm.get('confirmPassword')?.clearValidators();
+      confirmPasswordControl?.clearValidators();
+      confirmPasswordControl?.setErrors(null);
     } else {
-      this.authForm.get('confirmPassword')?.setValidators([Validators.required]);
+      confirmPasswordControl?.setValidators([Validators.required]);
     }
-    this.authForm.get('confirmPassword')?.updateValueAndValidity();
+
+    confirmPasswordControl?.updateValueAndValidity();
+
+    // Дополнительно обновляем валидацию всей формы
+    this.authForm.updateValueAndValidity();
   }
 
   ngOnDestroy(): void {

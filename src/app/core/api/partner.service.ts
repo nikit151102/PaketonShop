@@ -53,4 +53,9 @@ export class PartnerService {
       `${environment.production}/api/Profile/UserCompanies/${partnerId}`,
     );
   }
+
+  getPartnerByInn(inn: string): Observable<any> {
+  return this.http.get<any>(`${environment.production}/GetByInn/${inn}`);
+}
+
 }

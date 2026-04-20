@@ -3289,3 +3289,390 @@ svg {
     grid-template-columns: 1fr;
   }
 }
+
+// INN Search Card
+.inn-search-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: $radius-xl;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  
+  .search-header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .search-icon {
+      font-size: 2rem;
+    }
+    
+    .search-content {
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: $gray-900;
+        margin-bottom: 0.25rem;
+      }
+      
+      p {
+        font-size: 0.875rem;
+        color: $gray-600;
+      }
+    }
+  }
+  
+  .search-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .inn-input-wrapper {
+      flex: 1;
+      position: relative;
+      
+      .inn-input {
+        width: 100%;
+        padding-right: 40px;
+        
+        &.loading {
+          border-color: $info;
+        }
+        
+        &.error {
+          border-color: $error;
+        }
+        
+        &.success {
+          border-color: $success;
+        }
+      }
+      
+      .input-loader {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      
+      .input-success-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background: $success;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+    }
+    
+    .btn-search-inn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: $primary-gradient;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: $radius-md;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all $transition-base;
+      white-space: nowrap;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+  
+  .search-result-card {
+    background: white;
+    border-radius: $radius-lg;
+    border: 2px solid $success;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    
+    .result-header {
+      background: rgba($success, 0.1);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba($success, 0.2);
+      
+      .result-icon {
+        font-size: 1.25rem;
+      }
+      
+      .result-title {
+        flex: 1;
+        font-weight: 600;
+        color: $success;
+      }
+      
+      .close-result {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: $gray-500;
+        
+        &:hover {
+          color: $gray-700;
+        }
+      }
+    }
+    
+    .result-details {
+      padding: 1rem;
+      
+      .detail-row {
+        display: flex;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        
+        .detail-label {
+          width: 120px;
+          color: $gray-600;
+          flex-shrink: 0;
+        }
+        
+        .detail-value {
+          color: $gray-800;
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .result-actions {
+      padding: 1rem;
+      background: $gray-50;
+      display: flex;
+      gap: 1rem;
+      border-top: 1px solid $gray-200;
+      
+      .btn-use-data {
+        flex: 1;
+        background: $primary-gradient;
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: $radius-md;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all $transition-base;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: $shadow-md;
+        }
+      }
+      
+      .btn-manual {
+        flex: 1;
+        background: transparent;
+        color: $gray-700;
+        border: 1px solid $gray-300;
+        padding: 0.75rem;
+        border-radius: $radius-md;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all $transition-base;
+        
+        &:hover {
+          background: $gray-100;
+        }
+      }
+    }
+  }
+  
+  .search-error-card {
+    background: white;
+    border-radius: $radius-lg;
+    border: 2px solid $warning;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    
+    .error-header {
+      background: rgba($warning, 0.1);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      
+      .error-icon {
+        font-size: 1.25rem;
+      }
+      
+      .error-title {
+        flex: 1;
+        font-weight: 600;
+        color: $warning;
+      }
+      
+      .close-error {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: $gray-500;
+      }
+    }
+    
+    .error-actions {
+      padding: 1rem;
+      
+      .btn-manual {
+        width: 100%;
+        background: transparent;
+        color: $warning;
+        border: 1px solid $warning;
+        padding: 0.75rem;
+        border-radius: $radius-md;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all $transition-base;
+        
+        &:hover {
+          background: rgba($warning, 0.1);
+        }
+      }
+    }
+  }
+  
+  .search-tips {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    
+    .tip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: $gray-600;
+      
+      .tip-icon {
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Company Details Section
+.company-details-section {
+  transition: all $transition-base;
+  
+  &.manual-mode {
+    .form-section {
+      border-left: 3px solid $warning;
+    }
+  }
+  
+  .manual-banner {
+    background: linear-gradient(135deg, rgba($warning, 0.1), rgba($warning, 0.05));
+    border: 1px solid rgba($warning, 0.3);
+    border-radius: $radius-lg;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    
+    .manual-icon {
+      font-size: 1.125rem;
+    }
+    
+    span:first-of-type {
+      flex: 1;
+      font-weight: 500;
+      color: $warning;
+    }
+    
+    .back-to-search {
+      background: transparent;
+      border: none;
+      color: $primary;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Field hints
+.field-hint {
+  font-size: 0.7rem;
+  color: $gray-500;
+  margin-top: 0.25rem;
+}
+
+// Success toast
+.success-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+  
+  &.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: $success;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-lg;
+    
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(white, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .toast-message {
+      font-weight: 500;
+    }
+  }
+}
+
+// Small spinner
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(white, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}

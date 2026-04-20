@@ -84,7 +84,8 @@
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" [disabled]="isSubmitting || authForm.invalid"
+        <button type="submit" class="submit-btn"
+          [disabled]="isSubmitting || (authMode === 'login' ? authForm.get('email')?.invalid || authForm.get('password')?.invalid : authForm.invalid)"
           [class.loading]="isSubmitting">
           <span *ngIf="!isSubmitting">Войти</span>
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
@@ -182,4 +183,4 @@
     </div> -->
 
   </div>
-</div>  
+</div>

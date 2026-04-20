@@ -392,239 +392,388 @@
         </div>
         }
 
-        <!-- Step 2: Company Info -->
-        @if (currentStep === 2) {
-        <div class="step-company-info">
-          <div class="step-intro">
-            <div class="intro-icon">🏢</div>
-            <div class="intro-content">
-              <h2>Информация о компании</h2>
-              <p>Укажите данные вашей организации для верификации</p>
-            </div>
-          </div>
+<!-- Step 2: Company Info -->
+@if (currentStep === 2) {
+<div class="step-company-info">
+  <div class="step-intro">
+    <div class="intro-icon">🏢</div>
+    <div class="intro-content">
+      <h2>Информация о компании</h2>
+      <p>Укажите данные вашей организации для верификации</p>
+    </div>
+  </div>
 
-          <form [formGroup]="companyForm" class="modern-form">
-            <!-- Organization Type Selection -->
-            <div class="form-section">
-              <div class="section-header">
-                <h3>Тип организации</h3>
-                <div class="section-tooltip">
-                  <div class="tooltip-trigger">
-                    <svg viewBox="0 0 24 24">
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
-                    </svg>
-                  </div>
-                  <div class="tooltip-content">
-                    Выберите правовую форму вашего бизнеса. От этого зависит набор необходимых документов
-                  </div>
-                </div>
-              </div>
+  <!-- Поиск по ИНН - улучшенный блок -->
+  <div class="inn-search-card">
+    <div class="search-header">
+      <div class="search-icon">🔍</div>
+      <div class="search-content">
+        <h3>Быстрый поиск контрагента</h3>
+        <p>Найдите компанию или ИП по ИНН — мы автоматически заполним данные</p>
+      </div>
+    </div>
 
-              <div class="org-type-cards">
-                @for (type of partnerTypes; track type.id) {
-                <div class="org-type-card" [class.active]="companyForm.get('partnerTypeId')?.value === type.id"
-                  (click)="selectPartnerType(type)">
-                  <div class="type-visual">
-                    <div class="type-icon-bg">
-                      @if (type.code === 1) {
-                      <svg viewBox="0 0 24 24">
-                        <path
-                          d="M14 6V4h-4v2h4zM4 8v11h16V8H4zm16-2c1.11 0 2 .89 2 2v11c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2l.01-11c0-1.11.88-2 1.99-2h4V4c0-1.11.89-2 2-2h4c1.11 0 2 .89 2 2v2h4z" />
-                      </svg>
-                      } @else {
-                      <svg viewBox="0 0 24 24">
-                        <path
-                          d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                      }
-                    </div>
-                  </div>
-                  <div class="type-content">
-                    <div class="type-name">{{ type.shortName }}</div>
-                    <div class="type-description">{{ type.fullName }}</div>
-                  </div>
-                  <div class="type-selected">
-                    <div class="selected-indicator"></div>
-                  </div>
-                </div>
-                }
-              </div>
-            </div>
-
-            <!-- Company Details -->
-            <div class="form-section">
-              <div class="section-header">
-                <h3>Основная информация</h3>
-              </div>
-
-              <div class="form-grid">
-                <div class="form-group"
-                  [class.error]="companyForm.get('fullName')?.invalid && companyForm.get('fullName')?.touched">
-                  <label class="form-label">
-                    <span>Полное наименование</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="fullName" [placeholder]="getFullNamePlaceholder()"
-                    class="modern-input">
-                </div>
-
-                <div class="form-group"
-                  [class.error]="companyForm.get('shortName')?.invalid && companyForm.get('shortName')?.touched">
-                  <label class="form-label">
-                    <span>Краткое наименование</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="shortName" [placeholder]="getShortNamePlaceholder()"
-                    class="modern-input">
-                </div>
-
-                <div class="form-group"
-                  [class.error]="companyForm.get('workDirection')?.invalid && companyForm.get('workDirection')?.touched">
-                  <label class="form-label">
-                    <span>Сфера деятельности</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="workDirection"
-                    placeholder="Например: IT-услуги, розничная торговля" class="modern-input">
-                </div>
-              </div>
-            </div>
-
-            <!-- Legal Details -->
-            <div class="form-section">
-              <div class="section-header">
-                <h3>Юридические реквизиты</h3>
-                <div class="section-tooltip">
-                  <div class="tooltip-trigger">
-                    <svg viewBox="0 0 24 24">
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
-                    </svg>
-                  </div>
-                  <div class="tooltip-content">
-                    Эти данные необходимы для юридической проверки компании. Убедитесь в их корректности
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-grid">
-                <div class="form-group"
-                  [class.error]="companyForm.get('inn')?.invalid && companyForm.get('inn')?.touched">
-                  <label class="form-label">
-                    <span>ИНН</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="inn"
-                    [placeholder]="selectedPartnerType?.code === 1 ? '10 цифр' : '12 цифр'" class="modern-input">
-                </div>
-
-                <div class="form-group"
-                  [class.error]="companyForm.get('ogrn')?.invalid && companyForm.get('ogrn')?.touched">
-                  <label class="form-label">
-                    <span>{{ selectedPartnerType?.code === 1 ? 'ОГРН' : 'ОГРНИП' }}</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="ogrn" [placeholder]="getOgrnPlaceholder()" class="modern-input">
-                </div>
-
-                @if (selectedPartnerType?.code === 1) {
-                <div class="form-group"
-                  [class.error]="companyForm.get('kpp')?.invalid && companyForm.get('kpp')?.touched">
-                  <label class="form-label">
-                    <span>КПП</span>
-                    <span class="required">*</span>
-                  </label>
-                  <input type="text" formControlName="kpp" placeholder="9 цифр" class="modern-input">
-                </div>
-                }
-
-                <div class="form-group"
-                  [class.error]="companyForm.get('registrationDate')?.invalid && companyForm.get('registrationDate')?.touched">
-                  <label class="form-label">
-                    <span>Дата регистрации</span>
-                    <span class="field-hint-text">(рекомендуется указать)</span>
-                  </label>
-                  <input type="date" formControlName="registrationDate" class="modern-input" [max]="todayDate()">
-                  <div class="field-hint" style="font-size: 12px;">
-                    Укажите для точного определения необходимых документов
-                  </div>
-                  @if (!companyForm.get('registrationDate')?.value) {
-                  <div class="warning-message"  style="font-size: 12px;">
-                    ⚠️ Без даты регистрации будут запрошены все возможные документы
-                  </div>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Address -->
-            <div class="form-section">
-              <div class="section-header">
-                <h3>Юридический адрес</h3>
-              </div>
-
-              <div class="address-form" formGroupName="address">
-                <div class="form-grid">
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.country')?.invalid && companyForm.get('address.country')?.touched">
-                    <label class="form-label">
-                      <span>Страна</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="country" placeholder="Россия" class="modern-input">
-                  </div>
-
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.region')?.invalid && companyForm.get('address.region')?.touched">
-                    <label class="form-label">
-                      <span>Регион/Область</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="region" placeholder="Московская область" class="modern-input">
-                  </div>
-
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.city')?.invalid && companyForm.get('address.city')?.touched">
-                    <label class="form-label">
-                      <span>Город</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="city" placeholder="Москва" class="modern-input">
-                  </div>
-
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.street')?.invalid && companyForm.get('address.street')?.touched">
-                    <label class="form-label">
-                      <span>Улица</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="street" placeholder="ул. Ленина" class="modern-input">
-                  </div>
-
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.house')?.invalid && companyForm.get('address.house')?.touched">
-                    <label class="form-label">
-                      <span>Дом</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="house" placeholder="10" class="modern-input">
-                  </div>
-
-                  <div class="form-group"
-                    [class.error]="companyForm.get('address.postIndex')?.invalid && companyForm.get('address.postIndex')?.touched">
-                    <label class="form-label">
-                      <span>Почтовый индекс</span>
-                      <span class="required">*</span>
-                    </label>
-                    <input type="text" formControlName="postIndex" placeholder="101000" class="modern-input">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </form>
+    <div class="search-input-group">
+      <div class="inn-input-wrapper">
+        <input 
+          type="text" 
+          [ngModel]="companyForm.get('inn')?.value"
+          (ngModelChange)="companyForm.get('inn')?.setValue($event); resetInnSearch()"
+          placeholder="Введите ИНН (10 или 12 цифр)"
+          class="modern-input inn-input"
+          [class.loading]="isSearchingByInn"
+          [class.error]="innSearchError"
+          [class.success]="innSearchResult"
+        >
+        @if (isSearchingByInn) {
+        <div class="input-loader">
+          <div class="spinner-small"></div>
         </div>
         }
+        @if (innSearchResult && !isSearchingByInn) {
+        <div class="input-success-icon">✓</div>
+        }
+      </div>
+      
+      <button 
+        class="btn-search-inn" 
+        (click)="searchByInn()" 
+        [disabled]="isSearchingByInn || !companyForm.get('inn')?.value"
+      >
+        @if (!isSearchingByInn) {
+        <span>🔍 Найти</span>
+        } @else {
+        <span class="spinner-small"></span>
+        <span>Поиск...</span>
+        }
+      </button>
+    </div>
+
+    <!-- Результаты поиска -->
+    @if (innSearchResult && !showManualForm) {
+    <div class="search-result-card">
+      <div class="result-header">
+        <div class="result-icon">✅</div>
+        <div class="result-title">Контрагент найден</div>
+        <button class="close-result" (click)="resetInnSearch()">✕</button>
+      </div>
+      <div class="result-details">
+        <div class="detail-row">
+          <span class="detail-label">Наименование:</span>
+          <span class="detail-value">{{ innSearchResult.fullName || innSearchResult.shortName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">ИНН/КПП:</span>
+          <span class="detail-value">{{ innSearchResult.inn }} / {{ innSearchResult.kpp || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">ОГРН/ОГРНИП:</span>
+          <span class="detail-value">{{ innSearchResult.ogrn || '—' }}</span>
+        </div>
+        @if (innSearchResult.workDirection) {
+        <div class="detail-row">
+          <span class="detail-label">Сфера деятельности:</span>
+          <span class="detail-value">{{ innSearchResult.workDirection }}</span>
+        </div>
+        }
+      </div>
+      <div class="result-actions">
+        <button class="btn-use-data" (click)="fillFormWithContractorData(innSearchResult)">
+          Использовать эти данные
+        </button>
+        <button class="btn-manual" (click)="showManualFormFields()">
+          Заполнить вручную
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Ошибка поиска -->
+    @if (innSearchError && !showManualForm) {
+    <div class="search-error-card">
+      <div class="error-header">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">{{ innSearchError }}</div>
+        <button class="close-error" (click)="resetInnSearch()">✕</button>
+      </div>
+      <div class="error-actions">
+        <button class="btn-manual" (click)="showManualFormFields()">
+          📝 Заполнить данные вручную
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Подсказки -->
+    <div class="search-tips">
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>ИНН организации — 10 цифр, ИП — 12 цифр</span>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">⚡</span>
+        <span>Данные берутся из официальных источников</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Форма компании (показывается всегда, но с подсветкой при ручном заполнении) -->
+  <div class="company-details-section" [class.manual-mode]="showManualForm">
+    @if (showManualForm) {
+    <div class="manual-banner">
+      <span class="manual-icon">✏️</span>
+      <span>Ручное заполнение данных</span>
+      <button class="back-to-search" (click)="resetInnSearch()">← Вернуться к поиску</button>
+    </div>
+    }
+
+    <form [formGroup]="companyForm" class="modern-form">
+      <!-- Organization Type Selection -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Тип организации</h3>
+          <div class="section-tooltip">
+            <div class="tooltip-trigger">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+              </svg>
+            </div>
+            <div class="tooltip-content">
+              Выберите правовую форму вашего бизнеса. От этого зависит набор необходимых документов
+            </div>
+          </div>
+        </div>
+
+        <div class="org-type-cards">
+          @for (type of partnerTypes; track type.id) {
+          <div class="org-type-card" [class.active]="companyForm.get('partnerTypeId')?.value === type.id"
+            (click)="selectPartnerType(type)">
+            <div class="type-visual">
+              <div class="type-icon-bg">
+                @if (type.code === 1) {
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 6V4h-4v2h4zM4 8v11h16V8H4zm16-2c1.11 0 2 .89 2 2v11c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2l.01-11c0-1.11.88-2 1.99-2h4V4c0-1.11.89-2 2-2h4c1.11 0 2 .89 2 2v2h4z" />
+                </svg>
+                } @else {
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+                }
+              </div>
+            </div>
+            <div class="type-content">
+              <div class="type-name">{{ type.shortName }}</div>
+              <div class="type-description">{{ type.fullName }}</div>
+            </div>
+            <div class="type-selected">
+              <div class="selected-indicator"></div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+
+      <!-- Company Details -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Основная информация</h3>
+          <div class="section-tooltip">
+            <div class="tooltip-trigger">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+              </svg>
+            </div>
+            <div class="tooltip-content">
+              Полное и краткое наименование должны соответствовать учредительным документам
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group"
+            [class.error]="companyForm.get('fullName')?.invalid && companyForm.get('fullName')?.touched">
+            <label class="form-label">
+              <span>Полное наименование</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="fullName" [placeholder]="getFullNamePlaceholder()"
+              class="modern-input">
+            <div class="field-hint">Укажите полное юридическое наименование</div>
+          </div>
+
+          <div class="form-group"
+            [class.error]="companyForm.get('shortName')?.invalid && companyForm.get('shortName')?.touched">
+            <label class="form-label">
+              <span>Краткое наименование</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="shortName" [placeholder]="getShortNamePlaceholder()"
+              class="modern-input">
+            <div class="field-hint">Сокращенное наименование (как в документах)</div>
+          </div>
+
+          <div class="form-group"
+            [class.error]="companyForm.get('workDirection')?.invalid && companyForm.get('workDirection')?.touched">
+            <label class="form-label">
+              <span>Сфера деятельности</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="workDirection"
+              placeholder="Например: IT-услуги, розничная торговля, строительство" class="modern-input">
+            <div class="field-hint">Основной вид деятельности вашей компании</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Details -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Юридические реквизиты</h3>
+          <div class="section-tooltip">
+            <div class="tooltip-trigger">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+              </svg>
+            </div>
+            <div class="tooltip-content">
+              Эти данные необходимы для юридической проверки компании. Убедитесь в их корректности
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group"
+            [class.error]="companyForm.get('inn')?.invalid && companyForm.get('inn')?.touched">
+            <label class="form-label">
+              <span>ИНН</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="inn"
+              [placeholder]="selectedPartnerType?.code === 1 ? '10 цифр' : '12 цифр'" class="modern-input">
+            <div class="field-hint">ИНН из свидетельства о регистрации</div>
+          </div>
+
+          <div class="form-group"
+            [class.error]="companyForm.get('ogrn')?.invalid && companyForm.get('ogrn')?.touched">
+            <label class="form-label">
+              <span>{{ selectedPartnerType?.code === 1 ? 'ОГРН' : 'ОГРНИП' }}</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="ogrn" [placeholder]="getOgrnPlaceholder()" class="modern-input">
+            <div class="field-hint">{{ selectedPartnerType?.code === 1 ? '13 цифр' : '15 цифр' }}</div>
+          </div>
+
+          @if (selectedPartnerType?.code === 1) {
+          <div class="form-group"
+            [class.error]="companyForm.get('kpp')?.invalid && companyForm.get('kpp')?.touched">
+            <label class="form-label">
+              <span>КПП</span>
+              <span class="required">*</span>
+            </label>
+            <input type="text" formControlName="kpp" placeholder="9 цифр" class="modern-input">
+            <div class="field-hint">КПП по месту регистрации организации</div>
+          </div>
+          }
+
+          <div class="form-group"
+            [class.error]="companyForm.get('registrationDate')?.invalid && companyForm.get('registrationDate')?.touched">
+            <label class="form-label">
+              <span>Дата регистрации</span>
+              <span class="field-hint-text">(рекомендуется указать)</span>
+            </label>
+            <input type="date" formControlName="registrationDate" class="modern-input" [max]="todayDate()">
+            <div class="field-hint" style="font-size: 12px;">
+              Укажите для точного определения необходимых документов
+            </div>
+            @if (!companyForm.get('registrationDate')?.value) {
+            <div class="warning-message" style="font-size: 12px;">
+              ⚠️ Без даты регистрации будут запрошены все возможные документы
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>Юридический адрес</h3>
+          <div class="section-tooltip">
+            <div class="tooltip-trigger">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 12c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm6-1.8C18 6.57 15.35 4 12 4s-6 2.57-6 6.2c0 2.34 1.95 5.44 6 9.14 4.05-3.7 6-6.8 6-9.14z" />
+              </svg>
+            </div>
+            <div class="tooltip-content">
+              Юридический адрес должен совпадать с данными в ЕГРЮЛ/ЕГРИП
+            </div>
+          </div>
+        </div>
+
+        <div class="address-form" formGroupName="address">
+          <div class="form-grid">
+            <div class="form-group"
+              [class.error]="companyForm.get('address.country')?.invalid && companyForm.get('address.country')?.touched">
+              <label class="form-label">
+                <span>Страна</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="country" placeholder="Россия" class="modern-input">
+            </div>
+
+            <div class="form-group"
+              [class.error]="companyForm.get('address.region')?.invalid && companyForm.get('address.region')?.touched">
+              <label class="form-label">
+                <span>Регион/Область</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="region" placeholder="Московская область" class="modern-input">
+              <div class="field-hint">Область, край или республика</div>
+            </div>
+
+            <div class="form-group"
+              [class.error]="companyForm.get('address.city')?.invalid && companyForm.get('address.city')?.touched">
+              <label class="form-label">
+                <span>Город</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="city" placeholder="Москва" class="modern-input">
+            </div>
+
+            <div class="form-group"
+              [class.error]="companyForm.get('address.street')?.invalid && companyForm.get('address.street')?.touched">
+              <label class="form-label">
+                <span>Улица</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="street" placeholder="ул. Ленина" class="modern-input">
+            </div>
+
+            <div class="form-group"
+              [class.error]="companyForm.get('address.house')?.invalid && companyForm.get('address.house')?.touched">
+              <label class="form-label">
+                <span>Дом</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="house" placeholder="10" class="modern-input">
+            </div>
+
+            <div class="form-group"
+              [class.error]="companyForm.get('address.postIndex')?.invalid && companyForm.get('address.postIndex')?.touched">
+              <label class="form-label">
+                <span>Почтовый индекс</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" formControlName="postIndex" placeholder="101000" class="modern-input">
+              <div class="field-hint">6 цифр</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+}
 
         <!-- Step 3: Documents -->
         @if (currentStep === 3) {
