@@ -51,13 +51,13 @@ export class ProfileComponent implements OnInit {
 
   // Пополнение баланса
   showTopupModal: boolean = false;
-  
+
   // Платеж
   showPaymentWidget: boolean = false;
   paymentToken: string | null = null;
   topupAmount: number = 0;
   isProcessingTopup: boolean = false;
-  
+
   private destroy$ = new Subject<void>();
 
   private userService = inject(UserService);
@@ -178,36 +178,41 @@ export class ProfileComponent implements OnInit {
   // Методы для обработки платежа
   handlePaymentSuccess(event: any): void {
     console.log('Платеж успешен:', event);
-    
+
     this.isProcessingTopup = true;
     const token = event.token || event;
 
-    this.paymentService.confirmPayment(token).pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
-        this.isProcessingTopup = false;
-      })
-    ).subscribe({
-      next: (confirmResponse) => {
-        console.log('Платеж подтвержден:', confirmResponse);
-        
-        this.showPaymentWidget = false;
-        this.paymentToken = null;
-        
-        if (confirmResponse.data?.newBalance) {
-          this.user.balance = confirmResponse.data.newBalance;
-          this.userApiService.getOperativeInfo();
-        } else {
-          this.loadUserData();
-        }
-        
-        this.showSuccessNotification('Баланс успешно пополнен!');
-      },
-      error: (error) => {
-        console.error('Ошибка подтверждения платежа:', error);
-        this.handlePaymentError('Платеж прошел, но не удалось обновить баланс');
-      }
-    });
+    this.showPaymentWidget = false;
+    this.paymentToken = null;
+    this.userApiService.getOperativeInfo();
+    this.showSuccessNotification('Баланс успешно пополнен!');
+
+    // this.paymentService.confirmPayment(token).pipe(
+    //   takeUntil(this.destroy$),
+    //   finalize(() => {
+    //     this.isProcessingTopup = false;
+    //   })
+    // ).subscribe({
+    //   next: (confirmResponse) => {
+    //     console.log('Платеж подтвержден:', confirmResponse);
+
+    //     this.showPaymentWidget = false;
+    //     this.paymentToken = null;
+
+    //     if (confirmResponse.data?.newBalance) {
+    //       this.user.balance = confirmResponse.data.newBalance;
+    //       this.userApiService.getOperativeInfo();
+    //     } else {
+    //       this.loadUserData();
+    //     }
+
+    //     this.showSuccessNotification('Баланс успешно пополнен!');
+    //   },
+    //   error: (error) => {
+    //     console.error('Ошибка подтверждения платежа:', error);
+    //     this.handlePaymentError('Платеж прошел, но не удалось обновить баланс');
+    //   }
+    // });
   }
 
   handlePaymentFail(event: any): void {

@@ -51,7 +51,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   orderFormData: any = null;
 
   // Способ оплаты
-  paymentMethod: 'online' | 'cash' | 'card' | 'invoice' = 'online';
+  paymentMethod: 'online' | 'cash' | 'card' | 'invoice' | 'balance' = 'online';
 
   // Скидки
   discountRules = [
@@ -251,7 +251,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.paymentMethod === 'online') {
+    if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       this.createOrderAndInitiatePayment();
     } else {
       this.createOrderWithCashPayment();
@@ -427,9 +427,17 @@ export class OrderComponent implements OnInit, OnDestroy {
           // Не хватает средств - показываем диалог пополнения
           this.topupMinAmount = response.data.costDelta;
           this.showInsufficientFundsDialog(response.data.costDelta, response.data.totalCost);
-        } else {
+        }
+        if (response.data.costDelta && response.data.costDelta > 0) {
           // Средств достаточно - переходим к оплате
-          this.initiatePayment();
+          this.initiatePayment(response.data.confirmationToken);
+          return;
+        }
+
+        if (response.data.costDelta == null ) {
+          this.isOrderCreated = true;
+          this.showsuccessNotification = true;
+          return;
         }
       },
       error: (error) => {
@@ -537,32 +545,34 @@ export class OrderComponent implements OnInit, OnDestroy {
   /**
    * Инициализация онлайн оплаты
    */
-  initiatePayment() {
+  initiatePayment(confirmationToken: string) {
     if (!this.createdOrderId) {
       console.warn('Нельзя перейти к оплате: заказ не создан');
       return;
     }
 
     this.isProcessing = true;
+    this.paymentToken = confirmationToken;
+    this.showPaymentWidget = true;
 
     // Создаем транзакцию для оплаты
-    this.paymentService.createTopUpTransaction(this.getOrderTotal()).subscribe({
-      next: (response: any) => {
-        if (response.data && response.data.confirmationToken) {
-          this.paymentToken = response.data.confirmationToken;
-          this.showPaymentWidget = true;
-        } else {
-          console.error('Не получен confirmationToken');
-          this.handlePaymentError('Не удалось получить токен оплаты');
-        }
-        this.isProcessing = false;
-      },
-      error: (error) => {
-        console.error('Ошибка при создании платежа:', error);
-        this.handlePaymentError(error);
-        this.isProcessing = false;
-      }
-    });
+    // this.paymentService.createTopUpTransaction(this.getOrderTotal()).subscribe({
+    //   next: (response: any) => {
+    //     if (response.data && response.data.confirmationToken) {
+    //       this.paymentToken = response.data.confirmationToken;
+    //       this.showPaymentWidget = true;
+    //     } else {
+    //       console.error('Не получен confirmationToken');
+    //       this.handlePaymentError('Не удалось получить токен оплаты');
+    //     }
+    //     this.isProcessing = false;
+    //   },
+    //   error: (error) => {
+    //     console.error('Ошибка при создании платежа:', error);
+    //     this.handlePaymentError(error);
+    //     this.isProcessing = false;
+    //   }
+    // });
   }
 
   /**
