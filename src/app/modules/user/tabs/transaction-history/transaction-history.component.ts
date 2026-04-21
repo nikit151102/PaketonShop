@@ -6,11 +6,19 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { PaymentService } from '../../../../core/api/payment.service';
 import { TitleComponent } from '../../../../core/components/title/title.component';
 
+// Enum в соответствии с бекендом
+export enum PaymentStatus {
+  Pending = 1,    // Успешная оплата (Рассматривается)
+  Succeed = 2,    // Успешная оплата (подтверждено)
+  Canceled = 3,   // Отмена оплаты
+  Undefined = 4   // Не подтверждено
+}
+
 interface Transaction {
   id: string;
   delta: number;
   description: string;
-  paymentStatus: number;
+  paymentStatus: PaymentStatus;
   message: string;
   date: string;
   statusText: string;
@@ -43,6 +51,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   searchTerm = '';
   typeFilter: 'all' | 'income' | 'expense' = 'all';
   dateFilter: 'all' | 'week' | 'month' | 'quarter' = 'all';
+  statusFilter: 'all' | PaymentStatus = 'all'; // Новый фильтр по статусу
 
   // Статистика
   totalIncome: number = 0;
@@ -58,6 +67,15 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   private scrollThreshold: number = 200;
 
   private destroy$ = new Subject<void>();
+
+  // Для выпадающего списка статусов
+  statusOptions = [
+    { value: 'all', label: 'Все статусы' },
+    { value: PaymentStatus.Pending, label: 'В обработке' },
+    { value: PaymentStatus.Succeed, label: 'Успешно' },
+    { value: PaymentStatus.Canceled, label: 'Отменен' },
+    { value: PaymentStatus.Undefined, label: 'Не подтвержден' }
+  ];
 
   constructor(private paymentService: PaymentService) { }
 
@@ -146,12 +164,21 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   private buildRequestData(): FilterRequest {
     const filters: any[] = [];
 
-    // Фильтр по типу
+    // Фильтр по типу (доход/расход)
     if (this.typeFilter !== 'all') {
       filters.push({
         field: 'delta',
         operator: this.typeFilter === 'income' ? 'greaterThan' : 'lessThan',
         value: 0
+      });
+    }
+
+    // Фильтр по статусу
+    if (this.statusFilter !== 'all') {
+      filters.push({
+        field: 'paymentStatus',
+        operator: 'equals',
+        value: this.statusFilter
       });
     }
 
@@ -224,27 +251,32 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getStatusInfo(status: number): { text: string; color: string; icon: string } {
+  private getStatusInfo(status: PaymentStatus): { text: string; color: string; icon: string } {
     switch (status) {
-      case 0:
-        return { text: 'Ожидает', color: 'warning', icon: '⏳' };
-      case 1:
-        return { text: 'Успешно', color: 'success', icon: '✅' };
-      case 2:
-        return { text: 'Отменен', color: 'danger', icon: '❌' };
-      case 3:
+      case PaymentStatus.Pending:
         return { text: 'В обработке', color: 'info', icon: '🔄' };
+      case PaymentStatus.Succeed:
+        return { text: 'Успешно', color: 'success', icon: '✅' };
+      case PaymentStatus.Canceled:
+        return { text: 'Отменен', color: 'danger', icon: '❌' };
+      case PaymentStatus.Undefined:
+        return { text: 'Не подтвержден', color: 'warning', icon: '⚠️' };
       default:
         return { text: 'Неизвестно', color: 'default', icon: '❓' };
     }
   }
 
   private calculateStats(): void {
-    this.totalIncome = this.transactions
+    // Учитываем только успешные транзакции для статистики баланса
+    const successfulTransactions = this.transactions.filter(
+      t => t.paymentStatus === PaymentStatus.Succeed
+    );
+
+    this.totalIncome = successfulTransactions
       .filter(t => t.isPositive)
       .reduce((sum, t) => sum + t.delta, 0);
 
-    this.totalExpense = this.transactions
+    this.totalExpense = successfulTransactions
       .filter(t => !t.isPositive)
       .reduce((sum, t) => sum + Math.abs(t.delta), 0);
 
@@ -261,6 +293,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.typeFilter = 'all';
     this.dateFilter = 'all';
+    this.statusFilter = 'all';
     this.applyFilters();
   }
 
@@ -294,5 +327,21 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     window.history.back();
+  }
+
+  // Дополнительный метод для отображения статуса на карточке
+  getStatusClass(status: PaymentStatus): string {
+    switch (status) {
+      case PaymentStatus.Succeed:
+        return 'status-success';
+      case PaymentStatus.Pending:
+        return 'status-info';
+      case PaymentStatus.Canceled:
+        return 'status-danger';
+      case PaymentStatus.Undefined:
+        return 'status-warning';
+      default:
+        return 'status-default';
+    }
   }
 }

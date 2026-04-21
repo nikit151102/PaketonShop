@@ -81,23 +81,19 @@ export class WholesaleOrderService {
    * @param files - массив файлов для загрузки
    * @returns Observable с результатом операции
    */
-  addDocuments(id: string, files: File[]): Observable<any> {
+  addDocuments(orderId: string, files: File[], documentTypes: number[]): Observable<any> {
+    const formData = new FormData();
 
-    const promises = files.map(file => this.fileToBase64(file));
+    // Добавляем файлы
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
 
-    return from(Promise.all(promises)).pipe(
-      switchMap(base64Files => {
-        const body = {
-          files: base64Files.map((base64, index) => ({
-            name: files[index].name,
-            type: files[index].type,
-            content: base64.split(',')[1]
-          }))
-        };
+    documentTypes.forEach((type) => {
+      formData.append('orderDocumentTypes', type.toString());
+    });
 
-        return this.http.put(`${this.baseUrl}/AddDocuments/${id}`, body);
-      })
-    );
+    return this.http.post(`${this.baseUrl}/orders/${orderId}/documents`, formData);
   }
 
   private fileToBase64(file: File): Promise<string> {

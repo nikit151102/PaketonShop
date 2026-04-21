@@ -418,27 +418,29 @@ export class OrderComponent implements OnInit, OnDestroy {
         // Проверяем наличие ошибки
         if (response.data.errorMessage && response.data.errorMessage !== null) {
           // Если есть сообщение об ошибке - показываем его
-          this.showErrorNotification(response.errorMessage);
+          this.showErrorNotification(response.data.errorMessage);
           return;
         }
 
-        // Если ошибки нет, проверяем costDelta
+        // Проверяем, есть ли confirmationToken (успешный запуск оплаты)
+        if (response.data.confirmationToken) {
+          // Успешно получили токен - показываем виджет оплаты
+          this.paymentToken = response.data.confirmationToken;
+          this.showPaymentWidget = true;
+          return;
+        }
+
+        // Проверяем, не хватает ли средств на балансе
         if (response.data.costDelta && response.data.costDelta > 0) {
           // Не хватает средств - показываем диалог пополнения
           this.topupMinAmount = response.data.costDelta;
           this.showInsufficientFundsDialog(response.data.costDelta, response.data.totalCost);
-        }
-        if (response.data.costDelta && response.data.costDelta > 0) {
-          // Средств достаточно - переходим к оплате
-          this.initiatePayment(response.data.confirmationToken);
           return;
         }
 
-        if (response.data.costDelta == null ) {
-          this.isOrderCreated = true;
-          this.showsuccessNotification = true;
-          return;
-        }
+        // Если дошли сюда - что-то пошло не так
+        console.warn('Неожиданный ответ от сервера:', response);
+        this.showErrorNotification('Не удалось инициировать оплату. Попробуйте позже.');
       },
       error: (error) => {
         console.error('Ошибка при проверке оплаты заказа:', error);

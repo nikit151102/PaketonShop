@@ -1417,189 +1417,201 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   }
 
   private submitDocumentsForExistingPartner(): void {
-    const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
-    if (!authToken) {
-      this.error = 'Необходимо авторизоваться';
+  const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+  if (!authToken) {
+    this.error = 'Необходимо авторизоваться';
+    this.isSubmitting = false;
+    return;
+  }
+
+  this.userApiService.getData().pipe(
+    switchMap((userResponse) => {
+      const user = userResponse.data;
+
+      return this.wholesaleOrderService.createOrder({
+        beginDateTime: null,
+        endDateTime: null,
+        partnerInstanceId: this.companyId,
+        userInstanceId: user.id
+      }).pipe(
+        map((orderResponse) => ({
+          user,
+          orderId: orderResponse.data.id
+        }))
+      );
+    }),
+    switchMap(({ user, orderId }) => {
+      if (this.accountData.documents?.length > 0) {
+        let files: File[] = [];
+        let documentTypes: number[] = [];
+
+        if (this.uploadMethod === 'single') {
+          // Для поштучной загрузки - собираем файлы и их типы
+          files = this.accountData.documents
+            .filter(doc => doc.file)
+            .map(doc => doc.file);
+          
+          documentTypes = this.accountData.documents
+            .filter(doc => doc.file)
+            .map(doc => doc.type);
+        } else if (this.uploadMethod === 'archive' && this.archiveFile) {
+          files = [this.archiveFile];
+          // Для архива тип документа можно определить как специальный тип
+          // Например, 99 - архив с документами
+          documentTypes = [99]; // или другой идентификатор для архива
+        }
+
+        if (files.length > 0) {
+          // Передаем оба массива: файлы и их типы
+          return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes).pipe(
+            map(() => orderId)
+          );
+        }
+      }
+
+      return of(orderId);
+    })
+  ).subscribe({
+    next: (orderId) => {
       this.isSubmitting = false;
-      return;
+      this.success = true;
+      this.router.navigate(['/profile/companies']);
+    },
+    error: (error) => {
+      this.isSubmitting = false;
+      this.error = error.message || 'Ошибка при загрузке документов';
+      console.error('Error uploading documents:', error);
     }
+  });
+}
 
-    this.userApiService.getData().pipe(
-      switchMap((userResponse) => {
-        const user = userResponse.data;
+private submitFullRegistration(): void {
+  this.accountData.user = this.userForm.value;
 
-        return this.wholesaleOrderService.createOrder({
-          beginDateTime: null,
-          endDateTime: null,
-          partnerInstanceId: this.companyId,
-          userInstanceId: user.id
-        }).pipe(
-          map((orderResponse) => ({
-            user,
-            orderId: orderResponse.data.id
-          }))
-        );
-      }),
-      switchMap(({ user, orderId }) => {
-        if (this.accountData.documents?.length > 0) {
-          let files: File[] = [];
+  const registerData = {
+    email: this.accountData.user.email,
+    password: this.accountData.user.password,
+    isEmailSend: 'false',
+  };
 
-          if (this.uploadMethod === 'single') {
-            files = this.accountData.documents
-              .filter(doc => doc.file)
-              .map(doc => doc.file);
-          } else if (this.uploadMethod === 'archive' && this.archiveFile) {
-            files = [this.archiveFile];
-          }
+  this.authService.register(registerData).pipe(
+    switchMap((response) => {
+      StorageUtils.setLocalStorageCache(
+        localStorageEnvironment.auth.key,
+        response.data.token,
+        localStorageEnvironment.auth.ttl,
+      );
 
-          if (files.length > 0) {
-            return this.wholesaleOrderService.addDocuments(orderId, files).pipe(
-              map(() => orderId)
-            );
-          }
+      const userFormData = {
+        firstName: this.accountData.user.firstName,
+        lastName: this.accountData.user.lastName,
+        middleName: this.accountData.user.middleName,
+        birthday: this.accountData.user.birthday,
+        phoneName: this.accountData.user.phoneNumber,
+        email: this.accountData.user.email
+      };
+
+      return this.userApiService.updateData(userFormData).pipe(
+        switchMap(() => this.userApiService.getData())
+      );
+    }),
+    switchMap((userData) => {
+      this.userService.setUser(userData.data, 'session', true);
+      this.userForm.markAsPristine();
+
+      const userInstance = userData.data;
+
+      const formCompanyFormData = this.companyForm.value;
+      const partnerCreateDTO = {
+        fullName: formCompanyFormData.fullName,
+        shortName: formCompanyFormData.shortName,
+        inn: formCompanyFormData.inn,
+        ogrn: formCompanyFormData.ogrn,
+        kpp: formCompanyFormData.kpp,
+        address: {
+          country: this.accountData.company.address.country,
+          region: this.accountData.company.address.region,
+          city: this.accountData.company.address.city,
+          street: this.accountData.company.address.street,
+          house: this.accountData.company.address.house
+        }
+      };
+
+      const newPartner: any = {
+        partnerCreateDTO: partnerCreateDTO
+      };
+
+      return this.partnerService.setPartnerUser(newPartner).pipe(
+        map((partnerResponse) => ({
+          userInstance,
+          partnerInstance: partnerResponse.data
+        }))
+      );
+    }),
+    switchMap(({ userInstance, partnerInstance }) => {
+      return this.wholesaleOrderService.createOrder({
+        beginDateTime: null,
+        endDateTime: null,
+        partnerInstanceId: partnerInstance.id,
+        userInstanceId: userInstance.id
+      }).pipe(
+        map((orderResponse) => ({
+          userInstance,
+          partnerInstance,
+          orderId: orderResponse.data.id
+        }))
+      );
+    }),
+    switchMap(({ userInstance, partnerInstance, orderId }) => {
+      if (this.accountData.documents?.length > 0) {
+        let files: File[] = [];
+        let documentTypes: number[] = [];
+
+        if (this.uploadMethod === 'single') {
+          // Для поштучной загрузки - собираем файлы и их типы
+          files = this.accountData.documents
+            .filter(doc => doc.file)
+            .map(doc => doc.file);
+          
+          documentTypes = this.accountData.documents
+            .filter(doc => doc.file)
+            .map(doc => doc.type);
+        } else if (this.uploadMethod === 'archive' && this.archiveFile) {
+          files = [this.archiveFile];
+          // Для архива тип документа можно определить как специальный тип
+          documentTypes = [99]; // или другой идентификатор для архива
         }
 
-        return of(orderId);
-      }),
-      switchMap((orderId) => {
-        if (this.uploadMethod === 'cloud' && this.cloudLink) {
+        if (files.length > 0) {
+          // Передаем оба массива: файлы и их типы
+          return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes).pipe(
+            map(() => ({
+              userInstance,
+              partnerInstance,
+              orderId
+            }))
+          );
         }
-        return of(orderId);
-      })
-    ).subscribe({
-      next: (orderId) => {
-        this.isSubmitting = false;
-        this.success = true;
-        this.router.navigate(['/profile/companies']);
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-        this.error = error.message || 'Ошибка при загрузке документов';
-        console.error('Error uploading documents:', error);
       }
-    });
-  }
 
-  private submitFullRegistration(): void {
+      return of({ userInstance, partnerInstance, orderId });
+    })
+  ).subscribe({
+    next: (result) => {
+      this.isSubmitting = false;
+      this.success = true;
 
-    this.accountData.user = this.userForm.value;
-
-    const registerData = {
-      email: this.accountData.user.email,
-      password: this.accountData.user.password,
-      isEmailSend: 'false',
-    };
-
-    this.authService.register(registerData).pipe(
-      switchMap((response) => {
-        StorageUtils.setLocalStorageCache(
-          localStorageEnvironment.auth.key,
-          response.data.token,
-          localStorageEnvironment.auth.ttl,
-        );
-
-        const userFormData = {
-          firstName: this.accountData.user.firstName,
-          lastName: this.accountData.user.lastName,
-          middleName: this.accountData.user.middleName,
-          birthday: this.accountData.user.birthday,
-          phoneName: this.accountData.user.phoneNumber,
-          email: this.accountData.user.email
-        };
-
-        return this.userApiService.updateData(userFormData).pipe(
-          switchMap(() => this.userApiService.getData())
-        );
-      }),
-      switchMap((userData) => {
-        this.userService.setUser(userData.data, 'session', true);
-        this.userForm.markAsPristine();
-
-        const userInstance = userData.data;
-
-        const formCompanyFormData = this.companyForm.value;
-        const partnerCreateDTO = {
-          fullName: formCompanyFormData.fullName,
-          shortName: formCompanyFormData.shortName,
-          inn: formCompanyFormData.inn,
-          ogrn: formCompanyFormData.ogrn,
-          kpp: formCompanyFormData.kpp,
-          address: {
-            country: this.accountData.company.address.country,
-            region: this.accountData.company.address.region,
-            city: this.accountData.company.address.city,
-            street: this.accountData.company.address.street,
-            house: this.accountData.company.address.house
-          }
-        };
-
-        const newPartner: any = {
-          partnerCreateDTO: partnerCreateDTO
-        };
-
-        return this.partnerService.setPartnerUser(newPartner).pipe(
-          map((partnerResponse) => ({
-            userInstance,
-            partnerInstance: partnerResponse.data
-          }))
-        );
-      }),
-      switchMap(({ userInstance, partnerInstance }) => {
-        return this.wholesaleOrderService.createOrder({
-          beginDateTime: null,
-          endDateTime: null,
-          partnerInstanceId: partnerInstance.id,
-          userInstanceId: userInstance.id
-        }).pipe(
-          map((orderResponse) => ({
-            userInstance,
-            partnerInstance,
-            orderId: orderResponse.data.id
-          }))
-        );
-      }),
-      switchMap(({ userInstance, partnerInstance, orderId }) => {
-
-        if (this.accountData.documents?.length > 0) {
-          let files: File[] = [];
-
-          if (this.uploadMethod === 'single') {
-            files = this.accountData.documents
-              .filter(doc => doc.file)
-              .map(doc => doc.file);
-          } else if (this.uploadMethod === 'archive' && this.archiveFile) {
-            files = [this.archiveFile];
-          }
-
-          if (files.length > 0) {
-            return this.wholesaleOrderService.addDocuments(orderId, files).pipe(
-              map(() => ({
-                userInstance,
-                partnerInstance,
-                orderId
-              }))
-            );
-          }
-        }
-
-        return of({ userInstance, partnerInstance, orderId });
-      })
-    ).subscribe({
-      next: (result) => {
-        this.isSubmitting = false;
-        this.success = true;
-
-        if (this.uploadMethod === 'cloud' && this.cloudLink) {
-          console.log('Cloud link:', this.cloudLink, 'Provider:', this.selectedProvider);
-        }
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-        this.error = error.message || 'Произошла ошибка при регистрации';
-        console.error('Error during registration:', error);
+      if (this.uploadMethod === 'cloud' && this.cloudLink) {
+        console.log('Cloud link:', this.cloudLink, 'Provider:', this.selectedProvider);
       }
-    });
-  }
+    },
+    error: (error) => {
+      this.isSubmitting = false;
+      this.error = error.message || 'Произошла ошибка при регистрации';
+      console.error('Error during registration:', error);
+    }
+  });
+}
 
   private resetAllForms(): void {
     this.userForm.reset();
