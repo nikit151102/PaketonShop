@@ -101,13 +101,18 @@
 
         <div class="company-card__footer">
           <span class="company-card__date">
-            <svg width="12" height="12" viewBox="0 0 24 24">
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm5 13h-6v-2h6v2zm0-4h-6V9h6v2z" />
-            </svg>
             {{ getUpdatedDate(company) }}
           </span>
-          @if (company.id) {
-          <span class="company-card__id" title="ID компании">#{{ company.id.substring(0, 6) }}</span>
+          @if (company.actualWholesaleOrdersAny != null) {
+          <span *ngIf="company.actualWholesaleOrdersAny !== null" class="company-card__badge"
+            [class.company-card__badge--true]="company.actualWholesaleOrdersAny === true"
+            [class.company-card__badge--false]="company.actualWholesaleOrdersAny === false" title="Статус договора">
+            @if (company.actualWholesaleOrdersAny === true) {
+            Договор подписан
+            } @else {
+            Договор не подписан
+            }
+          </span>
           }
         </div>
 
@@ -120,7 +125,7 @@
   </div>
 
   <!-- Быстрая статистика -->
-  <div class="companies__stats" *ngIf="!loading && !error && companies.length > 0">
+  <!-- <div class="companies__stats" *ngIf="!loading && !error && companies.length > 0">
     <div class="stat-item">
       <span class="stat-item__value">{{ activeCompanies.length }}</span>
       <span class="stat-item__label">активных</span>
@@ -133,7 +138,7 @@
       <span class="stat-item__value">{{ getIndividualEntitiesCount() }}</span>
       <span class="stat-item__label">физ. лиц</span>
     </div>
-  </div>
+  </div> -->
 </section>
 
 <!-- Форма партнера -->

@@ -36,6 +36,7 @@ interface Partner {
     ogrn: string;
     partnerTypeId?: string | number;
   };
+  actualWholesaleOrdersAny?: boolean;
 }
 
 interface Address {
@@ -258,7 +259,7 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
       const date = new Date(company.createdAt);
       return `Создано: ${date.toLocaleDateString('ru-RU')}`;
     }
-    return 'Дата не указана';
+    return '';
   }
 
   detailPartner(company: Partner): void {
