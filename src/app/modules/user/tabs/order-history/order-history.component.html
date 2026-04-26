@@ -38,6 +38,11 @@
               <span class="status-dot"></span>
               <span class="status-text">{{ getStatusText(order.orderStatus) }}</span>
             </div>
+            <div class="payment-badge" [class]="getPaymentStatusClass(order.paymentStatusType)">
+              <span class="payment-dot"></span>
+              <span class="payment-text">{{ getPaymentStatusText(order.paymentStatusType) }}</span>
+            </div>
+
             <div class="order-number">
               <span class="number">#{{ formatOrderId(order.id) }}</span>
               <span class="date">{{ formatDate(order.orderDateTime) }}</span>

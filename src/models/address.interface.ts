@@ -21,6 +21,7 @@ export interface Address {
   createDateTime?: string;
   changeDateTime?: string;
   pickupPointName?: string;
+  pickupPointCode?: string;
 }
 
 export const TransportCompanies = {

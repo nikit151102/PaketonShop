@@ -68,6 +68,7 @@ interface Order {
   deliveryCost: number;
   orderCost: number;
   consultation: boolean;
+  paymentStatusType: number;
 
   address?: Address;
   deliveryType?: DeliveryType;
@@ -154,13 +155,13 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           if (response.data && Array.isArray(response.data)) {
             const transformedOrders = this.transformApiData(response.data);
-            
+
             if (reset) {
               this.orders = transformedOrders;
             } else {
               this.orders = [...this.orders, ...transformedOrders];
             }
-            
+
             // Обновляем информацию о пагинации
             this.totalPages = response.pageCount || 1;
             this.hasMore = this.currentPage + 1 < this.totalPages;
@@ -178,7 +179,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   loadMoreOrders(): void {
     if (!this.hasMore || this.loadingMore || this.loading) return;
-    
+
     this.loadingMore = true;
     this.currentPage++;
     this.loadOrders(false);
@@ -201,6 +202,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         deliveryCost: item.deliveryCost,
         orderCost: item.orderCost,
         consultation: item.consultation,
+        paymentStatusType: item.paymentStatusType,
 
         address: item.address,
         deliveryType: item.deliveryType,
@@ -214,6 +216,28 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         isExpanded: false
       };
     });
+  }
+
+  getPaymentStatusText(status: number): string {
+    const statusMap: { [key: number]: string } = {
+      0: 'Не оплачен',
+      1: 'Оплачен частично',
+      2: 'Оплачен полностью',
+      3: 'Обработка оплаты',
+      4: 'Ожидание оплаты'
+    };
+    return statusMap[status] ?? 'Не оплачен';
+  }
+
+  getPaymentStatusClass(status: number): string {
+    const classMap: { [key: number]: string } = {
+      0: 'payment-not-paid',
+      1: 'payment-partial',
+      2: 'payment-paid',
+      3: 'payment-pending',
+      4: 'payment-waiting'
+    };
+    return classMap[status] ?? 'payment-not-paid';
   }
 
   toggleOrderExpansion(order: Order): void {

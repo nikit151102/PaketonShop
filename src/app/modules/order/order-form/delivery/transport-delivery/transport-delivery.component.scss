@@ -912,3 +912,1213 @@ $radius-sm: 8px;
     }
   }
 }
+
+
+// Уведомления
+.floating-notifications {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+}
+
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  animation: slideInRight 0.3s ease;
+
+  &.success {
+    border-left: 4px solid $success;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+
+    .notification-icon {
+      background: $success;
+      color: white;
+    }
+  }
+
+  &.error {
+    border-left: 4px solid $error;
+    background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+
+    .notification-icon {
+      background: $error;
+      color: white;
+    }
+  }
+
+  .notification-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .notification-content {
+    flex: 1;
+    font-size: 13px;
+    color: $text;
+    line-height: 1.4;
+  }
+
+  .notification-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: $text;
+    }
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Обновленные стили для address-preview с двумя кнопками
+.address-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  background: $primary-light;
+  border: 2px solid $primary;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  animation: slideDown 0.2s ease;
+  flex-wrap: wrap;
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__details {
+    min-width: 0;
+  }
+
+  &__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: $primary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  &__text {
+    display: block;
+    font-size: 13px;
+    color: $text;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  &__edit,
+  &__change {
+    padding: 6px 12px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 20px;
+    font-size: 12px;
+    color: $text-secondary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-hover;
+      color: $primary;
+      border-color: $primary;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// Обновленные стили для address-item с кнопками действий
+.address-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: $bg-hover;
+
+    .address-item__actions {
+      opacity: 1;
+    }
+  }
+
+  &--selected {
+    background: $primary-light;
+    padding-right: 40px;
+
+    .address-item__check {
+      opacity: 1;
+    }
+  }
+
+  &__logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, $bg-light 0%, $border-light 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .default-logo {
+      font-size: 20px;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__company {
+    font-size: 12px;
+    font-weight: 600;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+
+  &__text {
+    font-size: 13px;
+    color: $text;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &__edit,
+  &__delete {
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 1px solid $border;
+    border-radius: 8px;
+    color: $text-muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-hover;
+    }
+  }
+
+  &__edit:hover {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  &__delete:hover {
+    color: $error;
+    border-color: $error;
+  }
+
+  &__check {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: $primary;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+// Стили для формы адреса
+.address-form {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  animation: slideDown 0.2s ease;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border;
+    background: $bg-light;
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+    }
+  }
+
+  &__close {
+    width: 32px;
+    height: 32px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text-muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+      transform: rotate(90deg);
+    }
+  }
+
+  &__body {
+    padding: 20px;
+  }
+
+  &__footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: $bg-light;
+    border-top: 1px solid $border;
+  }
+}
+
+// Дополнительные стили для кнопок
+.btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &-primary {
+    background: $primary;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: $primary-hover;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &-outline {
+    background: transparent;
+    border: 2px solid $border;
+    color: $text-secondary;
+
+    &:hover {
+      background: $bg-hover;
+      border-color: $text-muted;
+    }
+  }
+}
+
+.btn-loading {
+  display: inline-block;
+  position: relative;
+  padding-left: 24px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .address-preview {
+    flex-direction: column;
+    align-items: stretch;
+
+    &__info {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    &__actions {
+      justify-content: center;
+    }
+  }
+
+  .address-item {
+    flex-wrap: wrap;
+
+    &__content {
+      width: calc(100% - 52px);
+    }
+
+    &__text {
+      white-space: normal;
+    }
+  }
+
+  .form-row--3 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .floating-notifications {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-form__footer {
+    flex-direction: column;
+  }
+
+  .address-preview__actions {
+    flex-direction: column;
+
+    button {
+      justify-content: center;
+    }
+  }
+}
+
+// Карта и связанные стили
+.map-view {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  animation: slideDown 0.2s ease;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border;
+    background: $bg-light;
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+    }
+  }
+
+  &__close {
+    width: 32px;
+    height: 32px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text-muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+      transform: rotate(90deg);
+    }
+  }
+
+  &__footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: $bg-light;
+    border-top: 1px solid $border;
+  }
+}
+
+.company-selector-block {
+  margin-bottom: 20px;
+
+  .selector-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+}
+
+.city-search-wrapper {
+  padding: 16px;
+  border-bottom: 1px solid $border;
+  position: relative;
+}
+
+.city-search {
+  display: flex;
+  gap: 8px;
+
+  .city-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid $border;
+    border-radius: 10px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+    }
+  }
+
+  .city-search-btn {
+    padding: 10px 20px;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: $primary-hover;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.city-autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  right: 16px;
+  background: white;
+  border: 1px solid $border;
+  border-radius: 10px;
+  box-shadow: $shadow;
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+
+  .city-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid $border-light;
+
+    &:hover {
+      background: $bg-hover;
+    }
+
+    .city-region {
+      display: block;
+      font-size: 11px;
+      color: $text-muted;
+    }
+  }
+}
+
+.map-container-wrapper {
+  position: relative;
+  height: 300px;
+
+  .map-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+.points-list {
+  max-height: 250px;
+  overflow-y: auto;
+  border-top: 1px solid $border;
+
+  &__header {
+    padding: 12px 16px;
+    background: $bg-light;
+    font-size: 12px;
+    color: $text-muted;
+    border-bottom: 1px solid $border;
+  }
+
+  &__items {
+    padding: 8px;
+  }
+}
+
+.point-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &--selected {
+    background: $primary-light;
+    border: 1px solid $primary;
+  }
+
+  .point-icon {
+    font-size: 24px;
+  }
+
+  .point-info {
+    flex: 1;
+
+    .point-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: $text;
+      margin-bottom: 4px;
+    }
+
+    .point-address {
+      font-size: 12px;
+      color: $text-secondary;
+      margin-bottom: 4px;
+    }
+
+    .point-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: $text-muted;
+    }
+  }
+
+  .point-check {
+    color: $primary;
+  }
+}
+
+.points-loading {
+  padding: 40px;
+  text-align: center;
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+}
+
+.empty-addresses {
+  text-align: center;
+  padding: 40px 20px;
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: $text-muted;
+    margin-bottom: 20px;
+  }
+
+  .empty-btn {
+    padding: 10px 20px;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      background: $primary-hover;
+    }
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .map-view__footer {
+    flex-direction: column;
+  }
+
+  .points-list {
+    max-height: 200px;
+  }
+
+  .city-search {
+    flex-direction: column;
+
+    .city-search-btn {
+      width: 100%;
+    }
+  }
+}
+
+// Стили для формы создания
+.create-form {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  animation: slideDown 0.2s ease;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid $border;
+    background: $bg-light;
+
+    h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+    }
+  }
+
+  &__close {
+    width: 32px;
+    height: 32px;
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $text-muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $bg-hover;
+      color: $text;
+      transform: rotate(90deg);
+    }
+  }
+
+  &__footer {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: $bg-light;
+    border-top: 1px solid $border;
+  }
+}
+
+// Переключатель список/карта
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  background: $bg-light;
+  border-bottom: 1px solid $border;
+
+  .toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid $border;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      background: $bg-hover;
+    }
+
+    &.active {
+      background: $primary;
+      border-color: $primary;
+      color: white;
+    }
+  }
+}
+
+// Режим карты
+.map-mode {
+  .map-container-wrapper {
+    position: relative;
+    height: 350px;
+
+    .map-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-loading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+  }
+
+  .selected-point-info {
+    padding: 12px 16px;
+    background: $primary-light;
+    border-top: 1px solid $border;
+
+    .selected-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      strong {
+        font-size: 13px;
+        color: $text;
+      }
+
+      span {
+        font-size: 12px;
+        color: $text-secondary;
+      }
+    }
+  }
+}
+
+// Режим списка
+.points-list-mode {
+  .points-list {
+    max-height: 350px;
+    overflow-y: auto;
+
+    &__header {
+      padding: 12px 16px;
+      background: $bg-light;
+      font-size: 12px;
+      color: $text-muted;
+      border-bottom: 1px solid $border;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    &__items {
+      padding: 8px;
+    }
+  }
+
+  .no-points {
+    text-align: center;
+    padding: 40px 20px;
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: $text-muted;
+      margin-bottom: 8px;
+
+      &.hint {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .create-form__footer {
+    flex-direction: column;
+  }
+
+  .map-mode .map-container-wrapper {
+    height: 250px;
+  }
+
+  .points-list-mode .points-list {
+    max-height: 300px;
+  }
+}
+
+
+
+// Дополнительные стили для кнопок с иконками
+.address-preview__change,
+.btn-secondary,
+.btn-primary,
+.address-add-btn,
+.empty-btn,
+.state-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  
+  svg {
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover svg {
+    transform: translateX(2px);
+  }
+}
+
+// Стили для поиска с иконкой
+.city-search {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-muted;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .city-input {
+    flex: 1;
+    padding: 12px 12px 12px 42px;
+    border: 2px solid $border;
+    border-radius: 14px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px $primary-light;
+    }
+  }
+  
+  .city-search-btn {
+    padding: 12px 24px;
+    background: $primary;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background: $primary-hover;
+      transform: translateY(-1px);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Стили для спиннера в кнопке
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+// Улучшенные стили для city-autocomplete
+.city-autocomplete {
+  .city-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    
+    svg {
+      flex-shrink: 0;
+      color: $primary;
+    }
+    
+    .city-info {
+      flex: 1;
+      
+      strong {
+        display: block;
+        font-size: 14px;
+        color: $text;
+        margin-bottom: 2px;
+      }
+      
+      .city-region {
+        font-size: 11px;
+        color: $text-muted;
+      }
+    }
+  }
+}
+
+// Улучшенные стили для point-item
+.point-item {
+  position: relative;
+  transition: all 0.2s ease;
+  
+  &--selected {
+    background: $primary-light;
+    border: 1px solid $primary;
+    box-shadow: 0 2px 8px rgba(60, 138, 39, 0.1);
+  }
+  
+  .point-check {
+    svg {
+      color: $primary;
+      animation: scaleIn 0.2s ease;
+    }
+  }
+  
+  .point-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 6px;
+    
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: $text-muted;
+    }
+  }
+}
+
+// Улучшенные стили для selected-point-info
+.selected-point-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: $primary-light;
+  border-top: 1px solid $border;
+  
+  .selected-info-icon {
+    flex-shrink: 0;
+    color: $primary;
+  }
+  
+  .selected-info {
+    flex: 1;
+    
+    strong {
+      display: block;
+      font-size: 13px;
+      color: $text;
+      margin-bottom: 4px;
+    }
+    
+    span {
+      font-size: 12px;
+      color: $text-secondary;
+    }
+  }
+}
+
+// Улучшенные стили для address-item
+.address-item {
+  &__delete {
+    background: white;
+    border: 1px solid $border;
+    border-radius: 10px;
+    color: $error;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: $error;
+      color: white;
+      border-color: $error;
+    }
+  }
+}
+
+// Анимация для выбранного пункта
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Улучшенная адаптивность
+@media (max-width: 768px) {
+  .city-search {
+    flex-direction: column;
+    
+    .city-search-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .point-meta {
+    flex-direction: column;
+    gap: 4px !important;
+  }
+  
+  .selected-point-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .create-form__footer {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

@@ -26,17 +26,33 @@ $radius-lg: 16px;
 $radius-xl: 20px;
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .order-history {
@@ -56,7 +72,9 @@ $radius-xl: 20px;
 }
 
 // States
-.loading-state, .error-state, .empty-state {
+.loading-state,
+.error-state,
+.empty-state {
   text-align: center;
   padding: 60px 20px;
   background: white;
@@ -74,7 +92,8 @@ $radius-xl: 20px;
     margin: 0 auto 20px;
   }
 
-  .error-icon, .empty-icon {
+  .error-icon,
+  .empty-icon {
     font-size: 48px;
     margin-bottom: 16px;
   }
@@ -92,7 +111,8 @@ $radius-xl: 20px;
     color: $gray-500;
   }
 
-  .retry-btn, .empty-btn {
+  .retry-btn,
+  .empty-btn {
     padding: 10px 24px;
     background: $primary;
     color: white;
@@ -213,47 +233,82 @@ $radius-xl: 20px;
     &.status-draft {
       background: rgba($warning, 0.1);
       color: #92400e;
-      .status-dot { background: $warning; }
+
+      .status-dot {
+        background: $warning;
+      }
     }
+
     &.status-processing {
       background: rgba($info, 0.1);
       color: #1e40af;
-      .status-dot { background: $info; }
+
+      .status-dot {
+        background: $info;
+      }
     }
+
     &.status-approved {
       background: rgba($primary, 0.1);
       color: $primary-dark;
-      .status-dot { background: $primary; }
+
+      .status-dot {
+        background: $primary;
+      }
     }
+
     &.status-building {
       background: rgba($primary, 0.1);
       color: $primary-dark;
-      .status-dot { background: $primary; }
+
+      .status-dot {
+        background: $primary;
+      }
     }
+
     &.status-delivering {
       background: rgba($primary, 0.1);
       color: $primary-dark;
-      .status-dot { background: $primary; }
+
+      .status-dot {
+        background: $primary;
+      }
     }
+
     &.status-arrived {
       background: rgba($success, 0.1);
       color: #065f46;
-      .status-dot { background: $success; }
+
+      .status-dot {
+        background: $success;
+      }
     }
+
     &.status-completed {
       background: rgba($success, 0.1);
       color: #065f46;
-      .status-dot { background: $success; }
+
+      .status-dot {
+        background: $success;
+      }
     }
+
     &.status-canceled {
       background: rgba($danger, 0.1);
       color: #991b1b;
-      .status-dot { background: $danger; }
+
+      .status-dot {
+        background: $danger;
+      }
     }
+
     &.status-default {
       background: $gray-100;
       color: $gray-600;
-      .status-dot { background: $gray-400; }
+
+      .status-dot {
+        background: $gray-400;
+      }
     }
   }
 
@@ -263,6 +318,7 @@ $radius-xl: 20px;
       font-weight: 700;
       color: $gray-800;
     }
+
     .date {
       display: block;
       font-size: 12px;
@@ -281,16 +337,19 @@ $radius-xl: 20px;
     font-size: 13px;
     color: $gray-500;
   }
+
   .price-value {
     font-size: 22px;
     font-weight: 700;
     color: $primary;
   }
+
   .expand-icon {
     width: 20px;
     height: 20px;
     color: $gray-400;
     transition: transform 0.3s;
+
     &.rotated {
       transform: rotate(180deg);
     }
@@ -356,6 +415,7 @@ $radius-xl: 20px;
       font-size: 13px;
       color: $gray-500;
     }
+
     .detail-value {
       font-size: 13px;
       font-weight: 500;
@@ -426,6 +486,7 @@ $radius-xl: 20px;
       margin-bottom: 4px;
       font-size: 14px;
     }
+
     .product-meta {
       font-size: 12px;
       color: $gray-500;
@@ -440,6 +501,7 @@ $radius-xl: 20px;
       color: $gray-500;
       margin-bottom: 4px;
     }
+
     .product-price {
       font-size: 16px;
       font-weight: 700;
@@ -495,6 +557,7 @@ $radius-xl: 20px;
     color: $primary;
     flex-shrink: 0;
   }
+
   span {
     font-size: 13px;
     color: $gray-600;
@@ -567,6 +630,90 @@ $radius-xl: 20px;
 
     &:hover {
       background: rgba($danger, 0.2);
+    }
+  }
+}
+
+
+
+$warning: #f59e0b;
+$success: #10b981;
+$info: #3b82f6;
+$gray-400: #94a3b8;
+$gray-600: #475569;
+$gray-100: #f1f5f9;
+
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+
+  .payment-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  // Не оплачен (0)
+  &.payment-not-paid {
+    background: #f1f5f9;
+    color: #64748b;
+
+    .payment-dot {
+      background: #94a3b8;
+    }
+  }
+
+  // Оплачен частично (1)
+  &.payment-partial {
+    background: #fef3c7;
+    color: #92400e;
+
+    .payment-dot {
+      background: #f59e0b;
+    }
+  }
+
+  // Оплачен полностью (2)
+  &.payment-paid {
+    background: #d1fae5;
+    color: #065f46;
+
+    .payment-dot {
+      background: #10b981;
+    }
+  }
+
+  // Обработка оплаты (3)
+  &.payment-pending {
+    background: #dbeafe;
+    color: #1e40af;
+
+    .payment-dot {
+      background: #3b82f6;
+    }
+  }
+
+  // Ожидание оплаты (4)
+  &.payment-waiting {
+    background: #fef3c7;
+    color: #92400e;
+
+    .payment-dot {
+      background: #f59e0b;
+    }
+  }
+
+  &.payment-default {
+    background: #f1f5f9;
+    color: #64748b;
+
+    .payment-dot {
+      background: #94a3b8;
     }
   }
 }
