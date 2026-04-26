@@ -37,7 +37,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px;
-    background: linear-gradient(135deg, $gray-50 0%, #ffffff 100%);
     min-height: 100vh;
 
     @media (max-width: 768px) {

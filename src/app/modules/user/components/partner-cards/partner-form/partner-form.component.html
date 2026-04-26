@@ -1,11 +1,3 @@
-<!-- Кнопка открытия формы (если используется отдельно) -->
-<button class="floating-add-btn" (click)="open()" *ngIf="false">
-  <svg width="20" height="20" viewBox="0 0 24 24">
-    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-  </svg>
-  <span>Новая компания</span>
-</button>
-
 <!-- Модальное окно -->
 <div class="modal-overlay" [class.active]="isOpen" (click)="cancel()">
   <div class="modal-container" (click)="$event.stopPropagation()">
@@ -19,9 +11,18 @@
           </svg>
         </div>
         <div class="header-text">
-          <h2 class="modal-title">{{ partner ? 'Редактирование компании' : 'Новая компания' }}</h2>
-          <p class="modal-subtitle">{{ partner ? 'Обновите информацию о компании' : 'Заполните данные для добавления
-            новой компании' }}</p>
+          <!-- Динамический заголовок в зависимости от состояния -->
+          <h2 class="modal-title">
+            {{ successMode ? 'Компания создана' : (partner ? 'Редактирование компании' : (searchMode ? 'Поиск компании' : 'Новая компания')) }}
+          </h2>
+          <p class="modal-subtitle" *ngIf="!successMode">
+            <ng-container *ngIf="!searchMode && !partner">
+              {{ partner ? 'Обновите информацию о компании' : 'Заполните данные для добавления новой компании' }}
+            </ng-container>
+            <ng-container *ngIf="searchMode && !partner">
+              Найдите существующую компанию по ИНН или создайте новую
+            </ng-container>
+          </p>
         </div>
       </div>
 
@@ -33,542 +34,537 @@
       </button>
     </div>
 
-    <!-- Прогресс-бар шагов -->
-    <div class="progress-section">
-      <div class="progress-steps">
-        <div class="progress-step" *ngFor="let step of [1,2,3,4]; let i = index" [class.active]="currentStep === step"
-          [class.completed]="currentStep > step" (click)="currentStep = step">
-          <div class="step-indicator">
-            <span class="step-number">{{ step }}</span>
-            <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" *ngIf="currentStep > step">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-          </div>
-          <span class="step-label">{{ getStepName(step) }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- Режим поиска (только когда нет successMode) -->
+    <div class="search-section" *ngIf="!successMode && searchMode && !partner">
+      <!-- ... содержимое поиска без изменений ... -->
+      <div class="search-container">
+        <h3 class="search-title">Поиск компании</h3>
+        <p class="search-description">Введите ИНН организации, чтобы найти её в нашей базе</p>
 
-    <!-- Форма -->
-    <form [formGroup]="partnerForm" (ngSubmit)="submit()" class="modern-form">
-      <div class="form-scrollable">
-        <!-- Шаг 1: Основная информация -->
-        <div class="form-step" [class.active]="currentStep === 1">
-          <div class="step-header">
-            <h3 class="step-title">Основная информация</h3>
-            <p class="step-description">Общие данные о компании</p>
-          </div>
-
-          <!-- Тип партнера - выпадающий список -->
-          <div class="form-group">
-            <label class="field-label">
-              Тип партнера <span class="required">*</span>
-            </label>
-
-            <!-- Кастомный селект -->
-            <div class="custom-select" [class.loading]="partnerTypes.length === 0" [class.open]="typeDropdownOpen"
-              (click)="toggleTypeDropdown()">
-
-              <div class="select-trigger">
-                <span class="select-value" *ngIf="selectedPartnerType; else placeholder">
-                  {{ selectedPartnerType.fullName }}
-                </span>
-                <ng-template #placeholder>
-                  <span class="select-placeholder">Выберите тип партнера</span>
-                </ng-template>
-                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" [class.open]="typeDropdownOpen">
-                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                </svg>
-              </div>
-
-              <!-- Выпадающий список -->
-              <div class="select-dropdown" *ngIf="typeDropdownOpen">
-                <div class="dropdown-search" *ngIf="partnerTypes.length > 5">
-                  <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24">
-                    <path
-                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
-                  </svg>
-                  <input type="text" placeholder="Поиск..." class="search-input" [(ngModel)]="typeSearchQuery"
-                    [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()"
-                    (input)="filterPartnerTypes()">
-                </div>
-
-                <div class="dropdown-options">
-                  <div class="dropdown-option" *ngFor="let type of filteredPartnerTypes"
-                    (click)="selectPartnerType(type); $event.stopPropagation()">
-                    <div class="option-content">
-                      <span class="option-full">{{ type.fullName }}</span>
-                      <span class="option-short">{{ type.shortName }}</span>
-                    </div>
-                    <span class="option-code">{{ type.code }}</span>
-                    <svg class="option-check" width="16" height="16" viewBox="0 0 24 24"
-                      *ngIf="selectedPartnerType?.id === type.id">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                    </svg>
-                  </div>
-
-                  <div class="dropdown-empty" *ngIf="filteredPartnerTypes.length === 0">
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                    </svg>
-                    <span>Типы не найдены</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Индикатор загрузки -->
-            <div class="loading-indicator" *ngIf="partnerTypes.length === 0 && !typeDropdownOpen">
-              <div class="spinner"></div>
-              <span>Загрузка типов партнеров...</span>
-            </div>
-
-            <div class="field-error"
-              *ngIf="partnerForm.get('partnerTypeId')?.invalid && partnerForm.get('partnerTypeId')?.touched">
-              {{ getFieldError('partnerTypeId') }}
-            </div>
-          </div>
-
-          <!-- Названия компании -->
-          <div class="form-row">
-            <div class="form-group">
-              <label class="field-label">
-                Полное название <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="fullName"
-                  placeholder="Общество с ограниченной ответственностью 'Ромашка'" class="form-input"
-                  [class.error]="partnerForm.get('fullName')?.invalid && partnerForm.get('fullName')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error"
-                *ngIf="partnerForm.get('fullName')?.invalid && partnerForm.get('fullName')?.touched">
-                {{ getFieldError('fullName') }}
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">
-                Краткое название <span class="required">*</span>
-              </label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="shortName" placeholder="ООО 'Ромашка'" class="form-input"
-                  [class.error]="partnerForm.get('shortName')?.invalid && partnerForm.get('shortName')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error"
-                *ngIf="partnerForm.get('shortName')?.invalid && partnerForm.get('shortName')?.touched">
-                {{ getFieldError('shortName') }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Сфера деятельности -->
-          <div class="form-group">
-            <label class="field-label">
-              Сфера деятельности <span class="required">*</span>
-            </label>
-            <div class="input-wrapper">
-              <input type="text" formControlName="workDirection" placeholder="IT-услуги, строительство, производство"
-                class="form-input"
-                [class.error]="partnerForm.get('workDirection')?.invalid && partnerForm.get('workDirection')?.touched">
-              <div class="input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                </svg>
-              </div>
-            </div>
-            <div class="field-error"
-              *ngIf="partnerForm.get('workDirection')?.invalid && partnerForm.get('workDirection')?.touched">
-              {{ getFieldError('workDirection') }}
-            </div>
-          </div>
-
-          <!-- Информация о типе -->
-          <div class="info-badge" *ngIf="selectedPartnerType">
-            <div class="info-badge-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24">
+        <div class="search-input-group">
+          <div class="search-input-wrapper">
+            <input type="text" [(ngModel)]="innSearchValue" class="search-input"
+              placeholder="Введите ИНН (10 или 12 цифр)" autocomplete="off" (keyup.enter)="searchCompanyByInn()">
+            <button class="search-clear" *ngIf="innSearchValue" (click)="innSearchValue = ''">
+              <svg width="16" height="16" viewBox="0 0 24 24">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
               </svg>
-            </div>
-            <div class="info-badge-content">
-              <strong>{{ selectedPartnerType.fullName }}</strong>
-              <span>{{ selectedPartnerType.code === 1 ? 'Юридическое лицо • КПП обязателен' : 'Физическое лицо • КПП не
-                требуется' }}</span>
-            </div>
+            </button>
           </div>
+
+          <button class="search-btn" (click)="searchCompanyByInn()" [disabled]="isSearching">
+            @if (!isSearching) {
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
+            </svg>
+            <span>Найти</span>
+            } @else {
+            <div class="spinner-small"></div>
+            <span>Поиск...</span>
+            }
+          </button>
         </div>
 
-        <!-- Шаг 2: Контактная информация -->
-        <div class="form-step" [class.active]="currentStep === 2">
-          <div class="step-header">
-            <h3 class="step-title">Контактная информация</h3>
-            <p class="step-description">Данные представителя компании</p>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="field-label">Фамилия <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="lastName" placeholder="Иванов" class="form-input"
-                  [class.error]="partnerForm.get('lastName')?.invalid && partnerForm.get('lastName')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+        <!-- Результат поиска -->
+        <div class="search-result" *ngIf="searchResult && !isSearching">
+          <div class="result-success">
+            <div class="result-icon">✓</div>
+            <div class="result-content">
+              <div class="result-title">Компания найдена</div>
+              <div class="result-name">{{ searchResult.fullName || searchResult.shortName }}</div>
+              <div class="result-details">
+                <span>ИНН: {{ searchResult.inn }}</span>
+                <span>ОГРН: {{ searchResult.ogrn }}</span>
+              </div>
+              <div class="result-actions">
+                <button class="btn-use" (click)="useFoundCompany()">
+                  <svg width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                   </svg>
-                </div>
-              </div>
-              <div class="field-error"
-                *ngIf="partnerForm.get('lastName')?.invalid && partnerForm.get('lastName')?.touched">
-                {{ getFieldError('lastName') }}
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">Имя <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="firstName" placeholder="Иван" class="form-input"
-                  [class.error]="partnerForm.get('firstName')?.invalid && partnerForm.get('firstName')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error"
-                *ngIf="partnerForm.get('firstName')?.invalid && partnerForm.get('firstName')?.touched">
-                {{ getFieldError('firstName') }}
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="field-label">Отчество <span class="optional">(необязательно)</span></label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="middleName" placeholder="Иванович" class="form-input">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">Телефон <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <span class="phone-prefix">+7</span>
-                <input type="tel" formControlName="phoneNumber" placeholder="(999) 999-99-99"
-                  class="form-input phone-input"
-                  [class.error]="partnerForm.get('phoneNumber')?.invalid && partnerForm.get('phoneNumber')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error"
-                *ngIf="partnerForm.get('phoneNumber')?.invalid && partnerForm.get('phoneNumber')?.touched">
-                {{ getFieldError('phoneNumber') }}
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="field-label">Email <span class="optional">(необязательно)</span></label>
-            <div class="input-wrapper">
-              <input type="email" formControlName="email" placeholder="contact@company.ru" class="form-input"
-                [class.error]="partnerForm.get('email')?.invalid && partnerForm.get('email')?.touched">
-              <div class="input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
-                </svg>
-              </div>
-            </div>
-            <div class="field-error" *ngIf="partnerForm.get('email')?.invalid && partnerForm.get('email')?.touched">
-              {{ getFieldError('email') }}
-            </div>
-          </div>
-        </div>
-
-        <!-- Шаг 3: Реквизиты -->
-        <div class="form-step" [class.active]="currentStep === 3">
-          <div class="step-header">
-            <h3 class="step-title">Реквизиты</h3>
-            <p class="step-description">Юридические и банковские данные</p>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="field-label">ИНН <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="inn" placeholder="1234567890" class="form-input" maxlength="12"
-                  [class.error]="partnerForm.get('inn')?.invalid && partnerForm.get('inn')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error" *ngIf="partnerForm.get('inn')?.invalid && partnerForm.get('inn')?.touched">
-                {{ getFieldError('inn') }}
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="field-label">ОГРН <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <input type="text" formControlName="ogrn" placeholder="1234567890123" class="form-input" maxlength="15"
-                  [class.error]="partnerForm.get('ogrn')?.invalid && partnerForm.get('ogrn')?.touched">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
-                  </svg>
-                </div>
-              </div>
-              <div class="field-error" *ngIf="partnerForm.get('ogrn')?.invalid && partnerForm.get('ogrn')?.touched">
-                {{ getFieldError('ogrn') }}
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="field-label">
-              КПП
-              <span *ngIf="selectedPartnerType?.code === 1" class="required">*</span>
-              <span *ngIf="selectedPartnerType?.code !== 1" class="optional">(необязательно)</span>
-            </label>
-            <div class="input-wrapper">
-              <input type="text" formControlName="kpp" placeholder="123456789" class="form-input" maxlength="9"
-                [class.error]="partnerForm.get('kpp')?.invalid && partnerForm.get('kpp')?.touched">
-              <div class="input-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" />
-                </svg>
-              </div>
-            </div>
-            <div class="field-error" *ngIf="partnerForm.get('kpp')?.invalid && partnerForm.get('kpp')?.touched">
-              {{ getFieldError('kpp') }}
-            </div>
-          </div>
-
-          <!-- Банк (обязательное поле) -->
-          <div class="form-group"
-            [class.has-error]="partnerForm.get('bankId')?.invalid && partnerForm.get('bankId')?.touched">
-            <label class="field-label">
-              Банк <span class="required">*</span>
-            </label>
-            <div class="bank-search">
-              <div class="input-wrapper">
-                <input type="text" formControlName="bankSearch" placeholder="Поиск банка по названию или БИК..."
-                  class="form-input"
-                  [class.error]="partnerForm.get('bankId')?.invalid && partnerForm.get('bankId')?.touched"
-                  autocomplete="off">
-                <div class="input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24">
-                    <path
-                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
-                  </svg>
-                </div>
-                <button type="button" class="clear-search" *ngIf="partnerForm.get('bankSearch')?.value"
-                  (click)="clearBankSelection()" aria-label="Очистить поиск">
+                  Использовать данные
+                </button>
+                <button class="btn-manual" (click)="createManually()">
                   <svg width="16" height="16" viewBox="0 0 24 24">
                     <path
-                      d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                      d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
                   </svg>
+                  Создать вручную
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <!-- Выбранный банк (отображается когда банк выбран) -->
-              <div class="selected-bank" *ngIf="selectedBank && !partnerForm.get('bankSearch')?.value"
-                (click)="partnerForm.get('bankSearch')?.setValue('')">
-                <div class="selected-bank-info">
-                  <span class="selected-bank-name">{{ selectedBank.partner.shortName }}</span>
-                  <span class="selected-bank-bik">БИК: {{ selectedBank.bik }}</span>
+        <!-- Ошибка поиска -->
+        <div class="search-error" *ngIf="searchError && !isSearching">
+          <div class="error-icon">!</div>
+          <div class="error-content">
+            <div class="error-title">{{ searchError }}</div>
+            <button class="btn-create" (click)="createManually()">
+              Создать новую компанию
+            </button>
+          </div>
+        </div>
+
+        <!-- Разделитель -->
+        <div class="search-divider" *ngIf="!searchResult && !searchError && searchAttempted">
+          <span>или</span>
+        </div>
+
+        <!-- Кнопка создания вручную -->
+        <div class="manual-create" *ngIf="searchAttempted && !searchResult && !searchError">
+          <button class="btn-create-manual" (click)="createManually()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Создать компанию вручную
+          </button>
+        </div>
+
+        <div class="search-tips">
+          <div class="tip">
+            <span class="tip-icon">💡</span>
+            <span class="tip-text">ИНН организации — 10 цифр, ИП — 12 цифр</span>
+          </div>
+          <div class="tip">
+            <span class="tip-icon">📋</span>
+            <span class="tip-text">Данные берутся из официальных источников</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Форма создания/редактирования (только когда нет successMode и не в режиме поиска) -->
+    <ng-container *ngIf="!successMode && (!searchMode || partner)">
+      <!-- Прогресс-бар шагов -->
+      <div class="progress-section">
+        <div class="progress-steps">
+          <div class="progress-step" *ngFor="let step of [1,2,3,4]; let i = index" [class.active]="currentStep === step"
+            [class.completed]="currentStep > step" (click)="currentStep = step">
+            <div class="step-indicator">
+              <span class="step-number">{{ step }}</span>
+              <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" *ngIf="currentStep > step">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+              </svg>
+            </div>
+            <span class="step-label">{{ getStepName(step) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Форма -->
+      <form [formGroup]="partnerForm" (ngSubmit)="submit()" class="modern-form">
+        <div class="form-scrollable">
+          <!-- Шаг 1: Основная информация -->
+          <div class="form-step" [class.active]="currentStep === 1">
+            <div class="step-header">
+              <button type="button" class="back-to-search" *ngIf="!partner" (click)="backToSearch()">
+                <svg width="16" height="16" viewBox="0 0 24 24">
+                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+                </svg>
+                Вернуться к поиску
+              </button>
+              <h3 class="step-title">Основная информация</h3>
+              <p class="step-description">Общие данные о компании</p>
+            </div>
+
+            <!-- Тип партнера - выпадающий список -->
+            <div class="form-group">
+              <label class="field-label">
+                Тип партнера <span class="required">*</span>
+              </label>
+
+              <div class="custom-select" [class.loading]="partnerTypes.length === 0" [class.open]="typeDropdownOpen"
+                (click)="toggleTypeDropdown()">
+                <div class="select-trigger">
+                  <span class="select-value" *ngIf="selectedPartnerType; else placeholder">
+                    {{ selectedPartnerType.fullName }}
+                  </span>
+                  <ng-template #placeholder>
+                    <span class="select-placeholder">Выберите тип партнера</span>
+                  </ng-template>
+                  <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" [class.open]="typeDropdownOpen">
+                    <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                  </svg>
                 </div>
-                <button type="button" class="change-bank" (click)="clearBankSelection()">Изменить</button>
-              </div>
 
-              <!-- Результаты поиска -->
-              <div class="bank-results" *ngIf="filteredBanks.length > 0 && partnerForm.get('bankSearch')?.value">
-                <div class="bank-result" *ngFor="let bank of filteredBanks" (click)="onBankSelect(bank)">
-                  <div class="bank-name">{{ bank.partner.shortName }}</div>
-                  <div class="bank-details">
-                    <span class="bank-bik">БИК: {{ bank.bik }}</span>
-                    <span class="bank-inn">ИНН: {{ bank.partner.inn }}</span>
+                <div class="select-dropdown" *ngIf="typeDropdownOpen">
+                  <div class="dropdown-search" *ngIf="partnerTypes.length > 5">
+                    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24">
+                      <path
+                        d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z" />
+                    </svg>
+                    <input type="text" placeholder="Поиск..." class="search-input" [(ngModel)]="typeSearchQuery"
+                      [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()"
+                      (input)="filterPartnerTypes()">
+                  </div>
+
+                  <div class="dropdown-options">
+                    <div class="dropdown-option" *ngFor="let type of filteredPartnerTypes"
+                      (click)="selectPartnerType(type); $event.stopPropagation()">
+                      <div class="option-content">
+                        <span class="option-full">{{ type.fullName }}</span>
+                        <span class="option-short">{{ type.shortName }}</span>
+                      </div>
+                      <span class="option-code">{{ type.code }}</span>
+                      <svg class="option-check" width="16" height="16" viewBox="0 0 24 24"
+                        *ngIf="selectedPartnerType?.id === type.id">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                      </svg>
+                    </div>
+                    <div class="dropdown-empty" *ngIf="filteredPartnerTypes.length === 0">
+                      <svg width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+                      </svg>
+                      <span>Типы не найдены</span>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <div class="field-error"
+                *ngIf="partnerForm.get('partnerTypeId')?.invalid && partnerForm.get('partnerTypeId')?.touched">
+                {{ getFieldError('partnerTypeId') }}
+              </div>
             </div>
-            <div class="field-error" *ngIf="partnerForm.get('bankId')?.invalid && partnerForm.get('bankId')?.touched">
-              Выберите банк из списка
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Полное название <span class="required">*</span></label>
+                <div class="input-wrapper">
+                  <input type="text" formControlName="fullName"
+                    placeholder="Общество с ограниченной ответственностью 'Ромашка'" class="form-input"
+                    [class.error]="partnerForm.get('fullName')?.invalid && partnerForm.get('fullName')?.touched">
+                </div>
+                <div class="field-error"
+                  *ngIf="partnerForm.get('fullName')?.invalid && partnerForm.get('fullName')?.touched">
+                  {{ getFieldError('fullName') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">Краткое название <span class="required">*</span></label>
+                <div class="input-wrapper">
+                  <input type="text" formControlName="shortName" placeholder="ООО 'Ромашка'" class="form-input"
+                    [class.error]="partnerForm.get('shortName')?.invalid && partnerForm.get('shortName')?.touched">
+                </div>
+                <div class="field-error"
+                  *ngIf="partnerForm.get('shortName')?.invalid && partnerForm.get('shortName')?.touched">
+                  {{ getFieldError('shortName') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Сфера деятельности <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" formControlName="workDirection" placeholder="IT-услуги, строительство, производство"
+                  class="form-input"
+                  [class.error]="partnerForm.get('workDirection')?.invalid && partnerForm.get('workDirection')?.touched">
+              </div>
+              <div class="field-error"
+                *ngIf="partnerForm.get('workDirection')?.invalid && partnerForm.get('workDirection')?.touched">
+                {{ getFieldError('workDirection') }}
+              </div>
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="field-label">Расчетный счет <span class="optional">(необязательно)</span></label>
-              <input type="text" formControlName="bankAccount" placeholder="40702810000000000000" class="form-input">
+          <!-- Шаг 2: Контакты -->
+          <div class="form-step" [class.active]="currentStep === 2">
+            <div class="step-header">
+              <h3 class="step-title">Контактная информация</h3>
+              <p class="step-description">Данные представителя компании</p>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Фамилия <span class="required">*</span></label>
+                <input type="text" formControlName="lastName" placeholder="Иванов" class="form-input"
+                  [class.error]="partnerForm.get('lastName')?.invalid && partnerForm.get('lastName')?.touched">
+                <div class="field-error"
+                  *ngIf="partnerForm.get('lastName')?.invalid && partnerForm.get('lastName')?.touched">
+                  {{ getFieldError('lastName') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">Имя <span class="required">*</span></label>
+                <input type="text" formControlName="firstName" placeholder="Иван" class="form-input"
+                  [class.error]="partnerForm.get('firstName')?.invalid && partnerForm.get('firstName')?.touched">
+                <div class="field-error"
+                  *ngIf="partnerForm.get('firstName')?.invalid && partnerForm.get('firstName')?.touched">
+                  {{ getFieldError('firstName') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Отчество <span class="optional">(необязательно)</span></label>
+                <input type="text" formControlName="middleName" placeholder="Иванович" class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">Телефон <span class="required">*</span></label>
+                <div class="input-wrapper">
+                  <span class="phone-prefix">+7</span>
+                  <input type="tel" formControlName="phoneNumber" placeholder="(999) 999-99-99"
+                    class="form-input phone-input"
+                    [class.error]="partnerForm.get('phoneNumber')?.invalid && partnerForm.get('phoneNumber')?.touched">
+                </div>
+                <div class="field-error"
+                  *ngIf="partnerForm.get('phoneNumber')?.invalid && partnerForm.get('phoneNumber')?.touched">
+                  {{ getFieldError('phoneNumber') }}
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
-              <label class="field-label">Корреспондентский счет <span class="optional">(необязательно)</span></label>
-              <input type="text" formControlName="korAccount" placeholder="30101810000000000000" class="form-input">
+              <label class="field-label">Email <span class="optional">(необязательно)</span></label>
+              <input type="email" formControlName="email" placeholder="contact@company.ru" class="form-input"
+                [class.error]="partnerForm.get('email')?.invalid && partnerForm.get('email')?.touched">
+              <div class="field-error" *ngIf="partnerForm.get('email')?.invalid && partnerForm.get('email')?.touched">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаг 3: Реквизиты -->
+          <div class="form-step" [class.active]="currentStep === 3">
+            <div class="step-header">
+              <h3 class="step-title">Реквизиты</h3>
+              <p class="step-description">Юридические и банковские данные</p>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">ИНН <span class="required">*</span></label>
+                <input type="text" formControlName="inn" placeholder="1234567890" class="form-input" maxlength="12"
+                  [class.error]="partnerForm.get('inn')?.invalid && partnerForm.get('inn')?.touched">
+                <div class="field-error" *ngIf="partnerForm.get('inn')?.invalid && partnerForm.get('inn')?.touched">
+                  {{ getFieldError('inn') }}
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">ОГРН <span class="required">*</span></label>
+                <input type="text" formControlName="ogrn" placeholder="1234567890123" class="form-input" maxlength="15"
+                  [class.error]="partnerForm.get('ogrn')?.invalid && partnerForm.get('ogrn')?.touched">
+                <div class="field-error" *ngIf="partnerForm.get('ogrn')?.invalid && partnerForm.get('ogrn')?.touched">
+                  {{ getFieldError('ogrn') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">
+                КПП
+                <span *ngIf="selectedPartnerType?.code === 1" class="required">*</span>
+                <span *ngIf="selectedPartnerType?.code !== 1" class="optional">(необязательно)</span>
+              </label>
+              <input type="text" formControlName="kpp" placeholder="123456789" class="form-input" maxlength="9"
+                [class.error]="partnerForm.get('kpp')?.invalid && partnerForm.get('kpp')?.touched">
+              <div class="field-error" *ngIf="partnerForm.get('kpp')?.invalid && partnerForm.get('kpp')?.touched">
+                {{ getFieldError('kpp') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Банк <span class="required">*</span></label>
+              <div class="bank-search">
+                <div class="input-wrapper">
+                  <input type="text" formControlName="bankSearch" placeholder="Поиск банка по названию или БИК..."
+                    class="form-input" autocomplete="off">
+                  <button type="button" class="clear-search" *ngIf="partnerForm.get('bankSearch')?.value"
+                    (click)="clearBankSelection()">✕</button>
+                </div>
+
+                <div class="selected-bank" *ngIf="selectedBank && !partnerForm.get('bankSearch')?.value">
+                  <div class="selected-bank-info">
+                    <span class="selected-bank-name">{{ selectedBank.partner.shortName }}</span>
+                    <span class="selected-bank-bik">БИК: {{ selectedBank.bik }}</span>
+                  </div>
+                  <button type="button" class="change-bank" (click)="clearBankSelection()">Изменить</button>
+                </div>
+
+                <div class="bank-results" *ngIf="filteredBanks.length > 0 && partnerForm.get('bankSearch')?.value">
+                  <div class="bank-result" *ngFor="let bank of filteredBanks" (click)="onBankSelect(bank)">
+                    <div class="bank-name">{{ bank.partner.shortName }}</div>
+                    <div class="bank-details">
+                      <span class="bank-bik">БИК: {{ bank.bik }}</span>
+                      <span class="bank-inn">ИНН: {{ bank.partner.inn }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="field-error" *ngIf="partnerForm.get('bankId')?.invalid && partnerForm.get('bankId')?.touched">
+                Выберите банк из списка
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Расчетный счет <span class="optional">(необязательно)</span></label>
+                <input type="text" formControlName="bankAccount" placeholder="40702810000000000000" class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">Корреспондентский счет <span class="optional">(необязательно)</span></label>
+                <input type="text" formControlName="korAccount" placeholder="30101810000000000000" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <!-- Шаг 4: Адрес -->
+          <div class="form-step" [class.active]="currentStep === 4">
+            <div class="step-header">
+              <h3 class="step-title">Адрес компании</h3>
+              <p class="step-description">Юридический адрес</p>
+            </div>
+
+            <div formGroupName="address">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="field-label">Страна <span class="required">*</span></label>
+                  <input type="text" formControlName="country" placeholder="Россия" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label class="field-label">Регион <span class="required">*</span></label>
+                  <input type="text" formControlName="region" placeholder="Московская область" class="form-input">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="field-label">Город <span class="required">*</span></label>
+                  <input type="text" formControlName="city" placeholder="Москва" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label class="field-label">Улица <span class="required">*</span></label>
+                  <input type="text" formControlName="street" placeholder="Ленина" class="form-input">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="field-label">Дом <span class="required">*</span></label>
+                  <input type="text" formControlName="house" placeholder="10" class="form-input">
+                </div>
+
+                <div class="form-group">
+                  <label class="field-label">Почтовый индекс <span class="required">*</span></label>
+                  <input type="text" formControlName="postIndex" placeholder="101000" class="form-input" maxlength="6">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-step-info">
+            <div class="info-message">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
+              </svg>
+              <div class="message-content">
+                <strong>После создания карточки компании</strong>
+                <p>необходимо будет оформить договор и отправить документы компании.</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Шаг 4: Адрес -->
-        <div class="form-step" [class.active]="currentStep === 4">
-          <div class="step-header">
-            <h3 class="step-title">Адрес компании</h3>
-            <p class="step-description">Юридический адрес</p>
+        <div class="form-actions">
+          <div class="actions-left">
+            <button type="button" class="btn-secondary" (click)="cancel()">Отмена</button>
           </div>
 
-          <div formGroupName="address">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="field-label">Страна <span class="required">*</span></label>
-                <input type="text" formControlName="country" placeholder="Россия" class="form-input"
-                  [class.error]="partnerForm.get('address.country')?.invalid && partnerForm.get('address.country')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.country')?.invalid && partnerForm.get('address.country')?.touched">
-                  {{ getFieldError('address.country') }}
-                </div>
-              </div>
+          <div class="actions-right">
+            <button type="button" class="btn-prev" *ngIf="currentStep > 1" (click)="prevStep()">
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+              </svg>
+              Назад
+            </button>
 
-              <div class="form-group">
-                <label class="field-label">Регион <span class="required">*</span></label>
-                <input type="text" formControlName="region" placeholder="Московская область" class="form-input"
-                  [class.error]="partnerForm.get('address.region')?.invalid && partnerForm.get('address.region')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.region')?.invalid && partnerForm.get('address.region')?.touched">
-                  {{ getFieldError('address.region') }}
-                </div>
-              </div>
-            </div>
+            <button type="button" class="btn-next" *ngIf="currentStep < 4" (click)="nextStep()">
+              Далее
+              <svg width="16" height="16" viewBox="0 0 24 24">
+                <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+              </svg>
+            </button>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="field-label">Город <span class="required">*</span></label>
-                <input type="text" formControlName="city" placeholder="Москва" class="form-input"
-                  [class.error]="partnerForm.get('address.city')?.invalid && partnerForm.get('address.city')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.city')?.invalid && partnerForm.get('address.city')?.touched">
-                  {{ getFieldError('address.city') }}
-                </div>
-              </div>
+            <button type="submit" class="btn-primary" *ngIf="currentStep === 4"
+              [disabled]="submitting || partnerForm.invalid">
+              <span>{{ submitting ? 'Сохранение...' : (partner ? 'Сохранить' : 'Создать карточку') }}</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </ng-container>
 
-              <div class="form-group">
-                <label class="field-label">Улица <span class="required">*</span></label>
-                <input type="text" formControlName="street" placeholder="Ленина" class="form-input"
-                  [class.error]="partnerForm.get('address.street')?.invalid && partnerForm.get('address.street')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.street')?.invalid && partnerForm.get('address.street')?.touched">
-                  {{ getFieldError('address.street') }}
-                </div>
-              </div>
-            </div>
+    <!-- Экран успеха (отдельно, вне форм) -->
+    <div class="success-section" *ngIf="successMode">
+      <div class="success-container">
+        <div class="success-animation">
+          <svg class="success-checkmark" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" stroke="#327120" stroke-width="2" />
+            <path class="checkmark-check" fill="none" stroke="#327120" stroke-width="2"
+              d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+          </svg>
+        </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="field-label">Дом <span class="required">*</span></label>
-                <input type="text" formControlName="house" placeholder="10" class="form-input"
-                  [class.error]="partnerForm.get('address.house')?.invalid && partnerForm.get('address.house')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.house')?.invalid && partnerForm.get('address.house')?.touched">
-                  {{ getFieldError('address.house') }}
-                </div>
-              </div>
+        <h3 class="success-title">Компания успешно создана!</h3>
 
-              <div class="form-group">
-                <label class="field-label">Почтовый индекс <span class="required">*</span></label>
-                <input type="text" formControlName="postIndex" placeholder="101000" class="form-input" maxlength="6"
-                  [class.error]="partnerForm.get('address.postIndex')?.invalid && partnerForm.get('address.postIndex')?.touched">
-                <div class="field-error"
-                  *ngIf="partnerForm.get('address.postIndex')?.invalid && partnerForm.get('address.postIndex')?.touched">
-                  {{ getFieldError('address.postIndex') }}
-                </div>
-              </div>
-            </div>
+        <div class="success-info">
+          <div class="info-item">
+            <span class="info-label">Название:</span>
+            <span class="info-value">{{ createdCompanyName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">ИНН:</span>
+            <span class="info-value">{{ createdCompanyInn }}</span>
           </div>
         </div>
 
-        <!-- Информационное сообщение о следующем шаге -->
-        <div class="next-step-info">
-          <div class="info-message">
-            <svg width="20" height="20" viewBox="0 0 24 24">
+        <div class="success-message">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+          </svg>
+          <div class="message-content">
+            <strong>Для просмотра оптовых цен необходимо оформить договор</strong>
+            <p>После оформления договора вам станут доступны оптовые цены и все возможности платформы</p>
+          </div>
+        </div>
+
+        <div class="success-actions">
+          <button class="btn-primary" (click)="goToContractRegistration()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path d="M16 2v4h4" />
             </svg>
-            <div class="message-content">
-              <strong>После создания карточки компании</strong>
-              <p>необходимо будет оформить договор и отправить документы компании. Это можно будет сделать на странице
-                компании.</p>
-            </div>
-          </div>
+            Оформить договор
+          </button>
+          <button class="btn-secondary" (click)="closeForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+            </svg>
+            Закрыть
+          </button>
         </div>
+
+        <button class="back-to-search-link" (click)="backToSearch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+          Добавить еще одну компанию
+        </button>
       </div>
-
-      <!-- Действия формы -->
-      <div class="form-actions">
-        <div class="actions-left">
-          <button type="button" class="btn-secondary" (click)="cancel()">Отмена</button>
-        </div>
-
-        <div class="actions-right">
-          <button type="button" class="btn-prev" *ngIf="currentStep > 1" (click)="prevStep()">
-            <svg width="16" height="16" viewBox="0 0 24 24">
-              <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
-            </svg>
-            Назад
-          </button>
-
-          <button type="button" class="btn-next" *ngIf="currentStep < 4" (click)="nextStep()">
-            Далее
-            <svg width="16" height="16" viewBox="0 0 24 24">
-              <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-            </svg>
-          </button>
-
-          <button type="submit" class="btn-primary" *ngIf="currentStep === 4"
-            [disabled]="submitting || partnerForm.invalid">
-            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" *ngIf="!submitting">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-            </svg>
-            <svg class="btn-spinner" width="18" height="18" viewBox="0 0 24 24" *ngIf="submitting">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="32"
-                stroke-dashoffset="32">
-                <animate attributeName="stroke-dashoffset" values="32;0" dur="1s" repeatCount="indefinite" />
-              </circle>
-            </svg>
-            <span>{{ submitting ? 'Сохранение...' : (partner ? 'Сохранить' : 'Создать карточку') }}</span>
-          </button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Уведомление об ошибке -->
-    <div class="error-toast" *ngIf="error" (click)="error = null">
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-      </svg>
-      <span>{{ error }}</span>
     </div>
+
   </div>
 </div>

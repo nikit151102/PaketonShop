@@ -301,7 +301,7 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
   handlePartnerSaved(savedPartner: Partner): void {
     // Обновляем список партнеров
     this.loadPartners();
-    this.closePartnerForm();
+    // this.closePartnerForm();
 
     // Если редактировали текущего партнера, обновляем детали
     if (this.activePartner?.id === savedPartner.id) {

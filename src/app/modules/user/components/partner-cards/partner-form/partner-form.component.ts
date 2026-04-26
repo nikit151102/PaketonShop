@@ -1,3 +1,4 @@
+// partner-form.component.ts (обновленный)
 import { Component, EventEmitter, Input, Output, OnInit, HostListener, OnDestroy, inject } from '@angular/core';
 import {
   FormBuilder,
@@ -9,12 +10,14 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { finalize, debounceTime, distinctUntilChanged, takeUntil, delay, catchError } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { Router } from '@angular/router';
 import { PartnerBankService } from '../../../../../core/api/partner-bank.service';
 import { PartnerTypeService } from '../../../../../core/api/partner-type.service';
 import { PartnerService } from '../../../../../core/api/partner.service';
 import { UserService } from '../../../../../core/services/user.service';
+import { UserApiService } from '../../../../../core/api/user.service';
 
 interface PartnerBank {
   id: string;
@@ -35,6 +38,28 @@ interface PartnerType {
   shortName: string;
 }
 
+interface ContractorSearchResult {
+  id: string;
+  shortName: string;
+  fullName: string;
+  inn: string;
+  ogrn: string;
+  kpp: string;
+  address?: {
+    region: string;
+    city: string;
+    street: string;
+    house: string;
+    postIndex: string;
+  };
+  partnerType?: {
+    id: string;
+    code: number;
+    fullName: string;
+    shortName: string;
+  };
+}
+
 @Component({
   selector: 'app-partner-form',
   standalone: true,
@@ -49,27 +74,235 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   @Output() saved = new EventEmitter<any>();
 
   private userService = inject(UserService);
+  private userApiService = inject(UserApiService);
+  private router = inject(Router);
 
   partnerForm: FormGroup;
   loading = false;
   submitting = false;
   error: string | null = null;
+  isLoadingUserData = false;
+
+  // Поиск компании
+  searchMode = true;
+  innSearchValue = '';
+  isSearching = false;
+  searchResult: ContractorSearchResult | null = null;
+  searchError: string | null = null;
+  searchAttempted = false;
+
+  // Состояние успешного создания
+  successMode = false;
+  createdCompanyInn: string | null = null;
+  createdCompanyName: string | null = null;
 
   currentStep = 1;
   selectedPartnerType: PartnerType | null = null;
   selectedBank: PartnerBank | null = null;
 
-  // Данные для выпадающих списков
   partnerTypes: PartnerType[] = [];
   filteredPartnerTypes: PartnerType[] = [];
   banks: PartnerBank[] = [];
   filteredBanks: PartnerBank[] = [];
 
-  // Для поиска
   typeSearchQuery = '';
   typeDropdownOpen = false;
 
   private destroy$ = new Subject<void>();
+
+  constructor(
+    private fb: FormBuilder,
+    private partnerService: PartnerService,
+    private bankService: PartnerBankService,
+    private partnerTypeService: PartnerTypeService
+  ) {
+    this.partnerForm = this.createForm();
+  }
+
+  ngOnInit(): void {
+    this.loadInitialData();
+    this.loadUserData();
+    this.subscribeToUserData();
+
+    if (this.partner) {
+      this.searchMode = false;
+      this.loadPartnerData();
+    }
+
+    if (this.isOpen) {
+      this.open();
+    }
+
+    this.partnerForm.get('bankSearch')?.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(search => this.searchBanks(search));
+
+    this.partnerForm.get('partnerTypeId')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.onPartnerTypeChange(value);
+      });
+
+    this.partnerForm.get('bankId')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(bankId => {
+        if (bankId) {
+          this.selectedBank = this.banks.find(b => b.id === bankId) || null;
+        } else {
+          this.selectedBank = null;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadUserData(): void {
+    this.isLoadingUserData = true;
+    this.userApiService.getData().subscribe({
+      next: (response) => {
+        if (response && response.data) {
+          const user = response.data;
+          this.partnerForm.patchValue({
+            lastName: user.lastName || '',
+            firstName: user.firstName || '',
+            middleName: user.middleName || '',
+            phoneNumber: this.formatPhoneForForm(user.phoneNumber) || '',
+            email: user.email || '',
+          }, { emitEvent: false });
+        }
+        this.isLoadingUserData = false;
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки данных пользователя:', error);
+        this.isLoadingUserData = false;
+      }
+    });
+  }
+
+  searchCompanyByInn(): void {
+    const inn = this.innSearchValue?.trim();
+
+    if (!inn || inn.length === 0) {
+      this.searchError = 'Введите ИНН для поиска';
+      return;
+    }
+
+    const isValidInn = /^\d{10}$|^\d{12}$/.test(inn);
+    if (!isValidInn) {
+      this.searchError = 'ИНН должен содержать 10 или 12 цифр';
+      return;
+    }
+
+    this.isSearching = true;
+    this.searchError = null;
+    this.searchResult = null;
+
+    this.partnerService.getPartnerByInn(inn).pipe(
+      delay(500),
+      catchError(error => {
+        if (error.status === 404) {
+          this.searchError = 'Компания с таким ИНН не найдена. Вы можете создать новую';
+        } else {
+          this.searchError = 'Ошибка при поиске. Попробуйте позже';
+        }
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSearching = false;
+        this.searchAttempted = true;
+      })
+    ).subscribe(result => {
+      if (result && result.data) {
+        const contractorData = result.data;
+        const hasRequiredData = contractorData.fullName &&
+          contractorData.inn &&
+          contractorData.ogrn &&
+          contractorData.fullName !== '' &&
+          contractorData.inn !== '' &&
+          contractorData.ogrn !== '';
+
+        if (hasRequiredData) {
+          this.searchResult = contractorData;
+          this.searchError = null;
+        } else {
+          this.searchError = 'Компания найдена, но данные неполные. Вы можете заполнить их вручную';
+          this.searchResult = null;
+        }
+      }
+    });
+  }
+
+  useFoundCompany(): void {
+    if (!this.searchResult) return;
+
+    if (this.searchResult.partnerType) {
+      this.selectedPartnerType = this.searchResult.partnerType;
+      this.partnerForm.patchValue({
+        partnerTypeId: this.searchResult.partnerType.id
+      });
+      this.updateKppValidation();
+    }
+
+    this.partnerForm.patchValue({
+      fullName: this.searchResult.fullName || '',
+      shortName: this.searchResult.shortName || '',
+      inn: this.searchResult.inn || '',
+      ogrn: this.searchResult.ogrn || '',
+      kpp: this.searchResult.kpp || ''
+    });
+
+    if (this.searchResult.address) {
+      this.partnerForm.patchValue({
+        address: {
+          country: 'Россия',
+          region: this.searchResult.address.region || '',
+          city: this.searchResult.address.city || '',
+          street: this.searchResult.address.street || '',
+          house: this.searchResult.address.house || '',
+          postIndex: this.searchResult.address.postIndex || ''
+        }
+      });
+    }
+
+    this.searchMode = false;
+    this.searchResult = null;
+  }
+
+  createManually(): void {
+    this.searchMode = false;
+    this.searchResult = null;
+    this.searchError = null;
+    this.innSearchValue = '';
+  }
+
+  backToSearch(): void {
+    this.searchMode = true;
+    this.searchResult = null;
+    this.searchError = null;
+    this.innSearchValue = '';
+    this.successMode = false;
+    this.resetForm();
+    this.loadUserData();
+  }
+
+  private resetForm(): void {
+    this.currentStep = 1;
+    this.selectedPartnerType = null;
+    this.selectedBank = null;
+    this.partnerForm.reset();
+    this.partnerForm.patchValue({
+      address: {
+        country: 'Россия'
+      }
+    });
+  }
 
   toggleTypeDropdown(): void {
     this.typeDropdownOpen = !this.typeDropdownOpen;
@@ -112,79 +345,36 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(
-    private fb: FormBuilder,
-    private partnerService: PartnerService,
-    private bankService: PartnerBankService,
-    private partnerTypeService: PartnerTypeService
-  ) {
-    this.partnerForm = this.createForm();
-  }
-
-  ngOnInit(): void {
-    this.loadInitialData();
-    this.subscribeToUserData();
-
-    if (this.partner) {
-      this.loadPartnerData();
-    }
-
-    if (this.isOpen) {
-      this.open();
-    }
-
-    // Подписка на изменение поиска банков
-    this.partnerForm.get('bankSearch')?.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(search => this.searchBanks(search));
-
-    // Подписка на изменение типа партнера
-    this.partnerForm.get('partnerTypeId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(value => {
-        this.onPartnerTypeChange(value);
-      });
-
-    // Подписка на изменение bankId для отслеживания выбранного банка
-    this.partnerForm.get('bankId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bankId => {
-        if (bankId) {
-          this.selectedBank = this.banks.find(b => b.id === bankId) || null;
-        } else {
-          this.selectedBank = null;
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private subscribeToUserData(): void {
     this.userService.user$.pipe(takeUntil(this.destroy$)).subscribe((user: any) => {
-      if (user && !this.partner) { // Только для нового партнера, не при редактировании
-        this.partnerForm.patchValue({
-          lastName: user.lastName || '',
-          firstName: user.firstName || '',
-          middleName: user.middleName || '',
-          phoneNumber: this.formatPhoneForForm(user.phoneNumber) || '',
-          email: user.email || '',
-        }, { emitEvent: false });
+      if (user && !this.partner && !this.searchMode && !this.successMode) {
+        const currentLastName = this.partnerForm.get('lastName')?.value;
+        const currentFirstName = this.partnerForm.get('firstName')?.value;
+
+        if (!currentLastName && user.lastName) {
+          this.partnerForm.patchValue({ lastName: user.lastName }, { emitEvent: false });
+        }
+        if (!currentFirstName && user.firstName) {
+          this.partnerForm.patchValue({ firstName: user.firstName }, { emitEvent: false });
+        }
+        if (!this.partnerForm.get('middleName')?.value && user.middleName) {
+          this.partnerForm.patchValue({ middleName: user.middleName }, { emitEvent: false });
+        }
+        if (!this.partnerForm.get('phoneNumber')?.value && user.phoneNumber) {
+          this.partnerForm.patchValue({
+            phoneNumber: this.formatPhoneForForm(user.phoneNumber)
+          }, { emitEvent: false });
+        }
+        if (!this.partnerForm.get('email')?.value && user.email) {
+          this.partnerForm.patchValue({ email: user.email }, { emitEvent: false });
+        }
       }
     });
   }
 
   private formatPhoneForForm(phone: string): string {
     if (!phone) return '';
-    // Убираем все нецифровые символы
     const cleaned = phone.replace(/\D/g, '');
-    // Если номер начинается с 7 или 8, убираем первую цифру
     if (cleaned.length === 11 && (cleaned.startsWith('7') || cleaned.startsWith('8'))) {
       return cleaned.substring(1);
     }
@@ -204,7 +394,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
           this.partnerTypes = response.data;
           this.filteredPartnerTypes = [...this.partnerTypes];
 
-          // Если компания уже выбран, устанавливаем его значение
           if (this.partner?.partnerTypeId) {
             const type = this.partnerTypes.find(t => t.id === this.partner.partnerTypeId);
             if (type) {
@@ -234,8 +423,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         if (response.data && Array.isArray(response.data)) {
           this.banks = response.data;
           this.filteredBanks = [...this.banks];
-          
-          // Если есть выбранный банк (при редактировании)
+
           if (this.partner?.bankId) {
             const bank = this.banks.find(b => b.id === this.partner.bankId);
             if (bank) {
@@ -258,7 +446,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
 
   private searchBanks(search: string): void {
     if (!search) {
-      this.filteredBanks = [...this.banks];
+      this.filteredBanks = [];
       return;
     }
 
@@ -284,7 +472,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   private updateKppValidation(): void {
     const kppControl = this.partnerForm.get('kpp');
 
-    if (this.selectedPartnerType?.code === 1) { // Юридическое лицо
+    if (this.selectedPartnerType?.code === 1) {
       kppControl?.setValidators([Validators.required, this.kppValidator]);
       kppControl?.updateValueAndValidity();
     } else {
@@ -294,11 +482,9 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Валидаторы
   private kppValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-
     const regex = /^\d{9}$/;
     return regex.test(value) ? null : { invalidKpp: true };
   }
@@ -306,41 +492,31 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   private phoneValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-
     const cleanValue = value.replace(/\D/g, '');
-
     if (cleanValue.length >= 10 && cleanValue.length <= 15) {
       return null;
     }
-
     return { invalidPhone: true };
   }
 
   private createForm(): FormGroup {
     return this.fb.group({
-      // Шаг 1: Основная информация
       fullName: ['', [Validators.required, Validators.maxLength(200)]],
       shortName: ['', [Validators.required, Validators.maxLength(50)]],
       partnerTypeId: ['', Validators.required],
       workDirection: ['', Validators.required],
-
-      // Шаг 2: Контакты
       lastName: ['', Validators.required],
       firstName: ['', Validators.required],
       middleName: [''],
       phoneNumber: ['', [Validators.required, this.phoneValidator]],
       email: ['', [Validators.email]],
-
-      // Шаг 3: Реквизиты и банк
       inn: ['', [Validators.required, Validators.pattern(/^\d{10}$|^\d{12}$/)]],
       ogrn: ['', [Validators.required, Validators.pattern(/^\d{13}$|^\d{15}$/)]],
       kpp: ['', this.kppValidator],
       korAccount: [''],
       bankAccount: [''],
-      bankId: ['', Validators.required], // Банк теперь обязательный
+      bankId: ['', Validators.required],
       bankSearch: [''],
-
-      // Шаг 4: Адрес
       address: this.fb.group({
         country: ['Россия', Validators.required],
         region: ['', Validators.required],
@@ -384,7 +560,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Находим и устанавливаем выбранный тип партнера
     if (this.partner.partnerTypeId) {
       const type = this.partnerTypes.find(t => t.id === this.partner.partnerTypeId);
       if (type) {
@@ -394,14 +569,12 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Обработчики событий
   onBankSelect(bank: PartnerBank): void {
     this.selectedBank = bank;
     this.partnerForm.patchValue({
       bankId: bank.id,
       bankSearch: bank.partner.shortName
     });
-    // Закрываем результаты поиска
     this.filteredBanks = [];
   }
 
@@ -413,7 +586,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Управление шагами
   nextStep(): void {
     if (!this.validateCurrentStep()) {
       this.markStepAsTouched();
@@ -508,7 +680,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       return control?.valid || false;
     });
 
-    // Проверяем КПП только для юр.лиц (код 1)
     const kppControl = this.partnerForm.get('kpp');
     const kppValid = this.selectedPartnerType?.code === 1
       ? (kppControl?.valid || false)
@@ -578,7 +749,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   }
 
   submit(): void {
-    // Проверяем все шаги перед отправкой
     if (!this.validateStep1() || !this.validateStep2() ||
       !this.validateStep3() || !this.validateStep4()) {
       this.markStepAsTouched();
@@ -601,11 +771,19 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (response) => {
-          if (response.success && response.data) {
+          if (response && response.data) {
+            const responseData = response.data;
+            const partnerData = responseData.partner || responseData;
+
+            this.createdCompanyInn = partnerData?.inn || this.partnerForm.get('inn')?.value;
+            this.createdCompanyName = partnerData?.fullName || partnerData?.shortName || this.partnerForm.get('fullName')?.value;
+
+            this.successMode = true;
+            this.searchMode = false;
+
             this.saved.emit(response.data);
-            this.closeForm();
           } else {
-            this.error = response.message || 'Ошибка при сохранении';
+            this.error = response?.message || 'Ошибка при сохранении';
           }
         },
         error: (err) => {
@@ -613,6 +791,19 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
           console.error('Ошибка сохранения партнера:', err);
         }
       });
+  }
+
+
+  goToContractRegistration(): void {
+    console.log('createdCompanyInn:', this.createdCompanyInn); // Добавьте отладку
+
+    if (this.createdCompanyInn) {
+      this.closeForm();
+      console.log('Navigating to /register-business with inn:', this.createdCompanyInn);
+      this.router.navigate(['/register-business'], { queryParams: { inn: this.createdCompanyInn } });
+    } else {
+      console.error('createdCompanyInn is empty!');
+    }
   }
 
   private prepareFormData(): any {
@@ -649,6 +840,11 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   open(): void {
     this.isOpen = true;
     document.body.style.overflow = 'hidden';
+    this.successMode = false;
+    this.searchMode = true;
+    this.searchResult = null;
+    this.searchError = null;
+    this.innSearchValue = '';
   }
 
   closeForm(): void {
@@ -656,12 +852,24 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     document.body.style.overflow = '';
     this.close.emit();
 
-    // Сброс формы
-    this.partnerForm.reset();
+    this.searchMode = true;
+    this.successMode = false;
+    this.searchResult = null;
+    this.searchError = null;
+    this.innSearchValue = '';
+    this.searchAttempted = false;
     this.currentStep = 1;
     this.selectedPartnerType = null;
     this.selectedBank = null;
     this.error = null;
+    this.createdCompanyInn = null;
+    this.createdCompanyName = null;
+    this.partnerForm.reset();
+    this.partnerForm.patchValue({
+      address: {
+        country: 'Россия'
+      }
+    });
   }
 
   cancel(): void {

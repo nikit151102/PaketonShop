@@ -196,6 +196,9 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   isDragOver = false;
   isActivePartner: boolean = false;
 
+  isLoadingByInn = false;
+  partnerIdFromInn: string | null = null;
+
   companyId: string = '';
   existingPartner: Partner | null = null;
   isLoadingPartner = false;
@@ -338,6 +341,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.companyId = params['companyId'] || null;
+      const inn = params['inn'] || null;
 
       if (this.companyId) {
         const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
@@ -354,6 +358,9 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
             replaceUrl: true
           });
         }
+      } else if (inn) {
+        // Если есть параметр inn, ищем компанию
+        this.checkIfUserAuthenticatedForInn(inn);
       } else {
         this.checkIfUserAuthenticated();
       }
@@ -368,6 +375,113 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+
+  private checkIfUserAuthenticatedForInn(inn: string): void {
+    const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+    if (authToken) {
+      // Пользователь авторизован
+      this.userApiService.getData().pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: (response) => {
+          if (response && response.data) {
+            const user = response.data;
+            this.isActiveUser = true;
+            this.userRegistered = true;
+            this.registeredUserId = user.id;
+
+            let birthdayValue = null;
+            if (user.birthday) {
+              const date = new Date(user.birthday);
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              birthdayValue = `${year}-${month}-${day}`;
+            }
+
+            this.userForm.patchValue({
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              middleName: user.middleName,
+              birthday: birthdayValue,
+              phoneNumber: user.phoneNumber,
+              agreeToTerms: true,
+              password: '',
+              confirmPassword: ''
+            });
+
+            this.updateUserFormValidators();
+            this.progress.step1 = true;
+
+            // После загрузки пользователя, ищем компанию по ИНН
+            this.searchPartnerByInnAndGoToStep3(inn);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading user data:', error);
+          this.searchPartnerByInnAndGoToStep3(inn);
+        }
+      });
+    } else {
+      // Пользователь не авторизован - сначала показываем шаг 1
+      this.currentStep = 1;
+      // Сохраняем ИНН для последующего поиска
+      this.innSearchValue = inn;
+      // После регистрации будет выполнен поиск
+    }
+  }
+
+
+  // Метод для поиска компании по ИНН и перехода на 3 шаг
+  private searchPartnerByInnAndGoToStep3(inn: string): void {
+    this.isLoadingByInn = true;
+    this.innSearchValue = inn;
+
+    this.partnerService.getPartnerByInn(inn).pipe(
+      delay(500),
+      catchError(error => {
+        console.error('Error finding partner by INN:', error);
+        if (error.status === 404) {
+          this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
+          this.showManualFormFields();
+          this.currentStep = 2;
+        } else {
+          this.error = 'Ошибка при поиске компании';
+        }
+        this.isLoadingByInn = false;
+        return of(null);
+      })
+    ).subscribe(result => {
+      this.isLoadingByInn = false;
+
+      if (result && result.data) {
+        const contractorData = result.data;
+        const hasRequiredData = contractorData.fullName &&
+          contractorData.inn &&
+          contractorData.ogrn &&
+          contractorData.fullName !== '' &&
+          contractorData.inn !== '' &&
+          contractorData.ogrn !== '';
+
+        if (hasRequiredData) {
+          // Компания найдена, заполняем данные
+          this.innSearchResult = contractorData;
+          this.fillFormWithContractorData(contractorData);
+          this.showCompanyForm = true;
+          this.progress.step2 = true;
+          this.currentStep = 3; // Переходим на 3 шаг
+
+          this.showSuccessToast(`Компания найдена! Переход к загрузке документов`);
+        } else {
+          this.error = `Компания с ИНН ${inn} найдена, но данные неполные. Пожалуйста, заполните данные вручную`;
+          this.showManualFormFields();
+          this.currentStep = 2;
+        }
+      }
+    });
+  }
+
   private checkIfUserAuthenticated(): void {
     const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
     if (authToken) {
@@ -379,6 +493,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   registerUserBeforeStep2(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (this.userRegistered) {
+        // Если есть сохраненный ИНН для поиска, выполняем поиск
+        if (this.innSearchValue && !this.showCompanyForm) {
+          this.searchPartnerByInnAndGoToStep3(this.innSearchValue);
+        }
         resolve(true);
         return;
       }
@@ -462,6 +580,12 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
             };
 
             this.showSuccessToast('Пользователь успешно создан!');
+
+            // Если есть ИНН для поиска, выполняем поиск компании
+            if (this.innSearchValue) {
+              this.searchPartnerByInnAndGoToStep3(this.innSearchValue);
+            }
+
             resolve(true);
           } else {
             this.isRegisteringUser = false;
@@ -474,6 +598,62 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           reject(false);
         }
       });
+    });
+  }
+
+  private loadPartnerByInnFromUrl(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const inn = params['inn'];
+
+      if (inn && !this.companyId) {
+        this.isLoadingByInn = true;
+        this.innSearchValue = inn;
+
+        this.partnerService.getPartnerByInn(inn).pipe(
+          delay(500),
+          catchError(error => {
+            console.error('Error finding partner by INN:', error);
+            if (error.status === 404) {
+              this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
+            } else {
+              this.error = 'Ошибка при поиске компании';
+            }
+            this.isLoadingByInn = false;
+            return of(null);
+          })
+        ).subscribe(result => {
+          this.isLoadingByInn = false;
+
+          if (result && result.data) {
+            const contractorData = result.data;
+            const hasRequiredData = contractorData.fullName &&
+              contractorData.inn &&
+              contractorData.ogrn &&
+              contractorData.fullName !== '' &&
+              contractorData.inn !== '' &&
+              contractorData.ogrn !== '';
+
+            if (hasRequiredData) {
+              // Компания найдена, заполняем данные и переходим на 3 шаг
+              this.innSearchResult = contractorData;
+              this.fillFormWithContractorData(contractorData);
+              this.showCompanyForm = true;
+              this.progress.step2 = true;
+              this.currentStep = 3; // Переходим на 3 шаг (загрузка документов)
+
+              this.showSuccessToast(`Компания найдена! Переход к загрузке документов`);
+            } else {
+              this.error = `Компания с ИНН ${inn} найдена, но данные неполные. Пожалуйста, заполните данные вручную`;
+              this.showManualFormFields();
+              this.currentStep = 2; // Остаемся на 2 шаге для заполнения
+            }
+          } else if (!this.error) {
+            // Если компания не найдена, показываем форму для ручного заполнения
+            this.showManualFormFields();
+            this.currentStep = 2;
+          }
+        });
+      }
     });
   }
 
@@ -1795,6 +1975,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       inn: formCompanyFormData.inn,
       ogrn: formCompanyFormData.ogrn,
       kpp: formCompanyFormData.kpp,
+      partnerTypeId: formCompanyFormData.partnerTypeId,
       address: {
         country: this.accountData.company.address?.country || 'Россия',
         region: this.accountData.company.address?.region || '',
