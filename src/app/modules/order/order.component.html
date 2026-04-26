@@ -342,7 +342,13 @@
 </app-topup-modal>
 
 <!-- Платежный виджет для пополнения -->
-<app-payment-widget *ngIf="showPaymentWidget && paymentToken" [confirmationToken]="paymentToken" [amount]="topupAmount"
-  (onSuccess)="handlePaymentSuccess($event)" (onFail)="handlePaymentFail($event)" (onError)="handlePaymentError($event)"
-  (onClose)="handleWidgetClose()">
+<app-payment-widget 
+    #paymentWidget
+    *ngIf="showPaymentWidget && paymentToken && paymentMethod === 'online'"
+    [confirmationToken]="paymentToken" 
+    [amount]="getOrderTotal()" 
+    (onSuccess)="handlePaymentSuccess($event)"
+    (onFail)="handlePaymentFail($event)" 
+    (onError)="handlePaymentError($event)"
+    (onClose)="handleWidgetClose()">
 </app-payment-widget>

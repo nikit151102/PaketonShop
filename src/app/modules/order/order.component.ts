@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { OrderFormComponent } from './order-form/order-form.component';
@@ -400,6 +400,8 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
   }
 
+  @ViewChild(PaymentWidgetComponent) paymentWidgetComponent!: PaymentWidgetComponent;
+
   /**
    * Инициализация оплаты заказа с проверкой баланса
    */
@@ -425,8 +427,14 @@ export class OrderComponent implements OnInit, OnDestroy {
         // Проверяем, есть ли confirmationToken (успешный запуск оплаты)
         if (response.data.confirmationToken) {
           // Успешно получили токен - показываем виджет оплаты
+          this.topupAmount = response.data.deliveryOrder.totalCost;
           this.paymentToken = response.data.confirmationToken;
           this.showPaymentWidget = true;
+          setTimeout(() => {
+            if (this.paymentWidgetComponent) {
+              this.paymentWidgetComponent.openWidget();
+            }
+          }, 100);
           return;
         }
 

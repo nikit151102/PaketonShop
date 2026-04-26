@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, computed, inject } from '@angular/core';
+import { Component, OnInit, HostListener, computed, inject, ViewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -40,6 +40,9 @@ import { TopupModalComponent } from '../../../../core/components/topup-modal/top
   ]
 })
 export class ProfileComponent implements OnInit {
+
+  @ViewChild(PaymentWidgetComponent) paymentWidgetComponent!: PaymentWidgetComponent;
+
   user: any = null;
   favoriteCount: number = 0;
   addressCount: number = 0;
@@ -162,6 +165,11 @@ export class ProfileComponent implements OnInit {
         if (response.data && response.data.confirmationToken) {
           this.paymentToken = response.data.confirmationToken;
           this.showPaymentWidget = true;
+          setTimeout(() => {
+            if (this.paymentWidgetComponent) {
+              this.paymentWidgetComponent.openWidget();
+            }
+          }, 100);
           this.closeTopupModal();
         } else {
           console.error('Не получен confirmationToken');
@@ -236,11 +244,11 @@ export class ProfileComponent implements OnInit {
   }
 
   private showSuccessNotification(message: string): void {
-    alert(message);
+    // alert(message);
   }
 
   private showErrorNotification(message: string): void {
-    alert(message);
+    // alert(message);
   }
 
   goToTransactionHistory(): void {
