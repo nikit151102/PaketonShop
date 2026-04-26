@@ -20,10 +20,10 @@ export class AuthInterceptor implements HttpInterceptor {
     'ipapi.co',
     'nominatim.openstreetmap.org',
     'api.ipify.org',
-    'песочница.пакетон.рф' 
+    'песочница.пакетон.рф'
   ];
 
-  constructor(private userDataService: UserDataService) {}
+  constructor(private userDataService: UserDataService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Проверяем, нужно ли исключить URL
@@ -85,50 +85,102 @@ export class AuthInterceptor implements HttpInterceptor {
       return encodedValue;
     }
   }
-
-  /**
-   * Добавление заголовков к запросу
-   */
-  private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
-    const headers: { [key: string]: string } = {};
-
-    // Добавляем токен авторизации
+  
+/**
+ * Добавление заголовков к запросу
+ */
+private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
+  // ✅ Если это FormData — добавляем ТОЛЬКО Authorization, не трогая Content-Type
+  if (req.body instanceof FormData) {
     const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+    
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    // Добавляем данные устройства и пользователя
-    try {
-      const deviceHeaders = await this.userDataService.getHeadersData();
-      
-      // Кодируем все значения заголовков, которые могут содержать не-ASCII символы
-      Object.keys(deviceHeaders).forEach(key => {
-        const value = deviceHeaders[key];
-        if (typeof value === 'string' && /[^\x00-\x7F]/.test(value)) {
-          // Если есть не-ASCII символы, кодируем
-          headers[key] = this.encodeHeaderValue(value);
-          // Добавляем флаг, что заголовок закодирован
-          headers[`${key}-Encoded`] = 'base64';
-        } else {
-          headers[key] = value;
+      // Используем append, чтобы не перезаписать существующие заголовки
+      return req.clone({
+        setHeaders: {
+          'Authorization': `Bearer ${token}`,
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-App-Version': '1.0.0'
         }
       });
-    } catch (error) {
-      console.warn('Could not add device headers:', error);
     }
-
-    // Добавляем дополнительные заголовки
-    headers['X-Requested-With'] = 'XMLHttpRequest';
-    headers['X-App-Version'] = '1.0.0'; // Версия приложения
-
-    // Добавляем Content-Type если его нет
-    if (!req.headers.has('Content-Type')) {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    return req.clone({
-      setHeaders: headers
-    });
+    
+    // Если токена нет — возвращаем запрос как есть
+    return req;
   }
+
+  // Для всех остальных запросов — полная логика
+  const headers: { [key: string]: string } = {};
+
+  const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const deviceHeaders = await this.userDataService.getHeadersData();
+    Object.keys(deviceHeaders).forEach(key => {
+      const value = deviceHeaders[key];
+      if (typeof value === 'string' && /[^\x00-\x7F]/.test(value)) {
+        headers[key] = this.encodeHeaderValue(value);
+        headers[`${key}-Encoded`] = 'base64';
+      } else {
+        headers[key] = value;
+      }
+    });
+  } catch (error) {
+    console.warn('Could not add device headers:', error);
+  }
+
+  headers['X-Requested-With'] = 'XMLHttpRequest';
+  headers['X-App-Version'] = '1.0.0';
+
+  if (!req.headers.has('Content-Type')) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  return req.clone({ setHeaders: headers });
+}
+  // private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
+  //   const headers: { [key: string]: string } = {};
+
+  //   // Добавляем токен авторизации
+  //   const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
+  //   if (token) {
+  //     headers['Authorization'] = `Bearer ${token}`;
+  //   }
+
+  //   // Добавляем данные устройства и пользователя
+  //   try {
+  //     const deviceHeaders = await this.userDataService.getHeadersData();
+
+  //     // Кодируем все значения заголовков, которые могут содержать не-ASCII символы
+  //     Object.keys(deviceHeaders).forEach(key => {
+  //       const value = deviceHeaders[key];
+  //       if (typeof value === 'string' && /[^\x00-\x7F]/.test(value)) {
+  //         // Если есть не-ASCII символы, кодируем
+  //         headers[key] = this.encodeHeaderValue(value);
+  //         // Добавляем флаг, что заголовок закодирован
+  //         headers[`${key}-Encoded`] = 'base64';
+  //       } else {
+  //         headers[key] = value;
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.warn('Could not add device headers:', error);
+  //   }
+
+  //   // Добавляем дополнительные заголовки
+  //   headers['X-Requested-With'] = 'XMLHttpRequest';
+  //   headers['X-App-Version'] = '1.0.0'; // Версия приложения
+
+  //   // Добавляем Content-Type если его нет
+  //   if (!req.headers.has('Content-Type')) {
+  //     headers['Content-Type'] = 'application/json';
+  //   }
+
+  //   return req.clone({
+  //     setHeaders: headers
+  //   });
+  // }
 }
