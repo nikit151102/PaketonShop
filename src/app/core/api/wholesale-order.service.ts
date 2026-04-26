@@ -93,7 +93,7 @@ export class WholesaleOrderService {
       formData.append('orderDocumentTypes', type.toString());
     });
 
-    return this.http.post(`${this.baseUrl}/orders/${orderId}/documents`, formData);
+    return this.http.put(`${this.baseUrl}/AddDocuments/${orderId}`, formData);
   }
 
   private fileToBase64(file: File): Promise<string> {

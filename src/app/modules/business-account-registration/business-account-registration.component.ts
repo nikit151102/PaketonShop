@@ -230,8 +230,8 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
   documentTypes: any = [
     { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
-    { id: 3, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
-    { id: 4, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
+    { id: 2, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
+    { id: 3, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
     { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
     {
       id: 6,
@@ -254,21 +254,21 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       optionalFor: [2],
       condition: 'before2017'
     },
-    {
-      id: 9,
-      name: 'Свидетельство ИНН',
-      requiredFor: [],
-      optionalFor: [2],
-      condition: 'before2027'
-    },
-    {
-      id: 10,
-      name: 'Лист записи ЕГРИП',
-      requiredFor: [],
-      optionalFor: [2],
-      condition: 'after2017'
-    },
-    { id: 11, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
+    // {
+    //   id: 9,
+    //   name: 'Свидетельство ИНН',
+    //   requiredFor: [],
+    //   optionalFor: [2],
+    //   condition: 'before2027'
+    // },
+    // {
+    //   id: 10,
+    //   name: 'Лист записи ЕГРИП',
+    //   requiredFor: [],
+    //   optionalFor: [2],
+    //   condition: 'after2017'
+    // },
+    { id: 9, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
   ];
 
   uploadedDocuments: DocumentData[] = [];
