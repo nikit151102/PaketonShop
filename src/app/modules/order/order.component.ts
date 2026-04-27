@@ -195,8 +195,11 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Сохранение данных из формы заказа
    */
   onFormChanged(data: any) {
+    const productPlaceId = this.orderFormData?.productPlaceId;
     this.orderFormData = data;
-    console.log('Данные формы обновлены:', data);
+    if (productPlaceId !== undefined && productPlaceId !== null) {
+      this.orderFormData.productPlaceId = productPlaceId;
+    }
   }
 
   /**
@@ -234,7 +237,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderFormData.addressId = data.addressId;
     this.orderFormData.productPlaceId = data.id;
     console.log('Данные доставки:', data);
-    console.log('this.orderFormData', this.orderFormData)
+
   }
 
   /**
@@ -245,7 +248,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       console.warn('Выберите способ оплаты');
       return;
     }
-
+    console.log('this.orderFormData', this.orderFormData)
     if (!this.orderFormData) {
       console.warn('Заполните форму заказа');
       return;
@@ -261,83 +264,106 @@ export class OrderComponent implements OnInit, OnDestroy {
   /**
    * Создание заказа и инициализация онлайн оплаты
    */
-  private createOrderAndInitiatePayment(): void {
-    this.isProcessing = true;
-    this.isSaving = true;
-    this.savingProgress = 0;
+private createOrderAndInitiatePayment(): void {
+  // Проверяем, не идет ли уже обработка
+  if (this.isProcessing || this.isSaving) {
+    console.log('Уже обрабатывается заказ, пропускаем');
+    return;
+  }
 
-    // Имитация прогресса
-    const progressInterval = setInterval(() => {
-      this.savingProgress += 20;
-      if (this.savingProgress >= 100) {
-        clearInterval(progressInterval);
-      }
-    }, 100);
+  this.isProcessing = true;
+  this.isSaving = true;
+  this.savingProgress = 0;
 
-    console.log('orderFormDataorderFormData   : ',
-      this.orderFormData
-    )
-    console.log('this.orderFormData.delivery', this.orderFormData.delivery)
+  // Имитация прогресса
+  const progressInterval = setInterval(() => {
+    this.savingProgress += 20;
+    if (this.savingProgress >= 100) {
+      clearInterval(progressInterval);
+    }
+  }, 100);
 
-    const orderRequest: any = {
-      id: this.activeBasketId!,
-      addressId: this.orderFormData.orderDeliveryData.id,
-      deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-        ? '94656a5f-31ff-4a36-8214-555e8507c790'
-        : this.orderFormData.delivery === 'pickup'
-          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
-          : undefined,
-      edoType: this.orderFormData.edoType ? this.orderFormData.edoType : undefined,
-      partnerInstanceId: this.orderFormData.selectedCompanyId,
-      contactType: this.orderFormData.contactType,
-      promoCodeId: this.orderFormData.promoCodeId,
-      consultation: this.orderFormData.needConsult || false,
-      productPlaceId: this.orderFormData.delivery === 'pickup'
-        ? this.orderFormData.productPlaceId
+  console.log('orderFormData:', this.orderFormData);
+  console.log('delivery type:', this.orderFormData.delivery);
+
+  const orderRequest: any = {
+    id: this.activeBasketId!,
+    addressId: this.orderFormData.orderDeliveryData?.id,
+    deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
+      ? '94656a5f-31ff-4a36-8214-555e8507c790'
+      : this.orderFormData.delivery === 'pickup'
+        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
         : undefined,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
-    };
-    console.log('orderRequest   : ',
-      this.orderFormData.productPlaceId
-    )
+    edoType: this.orderFormData.edoType,
+    partnerInstanceId: this.orderFormData.selectedCompanyId,
+    contactType: this.orderFormData.contactType,
+    promoCodeId: this.orderFormData.promoCodeId,
+    consultation: this.orderFormData.needConsult || false,
+    productPlaceId: this.orderFormData.delivery === 'pickup'
+      ? this.orderFormData.productPlaceId
+      : undefined,
+    paymentType: this.paymentMethod === 'online' ? 0 
+      : this.paymentMethod === 'cash' ? 1 
+      : this.paymentMethod === 'card' ? 2 
+      : this.paymentMethod === 'invoice' ? 4 
+      : this.paymentMethod === 'balance' ? 3 
+      : null,
+  };
 
-    Object.keys(orderRequest).forEach(key => {
-      if (orderRequest[key] === null || orderRequest[key] === undefined) {
-        delete orderRequest[key];
+  // Удаляем undefined и null значения
+  Object.keys(orderRequest).forEach(key => {
+    if (orderRequest[key] === null || orderRequest[key] === undefined) {
+      delete orderRequest[key];
+    }
+  });
+
+  if (!this.activeBasketId) {
+    this.isProcessing = false;
+    this.isSaving = false;
+    clearInterval(progressInterval);
+    return;
+  }
+
+  this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
+    .pipe(
+      takeUntil(this.destroy$),
+      finalize(() => {
+        clearInterval(progressInterval);
+        this.isSaving = false;
+        // НЕ сбрасываем isProcessing здесь, так как оплата еще идет
+      })
+    )
+    .subscribe({
+      next: (response: any) => {
+        console.log('Order updated successfully:', response);
+        this.createdOrderId = response.data.id;
+        this.isOrderCreated = true;
+
+        // Убедимся, что createdOrderId установлен
+        if (!this.createdOrderId) {
+          console.error('Не получен ID заказа');
+          this.isProcessing = false;
+          this.showErrorNotification('Не удалось получить ID заказа');
+          return;
+        }
+
+        console.log('Created Order ID:', this.createdOrderId);
+        
+        // Небольшая задержка для гарантии, что заказ сохранился на сервере
+        setTimeout(() => {
+          // ✅ Инициируем оплату ТОЛЬКО после успешного обновления заказа
+          this.initiatePayForTheOrderTransaction();
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Ошибка создания заказа:', error);
+        clearInterval(progressInterval);
+        this.isSaving = false;
+        this.isProcessing = false;
+        this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
       }
     });
-
-    if (this.activeBasketId) {
-      this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
-        .pipe(
-          takeUntil(this.destroy$),
-          finalize(() => {
-            clearInterval(progressInterval);
-            this.isSaving = false;
-          })
-        )
-        .subscribe({
-          next: (response: any) => {
-            this.createdOrderId = response.data.id;
-            this.isOrderCreated = true;
-
-            // ✅ ВАЖНО: Закрываем прогресс и только потом инициируем оплату
-            clearInterval(progressInterval);
-            this.isSaving = false;
-
-            // ✅ Инициируем оплату ТОЛЬКО после успешного обновления заказа
-            this.initiatePayForTheOrderTransaction();
-          },
-          error: (error) => {
-            console.error('Ошибка создания заказа:', error);
-            clearInterval(progressInterval);
-            this.isSaving = false;
-            this.isProcessing = false;
-            this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
-          }
-        });
-    }
-  }
+}
 
   /**
    * Создание заказа с оплатой при получении
@@ -456,10 +482,11 @@ export class OrderComponent implements OnInit, OnDestroy {
           this.showInsufficientFundsDialog(response.data.costDelta, response.data.totalCost);
           return;
         }
+        if (response.data.confirmationToken == null && response.data.costDelta == null) {
+          this.isOrderCreated = true;
+          this.showsuccessNotification = true;
+        }
 
-        // Если дошли сюда - что-то пошло не так
-        console.warn('Неожиданный ответ от сервера:', response);
-        this.showErrorNotification('Не удалось инициировать оплату. Попробуйте позже.');
       },
       error: (error) => {
         console.error('Ошибка при проверке оплаты заказа:', error);
