@@ -234,7 +234,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderFormData.addressId = data.addressId;
     this.orderFormData.productPlaceId = data.id;
     console.log('Данные доставки:', data);
-
+    console.log('this.orderFormData', this.orderFormData)
   }
 
   /**
@@ -273,6 +273,12 @@ export class OrderComponent implements OnInit, OnDestroy {
         clearInterval(progressInterval);
       }
     }, 100);
+
+    console.log('orderFormDataorderFormData   : ',
+      this.orderFormData
+    )
+    console.log('this.orderFormData.delivery', this.orderFormData.delivery)
+
     const orderRequest: any = {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
@@ -286,21 +292,20 @@ export class OrderComponent implements OnInit, OnDestroy {
       contactType: this.orderFormData.contactType,
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
-      // this.orderFormData.info
       productPlaceId: this.orderFormData.delivery === 'pickup'
-        ? this.orderFormData.orderDeliveryData.productPlaceId
+        ? this.orderFormData.productPlaceId
         : undefined,
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
-      // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
-      // productPositionIds: this.basketProducts.map(p => p.positionId)
     };
+    console.log('orderRequest   : ',
+      this.orderFormData.productPlaceId
+    )
 
     Object.keys(orderRequest).forEach(key => {
       if (orderRequest[key] === null || orderRequest[key] === undefined) {
         delete orderRequest[key];
       }
     });
-
 
     if (this.activeBasketId) {
       this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
@@ -316,11 +321,17 @@ export class OrderComponent implements OnInit, OnDestroy {
             this.createdOrderId = response.data.id;
             this.isOrderCreated = true;
 
-            // Инициируем оплату
+            // ✅ ВАЖНО: Закрываем прогресс и только потом инициируем оплату
+            clearInterval(progressInterval);
+            this.isSaving = false;
+
+            // ✅ Инициируем оплату ТОЛЬКО после успешного обновления заказа
             this.initiatePayForTheOrderTransaction();
           },
           error: (error) => {
             console.error('Ошибка создания заказа:', error);
+            clearInterval(progressInterval);
+            this.isSaving = false;
             this.isProcessing = false;
             this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
           }
@@ -358,7 +369,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
       productPlaceId: this.orderFormData.delivery === 'pickup'
-        ? this.orderFormData.orderDeliveryData.productPlaceId
+        ? this.orderFormData.productPlaceId
         : undefined,
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),

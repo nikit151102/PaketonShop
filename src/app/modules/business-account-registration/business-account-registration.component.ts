@@ -1320,6 +1320,14 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
+  get maxOgrnLength(): number {
+    return this.selectedPartnerType?.code === 1 ? 13 : 15;
+  }
+
+  get maxInnLength(): number {
+    return this.selectedPartnerType?.code === 1 ? 10 : 12;
+  }
+
   private setupFormListeners(): void {
     this.companyForm.get('partnerTypeId')?.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -1975,7 +1983,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       inn: formCompanyFormData.inn,
       ogrn: formCompanyFormData.ogrn,
       kpp: formCompanyFormData.kpp,
-      partnerTypeId: formCompanyFormData.partnerTypeId,
+      partnerTypeCode: formCompanyFormData.partnerTypeId,
       address: {
         country: this.accountData.company.address?.country || 'Россия',
         region: this.accountData.company.address?.region || '',
