@@ -235,7 +235,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [] },
     { id: 2, name: 'Устав (листы 1, 2, последний, полномочия директора)', requiredFor: [1], optionalFor: [] },
     { id: 3, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [] },
-    { id: 5, name: 'Карточка предприятия', requiredFor: [1, 2], optionalFor: [] },
+    { id: 5, name: 'Карточка предприятия', requiredFor: [1, 16], optionalFor: [] },
     {
       id: 6,
       name: 'Свидетельство ОГРН',
@@ -254,7 +254,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       id: 8,
       name: 'Свидетельство ОГРНИП (для регистраций до 2017 г.)',
       requiredFor: [],
-      optionalFor: [2],
+      optionalFor: [16],
       condition: 'before2017'
     },
     // {
@@ -271,7 +271,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     //   optionalFor: [2],
     //   condition: 'after2017'
     // },
-    { id: 9, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 2], optionalFor: [] }
+    { id: 9, name: 'Паспорт (разворот с фото и пропиской)', requiredFor: [1, 16], optionalFor: [] }
   ];
 
   uploadedDocuments: DocumentData[] = [];
@@ -1314,7 +1314,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.partnerTypes = [
         { id: '1', code: 1, fullName: 'Общество с ограниченной ответственностью', shortName: 'ООО' },
-        { id: '2', code: 2, fullName: 'Индивидуальный предприниматель', shortName: 'ИП' }
+        { id: '2', code: 16, fullName: 'Индивидуальный предприниматель', shortName: 'ИП' }
       ];
       this.isLoading = false;
     }, 500);
