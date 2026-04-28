@@ -1,4 +1,26 @@
 <div class="profile-page">
+    <!-- Блок уведомления о незаполненном профиле -->
+    <div *ngIf="isProfileIncomplete()" class="profile-alert" @slideDown>
+        <div class="profile-alert__icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+        </div>
+        <div class="profile-alert__content">
+            <div class="profile-alert__title">Профиль не заполнен</div>
+            <div class="profile-alert__message">
+                Для оформления заказов необходимо заполнить обязательные поля:
+                <strong>{{ getMissingFieldsList().join(', ') }}</strong>
+            </div>
+        </div>
+        <button class="profile-alert__button" [routerLink]="['/profile/profile/edit']">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            <span>Заполнить профиль</span>
+        </button>
+    </div>
+
     <!-- Hero Section -->
     <div class="profile-hero">
         <div class="profile-hero__content">
@@ -15,12 +37,6 @@
             <div class="profile-hero__info">
                 <h1 class="profile-name">{{ user?.firstName }} {{ user?.lastName }}</h1>
                 <div class="profile-meta">
-                    <!-- <span class="meta-badge">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                        </svg>
-                        ID: {{ user?.userNumber || 'Не указан' }}
-                    </span> -->
                     <span class="meta-badge">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/>
@@ -48,7 +64,7 @@
         <!-- Левая колонка - Статистика и баланс -->
         <div class="profile-sidebar">
             <!-- Stats Cards -->
-            <div class="stats-grid">
+            <!-- <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-card__icon">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -82,7 +98,7 @@
                         <div class="stat-card__label">Компании</div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Balance Widget -->
             <div class="balance-widget">
@@ -204,11 +220,6 @@
     </div>
 </div>
 
-
-
-
-
-
 <app-topup-modal 
     [isOpen]="showTopupModal"
     [currentBalance]="operativeInfo().balance || 0"
@@ -221,12 +232,12 @@
 
 <!-- Платежный виджет -->
 <app-payment-widget 
-#paymentWidget
-*ngIf="showPaymentWidget && paymentToken" 
-                    [confirmationToken]="paymentToken"
-                    [amount]="topupAmount"
-                    (onSuccess)="handlePaymentSuccess($event)"
-                    (onFail)="handlePaymentFail($event)"
-                    (onError)="handlePaymentError($event)"
-                    (onClose)="handleWidgetClose()">
+    #paymentWidget
+    *ngIf="showPaymentWidget && paymentToken" 
+    [confirmationToken]="paymentToken"
+    [amount]="topupAmount"
+    (onSuccess)="handlePaymentSuccess($event)"
+    (onFail)="handlePaymentFail($event)"
+    (onError)="handlePaymentError($event)"
+    (onClose)="handleWidgetClose()">
 </app-payment-widget>

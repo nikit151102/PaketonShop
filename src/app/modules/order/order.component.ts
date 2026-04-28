@@ -200,6 +200,8 @@ export class OrderComponent implements OnInit, OnDestroy {
     if (productPlaceId !== undefined && productPlaceId !== null) {
       this.orderFormData.productPlaceId = productPlaceId;
     }
+
+    console.log(' this.orderFormDat', this.orderFormData)
   }
 
   /**
@@ -246,11 +248,43 @@ export class OrderComponent implements OnInit, OnDestroy {
   processOrder(): void {
     if (!this.paymentMethod) {
       console.warn('Выберите способ оплаты');
+      this.showErrorNotification('Выберите способ оплаты');
       return;
     }
-    console.log('this.orderFormData', this.orderFormData)
+
     if (!this.orderFormData) {
       console.warn('Заполните форму заказа');
+      this.showErrorNotification('Заполните форму заказа');
+      return;
+    }
+
+    // 🔍 ПРОВЕРКА ЗАПОЛНЕНИЯ ОБЯЗАТЕЛЬНЫХ ПОЛЕЙ
+    const requiredFields = [
+      { field: 'email', name: 'Email', value: this.orderFormData.email },
+      { field: 'phone', name: 'Телефон', value: this.orderFormData.phone },
+      { field: 'lastName', name: 'Фамилия', value: this.orderFormData.lastName },
+      { field: 'firstName', name: 'Имя', value: this.orderFormData.firstName }
+    ];
+
+    const missingFields = requiredFields.filter(f => !f.value || f.value.trim() === '');
+
+    if (missingFields.length > 0) {
+      const fieldNames = missingFields.map(f => f.name).join(', ');
+      const message = `Заполните обязательные поля: ${fieldNames}`;
+      console.warn(message);
+      this.showErrorNotification(message);
+      return;
+    }
+
+    // Дополнительная проверка для email (валидация формата)
+    if (this.orderFormData.email && !this.isValidEmail(this.orderFormData.email)) {
+      this.showErrorNotification('Введите корректный email адрес');
+      return;
+    }
+
+    // Дополнительная проверка для телефона (минимальная длина)
+    if (this.orderFormData.phone && this.orderFormData.phone.replace(/\D/g, '').length < 10) {
+      this.showErrorNotification('Введите корректный номер телефона');
       return;
     }
 
@@ -262,108 +296,116 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Валидация email адреса
+   */
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
+    return emailRegex.test(email);
+  }
+
+  /**
    * Создание заказа и инициализация онлайн оплаты
    */
-private createOrderAndInitiatePayment(): void {
-  // Проверяем, не идет ли уже обработка
-  if (this.isProcessing || this.isSaving) {
-    console.log('Уже обрабатывается заказ, пропускаем');
-    return;
-  }
-
-  this.isProcessing = true;
-  this.isSaving = true;
-  this.savingProgress = 0;
-
-  // Имитация прогресса
-  const progressInterval = setInterval(() => {
-    this.savingProgress += 20;
-    if (this.savingProgress >= 100) {
-      clearInterval(progressInterval);
+  private createOrderAndInitiatePayment(): void {
+    // Проверяем, не идет ли уже обработка
+    if (this.isProcessing || this.isSaving) {
+      console.log('Уже обрабатывается заказ, пропускаем');
+      return;
     }
-  }, 100);
 
-  console.log('orderFormData:', this.orderFormData);
-  console.log('delivery type:', this.orderFormData.delivery);
+    this.isProcessing = true;
+    this.isSaving = true;
+    this.savingProgress = 0;
 
-  const orderRequest: any = {
-    id: this.activeBasketId!,
-    addressId: this.orderFormData.orderDeliveryData?.id,
-    deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
-      ? '94656a5f-31ff-4a36-8214-555e8507c790'
-      : this.orderFormData.delivery === 'pickup'
-        ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+    // Имитация прогресса
+    const progressInterval = setInterval(() => {
+      this.savingProgress += 20;
+      if (this.savingProgress >= 100) {
+        clearInterval(progressInterval);
+      }
+    }, 100);
+
+    console.log('orderFormData:', this.orderFormData);
+    console.log('delivery type:', this.orderFormData.delivery);
+
+    const orderRequest: any = {
+      id: this.activeBasketId!,
+      addressId: this.orderFormData.orderDeliveryData?.id,
+      deliveryTypeId: this.orderFormData.delivery === 'transport' || this.orderFormData.delivery === 'city'
+        ? '94656a5f-31ff-4a36-8214-555e8507c790'
+        : this.orderFormData.delivery === 'pickup'
+          ? '2f146e32-b270-4046-95f2-3350bc7f42d4'
+          : undefined,
+      edoType: this.orderFormData.edoType,
+      partnerInstanceId: this.orderFormData.selectedCompanyId,
+      contactType: this.orderFormData.contactType,
+      promoCodeId: this.orderFormData.promoCodeId,
+      consultation: this.orderFormData.needConsult || false,
+      productPlaceId: this.orderFormData.delivery === 'pickup'
+        ? this.orderFormData.productPlaceId
         : undefined,
-    edoType: this.orderFormData.edoType,
-    partnerInstanceId: this.orderFormData.selectedCompanyId,
-    contactType: this.orderFormData.contactType,
-    promoCodeId: this.orderFormData.promoCodeId,
-    consultation: this.orderFormData.needConsult || false,
-    productPlaceId: this.orderFormData.delivery === 'pickup'
-      ? this.orderFormData.productPlaceId
-      : undefined,
-    paymentType: this.paymentMethod === 'online' ? 0 
-      : this.paymentMethod === 'cash' ? 1 
-      : this.paymentMethod === 'card' ? 2 
-      : this.paymentMethod === 'invoice' ? 4 
-      : this.paymentMethod === 'balance' ? 3 
-      : null,
-  };
+      paymentType: this.paymentMethod === 'online' ? 0
+        : this.paymentMethod === 'cash' ? 1
+          : this.paymentMethod === 'card' ? 2
+            : this.paymentMethod === 'invoice' ? 4
+              : this.paymentMethod === 'balance' ? 3
+                : null,
+    };
 
-  // Удаляем undefined и null значения
-  Object.keys(orderRequest).forEach(key => {
-    if (orderRequest[key] === null || orderRequest[key] === undefined) {
-      delete orderRequest[key];
-    }
-  });
-
-  if (!this.activeBasketId) {
-    this.isProcessing = false;
-    this.isSaving = false;
-    clearInterval(progressInterval);
-    return;
-  }
-
-  this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
-    .pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
-        clearInterval(progressInterval);
-        this.isSaving = false;
-        // НЕ сбрасываем isProcessing здесь, так как оплата еще идет
-      })
-    )
-    .subscribe({
-      next: (response: any) => {
-        console.log('Order updated successfully:', response);
-        this.createdOrderId = response.data.id;
-        this.isOrderCreated = true;
-
-        // Убедимся, что createdOrderId установлен
-        if (!this.createdOrderId) {
-          console.error('Не получен ID заказа');
-          this.isProcessing = false;
-          this.showErrorNotification('Не удалось получить ID заказа');
-          return;
-        }
-
-        console.log('Created Order ID:', this.createdOrderId);
-        
-        // Небольшая задержка для гарантии, что заказ сохранился на сервере
-        setTimeout(() => {
-          // ✅ Инициируем оплату ТОЛЬКО после успешного обновления заказа
-          this.initiatePayForTheOrderTransaction();
-        }, 100);
-      },
-      error: (error) => {
-        console.error('Ошибка создания заказа:', error);
-        clearInterval(progressInterval);
-        this.isSaving = false;
-        this.isProcessing = false;
-        this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
+    // Удаляем undefined и null значения
+    Object.keys(orderRequest).forEach(key => {
+      if (orderRequest[key] === null || orderRequest[key] === undefined) {
+        delete orderRequest[key];
       }
     });
-}
+
+    if (!this.activeBasketId) {
+      this.isProcessing = false;
+      this.isSaving = false;
+      clearInterval(progressInterval);
+      return;
+    }
+
+    this.deliveryOrderService.updateOrder(this.activeBasketId, orderRequest)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          clearInterval(progressInterval);
+          this.isSaving = false;
+          // НЕ сбрасываем isProcessing здесь, так как оплата еще идет
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          console.log('Order updated successfully:', response);
+          this.createdOrderId = response.data.id;
+          this.isOrderCreated = true;
+
+          // Убедимся, что createdOrderId установлен
+          if (!this.createdOrderId) {
+            console.error('Не получен ID заказа');
+            this.isProcessing = false;
+            this.showErrorNotification('Не удалось получить ID заказа');
+            return;
+          }
+
+          console.log('Created Order ID:', this.createdOrderId);
+
+          // Небольшая задержка для гарантии, что заказ сохранился на сервере
+          setTimeout(() => {
+            // ✅ Инициируем оплату ТОЛЬКО после успешного обновления заказа
+            this.initiatePayForTheOrderTransaction();
+          }, 100);
+        },
+        error: (error) => {
+          console.error('Ошибка создания заказа:', error);
+          clearInterval(progressInterval);
+          this.isSaving = false;
+          this.isProcessing = false;
+          this.showErrorNotification('Не удалось создать заказ. Попробуйте позже.');
+        }
+      });
+  }
 
   /**
    * Создание заказа с оплатой при получении

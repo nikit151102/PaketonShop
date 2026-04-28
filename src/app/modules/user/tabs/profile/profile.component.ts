@@ -36,6 +36,17 @@ import { TopupModalComponent } from '../../../../core/components/topup-modal/top
         animate('600ms cubic-bezier(0.34, 1.56, 0.64, 1)',
           style({ opacity: 1, transform: 'scale(1)' }))
       ])
+    ]),
+    trigger('slideDown', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-20px)' }),
+        animate('400ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in',
+          style({ opacity: 0, transform: 'translateY(-20px)' }))
+      ])
     ])
   ]
 })
@@ -93,6 +104,7 @@ export class ProfileComponent implements OnInit {
     this.userApiService.getData().subscribe({
       next: (response) => {
         this.user = response.data;
+        console.log('response.data',response.data)
         this.isLoading = false;
         this.userApiService.getOperativeInfo();
         this.simulateAdditionalData();
@@ -139,6 +151,49 @@ export class ProfileComponent implements OnInit {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
     }).format(amount);
+  }
+
+  // Проверка заполненности профиля
+  isProfileIncomplete(): boolean {
+    if (!this.user) return false;
+    
+    const missingFields = [];
+    
+    if (!this.user.email || this.user.email === 'Email не указан') {
+      missingFields.push('email');
+    }
+    if (!this.user.phoneNumber || this.user.phoneNumber === 'Телефон не указан') {
+      missingFields.push('телефон');
+    }
+    if (!this.user.firstName || this.user.firstName.trim() === '') {
+      missingFields.push('имя');
+    }
+    if (!this.user.lastName || this.user.lastName.trim() === '') {
+      missingFields.push('фамилию');
+    }
+    
+    return missingFields.length > 0;
+  }
+
+  getMissingFieldsList(): string[] {
+    if (!this.user) return [];
+    
+    const missing = [];
+    
+    if (!this.user.email || this.user.email === 'Email не указан') {
+      missing.push('email');
+    }
+    if (!this.user.phoneNumber || this.user.phoneNumber === 'Телефон не указан') {
+      missing.push('телефон');
+    }
+    if (!this.user.firstName || this.user.firstName.trim() === '') {
+      missing.push('имя');
+    }
+    if (!this.user.lastName || this.user.lastName.trim() === '') {
+      missing.push('фамилию');
+    }
+    
+    return missing;
   }
 
   // Методы для пополнения баланса
@@ -194,33 +249,6 @@ export class ProfileComponent implements OnInit {
     this.paymentToken = null;
     this.userApiService.getOperativeInfo();
     this.showSuccessNotification('Баланс успешно пополнен!');
-
-    // this.paymentService.confirmPayment(token).pipe(
-    //   takeUntil(this.destroy$),
-    //   finalize(() => {
-    //     this.isProcessingTopup = false;
-    //   })
-    // ).subscribe({
-    //   next: (confirmResponse) => {
-    //     console.log('Платеж подтвержден:', confirmResponse);
-
-    //     this.showPaymentWidget = false;
-    //     this.paymentToken = null;
-
-    //     if (confirmResponse.data?.newBalance) {
-    //       this.user.balance = confirmResponse.data.newBalance;
-    //       this.userApiService.getOperativeInfo();
-    //     } else {
-    //       this.loadUserData();
-    //     }
-
-    //     this.showSuccessNotification('Баланс успешно пополнен!');
-    //   },
-    //   error: (error) => {
-    //     console.error('Ошибка подтверждения платежа:', error);
-    //     this.handlePaymentError('Платеж прошел, но не удалось обновить баланс');
-    //   }
-    // });
   }
 
   handlePaymentFail(event: any): void {
@@ -244,11 +272,13 @@ export class ProfileComponent implements OnInit {
   }
 
   private showSuccessNotification(message: string): void {
-    // alert(message);
+    // Можно добавить более красивую нотификацию позже
+    console.log(message);
   }
 
   private showErrorNotification(message: string): void {
-    // alert(message);
+    // Можно добавить более красивую нотификацию позже
+    console.error(message);
   }
 
   goToTransactionHistory(): void {

@@ -187,6 +187,10 @@ export class OrderFormComponent implements OnInit {
         email: user.email,
         phoneNumber: user.phoneNumber
       };
+
+      if(user.firstName == null || user.lastName == null || user.email == null ||  user.phoneNumber == null) {
+        this.isEditing = true;
+      }
     }
 
     // 2. Заполняем данные о компании (если есть)

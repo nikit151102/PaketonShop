@@ -274,7 +274,7 @@ $radius-sm: 10px;
 }
 
 .form-input {
-  width: 100%;
+  width: stretch;
   padding: 12px 16px;
   border: 2px solid $border;
   border-radius: $radius-sm;
@@ -303,7 +303,7 @@ $radius-sm: 10px;
   align-items: center;
   
   &__prefix {
-    padding: 12px 12px 12px 16px;
+    padding: 10px 12px 9px 16px;
     background: $bg-light;
     border: 2px solid $border;
     border-right: none;

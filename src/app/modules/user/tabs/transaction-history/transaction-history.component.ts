@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { PaymentService } from '../../../../core/api/payment.service';
 import { TitleComponent } from '../../../../core/components/title/title.component';
+import { UserService } from '../../../../core/services/user.service';
 
 // Enum в соответствии с бекендом
 export enum PaymentStatus {
@@ -46,6 +47,8 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   loading = false;
   loadingMore = false;
   error: string | null = null;
+  operativeInfo = computed(() => this.userService.operativeInfo())
+
 
   // Фильтры
   searchTerm = '';
@@ -79,6 +82,8 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
 
   constructor(private paymentService: PaymentService) { }
 
+  private userService = inject(UserService);
+  
   ngOnInit(): void {
     this.loadTransactions(true);
   }
