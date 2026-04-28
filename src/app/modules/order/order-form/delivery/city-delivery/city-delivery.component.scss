@@ -8,12 +8,15 @@ $text-light: #64748b;
 $border: #e2e8f0;
 $bg-white: #ffffff;
 $bg-gray: #f8fafc;
+$bg-hover: #f1f5f9;
 $shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 $radius-sm: 8px;
 $radius-md: 12px;
 $radius-lg: 16px;
+$success: #10b981;
+$error: #ef4444;
 
 @keyframes spin {
   to {
@@ -33,15 +36,15 @@ $radius-lg: 16px;
   }
 }
 
-@keyframes slideUp {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(-10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -77,6 +80,85 @@ $radius-lg: 16px;
       margin: 0;
       font-size: 13px;
       color: $text-light;
+    }
+  }
+
+  // Уведомления
+  .floating-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 380px;
+  }
+
+  .notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+    animation: slideDown 0.3s ease;
+
+    &.success {
+      border-left: 4px solid $success;
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+
+      .notification-icon {
+        background: $success;
+        color: white;
+      }
+    }
+
+    &.error {
+      border-left: 4px solid $error;
+      background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+
+      .notification-icon {
+        background: $error;
+        color: white;
+      }
+    }
+
+    .notification-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+      font-size: 13px;
+      color: $text-gray;
+      line-height: 1.4;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: $text-light;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: $text-dark;
+      }
     }
   }
 
@@ -134,49 +216,41 @@ $radius-lg: 16px;
     }
   }
 
-  // Address Card
-  .address-card {
-    background: $bg-white;
-    border: 1px solid $border;
+  // Превью выбранного адреса
+  .address-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    background: $primary-light;
+    border: 2px solid $primary;
     border-radius: $radius-lg;
     margin-bottom: 20px;
-    transition: all 0.2s;
-    animation: fadeIn 0.3s ease;
+    animation: slideDown 0.2s ease;
+    flex-wrap: wrap;
 
-    &:hover {
-      box-shadow: $shadow-md;
-    }
-
-    &__content {
+    &__info {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 16px;
-
-      @media (max-width: 640px) {
-        flex-wrap: wrap;
-      }
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
     }
 
     &__icon {
-      width: 48px;
-      height: 48px;
-      background: $primary-light;
-      border-radius: $radius-md;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 40px;
+      height: 40px;
       flex-shrink: 0;
 
       svg {
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
         color: $primary;
       }
     }
 
-    &__info {
-      flex: 1;
+    &__details {
       min-width: 0;
     }
 
@@ -187,10 +261,10 @@ $radius-lg: 16px;
       color: $primary;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
-    &__address {
+    &__text {
       display: block;
       font-size: 14px;
       font-weight: 500;
@@ -198,124 +272,93 @@ $radius-lg: 16px;
       word-break: break-word;
     }
 
-    &__edit {
+    &__actions {
       display: flex;
-      align-items: center;
-      gap: 6px;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    &__change {
       padding: 8px 16px;
-      background: transparent;
+      background: $bg-white;
       border: 1px solid $border;
       border-radius: $radius-md;
       font-size: 13px;
       font-weight: 500;
       color: $text-gray;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       transition: all 0.2s;
-      flex-shrink: 0;
-
-      svg {
-        width: 16px;
-        height: 16px;
-      }
 
       &:hover {
-        border-color: $primary;
+        background: $bg-hover;
         color: $primary;
-        background: $primary-light;
+        border-color: $primary;
       }
-
-      @media (max-width: 640px) {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-  }
-
-  // Modal
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 16px;
-    animation: fadeIn 0.2s ease;
-  }
-
-  .modal-container {
-    background: $bg-white;
-    border-radius: $radius-lg;
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow: hidden;
-    animation: slideUp 0.3s ease;
-    box-shadow: $shadow-lg;
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid $border;
-
-    h4 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: $text-dark;
-    }
-  }
-
-  .modal-close {
-    width: 32px;
-    height: 32px;
-    background: $bg-gray;
-    border: none;
-    border-radius: $radius-sm;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-
-    svg {
-      width: 18px;
-      height: 18px;
-      color: $text-light;
-    }
-
-    &:hover {
-      background: $border;
 
       svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+  }
+
+  // Список адресов
+  .address-list {
+    background: $bg-white;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    margin-bottom: 20px;
+    animation: slideDown 0.2s ease;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid $border;
+      background: $bg-gray;
+
+      h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: $text-dark;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          width: 18px;
+          height: 18px;
+          color: $primary;
+        }
+      }
+    }
+
+    &__close {
+      width: 32px;
+      height: 32px;
+      background: $bg-white;
+      border: 1px solid $border;
+      border-radius: 10px;
+      color: $text-light;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: $bg-hover;
         color: $text-dark;
       }
     }
-  }
 
-  .modal-footer {
-    display: flex;
-    gap: 12px;
-    padding: 20px 24px;
-    border-top: 1px solid $border;
-
-    @media (max-width: 480px) {
-      flex-direction: column;
-    }
-  }
-
-  // Address List
-  .address-list {
     &__items {
-      max-height: 400px;
+      max-height: 300px;
       overflow-y: auto;
       padding: 8px;
 
@@ -331,35 +374,47 @@ $radius-lg: 16px;
       &::-webkit-scrollbar-thumb {
         background: $border;
         border-radius: 3px;
-
-        &:hover {
-          background: $text-light;
-        }
       }
+    }
+
+    &__footer {
+      padding: 16px 20px;
+      border-top: 1px solid $border;
+      background: $bg-gray;
     }
   }
 
+  // Элемент адреса
   .address-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
+    gap: 12px;
+    padding: 12px 16px;
     border-radius: $radius-md;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
 
     &:hover {
-      background: $bg-gray;
+      background: $bg-hover;
+
+      .address-item__actions {
+        opacity: 1;
+      }
     }
 
-    &--active {
+    &--selected {
       background: $primary-light;
-      border: 1px solid $primary;
+      padding-right: 40px;
+
+      .address-item__check {
+        opacity: 1;
+      }
     }
 
     &__icon {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       background: $bg-gray;
       border-radius: $radius-md;
       display: flex;
@@ -368,39 +423,76 @@ $radius-lg: 16px;
       flex-shrink: 0;
 
       svg {
-        width: 20px;
-        height: 20px;
-        color: $text-light;
+        width: 18px;
+        height: 18px;
+        color: $primary;
       }
     }
 
-    &__text {
+    &__content {
       flex: 1;
+      min-width: 0;
+    }
+
+    &__text {
       font-size: 14px;
       color: $text-gray;
       line-height: 1.4;
       word-break: break-word;
     }
 
+    &__actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    &__delete {
+      width: 28px;
+      height: 28px;
+      background: white;
+      border: 1px solid $border;
+      border-radius: 8px;
+      color: $error;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $error;
+        color: white;
+        border-color: $error;
+      }
+    }
+
     &__check {
-      width: 24px;
-      height: 24px;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
       background: $primary;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s ease;
 
       svg {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
         color: white;
       }
     }
   }
 
-  .btn-add {
+  // Кнопка добавления
+  .address-add-btn {
     width: 100%;
     display: flex;
     align-items: center;
@@ -427,15 +519,102 @@ $radius-lg: 16px;
     }
   }
 
-  // Address Form
-  .address-form {
-    &__body {
-      padding: 24px;
-      max-height: 60vh;
-      overflow-y: auto;
+  // Пустое состояние
+  .empty-addresses {
+    text-align: center;
+    padding: 40px 20px;
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      color: $text-light;
+      margin-bottom: 20px;
+    }
+
+    .empty-btn {
+      padding: 10px 20px;
+      background: $primary;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        background: $primary-dark;
+      }
     }
   }
 
+  // Форма адреса
+  .address-form {
+    background: $bg-white;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    margin-bottom: 20px;
+    animation: slideDown 0.2s ease;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid $border;
+      background: $bg-gray;
+
+      h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: $text-dark;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          width: 18px;
+          height: 18px;
+          color: $primary;
+        }
+      }
+    }
+
+    &__close {
+      width: 32px;
+      height: 32px;
+      background: $bg-white;
+      border: 1px solid $border;
+      border-radius: 10px;
+      color: $text-light;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: $bg-hover;
+        color: $text-dark;
+      }
+    }
+
+    &__body {
+      padding: 20px;
+    }
+
+    &__footer {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      background: $bg-gray;
+      border-top: 1px solid $border;
+    }
+  }
+
+  // Форма
   .form-group {
     margin-bottom: 20px;
 
@@ -447,30 +626,45 @@ $radius-lg: 16px;
       color: $text-gray;
 
       .required {
-        color: #ef4444;
+        color: $error;
       }
     }
   }
 
   .form-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 12px;
     margin-bottom: 20px;
 
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr;
+    &--3 {
+        .form-group {
+          width: 23%;
+        }
+      @media (max-width: 950px) {
+        .form-group {
+          width: 45%;
+        }
+      }
+      @media (max-width: 400px) {
+        .form-group {
+          width: 100%;
+        }
+      }
     }
   }
 
-  .form-control {
+  .form-input,
+  .form-textarea {
     width: stretch;
-    padding: 10px 14px;
+    padding: 12px 9px;
     border: 2px solid $border;
     border-radius: $radius-md;
-    font-size: 12px;
+    font-size: 13px;
     color: $text-dark;
     transition: all 0.2s;
+    font-family: inherit;
 
     &:focus {
       outline: none;
@@ -485,40 +679,10 @@ $radius-lg: 16px;
 
   .form-textarea {
     resize: vertical;
-    font-family: inherit;
   }
 
-  .form-loader {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    border-radius: $radius-lg;
-
-    .loader-spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid $border;
-      border-top-color: $primary;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    span {
-      font-size: 13px;
-      color: $text-gray;
-    }
-  }
-
-  // Buttons
-  .btn-primary,
-  .btn-secondary {
+  // Кнопки
+  .btn {
     flex: 1;
     padding: 12px 20px;
     border: none;
@@ -527,31 +691,44 @@ $radius-lg: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-  }
 
-  .btn-primary {
-    background: $primary;
-    color: white;
+    &-primary {
+      background: $primary;
+      color: white;
 
-    &:hover:not(:disabled) {
-      background: $primary-dark;
-      transform: translateY(-1px);
+      &:hover:not(:disabled) {
+        background: $primary-dark;
+        transform: translateY(-1px);
+      }
+    }
+
+    &-secondary {
+      background: $bg-gray;
+      color: $text-gray;
+      border: 1px solid $border;
+
+      &:hover {
+        background: $border;
+      }
     }
   }
 
-  .btn-secondary {
-    background: $bg-gray;
-    color: $text-gray;
-    border: 1px solid $border;
-
-    &:hover {
-      background: $border;
-    }
+  .btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
   }
 
   // Cost Card
@@ -610,7 +787,7 @@ $radius-lg: 16px;
 
     &__price {
       display: block;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       color: $primary;
       line-height: 1;
@@ -624,35 +801,10 @@ $radius-lg: 16px;
       font-weight: 600;
       color: $primary;
       white-space: nowrap;
-
-      @media (max-width: 480px) {
-        width: 100%;
-        text-align: center;
-      }
-    }
-
-    &__details {
-      padding: 16px 20px;
     }
   }
 
-  .cost-detail {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 0;
-    font-size: 14px;
-
-    span:first-child {
-      color: $text-light;
-    }
-
-    span:last-child {
-      color: $text-gray;
-      font-weight: 500;
-    }
-  }
-
+  // Info Cards
   .info-cards {
     display: flex;
     flex-direction: column;
@@ -662,17 +814,10 @@ $radius-lg: 16px;
   .info-card {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    gap: 12px;
     padding: 14px 16px;
     background: $bg-gray;
     border-radius: $radius-md;
-    transition: all 0.2s;
-
-    &__icon {
-      font-size: 20px;
-      flex-shrink: 0;
-    }
+    gap: 8px;
 
     &__text {
       font-size: 13px;
@@ -692,7 +837,7 @@ $radius-lg: 16px;
   }
 }
 
-// Responsive adjustments
+// Responsive
 @media (max-width: 768px) {
   .delivery-modern {
     .delivery-header__icon h3 {
@@ -700,28 +845,21 @@ $radius-lg: 16px;
     }
 
     .cost-card__price {
-      font-size: 28px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .delivery-modern {
-    .modal-container {
-      margin: 16px;
-      max-height: 85vh;
+      font-size: 24px;
     }
 
-    .modal-header {
-      padding: 16px 20px;
+    .form-row--3 {
+      grid-template-columns: 1fr;
     }
 
-    .modal-footer {
-      padding: 16px 20px;
+    .address-form__footer {
+      flex-direction: column;
     }
 
-    .address-form__body {
-      padding: 20px;
+    .floating-notifications {
+      left: 20px;
+      right: 20px;
+      max-width: none;
     }
   }
 }

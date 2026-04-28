@@ -125,7 +125,7 @@ export class TransportDeliveryComponent implements OnInit {
         if (this.addresses.length > 0 && !this.selectedAddress) {
           this.selectAddress(this.addresses[0]);
         }
-
+        this.showAddressList = true;
         this.loading = false;
       },
       error: (err) => {

@@ -155,10 +155,6 @@
 
       <div *ngIf="addresses.length === 0" class="empty-addresses">
         <div class="empty-icon">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-            <path d="M20 7h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z" fill="currentColor" opacity="0.2"/>
-            <circle cx="12" cy="13" r="3" fill="currentColor" opacity="0.5"/>
-          </svg>
         </div>
         <p>Нет сохраненных пунктов выдачи</p>
         <button class="empty-btn" (click)="openCreateForm()">Добавить пункт выдачи</button>

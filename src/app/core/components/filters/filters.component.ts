@@ -250,8 +250,8 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
       };
 
       const [minResponse, maxResponse] = await Promise.all([
-        firstValueFrom(this.http.post<any>(this.apiUrl, requestBody)),
-        firstValueFrom(this.http.post<any>(this.apiUrl, {
+        firstValueFrom(this.http.post<any>(`${this.apiUrl}/${this.categoryId}`, requestBody)),
+        firstValueFrom(this.http.post<any>(`${this.apiUrl}/${this.categoryId}`, {
           ...requestBody,
           sorts: [{ field: "Value", sortType: 1 }]
         }))

@@ -57,7 +57,11 @@ export class CityDeliveryComponent implements OnInit {
   // Стоимость доставки
   deliveryCost: number = 0;
 
-  // Новый адрес (без postIndex)
+  // Уведомления
+  successMessage: string | null = null;
+  errorMessage: string | null = null;
+
+  // Новый адрес
   newAddress: NewAddressData = {
     city: '',
     street: '',
@@ -75,9 +79,6 @@ export class CityDeliveryComponent implements OnInit {
     this.generateRandomDeliveryCost();
   }
 
-  /**
-   * Генерирует случайную стоимость доставки от 300 до 450 рублей
-   */
   private generateRandomDeliveryCost(): void {
     this.deliveryCost = Math.floor(Math.random() * (450 - 300 + 1)) + 300;
   }
@@ -95,7 +96,7 @@ export class CityDeliveryComponent implements OnInit {
         if (this.addresses.length > 0 && !this.selectedAddress) {
           this.selectAddress(this.addresses[0]);
         }
-
+        this.showAddressList = true;
         this.loading = false;
       },
       error: (err) => {
@@ -109,29 +110,30 @@ export class CityDeliveryComponent implements OnInit {
   selectAddress(address: Address): void {
     this.selectedAddress = address;
     this.showAddressList = false;
-    this.generateRandomDeliveryCost(); // Обновляем стоимость при выборе адреса
+    this.generateRandomDeliveryCost();
     this.emitSelectedAddress();
   }
 
   showAddressSelection(): void {
     this.showAddressList = true;
     this.showNewAddressForm = false;
+    this.clearMessages();
   }
 
   showAddressForm(): void {
     this.showNewAddressForm = true;
     this.showAddressList = false;
+    this.clearMessages();
+    this.resetNewAddressForm();
   }
 
   cancelSelection(): void {
     this.showAddressList = false;
     this.showNewAddressForm = false;
     this.resetNewAddressForm();
+    this.clearMessages();
   }
 
-  /**
-   * Проверка валидности нового адреса
-   */
   isNewAddressValid(): boolean {
     return !!(
       this.newAddress.city?.trim() &&
@@ -140,14 +142,9 @@ export class CityDeliveryComponent implements OnInit {
     );
   }
 
-  /**
-   * Подготовка данных для API
-   */
   private prepareAddressForApi(): any {
-    // Формируем полный адрес для поля fullName
-    const fullName = `г. ${this.newAddress.city}, ул. ${this.newAddress.street}, д. ${this.newAddress.house}${
-      this.newAddress.housing ? `, корп. ${this.newAddress.housing}` : ''
-    }${this.newAddress.office ? `, офис/кв. ${this.newAddress.office}` : ''}`;
+    const fullName = `г. ${this.newAddress.city}, ул. ${this.newAddress.street}, д. ${this.newAddress.house}${this.newAddress.housing ? `, корп. ${this.newAddress.housing}` : ''
+      }${this.newAddress.office ? `, офис/кв. ${this.newAddress.office}` : ''}`;
 
     return {
       city: this.newAddress.city,
@@ -156,7 +153,7 @@ export class CityDeliveryComponent implements OnInit {
       housing: this.newAddress.housing || null,
       floorNumber: this.newAddress.floorNumber || null,
       office: this.newAddress.office || null,
-      postIndex: '000000', // Заглушка для обязательного поля
+      postIndex: '000000',
       region: null,
       area: null,
       latitude: null,
@@ -171,32 +168,58 @@ export class CityDeliveryComponent implements OnInit {
     if (!this.isNewAddressValid()) return;
 
     this.isSaving = true;
-    
+
     const addressData = this.prepareAddressForApi();
 
     this.addressService.createAddress(addressData)
       .pipe(finalize(() => this.isSaving = false))
       .subscribe({
         next: (response: any) => {
-          console.log('Адрес успешно создан:', response);
-          
           if (response.data) {
-            // Добавляем созданный адрес в список
             this.addresses.push(response.data);
-            
-            // Выбираем новый адрес
             this.selectAddress(response.data);
-            
-            // Сбрасываем форму
             this.resetNewAddressForm();
             this.showNewAddressForm = false;
+            this.showMessage('Адрес успешно добавлен', 'success');
           }
         },
         error: (err) => {
           console.error('Ошибка создания адреса:', err);
-          this.error = 'Не удалось сохранить адрес. Попробуйте позже.';
+          this.showMessage(err.error?.message || 'Не удалось сохранить адрес', 'error');
         }
       });
+  }
+
+  deleteAddress(address: Address, event: Event): void {
+    event.stopPropagation();
+
+    if (!confirm(`Удалить адрес "${this.getFullAddress(address)}"?`)) {
+      return;
+    }
+
+    if (!address.id) return;
+
+    this.addressService.deleteAddress(address.id).subscribe({
+      next: () => {
+        this.addresses = this.addresses.filter(a => a.id !== address.id);
+
+        if (this.selectedAddress?.id === address.id) {
+          this.selectedAddress = this.addresses.length > 0 ? this.addresses[0] : null;
+          if (this.selectedAddress) {
+            this.emitSelectedAddress();
+          } else {
+            this.addressSelected.emit(null);
+            this.dataChange.emit({ address: null });
+          }
+        }
+
+        this.showMessage('Адрес удален', 'success');
+      },
+      error: (err) => {
+        console.error('Ошибка удаления:', err);
+        this.showMessage('Не удалось удалить адрес', 'error');
+      }
+    });
   }
 
   resetNewAddressForm(): void {
@@ -209,7 +232,27 @@ export class CityDeliveryComponent implements OnInit {
       office: '',
       comment: ''
     };
-    this.showNewAddressForm = false;
+  }
+
+  private showMessage(message: string, type: 'success' | 'error'): void {
+    if (type === 'success') {
+      this.successMessage = message;
+      this.errorMessage = null;
+      setTimeout(() => {
+        this.successMessage = null;
+      }, 3000);
+    } else {
+      this.errorMessage = message;
+      this.successMessage = null;
+      setTimeout(() => {
+        this.errorMessage = null;
+      }, 5000);
+    }
+  }
+
+  private clearMessages(): void {
+    this.successMessage = null;
+    this.errorMessage = null;
   }
 
   private emitSelectedAddress(): void {
@@ -246,13 +289,6 @@ export class CityDeliveryComponent implements OnInit {
     if (address.office) parts.push(`офис/кв. ${address.office}`);
 
     return parts.join(', ');
-  }
-
-  formatAddressShort(address: Address): string {
-    if (address.city && address.street && address.house) {
-      return `${address.city}, ${address.street}, ${address.house}`;
-    }
-    return this.getFullAddress(address);
   }
 
   hasAddress(): boolean {

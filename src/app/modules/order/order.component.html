@@ -36,7 +36,8 @@
               <div class="cart-item" *ngFor="let product of basketProducts; let i = index">
                 <div class="cart-item__number">{{ i + 1 }}</div>
                 <div class="cart-item__image">
-                  <span>{{ product.name.charAt(0).toUpperCase() }}</span>
+                  <!-- <span>{{ product.name.charAt(0).toUpperCase() }}</span> -->
+                  <img [src]="product.imageUrl" alt="" style="width: 50px; height: auto; border-radius: 5px;">
                 </div>
                 <div class="cart-item__info">
                   <div class="cart-item__name">{{ product.name }}</div>
@@ -227,7 +228,8 @@
                   <path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
                 </svg>
                 <span class="btn-text">
-                  {{ isProcessing ? 'Обработка...' : (paymentMethod === 'online' ? 'Перейти к оплате' : 'Оформить заказ') }}
+                  {{ isProcessing ? 'Обработка...' : (paymentMethod === 'online' ? 'Перейти к оплате' : 'Оформить
+                  заказ') }}
                 </span>
                 <span class="btn-total">{{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
               </span>
@@ -342,13 +344,7 @@
 </app-topup-modal>
 
 <!-- Платежный виджет для пополнения -->
-<app-payment-widget 
-    #paymentWidget
-    *ngIf="showPaymentWidget && paymentToken && paymentMethod === 'online'"
-    [confirmationToken]="paymentToken" 
-    [amount]="getOrderTotal()" 
-    (onSuccess)="handlePaymentSuccess($event)"
-    (onFail)="handlePaymentFail($event)" 
-    (onError)="handlePaymentError($event)"
-    (onClose)="handleWidgetClose()">
+<app-payment-widget #paymentWidget *ngIf="showPaymentWidget && paymentToken && paymentMethod === 'online'"
+  [confirmationToken]="paymentToken" [amount]="getOrderTotal()" (onSuccess)="handlePaymentSuccess($event)"
+  (onFail)="handlePaymentFail($event)" (onError)="handlePaymentError($event)" (onClose)="handleWidgetClose()">
 </app-payment-widget>
