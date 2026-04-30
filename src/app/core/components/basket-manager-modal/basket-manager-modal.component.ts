@@ -14,12 +14,12 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   @Input() baskets: any[] = [];
   @Input() selectedBasketId: string | null = null;
   @Input() searchTerm: string = '';
-  
+
   @Output() close = new EventEmitter<void>();
   @Output() selectBasket = new EventEmitter<any>();
   @Output() addToBasket = new EventEmitter<string>();
   @Output() removeFromBasket = new EventEmitter<string>();
-  @Output() updateQuantity = new EventEmitter<{basketId: string, delta: number}>();
+  @Output() updateQuantity = new EventEmitter<{ basketId: string, delta: number }>();
   @Output() updateQuantityFromInput = new EventEmitter<any>();
   @Output() createBasket = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
@@ -75,14 +75,14 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
       // Активная корзина вверх
       if (a.isActiveBasket && !b.isActiveBasket) return -1;
       if (!a.isActiveBasket && b.isActiveBasket) return 1;
-      
+
       // Корзины с товаром выше
       const aHasProduct = this.isProductInBasket(a.id);
       const bHasProduct = this.isProductInBasket(b.id);
-      
+
       if (aHasProduct && !bHasProduct) return -1;
       if (!aHasProduct && bHasProduct) return 1;
-      
+
       return a.name.localeCompare(b.name);
     });
   }
@@ -105,10 +105,11 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   updateQuantityInput(event: any, basketId: string) {
     const value = parseInt(event.target.value, 10);
     if (!isNaN(value) && value >= 1) {
-      this.updateQuantityFromInput.emit({basketId: basketId, value: value});
+      this.updateQuantityFromInput.emit({ basketId: basketId, value: value });
     } else {
       // Сброс на 1 если введено некорректное значение
-      this.updateQuantityFromInput.emit({basketId: basketId, value: 1});
+      this.updateQuantityFromInput.emit({ basketId: basketId, value: 1 });
     }
   }
+
 }

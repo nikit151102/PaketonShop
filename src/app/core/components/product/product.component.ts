@@ -674,12 +674,24 @@ export class ProductComponent implements OnInit, OnDestroy {
     }).pipe(take(1)).subscribe({
       next: () => {
         this.loadUpdatedProductData();
+
         this.showNotification('Товар добавлен в корзину');
       },
       error: (err) => console.error('Ошибка при добавлении в корзину:', err)
     });
   }
 
+  private loadBaskets(): void {
+    this.basketsService.filterBaskets({ filters: [], sorts: [], page: 0, pageSize: 10 })
+      .pipe(take(1))
+      .subscribe({
+        next: (res) => {
+          this.basketsStateService.updateBaskets(res.data);
+        },
+        error: (err) => console.error('Ошибка загрузки корзин', err)
+      });
+  }
+  
   removeFromBasket(basketId: string): void {
     const baskets = this.basketsStateService.getCurrentBaskets();
     const basket = baskets?.find((b: any) => b.id === basketId);
@@ -703,6 +715,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     }).pipe(take(1)).subscribe({
       next: () => {
         this.loadUpdatedProductData();
+        this.loadBaskets();
         this.showNotification(`Корзина "${basketName}" создана`);
       },
       error: (err) => console.error('Ошибка при создании корзины:', err)
