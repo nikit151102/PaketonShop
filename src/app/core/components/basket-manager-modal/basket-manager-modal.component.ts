@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './basket-manager-modal.component.html',
   styleUrl: './basket-manager-modal.component.scss'
 })
-export class BasketManagerModalComponent implements OnInit, OnDestroy {
+export class BasketManagerModalComponent implements OnInit, OnDestroy, OnChanges {
   @Input() visible: boolean = false;
   @Input() product: any;
   @Input() baskets: any[] = [];
@@ -22,15 +22,23 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   @Output() updateQuantity = new EventEmitter<{ basketId: string, delta: number }>();
   @Output() updateQuantityFromInput = new EventEmitter<any>();
   @Output() createBasket = new EventEmitter<void>();
+  @Output() deleteBasket = new EventEmitter<string>(); // Новый event для удаления корзины
   @Output() searchChange = new EventEmitter<string>();
 
   filteredBaskets: any[] = [];
   showHelp: boolean = false;
+  maxBasketsCount: number = 5; // Максимальное количество корзин
+  basketToDelete: any = null; // Корзина для подтверждения удаления
 
   ngOnInit() {
     this.filterBaskets();
     if (this.visible) {
       document.body.style.overflow = 'hidden';
+    }
+    // Загружаем состояние помощи
+    const savedHelpState = localStorage.getItem('basketManagerHelpShown');
+    if (savedHelpState !== null) {
+      this.showHelp = savedHelpState === 'true';
     }
   }
 
@@ -97,8 +105,6 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
   }
 
   getPrice(): number {
-    // Можно расширить логику в зависимости от города пользователя
-    // Сейчас возвращает розничную цену
     return this.product?.retailPrice || this.product?.viewPrice || 0;
   }
 
@@ -107,9 +113,118 @@ export class BasketManagerModalComponent implements OnInit, OnDestroy {
     if (!isNaN(value) && value >= 1) {
       this.updateQuantityFromInput.emit({ basketId: basketId, value: value });
     } else {
-      // Сброс на 1 если введено некорректное значение
       this.updateQuantityFromInput.emit({ basketId: basketId, value: 1 });
     }
   }
 
+  // Проверка, достигнут ли лимит корзин
+  isBasketLimitReached(): boolean {
+    return this.baskets && this.baskets.length >= this.maxBasketsCount;
+  }
+
+  // Получение сообщения о лимите
+  getBasketLimitMessage(): string {
+    return `Вы можете создать не более ${this.maxBasketsCount} корзин`;
+  }
+
+  // Оставшееся количество корзин для создания
+  getRemainingBasketsCount(): number {
+    return Math.max(0, this.maxBasketsCount - (this.baskets?.length || 0));
+  }
+
+  // Обработчик создания корзины с проверкой лимита
+  onCreateBasket() {
+    if (this.isBasketLimitReached()) {
+      this.showLimitNotification();
+      return;
+    }
+    this.createBasket.emit();
+  }
+
+  // Показать уведомление о достижении лимита
+  private showLimitNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'limit-notification';
+    notification.innerHTML = `
+      <div class="limit-notification-content">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="9" stroke="#dc2626" stroke-width="1.5"/>
+          <path d="M10 6V10M10 14H10.01" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>${this.getBasketLimitMessage()}</span>
+      </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 2000);
+    }, 10);
+  }
+
+  // Открыть диалог подтверждения удаления корзины
+  confirmDeleteBasket(basket: any, event: Event) {
+    event.stopPropagation();
+    this.basketToDelete = basket;
+  }
+
+  // Закрыть диалог подтверждения
+  cancelDeleteBasket() {
+    this.basketToDelete = null;
+  }
+
+  // Подтверждение удаления корзины
+  deleteBasketConfirm() {
+    if (this.basketToDelete) {
+      this.deleteBasket.emit(this.basketToDelete.id);
+      this.basketToDelete = null;
+
+      // Показать уведомление об успешном удалении
+      this.showSuccessNotification('Корзина удалена');
+    }
+  }
+
+  // Показать уведомление об успешном действии
+  private showSuccessNotification(message: string) {
+    const notification = document.createElement('div');
+    notification.className = 'success-notification';
+    notification.innerHTML = `
+      <div class="success-notification-content">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="9" stroke="#327120" stroke-width="1.5"/>
+          <path d="M6 10L9 13L14 7" stroke="#327120" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>${message}</span>
+      </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 2000);
+    }, 10);
+  }
+
+  // Проверка, можно ли удалить корзину (нельзя удалить активную корзину)
+  canDeleteBasket(basket: any): boolean {
+    return !basket.isActiveBasket;
+  }
+
+  // Получить текст подсказки для кнопки удаления
+  getDeleteTooltip(basket: any): string {
+    if (basket.isActiveBasket) {
+      return 'Нельзя удалить активную корзину. Сначала сделайте другую корзину активной';
+    }
+    return 'Удалить корзину';
+  }
 }

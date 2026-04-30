@@ -691,7 +691,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         error: (err) => console.error('Ошибка загрузки корзин', err)
       });
   }
-  
+
   removeFromBasket(basketId: string): void {
     const baskets = this.basketsStateService.getCurrentBaskets();
     const basket = baskets?.find((b: any) => b.id === basketId);
@@ -754,6 +754,13 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.updateBasketItemQuantity(event.basketId, event.delta);
   }
 
+  onDeleteBasket(basketId: string) { 
+    this.basketsService.deleteBasket(
+      basketId).subscribe({
+        next: () => this.loadBaskets(),
+        error: (err) => console.error('Ошибка при обновлении количества:', err)
+      });
+  }
   onUpdateQuantityFromInput(event: { basketId: string, value: string }) {
     this.updateBasketItemQuantityFromInput(event.basketId, { target: { value: event.value } });
   }
