@@ -483,7 +483,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/product', this.product.id]);
+    this.router.navigate(['/product', this.product.barcode.id]);
   }
 
   toggleFavorite(event: MouseEvent, isFavorite: boolean) {
@@ -534,8 +534,8 @@ export class ProductComponent implements OnInit, OnDestroy {
     event.preventDefault();
 
     const serviceCall = this.product.compareProduct
-      ? this.comparingService.deleteCompareProduct(this.product.id)
-      : this.comparingService.setCompareProduct(this.product.id);
+      ? this.comparingService.deleteCompareProduct(this.product.barcode.id)
+      : this.comparingService.setCompareProduct(this.product.barcode.id);
 
     serviceCall.pipe(take(1)).subscribe({
       next: () => this.product.compareProduct = !this.product.compareProduct,
@@ -643,7 +643,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
 
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.barcode.id,
       basketId: basketId,
       count: newCount
     }).pipe(take(1)).subscribe({
@@ -657,7 +657,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (isNaN(value) || value < 1) return;
 
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.barcode.id,
       basketId: basketId,
       count: value
     }).pipe(take(1)).subscribe({
@@ -668,7 +668,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   addToSpecificBasket(basketId: string): void {
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.barcode.id,
       basketId: basketId,
       count: 1
     }).pipe(take(1)).subscribe({

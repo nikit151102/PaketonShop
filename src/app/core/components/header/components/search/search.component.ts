@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 
 interface AutocompleteProduct {
   id: string;
+  barcode?:any
   name: string;
   sku: string;
   image: string;
@@ -238,6 +239,7 @@ private setupScrollListener() {
   private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
     return products.map(product => ({
       id: product.id,
+      barcode: product.barcode.id,
       name: product.fullName || product.name,
       sku: product.article || product.sku,
       image: this.getProductImage(product),
@@ -524,7 +526,7 @@ onSearch() {
     this.isInputFocused = false;
     this.removeScrollListener();
     this.searchQuery = '';
-    this.router.navigate(['/product', item.id]);
+    this.router.navigate(['/product', item.barcode.id]);
   }
 
   @HostListener('document:click', ['$event'])
