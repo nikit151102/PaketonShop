@@ -239,7 +239,7 @@ private setupScrollListener() {
   private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
     return products.map(product => ({
       id: product.id,
-      barcode: product.barcode.id,
+      barcode: product.productBarCode.id,
       name: product.fullName || product.name,
       sku: product.article || product.sku,
       image: this.getProductImage(product),

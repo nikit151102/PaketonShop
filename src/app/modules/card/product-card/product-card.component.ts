@@ -197,7 +197,7 @@ console.log('baskets',baskets)
 
     // Используем changeProductFromBasket вместо addProduct
     this.basketsService
-      .changeProductFromBasket(activeBasketId, this.productData.barcode.id, newCount)
+      .changeProductFromBasket(activeBasketId, this.productData.productBarCode.id, newCount)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -219,7 +219,7 @@ console.log('baskets',baskets)
 
     // Используем changeProductFromBasket вместо addProduct
     this.basketsService
-      .changeProductFromBasket(activeBasketId, this.productData.barcode.id, value)
+      .changeProductFromBasket(activeBasketId, this.productData.productBarCode.id, value)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -246,7 +246,7 @@ console.log('baskets',baskets)
     }
 
     // Используем changeProductFromBasket вместо addProduct
-    this.basketsService.changeProductFromBasket(basketId, this.productData.barcode.id, newCount)
+    this.basketsService.changeProductFromBasket(basketId, this.productData.productBarCode.id, newCount)
       .pipe(take(1)).subscribe({
         next: () => {
           this.loadUpdatedProductData();
@@ -299,7 +299,7 @@ console.log('baskets',baskets)
   removeFromBasket(basketId: any): void {
     const basket = this.baskets?.find((b: any) => b.id === basketId);
 
-    this.basketsService.changeProductFromBasket(basketId, this.productData.barcode.id, 0)
+    this.basketsService.changeProductFromBasket(basketId, this.productData.productBarCode.id, 0)
       .pipe(take(1)).subscribe({
         next: () => {
           this.loadUpdatedProductData();
@@ -432,7 +432,7 @@ console.log('baskets',baskets)
     }
 
     this.productFavoriteService
-      .addToFavorites(this.productData.barcode.id)
+      .addToFavorites(this.productData.productBarCode.id)
       .subscribe({
         next: (value: any) => {
           this.productData.isFavorite = !this.productData.isFavorite;
