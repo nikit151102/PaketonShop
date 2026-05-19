@@ -255,12 +255,12 @@ private setupScrollListener() {
     }
     // Генерируем плейсхолдер с первой буквой артикула
     const letter = product.article?.charAt(0) || 'P';
-    return `https://via.placeholder.com/60x60/327120/ffffff?text=${letter}`;
+    return `no-image.png`;
   }
 
   handleImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/60x60/e2e8f0/64748b?text=No+Image';
+    img.src = 'no-image.png';
   }
 
   // Кастомный скролл для подгрузки
@@ -526,7 +526,7 @@ onSearch() {
     this.isInputFocused = false;
     this.removeScrollListener();
     this.searchQuery = '';
-    this.router.navigate(['/product', item.barcode.id]);
+    this.router.navigate(['/product', item.barcode]);
   }
 
   @HostListener('document:click', ['$event'])

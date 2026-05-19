@@ -18,7 +18,8 @@
     <!-- Галерея с улучшенным дизайном -->
     <div class="gallery-wrapper">
       <div class="gallery-container">
-        <app-product-gallery [images]="(productData ? productData.productImageLinks : []) | cleanArrayLink"
+        <app-product-gallery
+          [images]="((productData && productData.productImageLinks.length > 0) ? productData.productImageLinks : ['no-image.png']) | cleanArrayLink"
           class="product-gallery">
         </app-product-gallery>
       </div>
