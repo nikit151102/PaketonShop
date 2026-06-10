@@ -12,6 +12,7 @@ import { ProductFavoriteService } from '../../../core/api/product-favorite.servi
 import { UserApiService } from '../../../core/api/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductsService } from '../../../core/services/products.service';
+import { ProductPackingSelectorComponent } from '../../../core/ui/product-packing-selector/product-packing-selector.component';
 interface BreadCrumb {
   id: string;
   name: string;
@@ -33,6 +34,7 @@ interface Basket {
     RouterModule,
     ProductGalleryComponent,
     CleanArrayLinkPipe,
+    ProductPackingSelectorComponent
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss'],
@@ -80,7 +82,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
-console.log('baskets',baskets)
+    console.log('baskets', baskets)
     if (!baskets || !Array.isArray(baskets)) {
       return null;
     }
@@ -183,6 +185,12 @@ console.log('baskets',baskets)
     }
   }
 
+
+  //Выбор фасовки товара
+  selectBarcode(idBarcode: string){
+    console.log('idBarcode',idBarcode)
+  }
+
   // Обновляем количество товара в активной корзине
   updateActiveBasketQty(delta: number): void {
     const activeBasketId = this.activeBasketId;
@@ -195,7 +203,6 @@ console.log('baskets',baskets)
       return;
     }
 
-    // Используем changeProductFromBasket вместо addProduct
     this.basketsService
       .changeProductFromBasket(activeBasketId, this.productData.productBarCode.id, newCount)
       .pipe(take(1))
@@ -281,7 +288,7 @@ console.log('baskets',baskets)
     }
 
     this.basketsService.addProduct({
-      productId: this.productData.id,
+      productId: this.productData.productBarCode.id,
       basketId: basketId,
       count: this.selectedQuantity
     }).pipe(take(1)).subscribe({
@@ -332,7 +339,7 @@ console.log('baskets',baskets)
 
   // Загружаем обновленные данные товара
   private loadUpdatedProductData(): void {
-    this.productsService.getById(this.productData.id).subscribe((values: any) => {
+    this.productsService.getById(this.productData.productBarCode.id).subscribe((values: any) => {
       this.productData = values.data;
       setTimeout(() => {
         this.checkProductInBaskets();

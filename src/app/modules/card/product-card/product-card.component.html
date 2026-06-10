@@ -144,6 +144,9 @@
 
       <!-- Блок действий (главный) -->
       <div class="action-card">
+
+        <app-product-packing-selector [selectedBarcodeId]="productData.productBarCode.id" [productPackingInput]="productData.productBarCodes" (selectedBarcode)="selectBarcode($event)"></app-product-packing-selector>
+
         <!-- Общая сумма (если выбрано больше 1) -->
         <div class="total-sum" *ngIf="selectedQuantity > 1">
           <span>Общая сумма</span>

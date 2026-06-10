@@ -40,13 +40,16 @@ export class CardComponent {
     private route: ActivatedRoute,
     private productsService: ProductsService,
   ) { }
-
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.loadData(params.get('id')!);
+      const newId = params.get('id');
+
+      // Проверяем, что newId существует и отличается от текущего
+      if (newId && this.productData?.id !== newId) {
+        this.loadData(newId);
+      }
     });
   }
-
   loadData(id: string) {
     this.productsService.getById(id).subscribe((values: any) => {
       this.productData = values.data;

@@ -110,7 +110,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   private refreshProductBasketsInfo(): void {
     if (!this.product?.id) return;
 
-    this.productsService.getById(this.product.id).pipe(take(1)).subscribe({
+    this.productsService.getById(this.product.productBarCode.id).pipe(take(1)).subscribe({
       next: (response: any) => {
         if (response?.data) {
           this.product.userBaskets = response.data.userBaskets;
@@ -237,7 +237,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: this.selectedQuantity
       })
@@ -260,7 +260,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     if (newCount <= 0) {
       this.basketsService
-        .changeProductFromBasket(activeBasketId, this.product.id, 0)
+        .changeProductFromBasket(activeBasketId, this.product.productBarCode.id, 0)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -276,7 +276,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: newCount
       })
@@ -299,7 +299,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: value
       })
@@ -322,7 +322,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: basketItem.userBasketId,
         count: newCount
       })
@@ -338,7 +338,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   removeFromSpecificBasket(basketItem: any): void {
     this.basketsService
-      .changeProductFromBasket(basketItem.userBasketId, this.product.id, 0)
+      .changeProductFromBasket(basketItem.userBasketId, this.product.productBarCode.id, 0)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -355,7 +355,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   private loadUpdatedProductData(): void {
-    this.productsService.getById(this.product.id).pipe(take(1)).subscribe((values: any) => {
+    this.productsService.getById(this.product.productBarCode.id).pipe(take(1)).subscribe((values: any) => {
       this.product = values.data;
       this.updateProductState();
       this.hideBasketDetails();
@@ -381,7 +381,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (!basketId) return console.error('Корзина не найдена');
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count })
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -414,7 +414,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (!basketId) return;
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count: 1 })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count: 1 })
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -430,7 +430,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (!basketId || quantity <= 0) return;
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count: quantity })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count: quantity })
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -492,7 +492,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     if (isFavorite) {
       this.productFavoriteService
-        .removeFromFavorites(this.product.id)
+        .removeFromFavorites(this.product.productBarCode.id)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -510,7 +510,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         });
     } else {
       this.productFavoriteService
-        .addToFavorites(this.product.id)
+        .addToFavorites(this.product.productBarCode.id)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -696,7 +696,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     const baskets = this.basketsStateService.getCurrentBaskets();
     const basket = baskets?.find((b: any) => b.id === basketId);
 
-    this.basketsService.changeProductFromBasket(basketId, this.product.id, 0).pipe(take(1)).subscribe({
+    this.basketsService.changeProductFromBasket(basketId, this.product.productBarCode.id, 0).pipe(take(1)).subscribe({
       next: () => {
         this.loadUpdatedProductData();
         this.showNotification(`Товар удален из корзины "${basket?.name || ''}"`);
