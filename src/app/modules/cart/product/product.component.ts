@@ -30,6 +30,7 @@ export interface Product {
   reviews?: number;
   rating?: number;
   productImageLinks?: any;
+  productBarCode?: any;
   discountPercentage?: number;
 }
 
@@ -46,6 +47,7 @@ export interface BasketProduct {
   id: string;
   count: number;
   product: Product;
+  productBarCode?: any
 }
 
 @Component({
@@ -60,7 +62,7 @@ export class ProductComponent implements OnChanges, OnInit {
   @Input() product!: BasketProduct;
   @Input() selected: boolean = false;
   @Output() selectionChange = new EventEmitter<{ id: string; selected: boolean }>();
-  @Output() quantityChange = new EventEmitter<{ id: string; quantity: number }>();
+  @Output() quantityChange = new EventEmitter<{ id: string; barcodeId: string; quantity: number }>();
   @Output() remove = new EventEmitter<any>();
   @Output() quickView = new EventEmitter<Product>();
   @Output() addRelated = new EventEmitter<RelatedProduct>();
@@ -257,6 +259,7 @@ export class ProductComponent implements OnChanges, OnInit {
   private updateQuantity(newCount: number): void {
     this.quantityChange.emit({
       id: this.product.id,
+      barcodeId: this.product.productBarCode.id,
       quantity: newCount
     });
 
@@ -268,7 +271,7 @@ export class ProductComponent implements OnChanges, OnInit {
     if (this.product) {
       this.remove.emit(
         {
-          "productId": this.product.product.id,
+          "productId": this.product.productBarCode.id,
           "count": this.product.count
         }
       );

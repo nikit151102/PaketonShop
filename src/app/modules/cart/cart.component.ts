@@ -457,7 +457,7 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  onQuantityChange(event: { id: string; quantity: number }): void {
+  onQuantityChange(event: { id: string; barcodeId: string; quantity: number }): void {
     if (!this.activeBasket?.products || !this.activeBasket.id) return;
 
     const product = this.activeBasket.products.find((p: any) => p.id === event.id);
@@ -467,7 +467,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
       // Отправляем с дебаунсом для API
       this.quantityUpdate$.next({
-        productId: product.product?.id,
+        productId: event.barcodeId,
         basketId: this.activeBasket.id,
         quantity: event.quantity
       });
