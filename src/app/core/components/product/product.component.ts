@@ -64,13 +64,13 @@ export class ProductComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {
     // Эффект для отслеживания изменений авторизации
-    effect(() => {
-      const isAuth = this.userService.authUser();
-      if (this.product?.id && isAuth) {
-        this.refreshProductBasketsInfo();
-      }
-      this.updateProductState();
-    });
+    // effect(() => {
+    //   const isAuth = this.userService.authUser();
+    //   if (this.product?.id && isAuth) {
+    //     this.refreshProductBasketsInfo();
+    //   }
+    //   this.updateProductState();
+    // });
   }
 
   private userApiService = inject(UserApiService);
@@ -538,7 +538,10 @@ export class ProductComponent implements OnInit, OnDestroy {
       : this.comparingService.setCompareProduct(this.product.productBarCode.id);
 
     serviceCall.pipe(take(1)).subscribe({
-      next: () => this.product.compareProduct = !this.product.compareProduct,
+      next: () => {
+        
+        this.product.compare = !this.product.compare
+      },
       error: (error) => {
         if (error.status === 401) {
           console.error('Пользователь не авторизован');
@@ -754,7 +757,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.updateBasketItemQuantity(event.basketId, event.delta);
   }
 
-  onDeleteBasket(basketId: string) { 
+  onDeleteBasket(basketId: string) {
     this.basketsService.deleteBasket(
       basketId).subscribe({
         next: () => this.loadBaskets(),

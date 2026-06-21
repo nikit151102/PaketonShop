@@ -8,7 +8,8 @@
     color: #444;
     text-decoration: none;
     transition: color 0.3s;
-
+    font-size: 11px;
+    
     &::before {
       content: "";
       position: absolute;

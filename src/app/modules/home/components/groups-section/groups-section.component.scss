@@ -144,18 +144,18 @@ $transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 // Контентная часть
 .category-content {
   flex: 1;
-  padding: 20px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 2;
 
   @media (min-width: 640px) and (max-width: 1023px) {
-    padding: 15px;
+    padding: 10px;
   }
 
   @media (min-width: 1024px) {
-    padding: 15px;
+    padding: 10px;
   }
 }
 
@@ -163,7 +163,7 @@ $transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 0px;
 }
 
 .category-icon {
@@ -192,7 +192,7 @@ $transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
 .category-title {
   flex: 1;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: $text-dark;
   margin: 0;
@@ -200,7 +200,7 @@ $transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transition: color 0.2s ease;
 
   @media (min-width: 1024px) {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   @media (max-width: 639px) {

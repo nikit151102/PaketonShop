@@ -95,7 +95,7 @@
       <p class="item-desc" *ngIf="product.product.shortName">{{ product.product.shortName }}</p>
 
       <!-- Характеристики и рейтинг в одной строке -->
-      <div class="item-meta-row">
+      <div class="item-meta-row" *ngIf="product.product.measurementUnitId || product.product.rating || product.product.reviews">
         <!-- Характеристики -->
         <div class="item-specs" *ngIf="product.product.measurementUnitId">
           <span class="spec">шт</span>

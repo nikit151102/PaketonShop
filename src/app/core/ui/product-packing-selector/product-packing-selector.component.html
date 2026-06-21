@@ -8,8 +8,8 @@
         @for (item of productPackingInput; track $index) {
         <button class="packing-btn" [class.active]="selectedBarcodeId === item.id" (click)="selectBarcode(item.id)">
             <span class="coefficient">{{ item.coefficient }}</span>
-            @if (item.measurementUnit) {
-            <span class="unit">{{item.measurementUnit.shortName}}</span>
+            @if (baseMeasurementUnit) {
+            <span class="unit">{{baseMeasurementUnit.shortName}}</span>
             }
         </button>
         }

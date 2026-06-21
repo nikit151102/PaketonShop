@@ -12,9 +12,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class ProductPackingSelectorComponent {
 
   @Input() productPackingInput: productBarCodes[] | null = null;
+  @Input() baseMeasurementUnit: any | null = null;
   @Input() selectedBarcodeId: string | null = null;
   @Output() selectedBarcode = new EventEmitter<string>();
-
 
   constructor(
     private route: ActivatedRoute,

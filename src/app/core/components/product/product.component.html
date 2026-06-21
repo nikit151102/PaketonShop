@@ -1,8 +1,13 @@
 <div class="product-card" [ngClass]="view" (click)="onProductClick($event)">
   <div class="top-bar">
     <div class="actions">
-      <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite">❤</span>
-      <span *ngIf="showCompare" (click)="toggleCompare($event)" [class.active]="product.compare">⇄</span>
+      <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite"
+        class="favorite-icon">
+        ❤
+      </span>
+      <span (click)="toggleCompare($event)" [class.active]="product.compare" class="compare-icon">
+        ⇄
+      </span>
     </div>
   </div>
 
@@ -71,7 +76,7 @@
       <div *ngIf="!isInActiveBasket() && hasProductInBaskets()" class="other-baskets-controls">
         <div class="add-cart-wrapper">
           <button class="add-cart" (click)="addToActiveBasket()">
-            <span class="cart-icon">🛒</span>
+            <!-- <span class="cart-icon"></span> -->
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
           <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
@@ -96,7 +101,7 @@
           </div>
 
           <button *ngIf="!quantitySelectorVisible" class="add-cart" (click)="addOneToCart()">
-            <span class="cart-icon">🛒</span>
+            <!-- <span class="cart-icon"></span> -->
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
           <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">

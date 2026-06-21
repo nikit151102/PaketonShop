@@ -82,16 +82,16 @@
         <div class="price-main">
           <span class="current-price">{{ productData.viewPrice | number:'1.2-2' }} ₽</span>
           <span class="price-unit">/ {{ productData.measurementUnit?.shortName || 'шт' }}</span>
-          <span class="pack-badge" *ngIf="productData.packCount">
-            {{ productData.packCount }} шт в упаковке
+          <span class="pack-badge" *ngIf="productData.productBarCode && productData.productBarCode.coefficient">
+            {{ productData.productBarCode.coefficient }} шт в упаковке
           </span>
         </div>
 
         <!-- Калькулятор цен за единицу -->
-        <div class="unit-prices" *ngIf="productData.packCount">
+        <div class="unit-prices" *ngIf="productData.productBarCode && productData.productBarCode.coefficient">
           <div class="unit-price-item">
             <span>За 1 шт:</span>
-            <strong>{{ (productData.viewPrice / productData.packCount) | number:'1.2-2' }} ₽</strong>
+            <strong>{{ (productData.viewPrice / productData.productBarCode.coefficient) | number:'1.2-2' }} ₽</strong>
           </div>
           <div class="unit-price-item" *ngIf="productData.boxCount">
             <span>Коробка ({{ productData.boxCount }} уп):</span>
@@ -145,7 +145,7 @@
       <!-- Блок действий (главный) -->
       <div class="action-card">
 
-        <app-product-packing-selector [selectedBarcodeId]="productData.productBarCode.id" [productPackingInput]="productData.productBarCodes" (selectedBarcode)="selectBarcode($event)"></app-product-packing-selector>
+        <app-product-packing-selector [selectedBarcodeId]="productData.productBarCode.id" [baseMeasurementUnit]="productData.baseMeasurementUnit" [productPackingInput]="productData.productBarCodes" (selectedBarcode)="selectBarcode($event)"></app-product-packing-selector>
 
         <!-- Общая сумма (если выбрано больше 1) -->
         <div class="total-sum" *ngIf="selectedQuantity > 1">
@@ -295,7 +295,7 @@
               <div class="basket-detail-card" *ngFor="let item of getProductBaskets()">
                 <div class="basket-detail-header">
                   <div class="basket-detail-name">
-                    <span class="basket-icon">🛒</span>
+                    <!-- <span class="basket-icon">🛒</span> -->
                     <span>{{ getBasketName(item.userBasketId) }}</span>
                     <span class="active-badge" *ngIf="item.userBasketId === activeBasketId">Активная</span>
                   </div>
