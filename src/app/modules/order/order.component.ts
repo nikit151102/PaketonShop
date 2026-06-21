@@ -239,7 +239,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderFormData.addressId = data.addressId;
     this.orderFormData.productPlaceId = data.id;
     console.log('Данные доставки:', data);
-
+    this.createOrderWithCashPayment(false);
   }
 
   /**
@@ -258,7 +258,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // 🔍 ПРОВЕРКА ЗАПОЛНЕНИЯ ОБЯЗАТЕЛЬНЫХ ПОЛЕЙ
+    // ПРОВЕРКА ЗАПОЛНЕНИЯ ОБЯЗАТЕЛЬНЫХ ПОЛЕЙ
     const requiredFields = [
       { field: 'email', name: 'Email', value: this.orderFormData.email },
       { field: 'phone', name: 'Телефон', value: this.orderFormData.phone },
@@ -410,7 +410,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   /**
    * Создание заказа с оплатой при получении
    */
-  private createOrderWithCashPayment(): void {
+  private createOrderWithCashPayment(isSubmit: boolean = true): void {
     this.isProcessing = true;
     this.isSaving = true;
     this.savingProgress = 0;
@@ -442,6 +442,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
+      isSubmit: isSubmit
     };
 
     Object.keys(orderRequest).forEach(key => {
@@ -455,17 +456,21 @@ export class OrderComponent implements OnInit, OnDestroy {
         .pipe(
           takeUntil(this.destroy$),
           finalize(() => {
-            clearInterval(progressInterval);
-            this.isSaving = false;
-            this.isProcessing = false;
+            if (isSubmit == true) {
+              clearInterval(progressInterval);
+              this.isSaving = false;
+              this.isProcessing = false;
+            }
           })
         )
         .subscribe({
           next: (response: any) => {
             this.createdOrderId = response.data.id;
-            this.isOrderCreated = true;
-            this.showsuccessNotification = true;
-
+            if (isSubmit == true) {
+              this.isOrderCreated = true;
+              this.showsuccessNotification = true;
+            }
+            this.loadBasketProducts();
             // setTimeout(() => {
             //   this.router.navigate(['/order-success', this.createdOrderId]);
             // }, 2000);

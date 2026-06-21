@@ -38,6 +38,7 @@ interface NewAddressData {
   styleUrls: ['./city-delivery.component.scss']
 })
 export class CityDeliveryComponent implements OnInit {
+  @Input() isDeliveryCancelled: boolean | null = false;
   @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 
@@ -73,6 +74,14 @@ export class CityDeliveryComponent implements OnInit {
   };
 
   constructor(private addressService: AddressesService) { }
+
+  ngOnChanges(changes: any): void {
+    if (changes.isDeliveryCancelled) {
+      setTimeout(() => {
+
+      }, 100);
+    }
+  }
 
   ngOnInit(): void {
     this.loadAddresses();

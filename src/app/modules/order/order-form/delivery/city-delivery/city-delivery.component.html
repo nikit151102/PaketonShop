@@ -6,7 +6,7 @@
         <path
           d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
       </svg>
-      <h3>Яндекс.Доставка</h3>
+      <h3>Доставка по городу</h3>
     </div>
     <p class="delivery-header__subtitle">Курьером по вашему адресу</p>
   </div>
@@ -229,8 +229,16 @@
       </div>
     </div>
 
+    <div class="delivery-states" *ngIf="isDeliveryCancelled">
+      <div class="delivery-states__content" *ngIf="error && !loading">
+        <div class="state-icon">⚠️</div>
+        <p>Доставка в вашем городе невозможна</p>
+      </div>
+    </div>
+
     <!-- Delivery Cost Section -->
-    <div class="cost-card" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+    <div class="cost-card"
+      *ngIf="hasAddress() && !showAddressList && !showNewAddressForm && isDeliveryCancelled != true">
       <div class="cost-card__header">
         <div class="cost-card__icon">
           <svg viewBox="0 0 24 24" fill="currentColor">

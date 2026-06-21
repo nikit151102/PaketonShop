@@ -212,6 +212,7 @@
           </app-transport-delivery>
 
           <app-city-delivery *ngIf="formData.delivery === 'city'"
+          [isDeliveryCancelled]="orderData.deliveryCancelled"
             (addressSelected)="onDeliveryDataChange('city', $event)">
           </app-city-delivery>
         </div>
