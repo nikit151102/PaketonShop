@@ -287,6 +287,8 @@ export class OrderComponent implements OnInit, OnDestroy {
       this.showErrorNotification('Введите корректный номер телефона');
       return;
     }
+    this.isProcessing = false;
+    this.isSaving = false;
 
     if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       this.createOrderAndInitiatePayment();
@@ -471,7 +473,7 @@ export class OrderComponent implements OnInit, OnDestroy {
               this.isSaving = false;
               this.isProcessing = false;
             }
-            
+
             // setTimeout(() => {
             //   this.router.navigate(['/order-success', this.createdOrderId]);
             // }, 2000);
