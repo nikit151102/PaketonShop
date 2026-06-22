@@ -187,6 +187,7 @@ export class OrderFormComponent implements OnInit {
         email: user.email,
         phoneNumber: user.phoneNumber
       };
+      console.log('user' , user)
 
       if(user.firstName == null || user.lastName == null || user.email == null ||  user.phoneNumber == null) {
         this.isEditing = true;
