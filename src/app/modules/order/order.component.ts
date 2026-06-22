@@ -456,7 +456,7 @@ export class OrderComponent implements OnInit, OnDestroy {
         .pipe(
           takeUntil(this.destroy$),
           finalize(() => {
-            if (isSubmit == true) {
+            if (isSubmit == false) {
               clearInterval(progressInterval);
               this.isSaving = false;
               this.isProcessing = false;
@@ -466,11 +466,11 @@ export class OrderComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response: any) => {
             this.createdOrderId = response.data.id;
-            if (isSubmit == true) {
+            if (isSubmit == false) {
               this.isOrderCreated = true;
               this.showsuccessNotification = true;
             }
-            this.loadBasketProducts();
+            
             // setTimeout(() => {
             //   this.router.navigate(['/order-success', this.createdOrderId]);
             // }, 2000);
