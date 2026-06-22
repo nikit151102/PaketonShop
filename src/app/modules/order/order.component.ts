@@ -467,8 +467,8 @@ export class OrderComponent implements OnInit, OnDestroy {
           next: (response: any) => {
             this.createdOrderId = response.data.id;
             if (isSubmit == false) {
-              this.isOrderCreated = true;
-              this.showsuccessNotification = true;
+              this.isSaving = false;
+              this.isProcessing = false;
             }
             
             // setTimeout(() => {
