@@ -61,7 +61,8 @@
           "options": {
             "host": "0.0.0.0",
             "allowedHosts": ["xn--80ajjteep7bg.xn--80akonecy.xn--p1ai",
-          "xn--80ajjteep7bg.xn--80akonecy.xn--p1ai"]
+          "xn--80ajjteep7bg.xn--80akonecy.xn--p1ai",
+        "xn--80akonecy.xn--p1ai"]
           },
           "configurations": {
             "production": {
