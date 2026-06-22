@@ -472,6 +472,10 @@ export class OrderComponent implements OnInit, OnDestroy {
             if (isSubmit == false) {
               this.isSaving = false;
               this.isProcessing = false;
+            } else {
+              this.isSaving = true;
+              this.isProcessing = true;
+              this.showsuccessNotification = true;
             }
 
             // setTimeout(() => {
