@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
@@ -58,7 +58,8 @@ export class ProductCardComponent implements OnInit, OnChanges {
     private basketsService: BasketsService,
     private authService: AuthService,
     private productFavoriteService: ProductFavoriteService,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -71,7 +72,9 @@ export class ProductCardComponent implements OnInit, OnChanges {
       const currentValue = changes['productData'].currentValue;
       const previousValue = changes['productData'].previousValue;
 
-      if (JSON.stringify(currentValue) !== JSON.stringify(previousValue)) {
+      if (currentValue && previousValue && 
+        currentValue.productBarCode && previousValue.productBarCode &&
+        currentValue.productBarCode.id !== previousValue.productBarCode.id) {
         this.refreshProductData();
       }
       this.checkProductInBaskets();
@@ -82,7 +85,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
-    console.log('baskets', baskets)
     if (!baskets || !Array.isArray(baskets)) {
       return null;
     }
@@ -179,17 +181,19 @@ export class ProductCardComponent implements OnInit, OnChanges {
 
   // Проверяем наличие товара в корзинах и обновляем состояние
   private checkProductInBaskets(): void {
-    if (this.hasProductInBaskets()) {
+    if (this.productData && this.productData.countInActiveBasket && this.productData.countInActiveBasket > 0) {
       this.quantitySelectorVisible = true;
       this.selectedQuantity = this.getTotalProductCount();
+    } else {
+      this.selectedQuantity = 0;
+      this.quantitySelectorVisible = false;
     }
+    this.cdr.detectChanges();
   }
 
 
   //Выбор фасовки товара
-  selectBarcode(idBarcode: string){
-    console.log('idBarcode',idBarcode)
-  }
+  selectBarcode(idBarcode: string) { }
 
   // Обновляем количество товара в активной корзине
   updateActiveBasketQty(delta: number): void {

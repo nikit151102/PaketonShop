@@ -11,7 +11,21 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProductPackingSelectorComponent {
 
-  @Input() productPackingInput: productBarCodes[] | null = null;
+  sortedProductPacking: productBarCodes[] = [];
+
+  @Input()
+  set productPackingInput(value: productBarCodes[] | null) {
+    if (!value) {
+      this.sortedProductPacking = [];
+      return;
+    }
+    this.sortedProductPacking = [...value].sort((a, b) => {
+      const coefA = a.coefficient ?? 0;
+      const coefB = b.coefficient ?? 0;
+      return coefA - coefB;
+    });
+  }
+
   @Input() baseMeasurementUnit: any | null = null;
   @Input() selectedBarcodeId: string | null = null;
   @Output() selectedBarcode = new EventEmitter<string>();
@@ -36,5 +50,7 @@ export class ProductPackingSelectorComponent {
     this.selectedBarcode.emit(idBarcode);
   }
 }
+
+
 
 
