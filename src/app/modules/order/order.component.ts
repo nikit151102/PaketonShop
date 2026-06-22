@@ -306,7 +306,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   /**
    * Создание заказа и инициализация онлайн оплаты
    */
-  private createOrderAndInitiatePayment(): void {
+  private createOrderAndInitiatePayment(isSubmit: boolean = true): void {
     // Проверяем, не идет ли уже обработка
     if (this.isProcessing || this.isSaving) {
       console.log('Уже обрабатывается заказ, пропускаем');
@@ -350,6 +350,7 @@ export class OrderComponent implements OnInit, OnDestroy {
             : this.paymentMethod === 'invoice' ? 4
               : this.paymentMethod === 'balance' ? 3
                 : null,
+      isSubmit: isSubmit
     };
 
     // Удаляем undefined и null значения
