@@ -291,7 +291,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       this.createOrderAndInitiatePayment();
     } else {
-      this.createOrderWithCashPayment();
+      this.createOrderWithCashPayment(true);
     }
   }
 
