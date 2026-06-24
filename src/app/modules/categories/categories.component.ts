@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FiltersComponent } from '../../core/components/filters/filters.component';
 import { FormsModule } from '@angular/forms';
 import { TitleComponent } from '../../core/components/title/title.component';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-categories',
@@ -27,6 +28,7 @@ import { TitleComponent } from '../../core/components/title/title.component';
 export class CategoriesComponent implements OnInit {
   categoryId!: string;
   categoryData: any;
+  searchQuery: string = '';
   subCategories: any[] = [];
   filters: any[] = [];
 
@@ -48,10 +50,28 @@ export class CategoriesComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.categoryId = params.get('id')!;
-      this.resetState();
-      this.loadCategoryData();
+    combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap
+    ]).subscribe(([params, queryParams]) => {
+      const newCategoryId = params.get('id')!;
+      const newSearchQuery = queryParams.get('searchQuery') || '';
+
+      // Проверяем, изменились ли параметры
+      const categoryChanged = this.categoryId !== newCategoryId;
+      const searchChanged = this.searchQuery !== newSearchQuery;
+
+      this.categoryId = newCategoryId;
+      this.searchQuery = newSearchQuery;
+
+      if (categoryChanged || searchChanged) {
+        this.resetState();
+
+        if (this.categoryId !== 'search') {
+          this.loadCategoryData();
+        }
+      }
+
       this.loadProducts();
     });
   }
@@ -106,7 +126,13 @@ export class CategoriesComponent implements OnInit {
       ]
       : [];
 
-    const allFilters = [...baseFilters, ...this.appliedFilters];
+    const allFilters = (this.categoryId === 'search') ?
+      [...this.appliedFilters, {
+        field: "searchQuery",
+        values: [this.searchQuery],
+        type: 0
+      }] :
+      [...baseFilters, ...this.appliedFilters]
 
     this.productsService
       .getAllSearch(allFilters, null, this.currentPage, this.pageSize)

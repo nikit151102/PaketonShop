@@ -161,7 +161,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         console.log('autocompleteResults', this.autocompleteResults)
         this.hasMoreAutocomplete = response.data.length === this.pageSize;
 
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
 
         setTimeout(() => this.setupScrollListener(), 100);
       } else if (this.searchQuery?.includes(' ') && this.searchQuery.trim().length < 2) {
@@ -473,6 +473,13 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     }, 200);
+  }
+
+  navigateToSearch() {
+    if(this.searchQuery && this.searchQuery != null)
+    this.router.navigate(['/category/search'], {
+      queryParams: { searchQuery: this.searchQuery }
+    });
   }
 
   private isElementFocused(element: HTMLElement): boolean {
