@@ -72,7 +72,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
       const currentValue = changes['productData'].currentValue;
       const previousValue = changes['productData'].previousValue;
 
-      if (currentValue && previousValue && 
+      if (currentValue && previousValue &&
         currentValue.productBarCode && previousValue.productBarCode &&
         currentValue.productBarCode.id !== previousValue.productBarCode.id) {
         this.refreshProductData();
@@ -198,6 +198,15 @@ export class ProductCardComponent implements OnInit, OnChanges {
   // Обновляем количество товара в активной корзине
   updateActiveBasketQty(delta: number): void {
     const activeBasketId = this.activeBasketId;
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
+
+    if (!authToken) {
+      this.authService.changeVisible(true);
+      return;
+    }
+
     if (!activeBasketId) return;
     const currentCount = this.getActiveBasketCount();
     const newCount = currentCount + delta;
