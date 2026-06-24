@@ -130,7 +130,8 @@ export class OrderComponent implements OnInit, OnDestroy {
               qty: p.count || 1,
               imageUrl: p.product.productImageLinks?.[0] || null,
               remains: p.product.remains,
-              positionId: p.id
+              positionId: p.id,
+              totalCost: p.totalCost
             }));
 
             this.calculateDiscount();

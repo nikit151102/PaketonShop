@@ -43,11 +43,11 @@
                   <div class="cart-item__name">{{ product.name }}</div>
                   <div class="cart-item__meta">
                     <span class="cart-item__qty">{{ product.qty }} шт.</span>
-                    <span class="cart-item__price">{{ product.priceSale | currency:'RUB':'symbol':'1.0-0' }}</span>
+                    <span class="cart-item__price">{{ product.price | currency:'RUB':'symbol':'1.2-2' }}</span>
                   </div>
                 </div>
                 <div class="cart-item__total">
-                  {{ (product.priceSale * product.qty) | currency:'RUB':'symbol':'1.0-0' }}
+                  {{ (product.totalCost) | currency:'RUB':'symbol':'1.2-2' }}
                 </div>
               </div>
             </div>
@@ -67,12 +67,12 @@
             <div class="summary-card__body">
               <div class="summary-row">
                 <span class="summary-row__label">Товары:</span>
-                <span class="summary-row__value">{{ getProductsTotal() | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="summary-row__value">{{ getProductsTotal() | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="summary-row">
                 <span class="summary-row__label">Доставка:</span>
-                <span class="summary-row__value">{{ getDeliveryCost() | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="summary-row__value">{{ getDeliveryCost() | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="summary-row summary-row--discount" *ngIf="discount > 0">
@@ -83,7 +83,7 @@
                   </svg>
                   Скидка:
                 </span>
-                <span class="summary-row__value">-{{ discount | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="summary-row__value">-{{ discount | currency:'RUB':'symbol':'1.2-2' }}</span>
               </div>
 
               <div class="summary-divider"></div>
@@ -91,7 +91,7 @@
               <div class="summary-row summary-row--total">
                 <span class="summary-row__label">Итого к оплате:</span>
                 <span class="summary-row__value summary-row__value--total">
-                  {{ getOrderTotal() | currency:'RUB':'symbol':'1.0-0' }}
+                  {{ getOrderTotal() | currency:'RUB':'symbol':'1.2-2' }}
                 </span>
               </div>
             </div>
