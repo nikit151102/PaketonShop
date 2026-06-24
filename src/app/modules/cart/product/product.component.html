@@ -88,7 +88,7 @@
 
       <!-- Название товара -->
       <h3 class="item-title" [title]="product.product.fullName">
-        {{ product.product.fullName || 'Без названия' }}
+        {{ product.product.fullName || 'Без названия' }}  ( {{product.productBarCode.coefficient}} шт)
       </h3>
 
       <!-- Краткое описание -->
@@ -133,7 +133,7 @@
                 <input type="number" [value]="product.count || 1" (change)="onQuantityInput($event)"
                   (keyup.enter)="validateQuantityInput($event)" (blur)="validateQuantityInput($event)" min="1"
                   class="qty-input" [class.error]="quantityError" />
-                <span class="qty-unit">шт</span>
+                <span class="qty-unit"></span>
               </div>
 
               <button class="qty-btn" (click)="increaseQty()" [class.pulse]="quantityChanging === 'increase'"
@@ -155,7 +155,7 @@
           <!-- Цена за единицу (десктоп) -->
           <div class="unit-price-desktop" *ngIf="!isMobile">
             <span class="price-per-unit">{{ discountPrice | number:'1.0-2':'ru' }} ₽/шт</span>
-            <span class="unit-old" *ngIf="hasDiscount">{{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽</span>
+            <span class="unit-old" *ngIf="hasDiscount">{{ product.totalCost | number:'1.0-2':'ru' }} ₽</span>
           </div>
         </div>
 
@@ -165,7 +165,7 @@
           <div class="price-mobile" *ngIf="isMobile">
             <div class="price-block" *ngIf="hasDiscount">
               <span class="price-current">{{ discountPrice | number:'1.0-2':'ru' }} ₽</span>
-              <span class="price-old">{{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽</span>
+              <!-- <span class="price-old">{{ product.product.retailPrice | number:'1.0-2':'ru' }} ₽</span> -->
             </div>
             <div class="price-block" *ngIf="!hasDiscount">
               <span class="price-current">{{ discountPrice | number:'1.0-2':'ru' }} ₽</span>
@@ -175,7 +175,7 @@
           <!-- Итоговая стоимость -->
           <div class="item-total" [class.has-discount]="hasDiscount">
             <span class="total-label">итого</span>
-            <span class="total-value">{{ totalPrice | number:'1.0-2':'ru' }} ₽</span>
+            <span class="total-value">{{ product.totalCost | number:'1.0-2':'ru' }} ₽</span>
             <span class="total-old" *ngIf="hasDiscount">
               {{ (product.product.retailPrice * (product.count || 1)) | number:'1.0-2':'ru' }} ₽
             </span>

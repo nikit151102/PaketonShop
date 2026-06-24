@@ -47,7 +47,8 @@ export interface BasketProduct {
   id: string;
   count: number;
   product: Product;
-  productBarCode?: any
+  productBarCode?: any;
+  totalCost?: any;
 }
 
 @Component({
