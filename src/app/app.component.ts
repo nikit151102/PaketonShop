@@ -11,6 +11,9 @@ import { MobileBottomNavComponent } from './core/components/mobile-bottom-nav/mo
 import { BasketsService } from './core/api/baskets.service';
 import { BasketsStateService } from './core/services/baskets-state.service';
 import { UserService } from './core/services/user.service';
+import { LocationService } from './core/components/location/location.service';
+import { StorageUtils } from '../utils/storage.utils';
+import { localStorageEnvironment } from '../environment';
 
 @Component({
   selector: 'app-root',
@@ -41,14 +44,26 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private basketsStateService: BasketsStateService,
     private userService: UserService,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
+    public locationService: LocationService,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 
   ngOnInit(): void {
+
+    const currentCity = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.currentCity.key
+    );
+
+    console.log('currentCity', currentCity)
+
+    if (currentCity == null) {
+      this.locationService.showCityModal$.next(true)
+    }
+
     if (!this.isBrowser) return;
-    
+
     this.initMobileDetection();
     this.initRouterEvents();
     this.initImageProtection();
@@ -96,7 +111,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'c': () => (event.target as HTMLElement)?.tagName === 'IMG' && this.showToast('Копирование изображений запрещено', 'warning'),
         'u': () => this.showToast('Инструменты разработчика временно ограничены', 'info')
       };
-      
+
       if (combos[event.key]) {
         if (event.key !== 'c' || (event.target as HTMLElement)?.tagName === 'IMG') {
           event.preventDefault();
@@ -141,20 +156,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private isOnlyPageParamChanged(prev: string, curr: string): boolean {
     if (!prev) return false;
-    
+
     const [prevPath, prevSearch] = prev.split('?');
     const [currPath, currSearch] = curr.split('?');
     if (prevPath !== currPath) return false;
-    
+
     const prevParams = new URLSearchParams(prevSearch);
     const currParams = new URLSearchParams(currSearch);
-    
+
     for (const [key, value] of prevParams) {
       if (key === 'page') {
         if (currParams.get(key) !== value) continue;
       } else if (currParams.get(key) !== value) return false;
     }
-    
+
     return true;
   }
 
@@ -163,7 +178,7 @@ export class AppComponent implements OnInit, OnDestroy {
       (entries) => entries.forEach(e => e.isIntersecting && this.protectImage(e.target as HTMLImageElement)),
       { threshold: 0.1 }
     );
-    
+
     document.querySelectorAll('img').forEach(img => this.protectImage(img));
   }
 
@@ -175,11 +190,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private protectImage(img: HTMLImageElement): void {
     if (this.protectedImages.has(img)) return;
-    
+
     img.classList.add('protected-image');
     img.setAttribute('draggable', 'false');
     img.setAttribute('crossorigin', 'anonymous');
-    
+
     if (!img.parentElement?.classList.contains('image-protector')) {
       const protector = document.createElement('div');
       protector.className = 'image-protector';
@@ -187,11 +202,11 @@ export class AppComponent implements OnInit, OnDestroy {
         position: 'relative',
         display: 'inline-block'
       });
-      
+
       img.parentNode?.insertBefore(protector, img);
       protector.appendChild(img);
     }
-    
+
     this.protectedImages.add(img);
     this.imageObserver?.observe(img);
   }
@@ -214,7 +229,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const toast = document.createElement('div');
     const colors = { info: '#2196f3', warning: '#ff9800', error: '#f44336' };
-    
+
     toast.className = 'toast-message';
     Object.assign(toast.style, {
       position: 'fixed',
@@ -230,7 +245,7 @@ export class AppComponent implements OnInit, OnDestroy {
       boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
       animation: 'fadeInOut 2s ease-in-out'
     });
-    
+
     toast.textContent = message;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);

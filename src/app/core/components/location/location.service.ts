@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { StorageUtils } from '../../../../utils/storage.utils';
+import { environment } from '../../../../environment';
 
 export interface City {
   coords: { lat: string; lon: string };
@@ -484,6 +485,22 @@ export class LocationService {
     }
     return false;
   }
+
+
+    /**
+     * Сохранение города на сервер
+     */
+    saveUserCity(city: string): Observable<any> {
+  
+      return this.http.post(
+        `${environment.production}/auth/UpdateUserCity`,
+        {
+          city: city
+        }
+      );
+    }
+
+  
 
   // // Получение города по координатам
   // private async getCityFromCoords(lat: number, lon: number) {

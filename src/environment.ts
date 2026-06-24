@@ -19,6 +19,10 @@ export const localStorageEnvironment = {
     key: 'pkt_user',
     ttl: 14 * 60 * 60,
   },
+  currentCity: {
+    key: 'pktn_userCity',
+    ttl: 14 * 60 * 60,
+  },
 };
 
 export const sessionStorageEnvironment = {

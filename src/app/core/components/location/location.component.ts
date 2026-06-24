@@ -357,10 +357,14 @@ export class LocationComponent implements OnInit {
     this.locationService.setCity(city);
     this.userDataService.setCity(city.name);
     this.showCityModal$.next(false);
+    
     this.closeLocationModal();
 
     const hasStores = await this.checkStoresInCity(city);
 
+    this.locationService.saveUserCity(city.name).subscribe((value: any) =>{
+      
+    })
     if (!hasStores) {
       setTimeout(() => this.showNoStoresModal$.next(true), 300);
     } else {
