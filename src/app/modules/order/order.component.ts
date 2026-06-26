@@ -51,7 +51,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   orderFormData: any = null;
 
   // Способ оплаты
-  paymentMethod: 'online' | 'cash' | 'card' | 'invoice' | 'balance' = 'online';
+  paymentMethod: 'online' | 'cash' | 'card' | 'invoice' | 'balance' = 'card';
 
   // Скидки
   discountRules = [
