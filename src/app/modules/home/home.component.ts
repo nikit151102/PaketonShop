@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { CarouselBannerComponent } from './components/carousel-banner/carousel-banner.component';
 import { CategorySectionComponent } from '../../core/components/category-section/category-section.component';
 import { CategoryService } from '../../core/services/category.service';
@@ -10,6 +10,7 @@ import { BusinessBlockComponent } from './components/business-block/business-blo
 import { CompareCommonBtnComponent } from '../../core/components/compare-common-btn/compare-common-btn.component';
 import { GroupsSectionComponent } from './components/groups-section/groups-section.component';
 import { TitleComponent } from '../../core/components/title/title.component';
+import { ToastService } from '../../core/components/toast/toast.service';
 
 @Component({
   selector: 'app-home',
@@ -37,6 +38,8 @@ export class HomeComponent implements OnInit {
   totalItems: number = 0;
   selectedCategory: string = '';
 
+  private readonly toast = inject(ToastService);
+
   constructor(
     private categoryService: CategoryService,
     private productsService: ProductsService,
@@ -62,6 +65,10 @@ export class HomeComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error fetching categories:', err);
+          this.toast.error(
+            err?.error?.Message ?? 'Не удалось загрузить категории',
+            'Ошибка загрузки'
+          );
         },
       });
     }
@@ -91,8 +98,13 @@ export class HomeComponent implements OnInit {
           this.currentPage++;
         },
         error: (err) => {
-          this.error = 'Произошла ошибка при загрузке продуктов';
+          const message = err?.error?.message ?? 'Произошла ошибка при загрузке продуктов';
+          this.error = message;
           this.loading = false;
+
+          if (this.currentPage === 1) {
+            this.toast.error(message, 'Ошибка загрузки');
+          }
         },
       });
   }

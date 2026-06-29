@@ -1,17 +1,4 @@
 <div class="addresses-container">
-  <div class="floating-notifications">
-    <div class="notification success" *ngIf="success">
-      <div class="notification-icon">✓</div>
-      <div class="notification-content">{{ success }}</div>
-      <button class="notification-close" (click)="success = null">×</button>
-    </div>
-
-    <div class="notification error" *ngIf="error">
-      <div class="notification-icon">!</div>
-      <div class="notification-content">{{ error }}</div>
-      <button class="notification-close" (click)="error = null">×</button>
-    </div>
-  </div>
 
   <app-title [title]="'Мои адреса'"
     [description]="'Куда будем доставлять? Сохраните любимые адреса и пункты выдачи'"></app-title>

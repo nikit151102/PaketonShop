@@ -7,6 +7,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { UserApiService } from '../../../../core/api/user.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PartnerCardsComponent } from '../../components/partner-cards/partner-cards.component';
+import { ToastService } from '../../../../core/components/toast/toast.service';
 
 @Component({
   selector: 'app-user-data',
@@ -72,6 +73,8 @@ export class UserDataComponent implements OnInit {
   private fb = inject(FormBuilder);
   private userService = inject(UserService);
   private userApiService = inject(UserApiService);
+
+  private readonly toast = inject(ToastService);
 
   ngOnInit(): void {
     this.initializeForm();
@@ -496,7 +499,6 @@ export class UserDataComponent implements OnInit {
     return cleanedData;
   }
 
-  // Остальные методы остаются без изменений...
   openAvatarModal(): void {
     this.showAvatarModal = true;
     document.body.style.overflow = 'hidden';
@@ -521,7 +523,7 @@ export class UserDataComponent implements OnInit {
     this.userForm.patchValue({ avatar: avatarUrl });
     this.userForm.markAsDirty();
     this.saveProfileData();
-    this.showNotification('Аватар выбран!', 'success');
+    this.toast.success('Аватар выбран!');
   }
 
   selectDefaultAvatar(avatarUrl: string): void {
@@ -538,14 +540,14 @@ export class UserDataComponent implements OnInit {
         this.userForm.patchValue({ avatar: this.selectedAvatar });
         this.userForm.markAsDirty();
         this.closeAvatarModal();
-        this.showNotification('Аватар успешно применен!', 'success');
+        this.toast.success('Аватар успешно применен!');
       }
     }
   }
 
   private uploadCustomAvatar(): void {
     if (!this.customAvatarFile) {
-      this.showNotification('Ошибка: файл не найден', 'error');
+      this.toast.error('Ошибка: файл не найден', 'Ошибка');
       return;
     }
 
@@ -568,14 +570,14 @@ export class UserDataComponent implements OnInit {
           this.userService.setUser(res.data, 'session', true);
 
           this.closeAvatarModal();
-          this.showNotification('Аватар успешно загружен!', 'success');
+          this.toast.success('Аватар успешно загружен!', 'Ошибка');
         }
 
         this.customAvatarFile = null;
       },
       error: (err: any) => {
         this.avatarLoading = false;
-        this.showNotification(err.error?.message || 'Ошибка при загрузке аватара', 'error');
+        this.toast.error(err.error?.Message || 'Ошибка при загрузке аватара', 'Ошибка');
         this.customAvatarFile = null;
       }
     });
@@ -586,12 +588,12 @@ export class UserDataComponent implements OnInit {
     if (!file) return;
 
     if (!file.type.match('image.*')) {
-      this.showNotification('Пожалуйста, выберите изображение', 'error');
+      this.toast.error('Пожалуйста, выберите изображение', 'Ошибка');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.showNotification('Изображение должно быть меньше 5MB', 'error');
+      this.toast.error('Изображение должно быть меньше 5MB', 'Ошибка');
       return;
     }
 
@@ -607,7 +609,7 @@ export class UserDataComponent implements OnInit {
     reader.onerror = () => {
       this.customAvatarFile = null;
       this.isCustomAvatar = false;
-      this.showNotification('Ошибка при загрузке изображения', 'error');
+      this.toast.error('Ошибка при загрузке изображения', 'Ошибка');
     };
 
     reader.readAsDataURL(file);
@@ -713,7 +715,7 @@ export class UserDataComponent implements OnInit {
 
     formData.avatarImageLink = formData.avatar;
     delete formData.avatar;
-    
+
     this.userApiService.updateData(formData).subscribe({
       next: (res: any) => {
         this.isSubmitting = false;
@@ -765,17 +767,11 @@ export class UserDataComponent implements OnInit {
     }
   }
 
-  showNotification(message: string, type: 'success' | 'error'): void {
+  sshowNotification(message: string, type: 'success' | 'error'): void {
     if (type === 'success') {
-      this.successMessage = message;
-      setTimeout(() => {
-        this.successMessage = '';
-      }, 5000);
+      this.toast.success(message);
     } else {
-      this.errorMessage = message;
-      setTimeout(() => {
-        this.errorMessage = '';
-      }, 5000);
+      this.toast.error(message, 'Ошибка');
     }
   }
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import {
   AbstractControl,
@@ -16,11 +16,12 @@ import { localStorageEnvironment, memoryCacheEnvironment } from '../../../enviro
 import { UserService } from '../../core/services/user.service';
 import { Router } from '@angular/router';
 import { UserApiService } from '../../core/api/user.service';
-import { debounceTime, distinctUntilChanged, take } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, take } from 'rxjs/operators';
 import { VkIdWidgetComponent } from '../../core/components/vk-id-button/vk-id-button.component';
 import { YandexIdButtonComponent } from '../../core/components/yandex-id-button/yandex-id-button.component';
 import { BasketsService } from '../../core/api/baskets.service';
 import { BasketsStateService } from '../../core/services/baskets-state.service';
+import { ToastService } from '../../core/components/toast/toast.service';
 
 @Component({
   selector: 'app-auth',
@@ -34,6 +35,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   authMode: 'login' | 'register' = 'login';
   isRedirecting = computed(() => this.authService.isRedirectingToProfile())
+
 
   // Error messages
   formErrors: any = {};
@@ -52,6 +54,8 @@ export class AuthComponent implements OnInit, OnDestroy {
       mismatch: 'Пароли не совпадают'
     }
   };
+
+  private readonly toast = inject(ToastService);
 
   constructor(
     private authService: AuthService,
@@ -81,7 +85,6 @@ export class AuthComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Subscribe to form value changes for real-time validation
     this.authForm.valueChanges
       .pipe(
         debounceTime(300),
@@ -183,6 +186,10 @@ export class AuthComponent implements OnInit, OnDestroy {
         control?.updateValueAndValidity();
       });
       this.updateFormErrors();
+      this.toast.warning(
+        'Пожалуйста, проверьте правильность заполнения полей',
+        'Форма заполнена некорректно'
+      );
       return;
     }
 
@@ -190,7 +197,12 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     if (this.authMode === 'login') {
       const { email, password } = this.authForm.value;
-      this.authService.login(email, email, password).subscribe({
+      this.authService.login(email, email, password).pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+        }
+        )
+      ).subscribe({
         next: (response: any) => {
           this.handleLoginSuccess(response);
           this.userApiService.getOperativeInfo();
@@ -210,7 +222,11 @@ export class AuthComponent implements OnInit, OnDestroy {
       };
       delete data.confirmPassword;
 
-      this.authService.register(data).subscribe({
+      this.authService.register(data).pipe(
+        finalize(() => {
+          this.isSubmitting = false;
+        })
+      ).subscribe({
         next: (res) => {
           this.handleRegistrationSuccess(res);
           this.userApiService.getOperativeInfo();
@@ -240,7 +256,10 @@ export class AuthComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.basketsStateService.updateBaskets(res.data);
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err),
+        error: (err) => this.toast.error(
+          err?.error?.message ?? 'Не удалось загрузить корзины',
+          'Ошибка загрузки'
+        ),
       });
   }
 
@@ -256,6 +275,11 @@ export class AuthComponent implements OnInit, OnDestroy {
       this.closePopUp();
 
       this.loadBaskets();
+
+      this.toast.success(
+        `Добро пожаловать!`,
+        'Вы успешно вошли'
+      );
 
       if (this.isRedirecting() == true) {
         this.router.navigate(['/profile']);
@@ -278,21 +302,30 @@ export class AuthComponent implements OnInit, OnDestroy {
 
     this.authForm.get('email')?.markAsTouched();
     this.authForm.get('password')?.markAsTouched();
-
     this.authForm.updateValueAndValidity();
+
+    this.toast.success(
+      'Теперь войдите в систему, используя свой email и пароль',
+      'Регистрация прошла успешно'
+    );
   }
 
   private handleError(error: any): void {
-    // Handle API errors
-    if (error.error?.message) {
-      this.formErrors['api'] = error.error.message;
+    let message = 'Произошла ошибка. Попробуйте еще раз';
+
+    if (error.error?.Message) {
+      message = error.error.Message;
     } else if (error.status === 401) {
-      this.formErrors['api'] = 'Неверный email или пароль';
+      message = 'Неверный email или пароль';
     } else if (error.status === 409) {
-      this.formErrors['api'] = 'Пользователь с таким email уже существует';
+      message = 'Пользователь с таким email уже существует';
     } else {
-      this.formErrors['api'] = 'Произошла ошибка. Попробуйте еще раз';
+      message = 'Нет соединения с сервером. Проверьте интернет';
     }
+
+    this.formErrors['api'] = message;
+
+    this.toast.error(message, 'Ошибка');
   }
 
   switchMode(mode: 'login' | 'register'): void {

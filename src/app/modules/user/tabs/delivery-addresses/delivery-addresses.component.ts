@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -13,6 +13,7 @@ import { Address } from '../../../../../models/address.interface';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { EmptyStateComponent } from '../../../../core/components/empty-state/empty-state.component';
 import { TitleComponent } from '../../../../core/components/title/title.component';
+import { ToastService } from '../../../../core/components/toast/toast.service';
 
 declare global {
   interface Window {
@@ -143,6 +144,8 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     }
   }
 
+  private readonly toast = inject(ToastService);
+
   constructor(
     private addressesService: AddressesService,
     private http: HttpClient,
@@ -240,6 +243,8 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           console.error('Ошибка при загрузке адресов:', error);
           this.error = 'Не удалось загрузить адреса. Пожалуйста, попробуйте позже.';
           this.addresses = [];
+
+          this.toast.error('Ошибка при загрузке адресов');
         }
       });
   }
@@ -367,7 +372,7 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
   async loadPickupPoints(): Promise<void> {
     if (!this.searchCity || this.searchCity.length < 2) {
-      this.error = 'Введите название города (минимум 2 символа)';
+      this.toast.warning('Введите название города (минимум 2 символа)');
       return;
     }
 
@@ -383,12 +388,12 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         } else if (this.selectedTransportCompany === 3) {
           await this.loadDellinPoints(this.searchCity);
         } else if (this.selectedTransportCompany === 2) {
-          this.error = 'Для Байкал Сервис выберите точку на карте вручную';
+          this.toast.info('Для Байкал Сервис выберите точку на карте вручную');
         }
 
         this.filteredCities = [];
       } else {
-        this.error = 'Город не найден в базе данных';
+        this.toast.warning('Город не найден в базе данных', 'Поиск');
       }
 
       this.loadingPoints = false;
@@ -396,6 +401,11 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       console.error('Ошибка при загрузке ПВЗ:', error);
       this.error = 'Не удалось загрузить пункты выдачи';
       this.loadingPoints = false;
+
+      this.toast.error(
+        (error as any)?.error?.message ?? 'Не удалось загрузить пункты выдачи',
+        'Ошибка загрузки ПВЗ'
+      );
     }
   }
 
@@ -667,13 +677,15 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
   useSelectedPickupPoint(): void {
     if (!this.selectedPickupPoint) {
-      this.error = 'Выберите пункт выдачи';
+      this.toast.warning('Выберите пункт выдачи на карте или в списке', 'Не выбран ПВЗ');
       return;
     }
 
     this.parseAddressFromPickupPoint();
     this.closeMapModal();
     this.mapViewMode = 'list';
+
+    this.toast.success(`Выбран пункт: ${this.selectedPickupPoint.name}`);
   }
 
   private parseAddressFromPickupPoint(): void {
@@ -769,8 +781,7 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       }
 
     } catch (error) {
-      console.error('Ошибка инициализации карты:', error);
-      this.error = 'Не удалось загрузить карту';
+      this.toast.error('Не удалось загрузить карту', 'Ошибка');
     }
   }
 
@@ -835,6 +846,7 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
   saveAddress(): void {
     if (this.addressForm.invalid) {
       this.markFormAsTouched();
+      this.toast.warning('Проверьте правильность заполнения полей', 'Форма заполнена некорректно');
       return;
     }
 
@@ -891,9 +903,10 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.isModalOpen = false;
           this.loadAddresses();
 
-          setTimeout(() => {
-            this.success = null;
-          }, 3000);
+          const message = this.isEditing
+            ? 'Адрес успешно обновлен'
+            : 'Новый адрес успешно добавлен';
+          this.toast.success(message);
         },
         error: (error) => {
           console.error('Ошибка при сохранении адреса:', error);
@@ -904,6 +917,7 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           if (error.error && error.error.message) {
             this.error += ` Ошибка: ${error.error.message}`;
           }
+          this.toast.error(error.error.message, 'Ошибка сохранения');
         }
       });
   }
@@ -930,14 +944,13 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.isDeleteConfirmOpen = false;
           this.loadAddresses();
 
-          this.success = 'Адрес успешно удален!';
-          setTimeout(() => {
-            this.success = null;
-          }, 3000);
+          this.toast.success('Адрес успешно удален');
+
         },
         error: (error) => {
-          console.error('Ошибка при удалении адреса:', error);
-          this.error = 'Не удалось удалить адрес. Пожалуйста, попробуйте позже.';
+          const message = error?.error?.message ?? 'Не удалось удалить адрес';
+          this.error = message;
+          this.toast.error(message, 'Ошибка удаления');
         }
       });
   }
@@ -952,14 +965,13 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.loadAddresses();
-          this.success = 'Адрес восстановлен из архива!';
-          setTimeout(() => {
-            this.success = null;
-          }, 3000);
+          this.toast.success('Адрес восстановлен из архива');
         },
         error: (error) => {
           console.error('Ошибка при восстановлении адреса:', error);
-          this.error = 'Не удалось восстановить адрес.';
+          const message = error?.error?.message ?? 'Не удалось восстановить адрес';
+          this.error = message;
+          this.toast.error(message, 'Ошибка восстановления');
         }
       });
   }

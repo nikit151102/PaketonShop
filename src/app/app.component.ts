@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, computed } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, Subscription, take } from 'rxjs';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
@@ -250,4 +250,5 @@ export class AppComponent implements OnInit, OnDestroy {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
+
 }

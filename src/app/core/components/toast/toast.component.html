@@ -1,0 +1,32 @@
+<div class="toast" [ngClass]="[toast().type, 'state-' + toast().state]" (mouseenter)="onEnter()"
+    (mouseleave)="onLeave()" (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
+    (pointerup)="onPointerUp()" (pointercancel)="onPointerUp()">
+    <div class="toast-icon" [innerHTML]="icon()"></div>
+
+    <div class="toast-body">
+        @if (toast().title) {
+        <div class="toast-title">{{ toast().title }}</div>
+        }
+        <div class="toast-message">{{ toast().message }}</div>
+        @if (toast().action) {
+        <button class="toast-action" (click)="onActionClick($event)">
+            {{ toast().action!.label }}
+        </button>
+        }
+    </div>
+
+    @if (toast().dismissible) {
+    <button class="toast-close" (click)="close.emit()" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+    </button>
+    }
+
+    @if (toast().showProgress && toast().duration > 0) {
+    <div class="toast-progress">
+        <div class="toast-progress-bar" [style.width.%]="progress()"></div>
+    </div>
+    }
+</div>
