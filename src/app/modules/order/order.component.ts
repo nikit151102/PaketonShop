@@ -306,16 +306,13 @@ export class OrderComponent implements OnInit, OnDestroy {
       middleName: this.orderFormData.middleName,
       email: this.orderFormData.email,
       phoneNumber: this.orderFormData.phone
-    }).subscribe({
-      next: (res: any) => {},
-      error: (err: any) => {}
-    });
-
-    if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
+    }).subscribe((value:any)=>{
+if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       this.createOrderAndInitiatePayment();
     } else {
       this.createOrderWithCashPayment(true);
     }
+    });
   }
 
 
