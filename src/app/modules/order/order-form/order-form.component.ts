@@ -485,7 +485,7 @@ export class OrderFormComponent implements OnInit {
     this.isEditing = false;
     this.isAccordionOpen = false;
     this.onFormChange();
-  }
+  } 
 
   toggleAccordion(): void {
     this.isAccordionOpen = !this.isAccordionOpen;

@@ -13,6 +13,7 @@ import { InvoiceDeliveryComponent, InvoiceDeliveryMethod } from './invoice-deliv
 import { TitleComponent } from '../../core/components/title/title.component';
 import { TopupModalComponent } from '../../core/components/topup-modal/topup-modal.component';
 import { UserService } from '../../core/services/user.service';
+import { UserApiService } from '../../core/api/user.service';
 
 @Component({
   selector: 'app-order',
@@ -42,6 +43,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   isProcessing = false;
   savingProgress = 0;
   currentDate = new Date();
+  currentUserData: any = null;
 
   operativeInfo = computed(() => this.userService.operativeInfo())
 
@@ -83,8 +85,13 @@ export class OrderComponent implements OnInit, OnDestroy {
   ) { }
 
   private userService = inject(UserService);
+  private userApiService = inject(UserApiService);
 
   ngOnInit(): void {
+    this.userService.user$.subscribe((user: any) => {
+      this.currentUserData = user;
+    });
+
     this.updateCurrentTime();
 
     this.route.params
@@ -291,12 +298,28 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.isProcessing = false;
     this.isSaving = false;
 
+
+    this.userApiService.updateData({
+      ...this.currentUserData,
+      firstName: this.orderFormData.firstName,
+      lastName: this.orderFormData.lastName,
+      middleName: this.orderFormData.middleName,
+      email: this.orderFormData.email,
+      phoneNumber: this.orderFormData.phone
+    }).subscribe({
+      next: (res: any) => {},
+      error: (err: any) => {}
+    });
+
     if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       this.createOrderAndInitiatePayment();
     } else {
       this.createOrderWithCashPayment(true);
     }
   }
+
+
+
 
   /**
    * Валидация email адреса
