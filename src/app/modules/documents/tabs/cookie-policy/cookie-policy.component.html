@@ -1,0 +1,363 @@
+<div class="cookie-page">
+  <div class="cookie-hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Политика использования cookies</h1>
+      <p class="hero-subtitle">Информация о файлах cookie и их применении на сайте</p>
+    </div>
+  </div>
+
+  <div class="legal-card">
+    <div class="legal-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Правовая информация</span>
+    </div>
+    
+    <div class="laws-grid">
+      <div class="law-item">
+        <div class="law-number">152-ФЗ</div>
+        <div class="law-name">«О персональных данных» от 27.07.2006</div>
+      </div>
+      <div class="law-item">
+        <div class="law-number">38-ФЗ</div>
+        <div class="law-name">«О рекламе» от 13.03.2006</div>
+      </div>
+      <div class="law-item">
+        <div class="law-number">ст. 24</div>
+        <div class="law-name">Конституции Российской Федерации</div>
+      </div>
+    </div>
+
+    <div class="company-info">
+      <div class="company-name">{{companyInfo.name}}</div>
+      <div class="company-details">
+        <span class="detail-tag">ОГРН {{companyInfo.ogrn}}</span>
+        <span class="detail-tag">ИНН {{companyInfo.inn}}</span>
+        <span class="detail-tag">КПП {{companyInfo.kpp}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="intro-section">
+    <div class="intro-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    </div>
+    <div class="intro-content">
+      <p>
+        Настоящая Политика использования файлов cookie (далее — Политика) описывает, какие файлы cookie 
+        используются на веб-сайте <strong>{{companyInfo.site}}</strong>, для каких целей и как вы можете 
+        управлять их использованием.
+      </p>
+      <p>
+        Продолжая использовать наш сайт, вы соглашаетесь с применением файлов cookie в соответствии 
+        с настоящей Политикой.
+      </p>
+    </div>
+  </div>
+
+  <div class="cookie-grid">
+    <div class="cookie-card" id="what-is">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[0].title}}</h3>
+      <div class="card-body">
+        <p>
+          Файлы cookie — это небольшие текстовые файлы, которые сохраняются на вашем устройстве 
+          (компьютере, планшете, смартфоне) при посещении веб-сайтов.
+        </p>
+        <div class="highlight-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>Cookie не содержат персональных данных и не могут повредить вашему устройству</span>
+        </div>
+        <p class="note-text">Файлы cookie позволяют сайту запоминать ваши действия и предпочтения в течение определенного времени.</p>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="types">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[1].title}}</h3>
+      <div class="card-body">
+        <p>На нашем сайте используются следующие типы файлов cookie:</p>
+        <div class="types-list">
+          <div class="type-item" *ngFor="let type of cookieTypes; let i = index">
+            <div class="type-number">{{i + 1}}</div>
+            <div class="type-content">
+              <strong>{{type.name}}</strong>
+              <p>{{type.description}}</p>
+              <div class="type-meta">
+                <span class="meta-tag">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  {{type.duration}}
+                </span>
+                <span class="meta-tag" [class.required]="type.required">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  {{type.required ? 'Обязательные' : 'Опциональные'}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="purposes">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <circle cx="12" cy="12" r="6"/>
+          <circle cx="12" cy="12" r="2"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[2].title}}</h3>
+      <div class="card-body">
+        <p>Файлы cookie используются для следующих целей:</p>
+        <div class="purposes-list">
+          <div class="purpose-item" *ngFor="let purpose of purposes; let i = index">
+            <div class="purpose-number">{{i + 1}}</div>
+            <div class="purpose-content">
+              <strong>{{purpose.title}}</strong>
+              <p>{{purpose.description}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="third-party">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[3].title}}</h3>
+      <div class="card-body">
+        <p>На сайте могут использоваться сторонние сервисы, которые устанавливают свои cookie:</p>
+        <div class="services-list">
+          <div class="service-item" *ngFor="let service of thirdPartyServices">
+            <div class="service-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <strong>{{service.name}}</strong>
+              <p>{{service.purpose}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="info-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <p>Сторонние сервисы имеют собственные политики конфиденциальности. Рекомендуем ознакомиться с ними.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="management">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[4].title}}</h3>
+      <div class="card-body">
+        <p>Вы можете управлять файлами cookie следующими способами:</p>
+        <div class="management-list">
+          <div class="management-item" *ngFor="let method of managementMethods; let i = index">
+            <div class="method-number">{{i + 1}}</div>
+            <div class="method-content">
+              <strong>{{method.title}}</strong>
+              <p>{{method.description}}</p>
+            </div>
+          </div>
+        </div>
+        <div class="warning-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <p>Отключение некоторых cookie может повлиять на работу сайта и ограничить доступ к отдельным функциям.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="browser-settings">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[5].title}}</h3>
+      <div class="card-body">
+        <p>Настройки cookie можно изменить в вашем браузере:</p>
+        <div class="browsers-list">
+          <div class="browser-item" *ngFor="let browser of browsers">
+            <div class="browser-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <div class="browser-info">
+              <strong>{{browser.name}}</strong>
+              <p>{{browser.instructions}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cookie-card" id="changes">
+      <div class="card-icon-wrapper">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+      <h3 class="card-title">{{cookieSections[6].title}}</h3>
+      <div class="card-body">
+        <p>Мы оставляем за собой право вносить изменения в настоящую Политику использования cookie.</p>
+        <div class="highlight-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>Новая редакция вступает в силу с момента ее размещения на сайте</span>
+        </div>
+        <p class="note-text">Рекомендуем периодически проверять данную страницу на предмет изменений.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="consent-section">
+    <div class="consent-header">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      <h3>Ваше согласие</h3>
+    </div>
+    
+    <div class="consent-content">
+      <p>
+        Продолжая использовать наш сайт, вы подтверждаете свое согласие на использование файлов cookie 
+        в соответствии с настоящей Политикой. Если вы не согласны с условиями использования cookie, 
+        пожалуйста, настройте параметры вашего браузера или воздержитесь от использования сайта.
+      </p>
+      <div class="consent-actions">
+        <button class="consent-btn primary" (click)="acceptCookies()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Принимаю
+        </button>
+        <button class="consent-btn secondary" (click)="declineCookies()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Настроить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-section">
+    <div class="contact-header">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+      </svg>
+      <h3>Обратная связь</h3>
+    </div>
+    
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <strong>Email</strong>
+          <a href="mailto:{{companyInfo.email}}">{{companyInfo.email}}</a>
+        </div>
+      </div>
+      
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <strong>Адрес</strong>
+          <span>{{companyInfo.address}}</span>
+        </div>
+      </div>
+      
+      <div class="contact-item">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="contact-info">
+          <strong>Режим работы</strong>
+          <span>Пн-Пт: 9:00 - 18:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <div class="footer-content">
+     <p>
+        По вопросам использования cookie:
+        <a href="mailto:{{companyInfo.email}}">{{companyInfo.email}}</a>
+      </p>
+    </div>
+  </div>
+</div>

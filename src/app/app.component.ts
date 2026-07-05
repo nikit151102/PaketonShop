@@ -14,6 +14,7 @@ import { UserService } from './core/services/user.service';
 import { LocationService } from './core/components/location/location.service';
 import { StorageUtils } from '../utils/storage.utils';
 import { localStorageEnvironment } from '../environment';
+import { FloatingContactButtonsComponent } from './core/components/floating-contact-buttons/floating-contact-buttons.component';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ import { localStorageEnvironment } from '../environment';
     MobileBottomNavComponent,
     FooterComponent,
     AuthComponent,
-    LocationComponent
+    LocationComponent,
+    FloatingContactButtonsComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

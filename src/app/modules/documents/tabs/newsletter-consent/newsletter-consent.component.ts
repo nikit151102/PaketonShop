@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,9 +9,8 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./newsletter-consent.component.scss']
 })
 export class NewsletterConsentComponent implements OnInit {
-
   currentDate: Date = new Date();
-  
+
   companyInfo = {
     name: 'ООО «Сервисмаркет»',
     ogrn: '1215400016952',
@@ -22,15 +21,13 @@ export class NewsletterConsentComponent implements OnInit {
   };
 
   consentSections = [
-    { id: 'general', title: 'Общие положения', icon: '📋' },
-    { id: 'what', title: 'Что входит в рассылку', icon: '📨' },
-    { id: 'contacts', title: 'Какие данные используются', icon: '📱' },
-    { id: 'channels', title: 'Каналы коммуникации', icon: '📢' },
-    { id: 'withdraw', title: 'Как отозвать согласие', icon: '↩️' },
-    { id: 'duration', title: 'Срок действия', icon: '⏱️' }
+    { id: 'general', title: 'Общие положения' },
+    { id: 'what', title: 'Что входит в рассылку' },
+    { id: 'contacts', title: 'Какие данные используются' },
+    { id: 'channels', title: 'Каналы коммуникации' },
+    { id: 'withdraw', title: 'Как отозвать согласие' },
+    { id: 'duration', title: 'Срок действия' }
   ];
 
-  ngOnInit() {
-    // Инициализация
-  }
+  ngOnInit() { }
 }

@@ -12,20 +12,19 @@ import { FormsModule } from '@angular/forms';
 })
 export class PartnershipAgreementComponent implements OnInit, OnDestroy {
   currentDate: Date = new Date();
-  agreementAccepted: boolean = false;
   showScrollTop: boolean = false;
   activeSection: string | null = null;
 
   sections = [
-    { id: 'terms', title: 'Используемые термины', open: false },
-    { id: 'general', title: 'Общие положения', open: false },
-    { id: 'registration', title: 'Регистрация на Сайте', open: false },
-    { id: 'ordering', title: 'Оформление и сроки выполнения Заказа', open: false },
-    { id: 'delivery', title: 'Доставка и стоимость доставки', open: false },
-    { id: 'payment', title: 'Цена и оплата Товара', open: false },
-    { id: 'warranty', title: 'Гарантии и ответственность', open: false },
-    { id: 'confidentiality', title: 'Конфиденциальность и защита информации', open: false },
-    { id: 'other', title: 'Прочие условия', open: false }
+    { id: 'terms', title: 'Используемые термины' },
+    { id: 'general', title: 'Общие положения' },
+    { id: 'registration', title: 'Регистрация на Сайте' },
+    { id: 'ordering', title: 'Оформление и сроки выполнения Заказа' },
+    { id: 'delivery', title: 'Доставка и стоимость доставки' },
+    { id: 'payment', title: 'Цена и оплата Товара' },
+    { id: 'warranty', title: 'Гарантии и ответственность' },
+    { id: 'confidentiality', title: 'Конфиденциальность и защита информации' },
+    { id: 'other', title: 'Прочие условия' }
   ];
 
   companyInfo = {
@@ -44,13 +43,6 @@ export class PartnershipAgreementComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     window.removeEventListener('scroll', this.onScroll.bind(this));
-  }
-
-  toggleSection(sectionId: string) {
-    const section = this.sections.find(s => s.id === sectionId);
-    if (section) {
-      section.open = !section.open;
-    }
   }
 
   scrollToSection(sectionId: string) {
@@ -84,14 +76,7 @@ export class PartnershipAgreementComponent implements OnInit, OnDestroy {
     window.print();
   }
 
-  acceptAgreement() {
-    this.agreementAccepted = true;
-    // Здесь можно добавить логику сохранения согласия
-    localStorage.setItem('partnership_agreement_accepted', 'true');
-  }
-
   downloadAgreement() {
-    // Создаем текстовую версию соглашения для скачивания
     const element = document.createElement('a');
     const content = this.generateTextVersion();
     const file = new Blob([content], {type: 'text/plain'});

@@ -24,6 +24,7 @@
   <!-- Навигационные кнопки -->
   <button 
     class="carousel__nav carousel__prev" 
+    *ngIf="slides.length > 1"
     (click)="prevSlide()"
     aria-label="Previous slide"
   >
@@ -34,6 +35,7 @@
   
   <button 
     class="carousel__nav carousel__next" 
+    *ngIf="slides.length > 1"
     (click)="nextSlide()"
     aria-label="Next slide"
   >
@@ -65,7 +67,7 @@
   </div>
 
   <!-- Информация о слайдах -->
-  <div class="carousel__info">
+  <div class="carousel__info" *ngIf="slides.length > 1">
     <div class="info__current">
       <span class="info__number">{{ displayIndex + 1 }}</span>
       <span class="info__separator">/</span>

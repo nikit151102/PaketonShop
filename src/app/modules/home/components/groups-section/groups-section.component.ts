@@ -12,7 +12,7 @@ import { NicheProductsService, NewsBannerFilterDto, SortType } from '../../../..
 export class GroupsSectionComponent implements OnInit {
   @Input() showAll = true;
   @Input() maxPerRow = 5;
-  @Input() pageSize = 5; // Количество ниш для загрузки
+  @Input() pageSize = 5;
 
   categories: any[] = [];
   isLoading = false;
@@ -45,15 +45,13 @@ export class GroupsSectionComponent implements OnInit {
     this.nicheProductsService.getNewsBannersByFilter(filterDto).subscribe({
       next: (response) => {
         if (response && response.data) {
-          // Преобразуем данные из API в формат для отображения
           this.categories = response.data.map((item: any) => ({
             id: item.id,
             name: item.name,
             description: item.description,
-            image: item.imageInstanceLinks[0] || this.getDefaultImage(item.name),
+            image: item.imageInstanceLinks?.[0] || this.getDefaultImage(item.name),
             productCount: item.productCount,
             subcategories: item.subCategories || [],
-            // Добавляем случайный класс ширины для разнообразия отображения
             widthClass: this.getRandomWidthClass()
           }));
         }
@@ -67,7 +65,6 @@ export class GroupsSectionComponent implements OnInit {
     });
   }
 
-  // Получаем изображение по умолчанию на основе названия категории
   private getDefaultImage(categoryName: string): string {
     const defaultImages = [
       'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
@@ -76,7 +73,6 @@ export class GroupsSectionComponent implements OnInit {
       'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=400&q=80'
     ];
 
-    // Используем хеш названия для выбора изображения
     const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return defaultImages[hash % defaultImages.length];
   }
@@ -97,7 +93,6 @@ export class GroupsSectionComponent implements OnInit {
   }
 
   onNicheClick(category: any): void {
-    // Переходим на страницу с продуктами выбранной ниши
     this.router.navigate([`/niche/${category.id}`]);
   }
 
