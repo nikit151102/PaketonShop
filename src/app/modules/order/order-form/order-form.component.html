@@ -219,7 +219,7 @@
 
 
         <!-- Блок проверки наличия в выбранном магазине -->
-        <div class="availability-check" *ngIf="formData.delivery === 'pickup' && selectedStoreId && availabilityCheck">
+        <div class="availability-check" *ngIf="formData.delivery === 'pickup' && selectedStoreId && availabilityCheck && false">
 
           <!-- Умный блок наличия -->
           <div class="smart-availability" [class.smart-availability--success]="availabilityCheck.allAvailable"

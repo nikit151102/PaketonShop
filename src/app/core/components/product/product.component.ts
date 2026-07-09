@@ -132,7 +132,8 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.isUserBasket = baskets.length > 0 && this.userService.authUser();
     this.productBasketsCount = this.getProductBaskets().length;
     this.checkProductInBaskets();
-    this.filteredBaskets = [...baskets]; // Создаем новую ссылку для триггера
+    this.filteredBaskets = [...baskets]; 
+    console.log('this.product',this.product)
   }
 
   private get activeBasketId(): string | null {

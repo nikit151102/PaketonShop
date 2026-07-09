@@ -1,73 +1,73 @@
 <section class="news-section">
   <div class="container">
-    <!-- Заголовок и фильтры -->
     <div class="news-header">
-      <h1 class="news-title">Новости и акции</h1>
-      <p class="news-subtitle">Будьте в курсе последних событий и выгодных предложений</p>
-      
-      <!-- Фильтр по типу новостей -->
+      <div class="header-content">
+        <h1 class="news-title">Новости и акции</h1>
+        <p class="news-subtitle">Будьте в курсе последних событий и выгодных предложений</p>
+      </div>
+
       <div class="news-filters">
-        <button 
-          *ngFor="let type of newsTypes" 
-          class="filter-btn"
-          [class.active]="selectedType === type.value"
-          (click)="onTypeChange(type.value)"
-        >
+        <button *ngFor="let type of newsTypes" class="filter-btn" [class.active]="selectedType === type.value"
+          (click)="onTypeChange(type.value)">
           {{ type.label }}
         </button>
       </div>
     </div>
 
-    <!-- Состояние загрузки -->
     <div *ngIf="isLoading" class="loading-state">
       <div class="spinner"></div>
       <p>Загружаем свежие новости...</p>
     </div>
 
-    <!-- Состояние ошибки -->
     <div *ngIf="error" class="error-state">
-      <span class="error-icon">⚠️</span>
+      <svg class="state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
       <p>{{ error }}</p>
       <button class="retry-btn" (click)="loadData()">Попробовать снова</button>
     </div>
 
-    <!-- Сетка новостей -->
     <div *ngIf="!isLoading && !error" class="news-grid">
-      <div *ngFor="let item of filteredNewsItems" class="news-card" [routerLink]="['/news', item.id]">
-        <!-- Изображение с датой -->
+      <div *ngFor="let item of filteredNewsItems; let i = index" class="news-card" [routerLink]="['/news', item.id]"
+        [style.animation-delay]="i * 0.05 + 's'">
         <div class="card-image">
           <img [src]="item.imageUrl" [alt]="item.title" loading="lazy">
+          <div class="image-overlay"></div>
           <div class="card-date">
             <span class="day">{{ item.date | date:'dd' }}</span>
             <span class="month">{{ item.date | date:'MMM' }}</span>
           </div>
+          <span class="card-badge" [class]="'badge-' + item.type" *ngIf="item.type !== undefined">
+            {{ item.type === 0 ? 'Акция' : item.type === 1 ? 'Событие' : 'Новинка' }}
+          </span>
         </div>
 
-        <!-- Контент карточки -->
         <div class="card-content">
-          <!-- Бейдж типа (опционально) -->
-          <span class="card-badge" *ngIf="item.type === 0">Акция</span>
-          <span class="card-badge event" *ngIf="item.type === 1">Событие</span>
-          <span class="card-badge new" *ngIf="item.type === 2">Новинка</span>
-          
           <h3 class="card-title">{{ item.title }}</h3>
           <p class="card-summary">{{ item.summary }}</p>
-          
+
           <div class="card-footer">
-            <a [routerLink]="['/news', item.id]" class="read-more">
+            <span class="read-more">
               <span>Подробнее</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
               </svg>
-            </a>
+            </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Пустое состояние -->
     <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0" class="empty-state">
-      <span class="empty-icon">📭</span>
+      <svg class="state-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.5">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
       <h3>Новостей пока нет</h3>
       <p>Загляните позже, мы обязательно что-нибудь опубликуем</p>
     </div>

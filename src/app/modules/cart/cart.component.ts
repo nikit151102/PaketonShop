@@ -564,6 +564,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
       const originalPrice = product.product?.retailPrice || 0;
       const discountPercent = product.product?.discountPercentage || 0;
+      this.total += product.totalCost
       const finalPrice = discountPercent > 0 ? originalPrice * (1 - discountPercent / 100) : originalPrice;
 
       subtotal += originalPrice * count;
@@ -573,7 +574,6 @@ export class CartComponent implements OnInit, OnDestroy {
     this.totalItems = items;
     this.subtotal = subtotal;
     this.totalDiscount = discount;
-    this.total = subtotal - discount + this.deliveryCost;
   }
 
   // Промокод
