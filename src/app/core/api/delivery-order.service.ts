@@ -66,10 +66,10 @@ export class DeliveryOrderService {
   /**
    * Изменение статуса заказа
    */
-  changeOrderStatus(orderId: string, status: number): Observable<{ message: string; status: number }> {
-    return this.http.patch<{ message: string; status: number }>(
-      `${this.apiUrl}/${orderId}/status`,
-      { status }
+  changeOrderStatus(orderId: string, orderStatus: number): Observable<{ message: string; status: number }> {
+    return this.http.put<{ message: string; status: number }>(
+      `${this.apiUrl}/ChangeStatus/${orderId}`,
+      { orderStatus }
     );
   }
 

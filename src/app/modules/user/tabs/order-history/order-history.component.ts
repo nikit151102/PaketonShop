@@ -69,7 +69,7 @@ interface Order {
   orderCost: number;
   consultation: boolean;
   paymentStatusType: number;
-
+  orderNumber?: string;
   address?: Address;
   deliveryType?: DeliveryType;
   partnerInstance?: PartnerInstance;
@@ -203,6 +203,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         orderCost: item.orderCost,
         consultation: item.consultation,
         paymentStatusType: item.paymentStatusType,
+        orderNumber: item.orderNumber,
 
         address: item.address,
         deliveryType: item.deliveryType,
@@ -260,7 +261,9 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
   cancelOrder(order: Order): void {
     if (confirm(`Вы уверены, что хотите отменить заказ #${this.formatOrderId(order.id)}?`)) {
       console.log('Отменить заказ:', order.id);
-      // Здесь будет логика отмены заказа
+      this.deliveryOrderService.changeOrderStatus(order.id, 11).subscribe((value: any) => {
+        this.loadOrders(true);
+      })
     }
   }
 

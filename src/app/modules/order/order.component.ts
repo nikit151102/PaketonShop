@@ -205,11 +205,12 @@ export class OrderComponent implements OnInit, OnDestroy {
   onFormChanged(data: any) {
     const productPlaceId = this.orderFormData?.productPlaceId;
     this.orderFormData = data;
+
     if (productPlaceId !== undefined && productPlaceId !== null) {
       this.orderFormData.productPlaceId = productPlaceId;
     }
 
-    console.log(' this.orderFormDat', this.orderFormData)
+    console.log(' this.orderFormDat data', data)
   }
 
   /**
@@ -245,7 +246,12 @@ export class OrderComponent implements OnInit, OnDestroy {
     'shopAddress'?: string
   }) {
     this.orderFormData.addressId = data.addressId;
-    this.orderFormData.productPlaceId = data.id;
+    if (data.type == 'pickup' || data.type == "store") {
+      console.log('data.type',data.type)
+      this.orderFormData.productPlaceId = data.id;
+    } else {
+      this.orderFormData.productPlaceId = null;
+    }
     console.log('Данные доставки:', data);
     this.createOrderWithCashPayment(false);
   }
@@ -306,12 +312,12 @@ export class OrderComponent implements OnInit, OnDestroy {
       middleName: this.orderFormData.middleName,
       email: this.orderFormData.email,
       phoneNumber: this.orderFormData.phone
-    }).subscribe((value:any)=>{
-if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
-      this.createOrderAndInitiatePayment();
-    } else {
-      this.createOrderWithCashPayment(true);
-    }
+    }).subscribe((value: any) => {
+      if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
+        this.createOrderAndInitiatePayment();
+      } else {
+        this.createOrderWithCashPayment(true);
+      }
     });
   }
 
@@ -446,6 +452,7 @@ if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       }
     }, 100);
 
+    console.log('this.orderFormData', this.orderFormData)
     const orderRequest: any = {
       id: this.activeBasketId!,
       addressId: this.orderFormData.orderDeliveryData.id,
@@ -460,9 +467,9 @@ if (this.paymentMethod === 'online' || this.paymentMethod === 'balance') {
       promoCodeId: this.orderFormData.promoCodeId,
       consultation: this.orderFormData.needConsult || false,
       // this.orderFormData.info
-      productPlaceId: this.orderFormData.delivery === 'pickup'
+      productPlaceId: this.orderFormData.delivery == 'pickup'
         ? this.orderFormData.productPlaceId
-        : undefined,
+        : null,
       paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
