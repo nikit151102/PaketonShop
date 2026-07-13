@@ -229,16 +229,15 @@
       </div>
     </div>
 
-    <div class="delivery-states" *ngIf="isDeliveryCancelled">
-      <div class="delivery-states__content" *ngIf="error && !loading">
-        <div class="state-icon">⚠️</div>
-        <p>Доставка в вашем городе невозможна</p>
-      </div>
+    <div class="delivery-unavailable" *ngIf="deliveryUnavailable">
+      <h3 class="delivery-unavailable__title">Доставка недоступна</h3>
+      <p class="delivery-unavailable__text">{{ deliveryUnavailableMessage }}</p>
+      <button class="btn btn-primary" (click)="showAddressSelection()">Выбрать другой адрес</button>
     </div>
 
     <!-- Delivery Cost Section -->
     <div class="cost-card"
-      *ngIf="hasAddress() && !showAddressList && !showNewAddressForm && isDeliveryCancelled != true">
+      *ngIf="hasAddress() && !showAddressList && !showNewAddressForm && !deliveryUnavailable">
       <div class="cost-card__header">
         <div class="cost-card__icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -255,14 +254,14 @@
     </div>
 
     <!-- Delivery Info Section -->
-    <div class="info-cards" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm">
+    <div class="info-cards" *ngIf="hasAddress() && !showAddressList && !showNewAddressForm && !deliveryUnavailable">
       <div class="info-card">
         <div class="info-card__text">Курьер позвонит за 10 минут до прибытия</div>
-        <div class="info-card__text">Оплата наличными или картой при получении</div>
+        <!-- <div class="info-card__text">Оплата наличными при получении</div> -->
       </div>
-      <div class="info-card info-card--highlight">
+      <!-- <div class="info-card info-card--highlight">
         <div class="info-card__text">Доставка осуществляется Яндекс.Доставкой</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
