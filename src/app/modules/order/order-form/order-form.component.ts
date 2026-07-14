@@ -187,9 +187,9 @@ export class OrderFormComponent implements OnInit {
         email: user.email,
         phoneNumber: user.phoneNumber
       };
-      console.log('user' , user)
+      console.log('user', user)
 
-      if(user.firstName == null || user.lastName == null || user.email == null ||  user.phoneNumber == null) {
+      if (user.firstName == null || user.lastName == null || user.email == null || user.phoneNumber == null) {
         this.isEditing = true;
       }
     }
@@ -403,7 +403,12 @@ export class OrderFormComponent implements OnInit {
       'type': type,
       'id': data.addressId
     };
-    this.deliveryCost.emit(data.coast);
+    if (type == 'city') {
+      this.deliveryCost.emit(data.coast);
+    } else {
+      this.deliveryCost.emit(0);
+    }
+
     // ИСПРАВЛЕНИЕ: проверяем что type содержит 'pickup' или равен 'store'
     if ((type === 'pickup' || type === 'store') && data.id) {
       this.selectedStoreId = data.id;
@@ -485,7 +490,7 @@ export class OrderFormComponent implements OnInit {
     this.isEditing = false;
     this.isAccordionOpen = false;
     this.onFormChange();
-  } 
+  }
 
   toggleAccordion(): void {
     this.isAccordionOpen = !this.isAccordionOpen;

@@ -171,7 +171,7 @@
         <!-- Компактные опции доставки -->
         <div class="delivery-options">
           <label class="delivery-option">
-            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="pickup">
+            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="pickup" (click)="deliveryCost.emit(0)">
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
               <span class="delivery-option__title">Самовывоз с ПВЗ</span>
@@ -181,7 +181,7 @@
           </label>
 
           <label class="delivery-option">
-            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="transport">
+            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="transport" (click)="deliveryCost.emit(0)">
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
               <span class="delivery-option__title">Транспортная компания</span>
