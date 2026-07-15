@@ -12,10 +12,11 @@ import { PaymentService } from '../../../../core/api/payment.service';
 import { PaymentWidgetComponent } from '../../../../core/components/payment-widget/payment-widget.component';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { TopupModalComponent } from '../../../../core/components/topup-modal/topup-modal.component';
+import { QrCodeComponent } from '../../../../core/components/qr-code/qr-code.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent],
+  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, QrCodeComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [
