@@ -1,4 +1,3 @@
-
 import { Injectable } from '@angular/core';
 import {
   HttpInterceptor,
@@ -8,12 +7,15 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { StorageUtils } from '../../../utils/storage.utils';
+import { localStorageEnvironment } from '../../../environment';
 
 @Injectable()
 export class TrackerInterceptor implements HttpInterceptor {
-  
+
   private readonly TRACKING_URL = 'https://xn--o1ab.xn--80akonecy.xn--p1ai/track/track';
   private trackedTags: Set<string> = new Set();
+  private pkt_sourceTag: Set<string> = new Set();
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const url = window.location.href;
@@ -23,6 +25,12 @@ export class TrackerInterceptor implements HttpInterceptor {
     if (trackerTag && !this.trackedTags.has(trackerTag)) {
       this.sendTrackingData(trackerTag, url);
       this.trackedTags.add(trackerTag);
+    }
+
+    const pkt_source = urlParams.get('pkt_source');
+    if (pkt_source && !this.pkt_sourceTag.has(pkt_source)) {
+      StorageUtils.setLocalStorageCache(localStorageEnvironment.pktSource.key, pkt_source, localStorageEnvironment.pktSource.ttl)
+      this.trackedTags.add(pkt_source);
     }
 
     return next.handle(req);

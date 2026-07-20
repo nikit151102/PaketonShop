@@ -148,6 +148,16 @@ export const routes: Routes = [
       keywords: 'бизнес-аккаунт, оптовая упаковка, юрлицам'
     }
   },
+    {
+    path: 'register-self-employed',
+    loadComponent: () => import('./modules/self-employed-registration/self-employed-registration.component').then((m) => m.SelfEmployedRegistrationComponent),
+    data: {
+      title: 'Регистрация бизнес-аккаунта | Пакетон.рф',
+      description: 'Оптовые цены, отсрочка платежа, персональный менеджер для юрлиц и ИП. Зарегистрируйте бизнес-аккаунт.',
+      keywords: 'бизнес-аккаунт, оптовая упаковка, юрлицам'
+    }
+  },
+  
   {
     path: 'documents',
     loadChildren: () => import('./modules/documents/documents.routes').then((m) => m.documentsRoutes),

@@ -1,148 +1,130 @@
 <div class="business-section">
   <div class="business-container">
 
-    <div class="advantages-grid">
-      <div class="advantage-card featured" [routerLink]="'catalog'">
-        <div class="advantage-icon-wrapper">
-          <div class="icon-background">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z" />
-              <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
-            </svg>
-          </div>
+    <!-- ВЕРХНИЙ РЯД: Компактные преимущества -->
+    <div class="advantages-row">
+      <a class="adv-pill featured" [routerLink]="'catalog'">
+        <div class="pill-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/>
+            <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/>
+          </svg>
         </div>
-        <div class="advantage-content">
-          <h3 class="advantage-title">Широкий ассортимент</h3>
-          <p class="advantage-description">Более 7 000 позиций в каталоге</p>
+        <div class="pill-text">
+          <strong>7 000+ позиций</strong>
+          <span>Широкий ассортимент</span>
         </div>
-      </div>
+      </a>
 
-      <div class="advantage-card" [routerLink]="'branding'">
-        <div class="advantage-icon-wrapper">
-          <div class="icon-background">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42z" />
-              <circle cx="6.5" cy="6.5" r="1.5" />
-            </svg>
-          </div>
+      <a class="adv-pill" [routerLink]="'branding'">
+        <div class="pill-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42z"/>
+            <circle cx="6.5" cy="6.5" r="1.5"/>
+          </svg>
         </div>
-        <div class="advantage-content">
-          <h3 class="advantage-title">Брендирование</h3>
-          <p class="advantage-description">Упаковка с вашим логотипом</p>
+        <div class="pill-text">
+          <strong>Брендирование</strong>
+          <span>Упаковка с логотипом</span>
         </div>
-      </div>
+      </a>
 
-      <div class="advantage-card" [routerLink]="'stores'">
-        <div class="advantage-icon-wrapper">
-          <div class="icon-background">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-          </div>
+      <a class="adv-pill" [routerLink]="'stores'">
+        <div class="pill-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
         </div>
-        <div class="advantage-content">
-          <h3 class="advantage-title">30+ магазинов</h3>
-          <p class="advantage-description">В 10+ городах России</p>
+        <div class="pill-text">
+          <strong>30+ магазинов</strong>
+          <span>В 10+ городах России</span>
         </div>
-      </div>
+      </a>
     </div>
 
-    <div class="legal-entity-block" [routerLink]="'register-business'">
-      <div class="legal-header">
-        <div class="legal-badge">Для бизнеса</div>
-        <h2 class="legal-title">Покупайте как юридическое лицо</h2>
-      </div>
+    <!-- НИЖНИЙ РЯД: Два блока рядом -->
+    <div class="dual-blocks-row">
 
-      <div class="legal-content">
-        <div class="benefits-grid">
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Оптовые скидки</h4>
-              <p>До 30% экономии</p>
-            </div>
+      <!-- БЛОК 1: Договор + Оплата по счёту (ООО, ИП) -->
+      <a class="legal-card" [routerLink]="'register-business'">
+        <div class="card-accent b2b-accent"></div>
+        <div class="card-inner">
+          <div class="card-head">
+            <div class="card-badge b2b-badge">Договор и оплата по счёту</div>
+            <h3>Для ООО и ИП</h3>
+            <p class="card-subtitle">Подписание договора, работа с НДС, полный пакет закрывающих документов</p>
           </div>
 
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Возврат НДС</h4>
-              <p>Быстрое оформление</p>
-            </div>
-          </div>
+          <ul class="perks-list">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Оплата по выставленному счёту</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Договор поставки и УПД через ЭДО</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Возврат НДС для плательщиков НДС</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Отсрочка платежа до 30 дней</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Персональный менеджер и оптовые скидки</span>
+            </li>
+          </ul>
 
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Отсрочка платежа</h4>
-              <p>До 30 дней</p>
-            </div>
+          <div class="card-cta b2b-cta">
+            <span>Заключить договор</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </div>
-
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Персональный менеджер</h4>
-              <p>Поддержка 24/7</p>
-            </div>
-          </div>
-
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Электронный документооборот</h4>
-              <p>Отправка документов через ЭДО </p>
-            </div>
-          </div>
-
-          <!-- <div class="benefit-item">
-            <div class="benefit-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-              </svg>
-            </div>
-            <div class="benefit-content">
-              <h4>Рассрочка платежа</h4>
-              <p>0% переплаты</p>
-            </div>
-          </div> -->
         </div>
+      </a>
 
-        <div class="legal-cta">
-          <div class="cta-content">
-            <h3>Начните сотрудничество</h3>
-            <p>Подключите корпоративный аккаунт за 1 сутки</p>
+      <!-- БЛОК 2: Физлица без договора -->
+      <a class="legal-card" [routerLink]="'register-self-employed'">
+        <div class="card-accent se-accent"></div>
+        <div class="card-inner">
+          <div class="card-head">
+            <div class="card-badge se-badge">Без договора</div>
+            <h3>Покупка как физическое лицо</h3>
+            <p class="card-subtitle">Для ИП и самозанятых, которые покупают без заключения договора и оплаты по счёту</p>
           </div>
-          <button class="cta-button">
-            <span>Подключить</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10 17l5-5-5-5v10z" />
-            </svg>
-          </button>
+
+          <ul class="perks-list">
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Оплата картой или наличными</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Без подписания договора поставки</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Оптовые цены от объёма закупки</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Регистрация за 15 минут</span>
+            </li>
+            <li>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Чек по закону для отчётности</span>
+            </li>
+          </ul>
+
+          <div class="card-cta se-cta">
+            <span>Начать покупки</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
         </div>
-      </div>
+      </a>
+
     </div>
   </div>
 </div>
