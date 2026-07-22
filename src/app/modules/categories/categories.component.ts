@@ -57,7 +57,6 @@ export class CategoriesComponent implements OnInit {
       const newCategoryId = params.get('id')!;
       const newSearchQuery = queryParams.get('searchQuery') || '';
 
-      // Проверяем, изменились ли параметры
       const categoryChanged = this.categoryId !== newCategoryId;
       const searchChanged = this.searchQuery !== newSearchQuery;
 
@@ -95,8 +94,8 @@ export class CategoriesComponent implements OnInit {
       .subscribe({
         next: (data: any) => {
           this.categoryData = data.data;
-          console.log('this.categoryData', this.categoryData)
-          this.filters = this.categoryData.properties
+          // ✅ Устанавливаем фильтры только один раз при загрузке категории
+          this.filters = this.categoryData.properties || [];
           this.subCategories = data.data?.subCategories || [];
         },
         error: (err) => {
@@ -114,8 +113,7 @@ export class CategoriesComponent implements OnInit {
       ? [
         {
           field: "Text",
-          values: [
-          ],
+          values: [],
           type: 0
         },
         {
@@ -157,7 +155,6 @@ export class CategoriesComponent implements OnInit {
       });
   }
 
-
   onFiltersChange(filters: any[]): void {
     this.appliedFilters = filters;
     this.currentPage = 0;
@@ -165,7 +162,6 @@ export class CategoriesComponent implements OnInit {
   }
 
   applyFilters(): void {
-    // Применение фильтров
     this.currentPage = 0;
     this.loadProducts();
   }

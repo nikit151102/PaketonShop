@@ -222,6 +222,10 @@ export class AuthComponent implements OnInit, OnDestroy {
       };
       delete data.confirmPassword;
 
+      const userSourceType = StorageUtils.getLocalStorageCache(localStorageEnvironment.pktSource.key);
+
+      if(userSourceType) data.userSourceType = userSourceType;
+
       this.authService.register(data).pipe(
         finalize(() => {
           this.isSubmitting = false;

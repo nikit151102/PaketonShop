@@ -57,9 +57,7 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   // Скидки
   discountRules = [
-    { minAmount: 10000, discountPercent: 5 },
-    { minAmount: 20000, discountPercent: 10 },
-    { minAmount: 50000, discountPercent: 15 }
+    { minAmount: 0, discountPercent: 0 }
   ];
 
   private destroy$ = new Subject<void>();
@@ -247,7 +245,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   }) {
     this.orderFormData.addressId = data.addressId;
     if (data.type == 'pickup' || data.type == "store") {
-      console.log('data.type',data.type)
+      console.log('data.type', data.type)
       this.orderFormData.productPlaceId = data.id;
     } else {
       this.orderFormData.productPlaceId = null;
@@ -379,6 +377,7 @@ export class OrderComponent implements OnInit, OnDestroy {
             : this.paymentMethod === 'invoice' ? 4
               : this.paymentMethod === 'balance' ? 3
                 : null,
+      invoiceEmail: this.invoiceEmail,
       isSubmit: isSubmit
     };
 
@@ -470,9 +469,15 @@ export class OrderComponent implements OnInit, OnDestroy {
       productPlaceId: this.orderFormData.delivery == 'pickup'
         ? this.orderFormData.productPlaceId
         : null,
-      paymentType: this.paymentMethod === 'online' ? 0 : this.paymentMethod === 'cash' ? 1 : this.paymentMethod === 'card' ? 2 : this.paymentMethod === 'invoice' ? 4 : this.paymentMethod === 'balance' ? 3 : null,
+      paymentType: this.paymentMethod === 'online' ? 0
+        : this.paymentMethod === 'cash' ? 1
+          : this.paymentMethod === 'card' ? 2
+            : this.paymentMethod === 'invoice' ? 4
+              : this.paymentMethod === 'balance' ? 3
+                : null,
       // orderDateTime: this.orderFormData.orderDateTime || new Date().toISOString(),
       // productPositionIds: this.basketProducts.map(p => p.positionId)
+      invoiceEmail: this.invoiceEmail,
       isSubmit: isSubmit
     };
 

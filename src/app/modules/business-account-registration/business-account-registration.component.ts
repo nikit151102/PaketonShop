@@ -12,7 +12,7 @@ import { localStorageEnvironment } from '../../../environment';
 import { UserApiService } from '../../core/api/user.service';
 import { UserService } from '../../core/services/user.service';
 import { PartnerService } from '../../core/api/partner.service';
-import { WholesaleOrderService } from '../../core/api/wholesale-order.service';
+import { CreateWholesaleOrderDto, WholesaleOrderService } from '../../core/api/wholesale-order.service';
 import { PartnerBankService } from '../../core/api/partner-bank.service';
 
 interface ContractorDetails {
@@ -287,8 +287,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     hints: [] as { message: string; valid: boolean }[]
   };
 
+
   private destroy$ = new Subject<void>();
   isActiveUser: boolean = false;
+  pkt_c1: any;
 
   stepHints: { [key: number]: { title: string; description: string; tips: string[] } } = {
     1: {
@@ -342,6 +344,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.companyId = params['companyId'] || null;
       const inn = params['inn'] || null;
+      this.pkt_c1 = params['pkt_c1'] || null;
 
       if (this.companyId) {
         const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
@@ -1998,12 +2001,18 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.partnerService.setPartnerUser(newPartner).pipe(
       switchMap((partnerResponse) => {
         const partnerInstance = partnerResponse.data;
-        return this.wholesaleOrderService.createOrder({
+
+        let dataRequest: CreateWholesaleOrderDto = {
           beginDateTime: null,
           endDateTime: null,
           partnerInstanceId: partnerInstance.id,
-          userInstanceId: userInstanceId
-        }).pipe(map((orderResponse) => ({
+          userInstanceId: userInstanceId,
+          wholesalePartnerType: 1,
+          productPlaceId: this.pkt_c1
+        };
+        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+
+        return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({
           partnerInstance,
           orderId: orderResponse.data.id
         })));
@@ -2054,12 +2063,18 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.userApiService.getData().pipe(
       switchMap((userResponse) => {
         const user = userResponse.data;
-        return this.wholesaleOrderService.createOrder({
+
+        let dataRequest: CreateWholesaleOrderDto = {
           beginDateTime: null,
           endDateTime: null,
           partnerInstanceId: this.companyId,
-          userInstanceId: user.id
-        }).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
+          userInstanceId: user.id,
+          wholesalePartnerType: 1,
+          productPlaceId: this.pkt_c1
+        };
+        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+
+        return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
       }),
       switchMap(({ user, orderId }) => {
         if (this.accountData.documents?.length > 0) {

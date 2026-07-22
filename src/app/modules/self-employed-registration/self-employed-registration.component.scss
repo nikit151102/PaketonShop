@@ -1,6 +1,8 @@
 .modern-business-registration {
   padding: 20px;
 
+
+
   // Success State
   .success-state {
     min-height: 80vh;
@@ -105,6 +107,12 @@
             font-size: 14px;
             font-weight: 600;
             color: #1f2937;
+          }
+
+          .info-hint {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
           }
         }
       }
@@ -2449,4 +2457,370 @@
       }
     }
   }
+}
+
+
+
+.modern-business-registration {
+  padding: 20px;
+
+  // ... (оставьте ваши существующие стили для success-state и header) ...
+
+  .inn-verification-container {
+    margin-bottom: 32px;
+  }
+
+  .verification-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+
+    .verification-header {
+      margin-bottom: 24px;
+      h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+      p {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .org-type-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 8px;
+
+    .org-type-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+
+      &:hover {
+        border-color: #327120;
+        background: #f9fafb;
+      }
+
+      &.active {
+        border-color: #327120;
+        background: rgba(50, 113, 32, 0.05);
+        box-shadow: 0 0 0 1px #327120;
+      }
+
+      .type-visual {
+        .type-icon-bg {
+          width: 40px;
+          height: 40px;
+          background: #f3f4f6;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          .active & {
+            background: #327120;
+            svg { color: white; }
+          }
+
+          svg {
+            width: 24px;
+            height: 24px;
+            color: #6b7280;
+          }
+        }
+      }
+
+      .type-content {
+        flex: 1;
+        .type-name {
+          font-weight: 600;
+          font-size: 15px;
+          color: #1f2937;
+        }
+        .type-description {
+          font-size: 12px;
+          color: #6b7280;
+          margin-top: 2px;
+        }
+      }
+    }
+  }
+
+  .search-input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .inn-input-field {
+      flex: 1;
+      position: relative;
+
+      .modern-input {
+        width: 100%;
+        padding-right: 40px;
+        
+        &.loading { border-color: #3b82f6; }
+        &.success { border-color: #10b981; background-color: rgba(16, 185, 129, 0.05); }
+        &.error { border-color: #ef4444; background-color: rgba(239, 68, 68, 0.05); }
+      }
+
+      .search-loader, .search-success-icon, .search-error-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .search-success-icon svg { width: 24px; height: 24px; color: #10b981; }
+      .search-error-icon svg { width: 24px; height: 24px; color: #ef4444; }
+      
+      .progress-ring svg {
+        animation: spin 1s linear infinite;
+        color: #3b82f6;
+      }
+    }
+
+    .btn-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 24px;
+      background: #327120;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+
+      &:hover:not(:disabled) {
+        background: #2a5e1c;
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      svg { width: 20px; height: 20px; }
+    }
+  }
+
+  .verification-result-card {
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid transparent;
+
+    &.success-npd, &.success-ip {
+      background: rgba(16, 185, 129, 0.05);
+      border-color: rgba(16, 185, 129, 0.2);
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+
+        .result-badge.success {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #10b981;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+
+          svg { width: 16px; height: 16px; }
+        }
+
+        .close-result {
+          background: none;
+          border: none;
+          color: #6b7280;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 50%;
+          &:hover { background: rgba(0,0,0,0.05); color: #1f2937; }
+          svg { width: 20px; height: 20px; }
+        }
+      }
+
+      .result-body {
+        .npd-description {
+          font-size: 15px;
+          color: #065f46;
+          margin-bottom: 16px;
+          line-height: 1.5;
+        }
+
+        .result-details-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin-bottom: 16px;
+
+          .detail-item {
+            .detail-label {
+              font-size: 12px;
+              color: #6b7280;
+              margin-bottom: 4px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .detail-value {
+              font-size: 15px;
+              font-weight: 600;
+              color: #1f2937;
+            }
+          }
+        }
+      }
+    }
+
+    &.error {
+      background: rgba(239, 68, 68, 0.05);
+      border-color: rgba(239, 68, 68, 0.2);
+
+      .error-header {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+
+        .error-icon {
+          width: 40px;
+          height: 40px;
+          background: #fee2e2;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+
+          svg { width: 24px; height: 24px; color: #ef4444; }
+        }
+
+        .error-content {
+          .error-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 4px;
+          }
+          .error-hint {
+            font-size: 14px;
+            color: #7f1d1d;
+            line-height: 1.5;
+          }
+        }
+      }
+
+      .error-actions {
+        .btn-retry {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background: white;
+          border: 1px solid #fecaca;
+          color: #991b1b;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+          }
+
+          svg { width: 18px; height: 18px; }
+        }
+      }
+    }
+  }
+
+  .documents-section {
+    margin-top: 32px;
+    animation: slideInRight 0.4s ease-out;
+
+    .company-form-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+
+      .form-header-icon {
+        font-size: 28px;
+      }
+
+      .form-header-content {
+        h3 {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0 0 4px 0;
+        }
+        p {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .search-tips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f0f0f0;
+
+    .tip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+
+      &::before {
+        content: '•';
+        color: #327120;
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+  }
+
+  // ... (оставьте остальные ваши стили для форм, чекбоксов, футера и т.д.) ...
+}
+
+@keyframes spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
 }

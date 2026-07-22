@@ -156,7 +156,7 @@
                   </span>
                 </label>
 
-                <label class="payment-option" *ngIf="orderFormData?.selectedCompanyId">
+                <label class="payment-option"> <!-- *ngIf="orderFormData?.selectedCompanyId"  -->
                   <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="invoice">
                   <span class="payment-option__custom"></span>
                   <span class="payment-option__content">
@@ -165,6 +165,7 @@
                     <span class="payment-option__desc">Отправим счет на e-mail или через ЭДО — безналичная оплата</span>
                   </span>
                 </label>
+
               </div>
 
               <!-- Информация о выбранном способе -->
@@ -206,9 +207,9 @@
                   <p class="payment-info__text">Терминал для оплаты картой есть в пунктах выдачи</p>
                 </div>
               </div>
-              <app-invoice-delivery *ngIf="orderFormData?.selectedCompanyId && paymentMethod === 'invoice'"
+              <app-invoice-delivery *ngIf="paymentMethod === 'invoice'"  
                 [(deliveryMethod)]="invoiceDeliveryMethod" [(email)]="invoiceEmail"
-                (deliverySelected)="onInvoiceDeliverySelected($event)">
+                (deliverySelected)="onInvoiceDeliverySelected($event)"> <!--orderFormData?.selectedCompanyId && -->
               </app-invoice-delivery>
             </div>
           </div>

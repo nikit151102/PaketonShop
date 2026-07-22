@@ -18,6 +18,8 @@ export interface CreateWholesaleOrderDto {
   endDateTime: string | null;
   partnerInstanceId: string;
   userInstanceId: string;
+  wholesalePartnerType: number;
+  productPlaceId?: any;
 }
 
 export interface FilterField {
