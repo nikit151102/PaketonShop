@@ -73,7 +73,6 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
           this.allShops = shops || [];
         },
         error: (err) => {
-          console.error('Error loading all shops:', err);
           this.allShops = [];
         }
       });
@@ -120,7 +119,6 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loading = false;
         },
         error: (err) => {
-          console.error('Error loading shop:', err);
           this.error = 'Произошла ошибка при загрузке данных';
           this.loading = false;
         }
@@ -163,7 +161,6 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (typeof ymaps === 'undefined') {
-      console.error('Yandex Maps API not loaded');
       return;
     }
 
@@ -232,7 +229,7 @@ export class ShopDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
         title: this.shop.fullName,
         text: `Посмотрите магазин ${this.shop.fullName} в ${this.shop.address?.city}`,
         url: window.location.href,
-      }).catch(console.error);
+      }).catch();
     } else {
       navigator.clipboard.writeText(window.location.href).then(() => {
         alert('Ссылка скопирована в буфер обмена!');

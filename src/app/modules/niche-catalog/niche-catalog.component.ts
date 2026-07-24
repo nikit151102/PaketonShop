@@ -104,7 +104,6 @@ export class NicheCatalogComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки ниш:', error);
         this.error = 'Не удалось загрузить категории';
         this.isLoading = false;
       }

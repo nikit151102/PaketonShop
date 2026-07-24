@@ -64,7 +64,6 @@ export class HomeComponent implements OnInit {
 
         },
         error: (err) => {
-          console.error('Error fetching categories:', err);
           this.toast.error(
             err?.error?.Message ?? 'Не удалось загрузить категории',
             'Ошибка загрузки'

@@ -54,7 +54,6 @@ export class ProductsFavoriteComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          console.error('Ошибка при загрузке продуктов:', err);
           this.loading = false;
         },
       });

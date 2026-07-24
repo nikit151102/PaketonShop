@@ -676,9 +676,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
             this.checkInnStatus(); // Автопроверка, если ИНН был в URL
           }
         }
-      } catch (error) {
-        console.error('Registration failed:', error);
-      } finally {
+      } catch (error) {} finally {
         this.isLoading = false;
       }
     }
@@ -1107,7 +1105,6 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Произошла ошибка при регистрации';
-        console.error('Error during registration:', error);
       }
     });
   }

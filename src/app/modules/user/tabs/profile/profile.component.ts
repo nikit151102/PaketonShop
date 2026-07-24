@@ -105,13 +105,11 @@ export class ProfileComponent implements OnInit {
     this.userApiService.getData().subscribe({
       next: (response) => {
         this.user = response.data;
-        console.log('response.data',response.data)
         this.isLoading = false;
         this.userApiService.getOperativeInfo();
         this.simulateAdditionalData();
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         this.isLoading = false;
       }
     });
@@ -124,9 +122,7 @@ export class ProfileComponent implements OnInit {
     }, 300);
   }
 
-  editAvatar(): void {
-    console.log('Edit avatar');
-  }
+  editAvatar(): void {}
 
   getUserInitials(): string {
     if (!this.user) return '';
@@ -228,12 +224,10 @@ export class ProfileComponent implements OnInit {
           }, 100);
           this.closeTopupModal();
         } else {
-          console.error('Не получен confirmationToken');
           this.handlePaymentError('Не удалось получить токен оплаты');
         }
       },
       error: (error) => {
-        console.error('Ошибка при создании платежа:', error);
         this.handlePaymentError(error);
       }
     });
@@ -241,7 +235,6 @@ export class ProfileComponent implements OnInit {
 
   // Методы для обработки платежа
   handlePaymentSuccess(event: any): void {
-    console.log('Платеж успешен:', event);
 
     this.isProcessingTopup = true;
     const token = event.token || event;
@@ -253,33 +246,28 @@ export class ProfileComponent implements OnInit {
   }
 
   handlePaymentFail(event: any): void {
-    console.log('Платеж не удался:', event);
     this.showPaymentWidget = false;
     this.paymentToken = null;
     this.showErrorNotification('Оплата не удалась. Попробуйте снова.');
   }
 
   handlePaymentError(error: any): void {
-    console.error('Ошибка платежа:', error);
     this.showPaymentWidget = false;
     this.paymentToken = null;
     this.showErrorNotification('Произошла ошибка при оплате');
   }
 
   handleWidgetClose(): void {
-    console.log('Виджет закрыт');
     this.showPaymentWidget = false;
     this.paymentToken = null;
   }
 
   private showSuccessNotification(message: string): void {
     // Можно добавить более красивую нотификацию позже
-    console.log(message);
   }
 
   private showErrorNotification(message: string): void {
     // Можно добавить более красивую нотификацию позже
-    console.error(message);
   }
 
   goToTransactionHistory(): void {

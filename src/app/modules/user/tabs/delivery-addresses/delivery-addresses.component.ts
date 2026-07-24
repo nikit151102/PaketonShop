@@ -192,7 +192,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
     try {
       this.citiesFromJson = await this.http.get<CityFromJson[]>('/russian-cities.json').toPromise() || [];
     } catch (error) {
-      console.error('Ошибка при загрузке городов из JSON:', error);
       this.citiesFromJson = [];
     }
   }
@@ -240,7 +239,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.filterAddresses();
         },
         error: (error) => {
-          console.error('Ошибка при загрузке адресов:', error);
           this.error = 'Не удалось загрузить адреса. Пожалуйста, попробуйте позже.';
           this.addresses = [];
 
@@ -398,7 +396,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
 
       this.loadingPoints = false;
     } catch (error) {
-      console.error('Ошибка при загрузке ПВЗ:', error);
       this.error = 'Не удалось загрузить пункты выдачи';
       this.loadingPoints = false;
 
@@ -436,7 +433,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         return await this.centerMapOnCityYandex(cityName);
       }
     } catch (error) {
-      console.error('Ошибка при поиске города из JSON:', error);
       this.loadingCity = false;
       this.error = 'Ошибка при поиске города';
       return false;
@@ -479,7 +475,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           resolve(false);
         });
       } catch (error) {
-        console.error('Ошибка при поиске города через Яндекс:', error);
         this.loadingCity = false;
         this.error = 'Ошибка поиска города';
         resolve(false);
@@ -580,7 +575,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         this.pickupPoints = [];
       }
     } catch (error) {
-      console.error('Ошибка при загрузке точек СДЭК:', error);
       this.pickupPoints = [];
       throw error;
     }
@@ -609,7 +603,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
         this.pickupPoints = [];
       }
     } catch (error) {
-      console.error('Ошибка при загрузке терминалов Деловых линий:', error);
       this.pickupPoints = [];
       throw error;
     }
@@ -909,7 +902,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.toast.success(message);
         },
         error: (error) => {
-          console.error('Ошибка при сохранении адреса:', error);
           this.error = this.isEditing
             ? 'Не удалось обновить адрес. Пожалуйста, попробуйте снова.'
             : 'Не удалось создать адрес. Пожалуйста, проверьте данные и попробуйте снова.';
@@ -968,7 +960,6 @@ export class DeliveryAddressesComponent implements OnInit, OnDestroy {
           this.toast.success('Адрес восстановлен из архива');
         },
         error: (error) => {
-          console.error('Ошибка при восстановлении адреса:', error);
           const message = error?.error?.message ?? 'Не удалось восстановить адрес';
           this.error = message;
           this.toast.error(message, 'Ошибка восстановления');

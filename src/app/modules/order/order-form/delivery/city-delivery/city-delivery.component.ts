@@ -115,7 +115,6 @@ export class CityDeliveryComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Ошибка загрузки адресов:', err);
         this.error = 'Не удалось загрузить адреса. Попробуйте позже.';
         this.loading = false;
       }
@@ -223,7 +222,6 @@ export class CityDeliveryComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Ошибка создания адреса:', err);
           this.showMessage(err.error?.message || 'Не удалось сохранить адрес', 'error');
         }
       });
@@ -249,7 +247,6 @@ export class CityDeliveryComponent implements OnInit {
         this.showMessage('Адрес удален', 'success');
       },
       error: (err) => {
-        console.error('Ошибка удаления:', err);
         this.showMessage('Не удалось удалить адрес', 'error');
       }
     });

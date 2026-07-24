@@ -196,7 +196,6 @@ export class ShopsComponent implements OnInit, OnDestroy {
 
       },
       error: (error: any) => {
-        console.error('Ошибка загрузки магазинов:', error);
         this.loading = false;
       }
     });
@@ -216,9 +215,7 @@ export class ShopsComponent implements OnInit, OnDestroy {
             this.prepareDisplayData();
           }
         },
-        (error) => {
-          console.warn('Не удалось получить геолокацию:', error);
-        }
+        (error) => {}
       );
     }
   }

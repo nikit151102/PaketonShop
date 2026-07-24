@@ -417,9 +417,7 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
       this.copyTimer = setTimeout(() => {
         this.showCopyNotification = false;
       }, 2000);
-    }).catch(err => {
-      console.error('Ошибка копирования:', err);
-    });
+    }).catch(err => {});
   }
 
   copyAllRequisites(): void {

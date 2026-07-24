@@ -128,7 +128,6 @@ export class DeviceInfoService {
       try {
         info.ip = await this.getIPInfo();
       } catch (error) {
-        console.warn('IP info not available:', error);
         info.ip = { ip: 'unknown' };
       }
     }
@@ -140,9 +139,7 @@ export class DeviceInfoService {
         if (city !== 'Unknown') {
           info.ip.city = city;
         }
-      } catch (error) {
-        console.warn('City detection failed:', error);
-      }
+      } catch (error) {}
     }
 
     // Информация о батарее (асинхронно, если доступно)
@@ -150,9 +147,7 @@ export class DeviceInfoService {
       if (this.isBrowser && (navigator as any).getBattery) {
         info.battery = await this.getBatteryInfo();
       }
-    } catch (error) {
-      console.warn('Battery info not available:', error);
-    }
+    } catch (error) {}
 
     return info as DeviceInfo;
   }
@@ -480,8 +475,7 @@ export class DeviceInfoService {
             resolve(ipInfo);
             return;
           } catch (error) {
-            console.debug(`IP service ${service} failed:`, error);
-            continue; // Пробуем следующий сервис
+            continue; 
           }
         }
 
@@ -490,7 +484,6 @@ export class DeviceInfoService {
         this.ipLoadedSubject.next(true);
         resolve(unknownIp);
       } catch (error) {
-        console.error('Error getting IP info:', error);
         const unknownIp = { ip: 'unknown', error: true };
         this.ipInfo = unknownIp;
         this.ipLoadedSubject.next(true);
@@ -517,7 +510,6 @@ export class DeviceInfoService {
         dischargingTime: battery.dischargingTime
       };
     } catch (error) {
-      console.warn('Could not get battery info:', error);
       return undefined;
     }
   }
@@ -646,16 +638,13 @@ export class DeviceInfoService {
               resolve(city);
               return;
             }
-          } catch (geoError) {
-            console.warn('Geolocation not available for city detection:', geoError);
-          }
+          } catch (geoError) {}
         }
 
         this.cityInfo = 'Unknown';
         this.cityLoadedSubject.next(true);
         resolve('Unknown');
       } catch (error) {
-        console.error('Error detecting city:', error);
         this.cityInfo = 'Unknown';
         this.cityLoadedSubject.next(true);
         resolve('Unknown');
@@ -686,7 +675,6 @@ export class DeviceInfoService {
         response.address?.village ||
         'Unknown';
     } catch (error) {
-      console.error('Error getting city by coordinates:', error);
       return 'Unknown';
     }
   }
@@ -784,7 +772,7 @@ export class DeviceInfoService {
     try {
       await this.getIPInfo();
     } catch (error) {
-      console.error('Failed to initialize IP:', error);
+    
     }
   }
 
@@ -800,7 +788,7 @@ export class DeviceInfoService {
     try {
       await this.detectCityByIP();
     } catch (error) {
-      console.error('Failed to initialize city:', error);
+      
     }
   }
 

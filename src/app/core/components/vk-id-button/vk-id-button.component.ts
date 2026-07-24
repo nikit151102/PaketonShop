@@ -48,7 +48,6 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
     const state = urlParams.get('state');
     
     if (code && state) {
-      console.log('🔑 Найден code в URL:', code);
       // Очищаем URL от параметров
       window.history.replaceState({}, document.title, window.location.pathname);
       // Отправляем код на бекенд
@@ -60,14 +59,12 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
     const savedData = localStorage.getItem('vk_user_data');
     if (savedData) {
       this.userData = JSON.parse(savedData);
-      console.log('📦 Загружены данные из localStorage:', this.userData);
     }
   }
 
   private saveUserData(data: any): void {
     this.userData = data;
     localStorage.setItem('vk_user_data', JSON.stringify(data));
-    console.log('💾 Сохранены данные пользователя:', data);
   }
 
   ngAfterViewInit(): void {
@@ -84,9 +81,7 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
 
     setTimeout(() => {
       clearInterval(checkInterval);
-      if (!window.VKIDSDK) {
-        console.error('❌ VK SDK не загрузился');
-      }
+      if (!window.VKIDSDK) {}
     }, 5000);
   }
 
@@ -98,7 +93,6 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
     try {
       const VKID = window.VKIDSDK;
       
-      console.log('🚀 VKID SDK загружен, инициализация...');
       
       this.containerRef.nativeElement.innerHTML = '';
 
@@ -130,7 +124,6 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
 
       // Обработка успешной авторизации (для Redirect режима)
       oneTap.on(VKID.WidgetEvents.LOGIN_SUCCESS, (payload: any) => {
-        console.log('🎉 LOGIN_SUCCESS:', payload);
         this.ngZone.run(() => {
           // В Redirect режиме payload может содержать code
           if (payload.code) {
@@ -140,26 +133,22 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
       });
 
       oneTap.on(VKID.WidgetEvents.ERROR, (error: any) => {
-        console.error('❌ Ошибка VK виджета:', error);
+        
       });
 
       this.isWidgetInitialized = true;
-      console.log('✅ VK виджет инициализирован в Redirect режиме');
-      console.log('📋 Redirect URL:', this.redirectUrl);
       
     } catch (error) {
-      console.error('❌ Ошибка инициализации VK виджета:', error);
+      
     }
   }
 
   private async exchangeCodeForToken(code: string): Promise<void> {
-    console.log('🔄 Обмен code на токен через бекенд...');
-    console.log('📝 Code:', code);
+
     this.isLoading = true;
     
     try {
       const apiUrl = `${environment.production}/api/project/testRequestBody`;
-      console.log('📡 URL запроса:', apiUrl);
       
       const requestData = {
         provider: 'vk',
@@ -167,13 +156,9 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
         redirectUrl: this.redirectUrl,
         appId: this.appId
       };
-      console.log('📤 Данные запроса:', requestData);
-      
       const response = await lastValueFrom(
         this.http.post<any>(apiUrl, requestData)
       );
-      
-      console.log('✅ Ответ от бекенда:', response);
       
       if (response) {
         this.saveUserData(response);
@@ -184,13 +169,6 @@ export class VkIdWidgetComponent implements OnInit, AfterViewInit {
       }
       
     } catch (error: any) {
-      console.error('❌ Ошибка при обмене code на токен:', error);
-      if (error.status === 404) {
-        console.error('❌ Эндпоинт не найден! Проверьте URL:', `${environment.production}/api/project/testRequestBody`);
-      }
-      if (error.status === 401) {
-        console.error('❌ Ошибка авторизации');
-      }
       this.isLoading = false;
     }
   }

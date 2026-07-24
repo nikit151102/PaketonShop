@@ -101,7 +101,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (stores: ProductPlace[]) => {
-          console.log('Загружено всех магазинов:', stores?.length || 0);
           this.allStores = stores || [];
           this.storesSubject.next(stores || []);
           this.allStoresOut.emit(this.allStores)
@@ -110,7 +109,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           this.loadingAllStores = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки всех магазинов:', err);
           this.error = 'Не удалось загрузить список магазинов';
           this.loadingAllStores = false;
 
@@ -127,7 +125,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   // Загрузка всех уникальных городов из загруженных магазинов
   private loadCities(): void {
     if (this.allStores.length === 0) {
-      console.warn('Нет магазинов для определения городов');
       this.cities = [];
       return;
     }
@@ -138,7 +135,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     const uniqueCities = this.getUniqueCities(this.allStores);
     this.cities = uniqueCities.sort();
 
-    console.log('Найдено городов:', this.cities.length);
     this.loadingCities = false;
   }
 
@@ -159,12 +155,10 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   private initYandexMap(): void {
     // Проверяем, есть ли контейнер
     if (!this.mapContainer?.nativeElement) {
-      console.warn('Контейнер для карты не найден');
       return;
     }
 
     if (typeof ymaps === 'undefined') {
-      console.error('Yandex Maps API не загружен');
       this.error = 'Карты временно недоступны';
       return;
     }
@@ -210,7 +204,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           }, 300);
         }
       } catch (error) {
-        console.error('Ошибка инициализации Яндекс.Карт:', error);
         this.error = 'Ошибка загрузки карты';
         this.mapReady = false;
       }
@@ -233,8 +226,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     const storesInCity = this.allStores.filter(store =>
       store.address?.city?.toLowerCase() === city.toLowerCase()
     );
-
-    console.log(`Магазинов в городе ${city}:`, storesInCity.length);
 
     this.stores = storesInCity;
     this.filteredStores = [...storesInCity];
@@ -295,7 +286,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           this.loading = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки выбранного магазина:', err);
           this.loading = false;
         }
       });
@@ -346,9 +336,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           checkZoomRange: true,
           zoomMargin: 30
         });
-      } catch (error) {
-        console.warn('Не удалось установить границы карты:', error);
-      }
+      } catch (error) {}
     }
   }
 
@@ -428,9 +416,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.mapMarkers.forEach(marker => {
       try {
         this.ymap.geoObjects.remove(marker);
-      } catch (error) {
-        console.warn('Ошибка при удалении маркера:', error);
-      }
+      } catch (error) {}
     });
     this.mapMarkers = [];
   }
@@ -473,9 +459,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       setTimeout(() => {
         try {
           marker.balloon.open();
-        } catch (error) {
-          console.warn('Не удалось открыть балун:', error);
-        }
+        } catch (error) {}
       }, 300);
     }
   }
@@ -580,7 +564,6 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         this.loading = false;
       },
       (error) => {
-        console.error('Ошибка геолокации:', error);
         this.error = 'Не удалось определить ваше местоположение';
         this.useGeolocation = false;
         this.loading = false;

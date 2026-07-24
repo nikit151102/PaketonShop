@@ -142,7 +142,6 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.error = 'Ошибка загрузки компаний';
-          console.error(err);
           this.loading = false;
         }
       });
@@ -156,7 +155,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
           this.filteredPartnerTypes = [...this.partnerTypes];
         }
       },
-      error: (err) => console.error('Ошибка загрузки типов:', err)
+      error: (err) => {}
     });
   }
 
@@ -168,7 +167,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
           this.filteredBanks = [...this.banks];
         }
       },
-      error: (err) => console.error('Ошибка загрузки банков:', err)
+      error: (err) =>  {}
     });
   }
 
@@ -334,11 +333,6 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
   }
 
   closeForm(): void {
-    console.log('closeForm called', {
-      showForm: this.showForm,
-      formMode: this.formMode,
-      currentStep: this.currentStep
-    });
 
     this.showForm = false;
     this.formMode = 'add';
@@ -353,7 +347,6 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     // Сбрасываем touched состояние при закрытии
     this.resetFormTouched();
 
-    console.log('closeForm finished, showForm:', this.showForm);
   }
 
   private resetFormTouched(): void {
@@ -594,7 +587,6 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
 
     request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (response) => {
-        console.log('Response:', response);
 
         if (response && response.success) {
           this.loadCompanies();
@@ -617,7 +609,6 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Error:', err);
         this.formError = err.error?.message || 'Ошибка сервера';
         this.formSubmitting = false;
       }
@@ -687,7 +678,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
           this.companyDeleted.emit(companyId);
         }
       },
-      error: (err) => console.error('Ошибка удаления:', err)
+      error: (err) =>  {}
     });
   }
 

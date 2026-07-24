@@ -59,7 +59,6 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
         this.isLoading = true;
         return this.newsBannerService.getNewsBannerById(id).pipe(
           catchError(error => {
-            console.error('Ошибка загрузки новости:', error);
             return of({ error: 'Не удалось загрузить новость' });
           })
         );

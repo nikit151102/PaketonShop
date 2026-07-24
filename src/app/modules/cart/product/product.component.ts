@@ -201,7 +201,6 @@ export class ProductComponent implements OnChanges, OnInit {
     this.cdr.markForCheck();
 
     // Здесь можно добавить логику сохранения в избранное
-    console.log('Wishlist toggled:', this.isWishlisted);
   }
 
   increaseQty(): void {

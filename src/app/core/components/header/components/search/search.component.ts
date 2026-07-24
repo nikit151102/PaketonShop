@@ -145,7 +145,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
         return this.productsService.searchAutocomplete(searchRequest).pipe(
           catchError(error => {
-            console.error('Ошибка автокомплита:', error);
             this.errorMessage = 'Не удалось загрузить подсказки';
             this.isLoading = false;
             return of(null);
@@ -158,7 +157,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       if (response?.data) {
         this.totalAutocompleteResults = response.total || response.data.length;
         this.autocompleteResults = this.mapAutocompleteResults(response.data);
-        console.log('autocompleteResults', this.autocompleteResults)
         this.hasMoreAutocomplete = response.data.length === this.pageSize;
 
         this.cdr.detectChanges();
@@ -324,7 +322,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     this.productsService.searchAutocomplete(searchRequest).pipe(
       catchError(error => {
-        console.error('Ошибка загрузки автокомплита:', error);
         this.errorMessage = 'Ошибка при загрузке';
         this.isLoadingMore = false;
 
@@ -401,8 +398,6 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   applyFilters() {
-    console.log('Фильтры применены:', this.filters, this.selectedBrands);
-
     // Сбрасываем автокомплит и запускаем новый поиск
     this.resetAutocomplete();
     this.performSearch();
@@ -431,7 +426,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   private showNotification(message: string) {
     // Здесь можно добавить уведомление
-    console.log(message);
   }
 
   clearSearch() {
@@ -525,7 +519,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         }
       },
       error: (error: any) => {
-        console.error('Ошибка поиска:', error);
         this.errorMessage = 'Ошибка при выполнении поиска';
         this.isLoading = false;
 

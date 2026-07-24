@@ -98,9 +98,7 @@ export class CategoriesComponent implements OnInit {
           this.filters = this.categoryData.properties || [];
           this.subCategories = data.data?.subCategories || [];
         },
-        error: (err) => {
-          console.error('Ошибка загрузки категории:', err);
-        }
+        error: (err) =>  {}
       });
   }
 

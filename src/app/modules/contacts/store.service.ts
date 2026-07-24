@@ -113,7 +113,6 @@ export class StoreService {
     return this.http.post<StoreApiResponse>(`${this.API_URL}/Filter`, request).pipe(
       map(response => response.data || []),
       catchError(error => {
-        console.error('Ошибка загрузки магазинов:', error);
         return of([]);
       })
     );

@@ -64,7 +64,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error('Error fetching product places:', error);
         this.loadingSubject.next(false);
         return of([]);
       })
@@ -122,7 +121,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error('Error fetching filtered product places:', error);
         this.loadingSubject.next(false);
         return of([]);
       })
@@ -150,7 +148,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error(`Error fetching product place with id ${id}:`, error);
         this.loadingSubject.next(false);
         return of(null);
       })

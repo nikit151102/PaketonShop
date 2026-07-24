@@ -166,7 +166,6 @@ export class LocationService {
       // Проверяем сессию
       this.currentSession$.next(StorageUtils.getSessionStorage(this.STORAGE_KEYS.CITY));
     } catch (e) {
-      console.error('Error loading saved data', e);
     }
   }
 
@@ -471,7 +470,7 @@ export class LocationService {
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         // (pos) => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
-        () => console.warn('Не удалось получить геолокацию'),
+        () =>{},
       );
     }
   }
@@ -535,7 +534,6 @@ export class LocationService {
   //       }
   //     }
   //   } catch (err) {
-  //     console.error('Error detecting city:', err);
   //     this.showCityModal$.next(true);
   //   }
   // }

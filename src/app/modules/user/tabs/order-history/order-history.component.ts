@@ -171,7 +171,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке заказов';
-          console.error('Ошибка загрузки заказов:', err);
           this.hasMore = false;
         }
       });
@@ -252,15 +251,12 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
           this.orders.unshift(response.data);
         }
       },
-      error: (error) => {
-        console.error('Ошибка при повторении заказа:', error);
-      }
+      error: (error) => {}
     });
   }
 
   cancelOrder(order: Order): void {
     if (confirm(`Вы уверены, что хотите отменить заказ #${this.formatOrderId(order.id)}?`)) {
-      console.log('Отменить заказ:', order.id);
       this.deliveryOrderService.changeOrderStatus(order.id, 11).subscribe((value: any) => {
         this.loadOrders(true);
       })

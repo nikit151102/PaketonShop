@@ -66,7 +66,7 @@ export class UserDataService {
         }
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
+      
     }
   }
 
@@ -80,7 +80,7 @@ export class UserDataService {
       const encrypted = this.encryptionService.encryptForHeader(data);
       localStorage.setItem('user_data', encrypted);
     } catch (error) {
-      console.error('Error saving user data:', error);
+      
     }
   }
 

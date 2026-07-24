@@ -94,7 +94,6 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки магазинов:', error);
         this.isLoading = false;
       }
     });
@@ -104,7 +103,6 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadYandexMaps(): void {
     if (typeof ymaps === 'undefined') {
-      console.warn('Yandex Maps API не загружен.');
       return;
     }
 
@@ -253,7 +251,6 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isSubmitting = true;
     setTimeout(() => {
-      console.log('Форма отправлена:', this.form);
       this.showNotification('Спасибо! Ваше сообщение отправлено.', 'success');
       this.form = { name: '', email: '', message: '' };
       this.isSubmitting = false;
@@ -261,8 +258,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private showNotification(message: string, type: 'success' | 'error'): void {
-    const icons = { success: '✅', error: '❌' };
-    console.log(`${icons[type]} ${message}`);
+
   }
 
   // ==================== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ====================

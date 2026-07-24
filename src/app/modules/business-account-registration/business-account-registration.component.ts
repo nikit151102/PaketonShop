@@ -422,7 +422,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error loading user data:', error);
           this.searchPartnerByInnAndGoToStep3(inn);
         }
       });
@@ -444,7 +443,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.partnerService.getPartnerByInn(inn).pipe(
       delay(500),
       catchError(error => {
-        console.error('Error finding partner by INN:', error);
         if (error.status === 404) {
           this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
           this.showManualFormFields();
@@ -556,7 +554,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           );
         }),
         catchError(error => {
-          console.error('Registration error:', error);
           let errorMessage = 'Ошибка при регистрации пользователя';
           if (error.error?.message) {
             errorMessage = error.error.message;
@@ -596,7 +593,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Subscription error:', error);
           this.isRegisteringUser = false;
           reject(false);
         }
@@ -615,7 +611,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         this.partnerService.getPartnerByInn(inn).pipe(
           delay(500),
           catchError(error => {
-            console.error('Error finding partner by INN:', error);
             if (error.status === 404) {
               this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
             } else {
@@ -782,7 +777,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           this.showStepSuccessMessage('Регистрация успешна! Теперь укажите данные компании');
         }
       } catch (error) {
-        console.error('Registration failed:', error);
       } finally {
         this.isLoading = false;
       }
@@ -896,7 +890,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         return this.partnerService.getPartnerById(this.companyId!);
       }),
       catchError(error => {
-        console.error('Error loading data:', error);
         this.error = 'Ошибка при загрузке данных';
         return of(null);
       })
@@ -915,7 +908,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isLoadingPartner = false;
-        console.error('Error loading partner:', error);
         this.error = 'Ошибка при загрузке данных компании';
       }
     });
@@ -1070,7 +1062,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
 
   fillFormWithContractorData(contractor: ContractorDetails): void {
-    console.log('Filling form with contractor data:', contractor);
 
     // Устанавливаем тип партнера на основе ОГРН или если есть partnerType
     let partnerTypeId = '';
@@ -1195,7 +1186,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   private loadUserData(): void {
     this.userApiService.getData().pipe(
       catchError(error => {
-        console.error('Error loading user data:', error);
         return of(null);
       })
     ).subscribe({
@@ -1237,7 +1227,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         this.isLoading = false;
       }
     });
@@ -2047,7 +2036,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Произошла ошибка при регистрации';
-        console.error('Error during registration:', error);
       }
     });
   }
@@ -2102,7 +2090,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Ошибка при загрузке документов';
-        console.error('Error uploading documents:', error);
       }
     });
   }

@@ -1058,8 +1058,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
-    console.log(`[${type}] ${message}`);
-
+  
     requestAnimationFrame(() => {
       const notification = document.createElement('div');
       notification.className = `notification notification--${type}`;

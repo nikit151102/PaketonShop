@@ -86,9 +86,8 @@ export class CardComponent {
     navigator.clipboard.writeText(this.productData.description)
       .then(() => {
         // Можно добавить временное уведомление
-        console.log('Описание скопировано');
       })
-      .catch(err => console.error('Ошибка копирования:', err));
+      .catch(err => {})
   }
 
   // Действия с характеристиками
@@ -105,9 +104,7 @@ export class CardComponent {
       });
     } else {
       navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          console.log('Ссылка скопирована');
-        });
+        .then(() => {});
     }
   }
 }

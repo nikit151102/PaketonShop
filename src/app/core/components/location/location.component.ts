@@ -169,7 +169,6 @@ export class LocationComponent implements OnInit {
 
   async ngOnInit() {
     this.productPlaceService.getAllProductPlaces(50).subscribe((res: any) => {
-      console.log('Stores loaded:', res.data);
     });
 
     await this.locationService.init();
@@ -337,7 +336,6 @@ export class LocationComponent implements OnInit {
       this.storesInSelectedCity = storesInCity;
       return hasStores;
     } catch (error) {
-      console.error('Error checking stores in city', error);
       this.locationService.hasStoresInCity$.next(false);
       this.storesInSelectedCity = [];
       return false;
@@ -404,7 +402,6 @@ export class LocationComponent implements OnInit {
 
   // Переключение режима выбора магазинов - теперь 'all' сохраняет все магазины
   setAllStoresMode() {
-    console.log('storesInSelectedCity', this.storesInSelectedCity)
     if (this.storesInSelectedCity) {
       // Сохраняем все магазины города в localStorage
       this.locationService.setStoreSelectionMode('all', this.storesInSelectedCity);
@@ -489,8 +486,6 @@ export class LocationComponent implements OnInit {
 
   showAvailableProducts() {
     if (this.selectedStoreForPickup || this.selectedStores.length > 0) {
-      console.log('Show available products in stores:',
-        this.selectedStores.length > 0 ? this.selectedStores : this.selectedStoreForPickup);
     }
   }
 

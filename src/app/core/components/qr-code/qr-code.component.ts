@@ -316,7 +316,7 @@ export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
         }
       },
       (error) => {
-        if (error) console.error('QR generation error:', error);
+        if (error) {}
       }
     );
   }
@@ -348,7 +348,7 @@ export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
           background: 'transparent'
         });
       } catch (e) {
-        console.error('Barcode generation failed:', e);
+       
       }
     }
   }

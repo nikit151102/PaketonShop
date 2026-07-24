@@ -91,7 +91,6 @@ export class NewsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки новостей:', error);
         this.error = 'Не удалось загрузить новости. Пожалуйста, попробуйте позже.';
         this.isLoading = false;
       }

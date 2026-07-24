@@ -61,7 +61,6 @@ export class EncryptionService {
       
       return JSON.parse(decrypted);
     } catch (error) {
-      console.error('Decryption error:', error);
       return null;
     }
   }
@@ -82,7 +81,6 @@ export class EncryptionService {
       const decoded = decodeURIComponent(escape(atob(encodedData)));
       return JSON.parse(decoded);
     } catch (error) {
-      console.error('Header decryption error:', error);
       return null;
     }
   }

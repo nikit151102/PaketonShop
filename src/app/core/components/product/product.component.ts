@@ -82,7 +82,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsStateService.baskets$
       .pipe(takeUntil(this.destroy$))
       .subscribe(baskets => {
-        console.log('ProductComponent: получены новые корзины', baskets);
         this.basketsData = baskets || [];
         this.updateProductState();
         // Принудительно обновляем UI
@@ -119,7 +118,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Ошибка обновления продукта:', err);
+        
       }
     });
   }
@@ -133,7 +132,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.productBasketsCount = this.getProductBaskets().length;
     this.checkProductInBaskets();
     this.filteredBaskets = [...baskets]; 
-    console.log('this.product',this.product)
   }
 
   private get activeBasketId(): string | null {
@@ -232,7 +230,6 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId) {
-      console.error('Активная корзина не найдена');
       return;
     }
 
@@ -247,8 +244,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при добавлении в активную корзину:', err),
+        error: (err) =>{}
       });
   }
 
@@ -270,7 +266,7 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.quantitySelectorVisible = false;
             this.selectedQuantity = 1;
           },
-          error: (err) => console.error('Ошибка при удалении товара из корзины:', err),
+          error: (err) =>{}
         });
       return;
     }
@@ -286,8 +282,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества в активной корзине:', err),
+        error: (err) =>{
+
+        }
       });
   }
 
@@ -309,8 +306,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества из поля ввода:', err),
+        error: (err) =>{
+          
+        }
       });
   }
 
@@ -332,8 +330,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества:', err),
+        error: (err) =>{
+          
+        }
       });
   }
 
@@ -350,8 +349,9 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.selectedQuantity = 1;
           }
         },
-        error: (err) =>
-          console.error('Ошибка при удалении товара из корзины:', err),
+        error: (err) =>{
+          
+        }
       });
   }
 
@@ -379,7 +379,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   private updateBasket(count: number): void {
     const basketId = this.activeBasketId;
-    if (!basketId) return console.error('Корзина не найдена');
+    if (!basketId) return
 
     this.basketsService
       .addProduct({ productId: this.product.productBarCode.id, basketId, count })
@@ -391,7 +391,9 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.quantitySelectorVisible = true;
           this.loadUpdatedProductData();
         },
-        error: (err) => console.error('Ошибка при обновлении корзины', err),
+        error: (err) => {
+          
+        }
       });
   }
 
@@ -422,7 +424,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.loadUpdatedProductData();
           this.userApiService.getOperativeInfo();
         },
-        error: (err) => console.error('Ошибка при добавлении товара', err),
+        error: (err) => {}
       });
   }
 
@@ -437,7 +439,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) => console.error('Ошибка при установке количества', err),
+        error: (err) => {
+          
+        },
       });
   }
 
@@ -502,10 +506,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             if (error.status === 401) {
-              console.error('Пользователь не авторизован');
               this.authService.changeVisible(true);
-            } else {
-              console.error('Произошла ошибка:', error);
             }
           }
         });
@@ -520,10 +521,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             if (error.status === 401) {
-              console.error('Пользователь не авторизован');
               this.authService.changeVisible(true);
-            } else {
-              console.error('Произошла ошибка:', error);
             }
           }
         });
@@ -545,10 +543,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         if (error.status === 401) {
-          console.error('Пользователь не авторизован');
           this.authService.changeVisible(true);
-        } else {
-          console.error('Произошла ошибка:', error);
         }
       }
     });
@@ -652,7 +647,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       count: newCount
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => console.error('Ошибка при обновлении количества:', err)
+      error: (err) => {}
     });
   }
 
@@ -666,7 +661,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       count: value
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => console.error('Ошибка при обновлении количества:', err)
+      error: (err) => {}
     });
   }
 
@@ -681,7 +676,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
         this.showNotification('Товар добавлен в корзину');
       },
-      error: (err) => console.error('Ошибка при добавлении в корзину:', err)
+      error: (err) => {}
     });
   }
 
@@ -692,7 +687,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.basketsStateService.updateBaskets(res.data);
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err)
+        error: (err) => {}
       });
   }
 
@@ -705,7 +700,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.loadUpdatedProductData();
         this.showNotification(`Товар удален из корзины "${basket?.name || ''}"`);
       },
-      error: (err) => console.error('Ошибка при удалении из корзины:', err)
+      error: (err) => {}
     });
   }
 
@@ -722,7 +717,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.loadBaskets();
         this.showNotification(`Корзина "${basketName}" создана`);
       },
-      error: (err) => console.error('Ошибка при создании корзины:', err)
+      error: (err) => {}
     });
   }
 
@@ -762,7 +757,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsService.deleteBasket(
       basketId).subscribe({
         next: () => this.loadBaskets(),
-        error: (err) => console.error('Ошибка при обновлении количества:', err)
+        error: (err) => {}
       });
   }
   onUpdateQuantityFromInput(event: { basketId: string, value: string }) {

@@ -95,7 +95,6 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки баннеров:', error);
         this.error = 'Не удалось загрузить баннеры';
         this.isLoading = false;
       }
@@ -148,7 +147,6 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
         this.imagesLoaded++;
       };
       img.onerror = () => {
-        console.warn(`Ошибка загрузки изображения ${index + 1}`);
         this.slidesWithDuplicates[index].image = this.getPlaceholderImage();
       };
     });
@@ -289,7 +287,6 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
 
   // Обработка ошибки загрузки изображения
   onImageError(event: Event, index: number): void {
-    console.warn('Ошибка загрузки изображения, индекс:', index);
     this.slidesWithDuplicates[index].image = this.getPlaceholderImage();
   }
 

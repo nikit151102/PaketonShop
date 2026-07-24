@@ -62,7 +62,6 @@ export class UserQuestionsService {
   }
 
   SetRate(data: { id: string; rateValue: number | null }) {
-    console.log('SetRate',data)
     return this.http.put<any>(
       `${this.baseUrl}/api/Entities/UserQuestion/setRate`,
       data,

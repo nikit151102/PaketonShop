@@ -225,8 +225,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества в активной корзине:', err),
+        error: (err) =>{}
       });
   }
   // Обновляем количество из поля ввода
@@ -247,8 +246,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества из поля ввода:', err),
+        error: (err) => {}
       });
   }
 
@@ -273,7 +271,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) => console.error('Ошибка при обновлении количества:', err)
+        error: (err) => {}
       });
   }
 
@@ -311,7 +309,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
         this.showBasketPopup = false;
         this.showNotification('Товар добавлен в корзину', 'success');
       },
-      error: (err) => console.error('Ошибка при добавлении в корзину:', err)
+      error: (err) => {}
     });
   }
 
@@ -329,7 +327,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
             this.selectedQuantity = 0;
           }
         },
-        error: (err) => console.error('Ошибка при удалении из корзины:', err)
+        error: (err) => {}
       });
   }
 
@@ -346,7 +344,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
         this.loadUpdatedProductData();
         this.showNotification(`Корзина "${basketName}" создана`, 'success');
       },
-      error: (err) => console.error('Ошибка при создании корзины:', err)
+      error: (err) => {}
     });
   }
 
@@ -436,7 +434,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
         this.showNotification('Артикул скопирован!', 'success');
       })
       .catch((err) => {
-        console.error('Ошибка копирования:', err);
         this.showNotification('Не удалось скопировать артикул', 'error');
       });
   }
@@ -462,9 +459,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
             'success'
           );
         },
-        error: (error) => {
-          console.error('Произошла ошибка:', error);
-        }
+        error: (error) => {}
       });
   }
 

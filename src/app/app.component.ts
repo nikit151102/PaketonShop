@@ -16,6 +16,8 @@ import { StorageUtils } from '../utils/storage.utils';
 import { localStorageEnvironment } from '../environment';
 import { FloatingContactButtonsComponent } from './core/components/floating-contact-buttons/floating-contact-buttons.component';
 
+declare let ym: any; 
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -54,11 +56,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Сообщаем Яндексу о новом "виртуальном" просмотре страницы
+      ym(110808930, 'hit', event.urlAfterRedirects);
+    });
+
     const currentCity = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.currentCity.key
     );
-
-    console.log('currentCity', currentCity)
 
     if (currentCity == null) {
       this.locationService.showCityModal$.next(true)
@@ -71,6 +78,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initImageProtection();
     this.injectProtectionStyles();
     this.loadBaskets();
+
+
   }
 
   ngOnDestroy(): void {
@@ -136,7 +145,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.basketsStateService.updateBaskets(res.data);
           this.userService.updateIsAuthUser(true);
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err)
+        error: (err) => {}
       });
   }
 

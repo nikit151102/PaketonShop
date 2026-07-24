@@ -125,7 +125,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
           this.loading = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки отзывов:', err);
           this.error = 'Не удалось загрузить отзывы. Пожалуйста, попробуйте позже.';
           this.loading = false;
         }
@@ -147,7 +146,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
           this.loadingMore = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки дополнительных отзывов:', err);
           this.loadingMore = false;
           this.currentPage--;
         }
@@ -213,8 +211,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
       productId: this.productId
     };
 
-    console.log('Отправка отзыва:', reviewData);
-
     this.userReviewsService
       .createReview(reviewData)
       .subscribe({
@@ -229,7 +225,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
           }, 300);
         },
         error: (err) => {
-          console.error('Ошибка создания отзыва:', err);
           this.sending = false;
           this.error = 'Не удалось отправить отзыв. Попробуйте позже.';
           this.showNotification('Ошибка при отправке отзыва', 'error');
@@ -272,7 +267,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
           }
         },
         error: (err) => {
-          console.error('Ошибка оценки:', err);
           review.requestMessage!.likeCount = originalLikes;
           review.requestMessage!.rateValue = originalRate;
         },
@@ -306,7 +300,6 @@ export class ReviewsComponent implements OnInit, OnChanges {
           }
         },
         error: (err) => {
-          console.error('Ошибка оценки:', err);
           review.requestMessage!.dislikeCount = originalDislikes;
           review.requestMessage!.rateValue = originalRate;
         },
@@ -388,10 +381,8 @@ export class ReviewsComponent implements OnInit, OnChanges {
 
   openPhoto(photo: any): void {
     // Открыть фото в модалке
-    console.log('Open photo:', photo);
   }
 
   private showNotification(message: string, type: 'success' | 'error'): void {
-    console.log(`${type}: ${message}`);
   }
 }

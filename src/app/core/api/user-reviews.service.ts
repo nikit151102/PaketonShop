@@ -63,7 +63,6 @@ export class UserReviewsService {
    * @returns Observable с результатом
    */
   setRate(data: { id: string; rateValue: number | null }): Observable<any> {
-    console.log('setRate', data);
     return this.http.put<any>(
       `${this.baseUrl}/api/Entities/FeedBack/setRate`,
       data,

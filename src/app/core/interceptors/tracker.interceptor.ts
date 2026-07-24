@@ -50,7 +50,6 @@ export class TrackerInterceptor implements HttpInterceptor {
       },
       body: JSON.stringify(trackingData)
     }).catch(error => {
-      console.error('Ошибка отправки данных трекинга:', error);
     });
   }
 }

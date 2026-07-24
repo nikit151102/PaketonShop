@@ -199,7 +199,6 @@ export class FiltersComponent implements OnInit, OnChanges, OnDestroy {
         this.setFallbackValues(filterIds);
       }
     } catch (error) {
-      console.error('Batch filters load error:', error);
       this.setFallbackValues(filterIds);
     } finally {
       this.isBatchLoading = false;

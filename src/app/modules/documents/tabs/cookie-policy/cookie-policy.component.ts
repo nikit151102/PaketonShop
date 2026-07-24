@@ -149,17 +149,14 @@ export class CookiePolicyComponent implements OnInit {
   checkConsent() {
     const consent = localStorage.getItem('cookie_consent');
     if (consent) {
-      console.log('Cookie consent:', consent);
     }
   }
 
   acceptCookies() {
     localStorage.setItem('cookie_consent', 'accepted');
-    console.log('Cookies accepted');
   }
 
   declineCookies() {
     localStorage.setItem('cookie_consent', 'declined');
-    console.log('Cookies declined');
   }
 }

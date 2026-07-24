@@ -30,7 +30,6 @@ export class UserApiService {
       tap({
         next: (response: any) => {
           this.userService.setOperativeInfo(response.data)
-          console.log('getOperativeInfo response.data', response.data);
         },
         error: (error) => {
 
