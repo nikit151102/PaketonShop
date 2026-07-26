@@ -1139,7 +1139,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
           userInstanceId: userInstanceId,
           wholesalePartnerType: 2
         }
-        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
         return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ partnerInstance, orderId: orderResponse.data.id })));
       }),
       switchMap(({ partnerInstance, orderId }) => {
@@ -1189,9 +1189,9 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
           partnerInstanceId: this.companyId,
           wholesalePartnerType: 2,
           userInstanceId: user.id,
-          productPlaceId: this.pkt_c1
+          productPlaceCode: this.pkt_c1
         };
-        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
 
         return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
       }),

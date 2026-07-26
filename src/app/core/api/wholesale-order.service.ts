@@ -19,7 +19,7 @@ export interface CreateWholesaleOrderDto {
   partnerInstanceId: string;
   userInstanceId: string;
   wholesalePartnerType: number;
-  productPlaceId?: any;
+  productPlaceCode?: any;
   documentArchiveLink?: any;
 }
 

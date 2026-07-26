@@ -2034,9 +2034,9 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           partnerInstanceId: partnerInstance.id,
           userInstanceId: userInstanceId,
           wholesalePartnerType: 1,
-          productPlaceId: this.pkt_c1
+          productPlaceCode: this.pkt_c1
         };
-        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
 
         if (this.cloudLink) {
           dataRequest.documentArchiveLink = this.cloudLink
@@ -2099,14 +2099,14 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           partnerInstanceId: this.companyId,
           userInstanceId: user.id,
           wholesalePartnerType: 1,
-          productPlaceId: this.pkt_c1,
+          productPlaceCode: this.pkt_c1,
         };
 
         if (this.cloudLink) {
           dataRequest.documentArchiveLink = this.cloudLink
         }
 
-        if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
 
 
         return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
