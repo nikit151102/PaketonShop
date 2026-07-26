@@ -470,9 +470,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           this.innSearchResult = contractorData;
           this.fillFormWithContractorData(contractorData);
           this.showCompanyForm = true;
-          this.progress.step2 = true;
-          this.currentStep = 3; // Переходим на 3 шаг
-
+          setTimeout(() => {
+            this.progress.step2 = true;
+            this.currentStep = 3;
+          }, 0);
           this.showSuccessToast(`Компания найдена! Переход к загрузке документов`);
         } else {
           this.error = `Компания с ИНН ${inn} найдена, но данные неполные. Пожалуйста, заполните данные вручную`;
@@ -815,13 +816,37 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       this.error = 'Пожалуйста, найдите компанию по ИНН или заполните данные вручную';
       return false;
     }
-
     if (!this.companyForm.valid) {
       this.companyForm.markAllAsTouched();
-      this.error = 'Пожалуйста, заполните все обязательные поля формы компании';
+
+      const invalidFields = Object.keys(this.companyForm.controls)
+        .filter(key => {
+          const control = this.companyForm.get(key);
+          if (control instanceof FormGroup) {
+            return Object.keys(control.controls).some(subKey =>
+              control.get(subKey)?.invalid && control.get(subKey)?.touched
+            );
+          }
+          return control?.invalid && control?.touched;
+        })
+        .map(key => {
+          const labels: { [key: string]: string } = {
+            fullName: 'Наименование',
+            shortName: 'Краткое наименование',
+            inn: 'ИНН',
+            ogrn: 'ОГРН',
+            kpp: 'КПП',
+            partnerTypeId: 'Тип организации',
+            workDirection: 'Вид деятельности',
+            registrationDate: 'Дата регистрации'
+          };
+          return labels[key] || key;
+        });
+
+      this.error = `Заполните обязательные поля: ${invalidFields.join(', ')}`;
+
       return false;
     }
-
     return true;
   }
 
@@ -1446,7 +1471,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         this.uploadedDocuments.some(doc => doc.type === requiredDoc.id)
       );
     } else if (this.uploadMethod === 'cloud') {
-      return !!this.cloudLink && this.cloudLink.startsWith('http');
+      return !!this.cloudLink;
     } else if (this.uploadMethod === 'archive') {
       return !!this.archiveFile;
     }
@@ -1796,6 +1821,18 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     ).length;
   }
 
+  onCloudLinkChange(value: string): void {
+    console.log('cloudLink изменился:', value);
+    console.log('validateDocumentsStep изменился:', this.validateDocumentsStep());
+    // Например, валидация при каждом изменении
+    if (value && !value.startsWith('https')) {
+      this.validateCloudLink()
+    } else {
+      this.error = null;
+      this.isSubmitting = false
+    }
+  }
+
   validateCloudLink(): void {
     if (!this.cloudLink) {
       this.error = 'Введите ссылку на облачное хранилище';
@@ -2001,6 +2038,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         };
         if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
 
+        if (this.cloudLink) {
+          dataRequest.documentArchiveLink = this.cloudLink
+        }
+
         return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({
           partnerInstance,
           orderId: orderResponse.data.id
@@ -2058,9 +2099,15 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           partnerInstanceId: this.companyId,
           userInstanceId: user.id,
           wholesalePartnerType: 1,
-          productPlaceId: this.pkt_c1
+          productPlaceId: this.pkt_c1,
         };
+
+        if (this.cloudLink) {
+          dataRequest.documentArchiveLink = this.cloudLink
+        }
+
         if (this.pkt_c1) dataRequest.productPlaceId = this.pkt_c1;
+
 
         return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
       }),
@@ -2073,7 +2120,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
             documentTypes = this.accountData.documents.filter((doc: any) => doc.file).map((doc: any) => doc.type);
           } else if (this.uploadMethod === 'archive' && this.archiveFile) {
             files = [this.archiveFile];
-            documentTypes = [99];
+            documentTypes = [11];
           }
           if (files.length > 0) {
             return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes).pipe(map(() => orderId));

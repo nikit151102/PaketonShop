@@ -20,7 +20,9 @@ export interface CreateWholesaleOrderDto {
   userInstanceId: string;
   wholesalePartnerType: number;
   productPlaceId?: any;
+  documentArchiveLink?: any;
 }
+
 
 export interface FilterField {
   field: string;

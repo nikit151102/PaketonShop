@@ -1028,37 +1028,9 @@
                     Создайте папку с документами в вашем облачном хранилище и предоставьте доступ по ссылке
                   </p>
 
-                  <div class="cloud-providers">
-                    <div class="providers-list">
-                      <button class="provider-btn" [class.active]="selectedProvider === 'yandex'"
-                        (click)="selectedProvider = 'yandex'">
-                        <div class="provider-icon">Я</div>
-                        <span>Яндекс.Диск</span>
-                      </button>
-                      <button class="provider-btn" [class.active]="selectedProvider === 'google'"
-                        (click)="selectedProvider = 'google'">
-                        <div class="provider-icon">G</div>
-                        <span>Google Drive</span>
-                      </button>
-                      <button class="provider-btn" [class.active]="selectedProvider === 'dropbox'"
-                        (click)="selectedProvider = 'dropbox'">
-                        <div class="provider-icon">D</div>
-                        <span>Dropbox</span>
-                      </button>
-                      <button class="provider-btn" [class.active]="selectedProvider === 'other'"
-                        (click)="selectedProvider = 'other'">
-                        <div class="provider-icon">+</div>
-                        <span>Другое</span>
-                      </button>
-                    </div>
-                  </div>
-
                   <div class="cloud-link-input">
-                    <input type="url" [(ngModel)]="cloudLink" placeholder="https://disk.yandex.ru/d/..."
+                    <input type="url" [(ngModel)]="cloudLink" placeholder="https://disk.yandex.ru/d/..." (ngModelChange)="onCloudLinkChange($event)"
                       class="modern-input">
-                    <button class="btn-gradient" (click)="validateCloudLink()">
-                      Проверить доступ
-                    </button>
                   </div>
 
                   <div class="cloud-tips">
