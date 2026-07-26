@@ -31,9 +31,8 @@ export interface InnDetailsDto {
 export interface CheckInnResponseDto {
   success: boolean;
   inn: string;
-  details?: InnDetailsDto | null;
+  details?: InnCheckDetailsDto | null;
 }
-// -------------------------------------------
 
 interface ContractorDetails {
   id: string;
@@ -62,6 +61,43 @@ interface ContractorDetails {
     fullName: string;
     shortName: string;
   };
+}
+
+export interface PartnerInfoDto {
+  id?: string | null;
+  shortName: string;
+  fullName: string;
+  inn: string;
+  ogrn: string;
+  kpp?: string | null;
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+  typeOfActivity?: string | null;
+  address?: {
+    region?: string;
+    city?: string;
+    street?: string;
+    house?: string;
+    postIndex?: string;
+  } | null;
+}
+
+export interface SelfEmployedDto {
+  is_self_employed: boolean;
+  message: string;
+}
+
+export interface InnCheckDetailsDto {
+  partnerInfo: PartnerInfoDto | null;
+  self_employed: SelfEmployedDto | null;
+  company_info?: any;
+}
+
+export interface InnCheckResultDto {
+  success: boolean;
+  inn: string;
+  details?: InnCheckDetailsDto | null;
 }
 
 const animations = [
@@ -507,13 +543,18 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
     this.updateKppValidation();
   }
 
-  // --- НОВЫЙ МЕТОД ПРОВЕРКИ ИНН ---
+
+
   checkInnStatus(): void {
     const inn = this.innSearchValue?.trim();
     if (!inn || !/^\d{10}$|^\d{12}$/.test(inn)) {
       this.innCheckError = 'ИНН должен содержать 10 или 12 цифр';
       return;
     }
+
+    // ✅ Определяем тип на основе выбранного partnerType
+    const selectedType = this.companyForm.get('partnerTypeId')?.value;
+    const apiType = selectedType === '2' ? 0 : selectedType === '3' ? 1 : 0; // 0 = ИП, 1 = Самозанятый
 
     this.isCheckingInn = true;
     this.innCheckError = null;
@@ -523,14 +564,13 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
     const progressInterval = setInterval(() => {
       if (this.searchProgress < 90) this.searchProgress += 10;
     }, 100);
-
-    // ВАЖНО: Убедитесь, что в PartnerService добавлен метод checkInn(inn: string), 
-    // который возвращает Observable<CheckInnResponseDto>
-    this.partnerService.getPartnerByInn(inn).pipe(
+    this.partnerService.selfEmployedInnChecker(inn, apiType).pipe(
       delay(500),
       catchError(error => {
         clearInterval(progressInterval);
-        this.innCheckError = error.status === 404 ? 'Данный ИНН не найден или не является действующим ИП/Самозанятым' : 'Ошибка при проверке. Попробуйте позже';
+        this.innCheckError = error.status === 404
+          ? 'Данный ИНН не найден или не является действующим'
+          : 'Ошибка при проверке. Попробуйте позже';
         return of(null);
       }),
       finalize(() => {
@@ -541,39 +581,61 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
         }, 500);
       })
     ).subscribe(result => {
-      if (result) {
-        this.innCheckResult = result;
-        if (result.success) {
-          if (result.details) {
+      if (result?.data?.[0]) {
+        const checkResult = result.data[0];
+        this.innCheckResult = {
+          success: checkResult.success,
+          inn: checkResult.inn,
+          details: checkResult.details
+        };
+
+        if (checkResult.success) {
+          // ✅ Обработка для ИП (type: 0)
+          if (apiType === 0 && checkResult.details?.partnerInfo) {
+            const partnerInfo = checkResult.details.partnerInfo;
+
             this.selectedPartnerType = this.partnerTypes.find(t => t.code === 16) || null;
             this.companyForm.patchValue({
               partnerTypeId: this.selectedPartnerType?.id,
-              fullName: result.details.fullName,
-              shortName: result.details.shortName,
-              inn: result.details.inn,
-              ogrn: result.details.ogrn
+              fullName: partnerInfo.fullName || '',
+              shortName: partnerInfo.shortName || '',
+              inn: partnerInfo.inn || inn,
+              ogrn: partnerInfo.ogrn || '',
+              workDirection: partnerInfo.typeOfActivity || ''
             });
-            if (result.details.address) {
+
+            // Заполнение адреса если есть
+            if (partnerInfo.address) {
               this.companyForm.get('address')?.patchValue({
-                region: result.details.address.region || '',
-                city: result.details.address.city || '',
-                street: result.details.address.street || '',
-                house: result.details.address.house || '',
-                postIndex: result.details.address.postIndex || ''
+                region: partnerInfo.address.region || '',
+                city: partnerInfo.address.city || '',
+                street: partnerInfo.address.street || '',
+                house: partnerInfo.address.house || '',
+                postIndex: partnerInfo.address.postIndex || ''
               });
             }
+
             this.progress.step2 = true;
             this.showSuccessToast('Данные ИП успешно загружены!');
-          } else {
+          }
+          // ✅ Обработка для Самозанятого (type: 1)
+          else if (apiType === 1 && checkResult.details?.self_employed?.is_self_employed) {
             this.selectedPartnerType = this.partnerTypes.find(t => t.code === 17) || null;
             this.companyForm.patchValue({
               partnerTypeId: this.selectedPartnerType?.id,
-              inn: result.inn,
-              fullName: `${this.userForm.get('lastName')?.value} ${this.userForm.get('firstName')?.value} ${this.userForm.get('middleName')?.value}`.trim(),
-              shortName: `${this.userForm.get('lastName')?.value} ${this.userForm.get('firstName')?.value?.[0]}.${this.userForm.get('middleName')?.value?.[0] || ''}`.trim()
+              inn: inn,
+              // Формируем ФИО из данных пользователя если есть
+              fullName: `${this.userForm.get('lastName')?.value || ''} ${this.userForm.get('firstName')?.value || ''} ${this.userForm.get('middleName')?.value || ''}`.trim(),
+              shortName: `${this.userForm.get('lastName')?.value || ''} ${this.userForm.get('firstName')?.value?.[0] || ''}.${this.userForm.get('middleName')?.value?.[0] || ''}`.trim()
             });
             this.progress.step2 = true;
             this.showSuccessToast('Статус плательщика НПД подтвержден!');
+          }
+          else {
+            // ❌ Успешный ответ, но не тот тип
+            this.innCheckError = apiType === 0
+              ? 'Данный ИНН не зарегистрирован как ИП'
+              : 'Данный ИНН не является плательщиком НПД';
           }
         } else {
           this.innCheckError = 'Статус не подтвержден. Проверьте корректность ИНН.';
@@ -581,6 +643,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 
   resetInnCheck(): void {
     this.innSearchValue = '';
@@ -676,7 +739,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
             this.checkInnStatus(); // Автопроверка, если ИНН был в URL
           }
         }
-      } catch (error) {} finally {
+      } catch (error) { } finally {
         this.isLoading = false;
       }
     }
@@ -1160,5 +1223,33 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
         this.error = error.message || 'Ошибка при загрузке документов';
       }
     });
+  }
+
+
+  /** Сообщение для самозанятого (НПД) */
+  get npdMessage(): string | null {
+    return this.innCheckResult?.details?.self_employed?.message ?? null;
+  }
+
+  /** Данные партнёра для ИП */
+  get partnerInfo(): PartnerInfoDto | null {
+    return this.innCheckResult?.details?.partnerInfo ?? null;
+  }
+
+  /** Статус: самозанятый подтверждён */
+  get isNpdConfirmed(): boolean {
+    return this.innCheckResult?.success === true &&
+      this.innCheckResult?.details?.self_employed?.is_self_employed === true;
+  }
+
+  /** Статус: ИП найден */
+  get isIpFound(): boolean {
+    return this.innCheckResult?.success === true &&
+      !!this.innCheckResult?.details?.partnerInfo;
+  }
+
+  /** ИНН из результата проверки */
+  get checkedInn(): string | null {
+    return this.innCheckResult?.inn ?? null;
   }
 }

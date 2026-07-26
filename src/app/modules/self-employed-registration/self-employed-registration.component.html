@@ -392,7 +392,8 @@
             <div class="verification-card">
               <div class="verification-header">
                 <h3>Проверка ИНН</h3>
-                <p>Введите ИНН, чтобы мы могли подтвердить ваш статус индивидуального предпринимателя или самозанятого</p>
+                <p>Введите ИНН, чтобы мы могли подтвердить ваш статус индивидуального предпринимателя или самозанятого
+                </p>
               </div>
 
               <div class="form-grid" style="margin-bottom: 24px;">
@@ -408,9 +409,15 @@
                       <div class="type-visual">
                         <div class="type-icon-bg">
                           @if (type.code === 16) {
-                          <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+                          <svg viewBox="0 0 24 24">
+                            <path
+                              d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+                          </svg>
                           } @else {
-                          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                          <svg viewBox="0 0 24 24">
+                            <path
+                              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
                           }
                         </div>
                       </div>
@@ -428,10 +435,9 @@
                 <div class="inn-input-field">
                   <input type="text" [(ngModel)]="innSearchValue" (input)="updateInnSearch()"
                     placeholder="Введите ИНН (10 или 12 цифр)" class="modern-input inn-input"
-                    [class.loading]="isCheckingInn" 
-                    [class.success]="innCheckResult?.success && !isCheckingInn"
+                    [class.loading]="isCheckingInn" [class.success]="innCheckResult?.success && !isCheckingInn"
                     [class.error]="innCheckError && !isCheckingInn" autocomplete="off">
-                  
+
                   @if (isCheckingInn) {
                   <div class="search-loader">
                     <div class="progress-ring">
@@ -446,14 +452,16 @@
                   @if (innCheckResult?.success && !isCheckingInn) {
                   <div class="search-success-icon">
                     <svg viewBox="0 0 20 20">
-                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
                     </svg>
                   </div>
                   }
                   @if (innCheckError && !isCheckingInn) {
                   <div class="search-error-icon">
                     <svg viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                     </svg>
                   </div>
                   }
@@ -475,20 +483,24 @@
               </div>
 
               <!-- Результат: Самозанятый (НПД) -->
-              @if (innCheckResult?.success && !innCheckResult?.details) {
+              @if (isNpdConfirmed) {
               <div class="verification-result-card success-npd" @bounceIn>
                 <div class="result-header">
                   <div class="result-badge success">
-                    <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" /></svg>
+                    <svg viewBox="0 0 20 20">
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                    </svg>
                     <span>Статус подтвержден: Плательщик НПД</span>
                   </div>
                 </div>
                 <div class="result-body">
-                  <p class="npd-description">Данный ИНН зарегистрирован как плательщик налога на профессиональный доход (самозанятый). Вы можете продолжить регистрацию.</p>
+                  <p class="npd-description" *ngIf="npdMessage">{{ npdMessage }}</p>
+
                   <div class="result-details-grid">
                     <div class="detail-item">
                       <div class="detail-label">ИНН</div>
-                      <div class="detail-value">{{ innCheckResult?.inn }}</div>
+                      <div class="detail-value" *ngIf="checkedInn">{{ checkedInn }}</div>
                     </div>
                     <div class="detail-item">
                       <div class="detail-label">Статус</div>
@@ -500,15 +512,21 @@
               }
 
               <!-- Результат: ИП -->
-              @if (innCheckResult?.success && innCheckResult?.details) {
+              @if (isIpFound && partnerInfo) {
               <div class="verification-result-card success-ip" @bounceIn>
                 <div class="result-header">
                   <div class="result-badge success">
-                    <svg viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" /></svg>
+                    <svg viewBox="0 0 20 20">
+                      <path
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                    </svg>
                     <span>Данные ИП успешно найдены</span>
                   </div>
                   <button class="close-result" (click)="resetInnCheck()">
-                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                    </svg>
                   </button>
                 </div>
 
@@ -516,23 +534,33 @@
                   <form [formGroup]="companyForm" class="modern-form">
                     <div class="form-grid">
                       <div class="form-group">
-                        <label class="form-label"><span>Полное наименование</span><span class="required">*</span></label>
-                        <input type="text" formControlName="fullName" class="modern-input">
+                        <label class="form-label"><span>Полное наименование</span><span
+                            class="required">*</span></label>
+                        <input type="text" formControlName="fullName" class="modern-input"
+                          [value]="partnerInfo.fullName">
                       </div>
                       <div class="form-group">
-                        <label class="form-label"><span>Краткое наименование</span><span class="required">*</span></label>
-                        <input type="text" formControlName="shortName" class="modern-input">
+                        <label class="form-label"><span>Краткое наименование</span><span
+                            class="required">*</span></label>
+                        <input type="text" formControlName="shortName" class="modern-input"
+                          [value]="partnerInfo.shortName">
                       </div>
                       <div class="form-group">
                         <label class="form-label"><span>ИНН</span><span class="required">*</span></label>
-                        <input type="text" formControlName="inn" class="modern-input" readonly>
+                        <input type="text" formControlName="inn" class="modern-input" [value]="partnerInfo.inn"
+                          readonly>
                       </div>
                       <div class="form-group">
                         <label class="form-label"><span>ОГРНИП</span><span class="required">*</span></label>
-                        <input type="text" formControlName="ogrn" class="modern-input">
+                        <input type="text" formControlName="ogrn" class="modern-input" [value]="partnerInfo.ogrn">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label"><span>Вид деятельности</span></label>
+                        <input type="text" formControlName="workDirection" class="modern-input"
+                          [value]="partnerInfo.typeOfActivity" readonly>
                       </div>
                     </div>
-                    
+
                     <div class="section-header" style="margin-top: 24px;">
                       <h3>Юридический адрес</h3>
                     </div>
@@ -540,23 +568,28 @@
                       <div class="form-grid">
                         <div class="form-group">
                           <label class="form-label"><span>Регион</span><span class="required">*</span></label>
-                          <input type="text" formControlName="region" class="modern-input">
+                          <input type="text" formControlName="region" class="modern-input"
+                            [value]="partnerInfo.address?.region">
                         </div>
                         <div class="form-group">
                           <label class="form-label"><span>Город</span><span class="required">*</span></label>
-                          <input type="text" formControlName="city" class="modern-input">
+                          <input type="text" formControlName="city" class="modern-input"
+                            [value]="partnerInfo.address?.city">
                         </div>
                         <div class="form-group">
                           <label class="form-label"><span>Улица</span><span class="required">*</span></label>
-                          <input type="text" formControlName="street" class="modern-input">
+                          <input type="text" formControlName="street" class="modern-input"
+                            [value]="partnerInfo.address?.street">
                         </div>
                         <div class="form-group">
                           <label class="form-label"><span>Дом</span><span class="required">*</span></label>
-                          <input type="text" formControlName="house" class="modern-input">
+                          <input type="text" formControlName="house" class="modern-input"
+                            [value]="partnerInfo.address?.house">
                         </div>
                         <div class="form-group">
                           <label class="form-label"><span>Индекс</span></label>
-                          <input type="text" formControlName="postIndex" class="modern-input">
+                          <input type="text" formControlName="postIndex" class="modern-input"
+                            [value]="partnerInfo.address?.postIndex">
                         </div>
                       </div>
                     </div>
@@ -570,7 +603,10 @@
               <div class="verification-result-card error" @slideDown>
                 <div class="error-header">
                   <div class="error-icon">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                    </svg>
                   </div>
                   <div class="error-content">
                     <div class="error-title">Статус не подтвержден</div>
@@ -579,22 +615,30 @@
                 </div>
                 <div class="error-actions">
                   <button class="btn-retry" (click)="resetInnCheck()">
-                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" /></svg>
+                    <svg viewBox="0 0 24 24">
+                      <path
+                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                    </svg>
                     Попробовать снова
                   </button>
                 </div>
               </div>
               }
 
+
               <div class="search-tips">
-                <div class="tip"><div class="tip-text">ИНН ИП — 12 цифр</div></div>
-                <div class="tip"><div class="tip-text">Мы проверяем актуальный статус в ФНС</div></div>
+                <div class="tip">
+                  <div class="tip-text">ИНН ИП — 12 цифр</div>
+                </div>
+                <div class="tip">
+                  <div class="tip-text">Мы проверяем актуальный статус в ФНС</div>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Секция документов (показывается только после успешной проверки) -->
-          @if (innCheckResult?.success) {
+          <!-- @if (innCheckResult?.success) {
           <div class="documents-section" @slideInRight>
             <div class="company-form-header">
               <div class="form-header-icon">📁</div>
@@ -612,7 +656,8 @@
                     <div class="tab-description">Загрузите каждый документ отдельно</div>
                   </div>
                 </button>
-                <button class="method-tab" [class.active]="uploadMethod === 'archive'" (click)="uploadMethod = 'archive'">
+                <button class="method-tab" [class.active]="uploadMethod === 'archive'"
+                  (click)="uploadMethod = 'archive'">
                   <div class="tab-content">
                     <div class="tab-title">Архив документов</div>
                     <div class="tab-description">Загрузите все документы одним архивом</div>
@@ -626,7 +671,8 @@
                   <div class="checklist-header">
                     <h3>Необходимые документы</h3>
                     <div class="checklist-progress">
-                      <span class="progress-text">{{ getUploadedRequiredDocumentsCount() }} из {{ getRequiredDocuments().length }}</span>
+                      <span class="progress-text">{{ getUploadedRequiredDocumentsCount() }} из {{
+                        getRequiredDocuments().length }}</span>
                     </div>
                   </div>
                   <div class="checklist-items">
@@ -641,15 +687,25 @@
                           <div class="item-actions">
                             @if (isDocumentUploaded(doc.id)) {
                             <button class="action-btn replace" (click)="replaceDocument(doc.id)">
-                              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
+                              <svg viewBox="0 0 24 24">
+                                <path
+                                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                              </svg>
                             </button>
                             <button class="action-btn delete" (click)="removeDocument(doc.id)">
-                              <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" /></svg>
+                              <svg viewBox="0 0 24 24">
+                                <path
+                                  d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                              </svg>
                             </button>
                             } @else {
                             <label class="upload-file-btn">
-                              <input type="file" (change)="onFileSelected($event, doc.id)" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" hidden>
-                              <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
+                              <input type="file" (change)="onFileSelected($event, doc.id)"
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" hidden>
+                              <svg viewBox="0 0 24 24">
+                                <path
+                                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                              </svg>
                               Загрузить
                             </label>
                             }
@@ -675,10 +731,15 @@
 
               @if (uploadMethod === 'archive') {
               <div class="archive-upload-section">
-                <div class="archive-dropzone" [class.active]="isDragOver" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onArchiveDrop($event)">
+                <div class="archive-dropzone" [class.active]="isDragOver" (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)" (drop)="onArchiveDrop($event)">
                   <div class="dropzone-content">
-                    <svg viewBox="0 0 24 24" class="dropzone-icon"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" /></svg>
-                    <p class="dropzone-text">Перетащите архив сюда или <span class="browse-link">выберите файл</span></p>
+                    <svg viewBox="0 0 24 24" class="dropzone-icon">
+                      <path
+                        d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+                    </svg>
+                    <p class="dropzone-text">Перетащите архив сюда или <span class="browse-link">выберите файл</span>
+                    </p>
                     <p class="dropzone-hint">Поддерживаются: ZIP, RAR (макс. 50 МБ)</p>
                   </div>
                   <input type="file" #archiveInput (change)="onArchiveSelected($event)" accept=".zip,.rar" hidden>
@@ -691,7 +752,10 @@
                       <div class="file-meta"><span class="file-size">{{ formatFileSize(archiveFile.size) }}</span></div>
                     </div>
                     <button class="remove-archive" (click)="removeArchive()">
-                      <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" /></svg>
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -700,7 +764,7 @@
               }
             </div>
           </div>
-          }
+          } -->
         </div>
         }
       </div>
@@ -710,7 +774,9 @@
       <div class="footer-left">
         @if (currentStep > 1) {
         <button class="btn-outline" (click)="prevStep()">
-          <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" /></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" />
+          </svg>
           Назад
         </button>
         }
@@ -723,27 +789,30 @@
       </div>
 
       <div class="footer-right">
-        @if (currentStep < totalSteps) {
-        <button class="btn-gradient" (click)="nextStep()" [disabled]="isLoading || isRegisteringUser">
+        @if (currentStep < totalSteps) { <button class="btn-gradient" (click)="nextStep()"
+          [disabled]="isLoading || isRegisteringUser">
           @if (isLoading || isRegisteringUser) {
           <div class="btn-spinner"></div><span>Регистрация...</span>
           } @else {
           <span>Продолжить</span>
-          <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" /></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
+          </svg>
           }
-        </button>
-        } @else {
-        <button class="btn-success" (click)="submitBusinessAccount()" [disabled]="isSubmitting || !canSubmitDocuments()">
-          <span class="btn-content">
-            @if (!isSubmitting) {
-            <span>Оформить QR-код</span>
-            } @else {
-            <span>Создание...</span>
-            <span class="spinner"></span>
-            }
-          </span>
-        </button>
-        }
+          </button>
+          } @else {
+          <button class="btn-success" (click)="submitBusinessAccount()"
+            [disabled]="isSubmitting || !canSubmitDocuments()">
+            <span class="btn-content">
+              @if (!isSubmitting) {
+              <span>Оформить QR-код</span>
+              } @else {
+              <span>Создание...</span>
+              <span class="spinner"></span>
+              }
+            </span>
+          </button>
+          }
       </div>
     </footer>
   </div>

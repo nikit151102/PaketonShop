@@ -220,4 +220,6 @@ export class WholesaleOrderService {
     };
     return this.http.post<PaginatedResponse<WholesaleOrder>>(`${this.baseUrl}/Filter`, query);
   }
+
+
 }
