@@ -2,7 +2,6 @@
 <!-- HERO SECTION                                        -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="hero">
-    <!-- Animated background orbs -->
     <div class="hero-bg">
         <div class="parallax-orb orb-1"></div>
         <div class="parallax-orb orb-2"></div>
@@ -12,15 +11,14 @@
 
     <div class="container hero-inner">
         <div class="hero-content">
-            <div class="hero-badge reveal">🟢 Франшиза №1 в упаковке</div>
+            <div class="hero-badge reveal">🚀 Лидер рынка упаковки</div>
             <h1 class="hero-title reveal">
-                Откройте прибыльный магазин упаковки по
-                <span class="gradient-text">готовой системе</span>
+                Станьте владельцем прибыльного бизнеса с
+                <span class="gradient-text">готовой франшизой</span>
             </h1>
             <p class="hero-sub reveal">
-                Мы уже создали рабочую бизнес-модель.<br />
-                Вам остаётся открыть магазин и начать зарабатывать
-                вместе с нашей командой.
+                Мы создали идеальную бизнес-модель, которая приносит стабильный доход.<br />
+                Вам остаётся только запустить магазин и получать прибыль вместе с нами.
             </p>
             <div class="hero-buttons reveal">
                 <button class="btn-primary btn-glow" (click)="scrollToForm()">
@@ -36,7 +34,7 @@
             <div class="hero-stats reveal">
                 <div class="hero-stat">
                     <span class="hero-stat-num">от 500 000 ₽</span>
-                    <span class="hero-stat-label">Старт</span>
+                    <span class="hero-stat-label">Стартовый капитал</span>
                 </div>
                 <div class="hero-stat-divider"></div>
                 <div class="hero-stat">
@@ -81,7 +79,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Floating cards -->
                 <div class="float-card float-card-1">
                     <div class="float-icon">📦</div>
                     <div class="float-text">+340 заказов</div>
@@ -98,12 +95,6 @@
         </div>
     </div>
 
-    <!-- Wave divider -->
-    <div class="wave-divider">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path d="M0,60 C360,120 720,0 1080,60 C1260,90 1380,80 1440,60 L1440,120 L0,120 Z" fill="var(--bg)" />
-        </svg>
-    </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
@@ -113,22 +104,22 @@
     <div class="container">
         <div class="section-header reveal">
             <span class="section-tag">Преимущества</span>
-            <h2 class="section-title">Почему именно <span class="gradient-text">Пакетон</span></h2>
+            <h2 class="section-title">Почему предприниматели выбирают <span class="gradient-text">Пакетон</span></h2>
             <p class="section-subtitle">
-                Готовая система, которая работает. Вам не нужно изобретать велосипед.
+                Мы создали систему, которая работает без сбоев. Вам не нужно ничего придумывать — просто следуйте готовому плану.
             </p>
         </div>
 
         <div class="why-grid">
             <div class="glass-card reveal" *ngFor="let item of [
-        {icon: '✅', title: 'Проверенная бизнес-модель', desc: 'Отработана на десятках точек. Каждая цифра подтверждена реальными данными.'},
-        {icon: '🤝', title: 'Поддержка на всех этапах', desc: 'Персональный менеджер от первого звонка до стабильной прибыли.'},
-        {icon: '🎓', title: 'Обучение команды', desc: 'Полная программа обучения для вас и ваших сотрудников.'},
-        {icon: '🏗️', title: 'Помощь с открытием', desc: 'Подбор помещения, дизайн-проект, мерчандайзинг — всё под ключ.'},
-        {icon: '📦', title: 'Подбор ассортимента', desc: 'Индивидуальный анализ рынка вашего города и формирование матрицы.'},
-        {icon: '🏭', title: 'Федеральные поставщики', desc: 'Прямые контракты с производителями. Лучшие цены без посредников.'},
-        {icon: '📈', title: 'Высокая маржинальность', desc: 'Наценка до 50% и выше. Средняя рентабельность — до 21%.'},
-        {icon: '⚡', title: 'Быстрая окупаемость', desc: 'Средний срок возврата инвестиций — от 3 до 6 месяцев.'}
+        {icon: '✅', title: 'Проверенная модель', desc: 'Отработана на десятках точек по всей России. Каждая цифра подтверждена реальной финансовой отчётностью.'},
+        {icon: '🤝', title: 'Полное сопровождение', desc: 'Персональный менеджер и команда экспертов на всех этапах — от регистрации до стабильной прибыли.'},
+        {icon: '🎓', title: 'Обучение с нуля', desc: 'Интенсивная программа для вас и ваших сотрудников. Всё, что нужно знать для успешной работы.'},
+        {icon: '🏗️', title: 'Открытие под ключ', desc: 'Поиск помещения, дизайн-проект, закупка оборудования и выкладка товара — мы берём на себя.'},
+        {icon: '📦', title: 'Товарная матрица', desc: 'Индивидуальный анализ рынка вашего города и формирование ассортимента с максимальной маржинальностью.'},
+        {icon: '🏭', title: 'Прямые поставки', desc: 'Работаем напрямую с федеральными производителями. Вы получаете лучшие цены без посредников.'},
+        {icon: '📈', title: 'Высокая маржинальность', desc: 'Наценка достигает 50–100% на отдельные категории. Средняя рентабельность — 21%.'},
+        {icon: '⚡', title: 'Быстрая окупаемость', desc: 'Средний срок возврата инвестиций — от 3 до 6 месяцев. Точка безубыточности — с первого месяца.'}
       ]">
                 <div class="card-icon">{{ item.icon }}</div>
                 <h3 class="card-title">{{ item.title }}</h3>
@@ -144,11 +135,11 @@
 <section class="cta-banner reveal">
     <div class="container cta-banner-inner">
         <div>
-            <h3 class="cta-banner-title">Готовы обсудить ваш будущий бизнес?</h3>
-            <p class="cta-banner-text">Получите персональную презентацию с финансовым расчётом</p>
+            <h3 class="cta-banner-title">Готовы начать свой бизнес?</h3>
+            <p class="cta-banner-text">Получите детальную презентацию с финансовой моделью и расчётами</p>
         </div>
         <button class="btn-primary btn-glow" (click)="scrollToForm()">
-            Получить презентацию франшизы
+            Получить презентацию
         </button>
     </div>
 </section>
@@ -161,18 +152,18 @@
         <div class="section-header reveal">
             <span class="section-tag">Процесс</span>
             <h2 class="section-title">Как работает <span class="gradient-text">франшиза</span></h2>
-            <p class="section-subtitle">5 простых шагов от заявки до первой прибыли</p>
+            <p class="section-subtitle">Всего 5 шагов отделяют вас от собственного прибыльного дела</p>
         </div>
 
         <div class="roadmap">
             <div class="roadmap-line"></div>
 
             <div class="roadmap-step reveal" *ngFor="let step of [
-        {num: '01', icon: '📋', title: 'Вы оставляете заявку', desc: 'Заполните форму или позвоните. Мы свяжемся в течение 30 минут.'},
-        {num: '02', icon: '🏢', title: 'Подбираем помещение', desc: 'Анализируем трафик, конкурентов и выбираем точку 30–50 м².'},
-        {num: '03', icon: '🎯', title: 'Формируем ассортимент', desc: 'Подбираем товарную матрицу именно под ваш город и аудиторию.'},
-        {num: '04', icon: '🚀', title: 'Запускаем магазин', desc: 'Дизайн, выкладка, обучение персонала, открытие за 4–8 недель.'},
-        {num: '05', icon: '💰', title: 'Вы получаете прибыль', desc: 'Стабильный доход с первого месяца. Мы рядом на каждом этапе.'}
+        {num: '01', icon: '📋', title: 'Оставляете заявку', desc: 'Заполните форму на сайте или позвоните нам. Мы свяжемся с вами в течение 30 минут и ответим на все вопросы.'},
+        {num: '02', icon: '🏢', title: 'Подбираем помещение', desc: 'Проводим анализ трафика и конкурентов, выбираем идеальную точку площадью 30–50 м² с высоким потенциалом.'},
+        {num: '03', icon: '🎯', title: 'Формируем ассортимент', desc: 'Разрабатываем товарную матрицу под специфику вашего города, целевую аудиторию и покупательский спрос.'},
+        {num: '04', icon: '🚀', title: 'Запускаем магазин', desc: 'Дизайн-проект, ремонт, закупка оборудования, обучение персонала и открытие за 4–8 недель.'},
+        {num: '05', icon: '💰', title: 'Получаете прибыль', desc: 'Стабильный доход с первого месяца работы. Мы продолжаем сопровождать вас и помогать расти.'}
       ]; let i = index">
                 <div class="step-connector">
                     <div class="step-number">{{ step.num }}</div>
@@ -190,7 +181,7 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- INVESTMENTS — CALCULATOR                            -->
+<!-- INVESTMENTS — FINANCIAL MODEL                       -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="section invest-section" id="invest">
     <div class="container">
@@ -200,174 +191,66 @@
             <p class="section-subtitle">Прозрачные цифры. Никаких скрытых платежей.</p>
         </div>
 
-        <!-- Key metrics -->
+        <div class="finance-card glass-card reveal">
+            <div class="finance-grid">
+                <div class="finance-item">
+                    <span class="finance-label">Закупка товара</span>
+                    <span class="finance-value">500 000 ₽</span>
+                </div>
+                <div class="finance-item highlight">
+                    <span class="finance-label">Наценка</span>
+                    <span class="finance-value">50%</span>
+                    <span class="finance-badge">+250 000 ₽</span>
+                </div>
+                <div class="finance-item success">
+                    <span class="finance-label">Выручка</span>
+                    <span class="finance-value">750 000 ₽</span>
+                </div>
+                <div class="finance-divider"></div>
+                <div class="finance-item">
+                    <span class="finance-label">Аренда</span>
+                    <span class="finance-value">− 30 000 ₽</span>
+                </div>
+                <div class="finance-item">
+                    <span class="finance-label">Управленческие расходы</span>
+                    <span class="finance-value">− 30 000 ₽</span>
+                </div>
+                <div class="finance-item">
+                    <span class="finance-label">Налоги</span>
+                    <span class="finance-value">− 28 500 ₽</span>
+                </div>
+                <div class="finance-divider"></div>
+                <div class="finance-item profit">
+                    <span class="finance-label">Чистая прибыль</span>
+                    <span class="finance-value green-big">161 500 ₽</span>
+                </div>
+            </div>
+        </div>
+
         <div class="metrics-row reveal">
             <div class="metric-card glass-card">
                 <div class="metric-icon">💎</div>
                 <div class="metric-value counter-animate" data-target="500000">0</div>
                 <div class="metric-unit">₽</div>
-                <div class="metric-label">Стартовые вложения от</div>
-            </div>
-            <div class="metric-card glass-card">
-                <div class="metric-icon">🧾</div>
-                <div class="metric-value">600–800</div>
-                <div class="metric-unit">₽</div>
-                <div class="metric-label">Средний чек</div>
+                <div class="metric-label">Стартовые вложения</div>
             </div>
             <div class="metric-card glass-card">
                 <div class="metric-icon">⏱️</div>
                 <div class="metric-value">3–6</div>
                 <div class="metric-unit">мес.</div>
-                <div class="metric-label">Средняя окупаемость</div>
+                <div class="metric-label">Срок окупаемости</div>
             </div>
             <div class="metric-card glass-card">
                 <div class="metric-icon">📊</div>
                 <div class="metric-value counter-animate" data-target="21">0</div>
                 <div class="metric-unit">%</div>
-                <div class="metric-label">Рентабельность до</div>
+                <div class="metric-label">Рентабельность</div>
             </div>
-        </div>
-
-        <!-- Interactive Calculator -->
-        <div class="calculator glass-card reveal">
-            <h3 class="calc-title">Калькулятор прибыли</h3>
-            <p class="calc-subtitle">Подвигайте ползунки и увидьте свой потенциальный доход</p>
-
-            <div class="calc-grid">
-                <div class="calc-inputs">
-                    <div class="calc-field">
-                        <label>Инвестиции: <strong>{{ formatCurrency(investment) }} ₽</strong></label>
-                        <input type="range" min="300000" max="2000000" step="50000" [(ngModel)]="investment" />
-                    </div>
-                    <div class="calc-field">
-                        <label>Средний чек: <strong>{{ avgCheck }} ₽</strong></label>
-                        <input type="range" min="300" max="2000" step="50" [(ngModel)]="avgCheck" />
-                    </div>
-                    <div class="calc-field">
-                        <label>Клиентов в день: <strong>{{ clientsPerDay }}</strong></label>
-                        <input type="range" min="5" max="80" step="1" [(ngModel)]="clientsPerDay" />
-                    </div>
-                    <div class="calc-field">
-                        <label>Наценка: <strong>{{ marginPercent }}%</strong></label>
-                        <input type="range" min="20" max="100" step="5" [(ngModel)]="marginPercent" />
-                    </div>
-                </div>
-
-                <div class="calc-results">
-                    <div class="calc-result-card highlight">
-                        <span class="calc-result-label">Выручка в месяц</span>
-                        <span class="calc-result-value">{{ formatCurrency(monthlyRevenue) }} ₽</span>
-                    </div>
-                    <div class="calc-result-card">
-                        <span class="calc-result-label">Себестоимость</span>
-                        <span class="calc-result-value">{{ formatCurrency(monthlyCOGS) }} ₽</span>
-                    </div>
-                    <div class="calc-result-card">
-                        <span class="calc-result-label">Расходы (аренда, ЗП, налоги)</span>
-                        <span class="calc-result-value">{{ formatCurrency(monthlyExpenses) }} ₽</span>
-                    </div>
-                    <div class="calc-result-card profit">
-                        <span class="calc-result-label">Чистая прибыль в месяц</span>
-                        <span class="calc-result-value green">{{ formatCurrency(monthlyProfit) }} ₽</span>
-                    </div>
-                    <div class="calc-result-card">
-                        <span class="calc-result-label">Окупаемость</span>
-                        <span class="calc-result-value">{{ paybackMonths + ' мес.'
-                            }}</span>
-                    </div>
-                    <div class="calc-result-card">
-                        <span class="calc-result-label">Рентабельность</span>
-                        <span class="calc-result-value green">{{ profitability }}%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- PROFIT EXAMPLE                                      -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section profit-section" id="profit">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Пример</span>
-            <h2 class="section-title">Сколько вы <span class="gradient-text">заработаете</span></h2>
-            <p class="section-subtitle">Реальные цифры среднего магазина сети Пакетон</p>
-        </div>
-
-        <div class="profit-card glass-card reveal">
-            <div class="profit-visual">
-                <!-- Donut chart (SVG) -->
-                <div class="donut-chart">
-                    <svg viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="#222" stroke-width="24" />
-                        <!-- COGS 67% -->
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="#333" stroke-width="24"
-                            stroke-dasharray="335 503" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
-                        <!-- Expenses 22% -->
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="#555" stroke-width="24"
-                            stroke-dasharray="110 503" stroke-dashoffset="-335" transform="rotate(-90 100 100)" />
-                        <!-- Profit 11% -->
-                        <circle cx="100" cy="100" r="80" fill="none" stroke="#37C84A" stroke-width="24"
-                            stroke-dasharray="108 503" stroke-dashoffset="-445" transform="rotate(-90 100 100)" />
-                        <text x="100" y="95" text-anchor="middle" fill="#37C84A" font-size="20" font-weight="700">161
-                            500</text>
-                        <text x="100" y="115" text-anchor="middle" fill="#888" font-size="10">прибыль / мес</text>
-                    </svg>
-                </div>
-
-                <div class="profit-legend">
-                    <div class="legend-item">
-                        <span class="legend-dot" style="background: #37C84A"></span>
-                        Чистая прибыль — 22%
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot" style="background: #555"></span>
-                        Расходы — 22%
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot" style="background: #333"></span>
-                        Закупка товара — 56%
-                    </div>
-                </div>
-            </div>
-
-            <div class="profit-details">
-                <div class="profit-row">
-                    <span>Доход (выручка)</span>
-                    <span class="profit-num">750 000 ₽</span>
-                </div>
-                <div class="profit-row">
-                    <span>Закупка товара</span>
-                    <span class="profit-num">− 500 000 ₽</span>
-                </div>
-                <div class="profit-row">
-                    <span>Наценка</span>
-                    <span class="profit-num accent">50%</span>
-                </div>
-                <div class="profit-divider"></div>
-                <div class="profit-row">
-                    <span>Аренда</span>
-                    <span class="profit-num">− 60 000 ₽</span>
-                </div>
-                <div class="profit-row">
-                    <span>Зарплата (2 сотрудника)</span>
-                    <span class="profit-num">− 100 000 ₽</span>
-                </div>
-                <div class="profit-row">
-                    <span>Налоги и взносы</span>
-                    <span class="profit-num">− 15 000 ₽</span>
-                </div>
-                <div class="profit-row">
-                    <span>Управление и прочее</span>
-                    <span class="profit-num">− 13 500 ₽</span>
-                </div>
-                <div class="profit-divider"></div>
-                <div class="profit-row total">
-                    <span>Чистая прибыль</span>
-                    <span class="profit-num green-big">161 500 ₽</span>
-                </div>
+            <div class="metric-card glass-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-value">161 500</div>
+                <div class="metric-unit">₽</div>
+                <div class="metric-label">Прибыль в месяц</div>
             </div>
         </div>
     </div>
@@ -379,8 +262,8 @@
 <section class="cta-banner reveal">
     <div class="container cta-banner-inner">
         <div>
-            <h3 class="cta-banner-title">Хотите увидеть расчёт для вашего города?</h3>
-            <p class="cta-banner-text">Оставьте заявку — мы подготовим индивидуальную модель</p>
+            <h3 class="cta-banner-title">Хотите точный расчёт для вашего города?</h3>
+            <p class="cta-banner-text">Оставьте заявку — мы подготовим индивидуальную финансовую модель</p>
         </div>
         <button class="btn-primary btn-glow" (click)="scrollToForm()">
             Рассчитать прибыль
@@ -396,21 +279,21 @@
         <div class="section-header reveal">
             <span class="section-tag">Пакет</span>
             <h2 class="section-title">Что входит в <span class="gradient-text">франшизу</span></h2>
-            <p class="section-subtitle">Всё необходимое для успешного старта и роста</p>
+            <p class="section-subtitle">Всё необходимое для успешного старта и масштабирования бизнеса</p>
         </div>
 
         <div class="included-grid">
             <div class="included-card glass-card reveal" *ngFor="let item of [
-        {icon: '🎓', title: 'Обучение', desc: 'Полная программа для владельца и команды. Видео, чек-листы, практика.'},
-        {icon: '🧑‍💼', title: 'Сопровождение', desc: 'Персональный куратор. Ответы на любые вопросы 7 дней в неделю.'},
-        {icon: '🏗️', title: 'Помощь с открытием', desc: 'От поиска помещения до выкладки товара на полки.'},
-        {icon: '📢', title: 'Маркетинг', desc: 'Готовые рекламные макеты, стратегии, скрипты и SMM-пак.'},
-        {icon: '🏭', title: 'Поставщики', desc: 'Проверенная база федеральных поставщиков с лучшими ценами.'},
-        {icon: '💻', title: 'CRM-система', desc: 'Автоматизация учёта, аналитика продаж и управление складом.'},
-        {icon: '📊', title: 'Финансовая модель', desc: 'Готовый Excel с расчётами, P&L и прогнозом на 12 месяцев.'},
-        {icon: '🎨', title: 'Дизайн магазина', desc: 'Фирменный дизайн-проект, вывески, навигация, мерч.'},
-        {icon: '📋', title: 'Стандарты работы', desc: 'Регламенты, SOP, скрипты продаж для каждого сотрудника.'},
-        {icon: '📖', title: 'Инструкции', desc: 'Пошаговые руководства на каждый процесс. От приёмки до закрытия дня.'}
+        {icon: '🎓', title: 'Обучение и тренинги', desc: 'Полная программа для владельца и сотрудников: видеоуроки, живые вебинары, чек-листы и практические задания.'},
+        {icon: '🧑‍💼', title: 'Персональный куратор', desc: 'Ваш личный наставник, который отвечает на любые вопросы 7 дней в неделю и помогает решать задачи.'},
+        {icon: '🏗️', title: 'Открытие под ключ', desc: 'Полный цикл: поиск помещения, ремонт, дизайн-проект, закупка оборудования и выкладка товара.'},
+        {icon: '📢', title: 'Маркетинг и реклама', desc: 'Готовые рекламные макеты, стратегии продвижения, скрипты продаж и SMM-пак для привлечения клиентов.'},
+        {icon: '🏭', title: 'База поставщиков', desc: 'Доступ к проверенной базе федеральных поставщиков с эксклюзивными ценами и условиями.'},
+        {icon: '💻', title: 'CRM-система', desc: 'Автоматизация учёта товаров, аналитика продаж, управление складом и отчётность в реальном времени.'},
+        {icon: '📊', title: 'Финансовая модель', desc: 'Готовый Excel-файл с расчётами, P&L отчётом и прогнозом на 12 месяцев работы.'},
+        {icon: '🎨', title: 'Дизайн-проект', desc: 'Фирменный дизайн магазина, вывески, навигация, мерчандайзинг и витрины.'},
+        {icon: '📋', title: 'Стандарты и регламенты', desc: 'Подробные SOP, регламенты работы, скрипты продаж и инструкции для каждого сотрудника.'},
+        {icon: '📖', title: 'Инструкции и гайды', desc: 'Пошаговые руководства на каждый процесс: от приёмки товара до закрытия кассовой смены.'}
       ]">
                 <div class="included-icon">{{ item.icon }}</div>
                 <h4 class="included-title">{{ item.title }}</h4>
@@ -427,18 +310,18 @@
     <div class="container">
         <div class="section-header reveal">
             <span class="section-tag">Поддержка</span>
-            <h2 class="section-title">Мы сопровождаем <span class="gradient-text">вас</span></h2>
-            <p class="section-subtitle">Вы никогда не остаётесь один на один с бизнесом</p>
+            <h2 class="section-title">Мы сопровождаем <span class="gradient-text">на каждом этапе</span></h2>
+            <p class="section-subtitle">Вы никогда не остаётесь один на один с бизнесом — мы всегда рядом</p>
         </div>
 
         <div class="timeline reveal">
             <div class="timeline-line"></div>
 
             <div class="timeline-item" *ngFor="let phase of [
-        {phase: 'До открытия', icon: '🔍', items: ['Анализ рынка города', 'Подбор помещения', 'Бизнес-план', 'Обучение']},
-        {phase: 'Открытие', icon: '🚀', items: ['Дизайн-проект', 'Ремонт и оснащение', 'Первичная закупка', 'Набор и обучение персонала']},
-        {phase: 'После открытия', icon: '📈', items: ['Персональный куратор', 'Маркетинговая поддержка', 'Аналитика продаж', 'Оптимизация ассортимента']},
-        {phase: 'Рост прибыли', icon: '💎', items: ['Масштабирование', 'Новые каналы продаж', 'Программы лояльности', 'Выход в онлайн']}
+        {phase: 'Перед открытием', icon: '🔍', items: ['Глубокий анализ рынка вашего города', 'Подбор помещения с высоким трафиком', 'Разработка бизнес-плана', 'Обучение владельца']},
+        {phase: 'Запуск', icon: '🚀', items: ['Дизайн-проект и визуализация', 'Ремонт и оснащение', 'Первичная закупка товара', 'Набор и обучение персонала']},
+        {phase: 'После открытия', icon: '📈', items: ['Персональный куратор 24/7', 'Маркетинговая поддержка', 'Аналитика продаж', 'Оптимизация ассортимента']},
+        {phase: 'Масштабирование', icon: '💎', items: ['Открытие второй точки', 'Новые каналы продаж', 'Программы лояльности', 'Выход в онлайн-торговлю']}
       ]">
                 <div class="timeline-dot">
                     <span>{{ phase.icon }}</span>
@@ -460,17 +343,17 @@
 <section class="section formats-section" id="formats">
     <div class="container">
         <div class="section-header reveal">
-            <span class="section-tag">Форматы</span>
-            <h2 class="section-title">Множество каналов <span class="gradient-text">продаж</span></h2>
-            <p class="section-subtitle">Максимизируйте доход, используя все доступные каналы</p>
+            <span class="section-tag">Каналы продаж</span>
+            <h2 class="section-title">Зарабатывайте через <span class="gradient-text">все доступные форматы</span></h2>
+            <p class="section-subtitle">Максимизируйте доход, используя мультиканальную стратегию продаж</p>
         </div>
 
         <div class="formats-grid">
             <div class="format-card glass-card reveal" *ngFor="let fmt of [
-        {icon: '🏪', title: 'Оффлайн-магазин', desc: 'Проходимая точка с профессиональной выкладкой и фирменным дизайном.', color: '#37C84A'},
-        {icon: '🌐', title: 'Интернет-магазин', desc: 'Собственный сайт с каталогом, корзиной и доставкой по городу.', color: '#2196F3'},
-        {icon: '📦', title: 'Самовывоз', desc: 'Клиент заказывает онлайн — забирает в магазине. Удобно и быстро.', color: '#FF9800'},
-        {icon: '🤝', title: 'B2B продажи', desc: 'Прямые контракты с бизнесом: рестораны, маркетплейсы, производства.', color: '#9C27B0'}
+        {icon: '🏪', title: 'Оффлайн-магазин', desc: 'Проходимая точка с профессиональной выкладкой, фирменным дизайном и высоким уровнем сервиса.', color: '#37C84A'},
+        {icon: '🌐', title: 'Интернет-магазин', desc: 'Собственный сайт с каталогом, корзиной и удобной доставкой по городу и области.', color: '#2196F3'},
+        {icon: '📦', title: 'Самовывоз', desc: 'Клиент заказывает онлайн и забирает в магазине — удобно, быстро и без затрат на доставку.', color: '#FF9800'},
+        {icon: '🤝', title: 'B2B-продажи', desc: 'Работа с бизнесом: рестораны, кафе, производства, маркетплейсы и корпоративные клиенты.', color: '#9C27B0'}
       ]">
                 <div class="format-icon-wrap" [style.--accent]="fmt.color">
                     <span class="format-icon">{{ fmt.icon }}</span>
@@ -490,80 +373,22 @@
     <div class="container">
         <div class="section-header reveal">
             <span class="section-tag">Рынок</span>
-            <h2 class="section-title">Почему этот бизнес <span class="gradient-text">прибыльный</span></h2>
-            <p class="section-subtitle">Упаковка — один из самых стабильных и растущих рынков</p>
+            <h2 class="section-title">Почему упаковка — это <span class="gradient-text">выгодный бизнес</span></h2>
+            <p class="section-subtitle">Упаковка и расходные материалы — один из самых стабильных и быстрорастущих рынков</p>
         </div>
 
         <div class="profitable-grid">
             <div class="profitable-card glass-card reveal" *ngFor="let item of [
-        {icon: '🔄', title: 'Постоянный спрос', desc: 'Каждый бизнес нуждается в упаковке ежедневно. Это не тренд — это необходимость.'},
-        {icon: '🔁', title: 'Повторные продажи', desc: 'Клиент, купивший однажды, возвращается снова и снова. LTV стремится к бесконечности.'},
-        {icon: '📈', title: 'Высокая маржинальность', desc: 'Наценка от 30% до 150% в зависимости от категории товара.'},
-        {icon: '🎯', title: 'Широкий ассортимент', desc: 'Тысячи SKU: пакеты, коробки, скотч, плёнка, перчатки, хозтовары.'},
-        {icon: '🏢', title: 'B2B + B2C', desc: 'Работайте и с бизнесом (опт), и с частными клиентами (розница).'},
-        {icon: '🛡️', title: 'Антикризисный', desc: 'Даже в кризис люди покупают упаковку. Спрос не зависит от сезона.'}
+        {icon: '🔄', title: 'Постоянный спрос', desc: 'Каждый бизнес нуждается в упаковке ежедневно. Это не тренд, а базовая необходимость — спрос всегда есть.'},
+        {icon: '🔁', title: 'Высокий LTV клиента', desc: 'Клиент, купивший однажды, возвращается снова и снова. Пожизненная ценность клиента стремится к бесконечности.'},
+        {icon: '📈', title: 'Маржинальность до 150%', desc: 'Наценка на отдельные категории товаров достигает 100–150%. Это позволяет быстро выходить на высокую прибыль.'},
+        {icon: '🎯', title: 'Широкий ассортимент', desc: 'Тысячи SKU: пакеты, коробки, скотч, плёнка, перчатки, хозтовары — на любой вкус и бюджет.'},
+        {icon: '🏢', title: 'B2B + B2C в одном бизнесе', desc: 'Работайте и с бизнесом (оптовые поставки), и с частными клиентами (розничные продажи).'},
+        {icon: '🛡️', title: 'Антикризисная ниша', desc: 'Даже в кризис упаковка остаётся востребованной. Спрос стабилен круглый год, без сезонных спадов.'}
       ]">
                 <div class="profitable-icon">{{ item.icon }}</div>
                 <h4 class="profitable-title">{{ item.title }}</h4>
                 <p class="profitable-desc">{{ item.desc }}</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- REVIEWS                                             -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section reviews-section" id="reviews">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Отзывы</span>
-            <h2 class="section-title">Что говорят наши <span class="gradient-text">партнёры</span></h2>
-            <p class="section-subtitle">Реальные истории людей, которые уже зарабатывают с Пакетон</p>
-        </div>
-
-        <div class="reviews-grid">
-            <div class="review-card glass-card reveal" *ngFor="let review of [
-        {name: 'Алексей М.', city: 'Казань', months: '5 мес.', profit: '185 000 ₽', text: 'Открыл точку в Казани. Через 4 месяца вышел на чистую прибыль 185 000 ₽. Команда Пакетон помогла с абсолютно всем — от ремонта до первых продаж.', rating: 5},
-        {name: 'Марина К.', city: 'Краснодар', months: '3 мес.', profit: '142 000 ₽', text: 'Никогда не занималась бизнесом. Боялась. Но ребята всё разложили по полочкам. Через 3 месяца — стабильная прибыль.', rating: 5},
-        {name: 'Дмитрий В.', city: 'Новосибирск', months: '8 мес.', profit: '230 000 ₽', text: 'Уже думаю о второй точке. Модель работает как часы. Особенно радует, что поставщики уже проверенные — не нужно тратить время.', rating: 5}
-      ]">
-                <div class="review-header">
-                    <div class="review-avatar">{{ review.name.charAt(0) }}</div>
-                    <div>
-                        <div class="review-name">{{ review.name }}</div>
-                        <div class="review-city">{{ review.city }}</div>
-                    </div>
-                    <div class="review-rating">
-                        <span *ngFor="let s of [].constructor(review.rating)">⭐</span>
-                    </div>
-                </div>
-                <p class="review-text">«{{ review.text }}»</p>
-                <div class="review-footer">
-                    <span class="review-badge">Окупаемость: {{ review.months }}</span>
-                    <span class="review-profit">{{ review.profit }}/мес</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- GALLERY                                             -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section gallery-section" id="gallery">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Галерея</span>
-            <h2 class="section-title">Наши <span class="gradient-text">магазины</span></h2>
-        </div>
-
-        <div class="gallery-masonry reveal">
-            <div class="gallery-item" *ngFor="let img of galleryImages">
-                <img [src]="img.src" [alt]="img.label" loading="lazy" />
-                <div class="gallery-overlay">
-                    <span>{{ img.label }}</span>
-                </div>
             </div>
         </div>
     </div>
@@ -577,6 +402,7 @@
         <div class="section-header reveal">
             <span class="section-tag">Вопросы</span>
             <h2 class="section-title">Частые <span class="gradient-text">вопросы</span></h2>
+            <p class="section-subtitle">Ответы на самые важные вопросы о франшизе Пакетон</p>
         </div>
 
         <div class="faq-list reveal">
@@ -604,12 +430,11 @@
     <div class="container final-cta-inner">
         <div class="final-content reveal">
             <h2 class="final-title">
-                Начните собственный прибыльный бизнес
-                <span class="gradient-text">уже в ближайшее время</span>
+                Начните свой бизнес <span class="gradient-text">уже сегодня</span>
             </h2>
             <p class="final-text">
-                Мы поможем пройти весь путь от идеи до первых продаж.<br />
-                Оставьте заявку — и мы подготовим персональную финансовую модель.
+                Мы проведём вас от идеи до стабильной прибыли. Оставьте заявку —<br />
+                и мы подготовим персональную финансовую модель и презентацию.
             </p>
         </div>
 
@@ -639,74 +464,3 @@
         </div>
     </div>
 </section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- FOOTER                                              -->
-<!-- ═══════════════════════════════════════════════════ -->
-<footer class="footer">
-    <div class="container footer-inner">
-        <div class="footer-brand">
-            <div class="footer-logo">Пакетон<span class="green">.РФ</span></div>
-            <p class="footer-tagline">Франшиза магазина упаковки и товаров для бизнеса</p>
-            <div class="footer-socials">
-                <a href="#" class="social-link" aria-label="Telegram">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-                    </svg>
-                </a>
-                <a href="#" class="social-link" aria-label="VK">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.678.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.204.17-.407.44-.407h2.744c.373 0 .508.203.508.644v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.253-1.406 2.15-3.574 2.15-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.644-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z" />
-                    </svg>
-                </a>
-                <a href="#" class="social-link" aria-label="WhatsApp">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                </a>
-            </div>
-        </div>
-
-        <div class="footer-links">
-            <div class="footer-col">
-                <h5>Навигация</h5>
-                <a href="#why">Почему Пакетон</a>
-                <a href="#how">Как это работает</a>
-                <a href="#invest">Инвестиции</a>
-                <a href="#profit">Пример прибыли</a>
-            </div>
-            <div class="footer-col">
-                <h5>Франшиза</h5>
-                <a href="#included">Что входит</a>
-                <a href="#support">Поддержка</a>
-                <a href="#reviews">Отзывы</a>
-                <a href="#faq">Вопросы</a>
-            </div>
-            <div class="footer-col">
-                <h5>Контакты</h5>
-                <a href="tel:+78001234567">8 (800) 123-45-67</a>
-                <a href="mailto:info@paketon.ru">info&#64;paketon.ru</a>
-                <a href="#">Политика конфиденциальности</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="footer-bottom">
-        <div class="container">
-            © 2024–2026 Пакетон.РФ — Все права защищены
-        </div>
-    </div>
-</footer>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- STICKY MOBILE CTA                                   -->
-<!-- ═══════════════════════════════════════════════════ -->
-<div class="sticky-cta" [class.visible]="showStickyCta" (click)="scrollToForm()">
-    <span>Получить презентацию</span>
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M5 12h14M12 5l7 7-7 7" />
-    </svg>
-</div>

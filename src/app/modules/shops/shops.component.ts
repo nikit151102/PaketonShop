@@ -290,7 +290,7 @@ export class ShopsComponent implements OnInit, OnDestroy {
       address: address,
       city: store.address?.city || 'Не указан',
       region: store.address?.region || '',
-      phone: store.partner?.phone || '+7 (999) 999-99-99',
+      phone: store.partner?.phoneNumber || '',
       email: store.partner?.email || 'info@company.ru',
       hours: this.getWorkingHoursString(scheduleInfo),
       status: status.status,

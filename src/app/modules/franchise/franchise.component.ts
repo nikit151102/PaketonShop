@@ -5,7 +5,6 @@ import {
   AfterViewInit,
   ElementRef,
   Renderer2,
-  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,37 +21,37 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
   faqItems = [
     {
       q: 'Какой стартовый капитал необходим?',
-      a: 'Минимальные инвестиции начинаются от 500 000 ₽. Мы поможем оптимизировать затраты и подберём формат, который подходит именно вам.',
+      a: 'Минимальные инвестиции начинаются от 500 000 ₽. Мы поможем оптимизировать затраты и подберём формат, который подходит именно вам и вашему городу.',
       open: false,
     },
     {
       q: 'Сколько времени занимает открытие?',
-      a: 'От момента подписания договора до открытия проходит в среднем 4–8 недель. Мы сопровождаем каждый этап.',
+      a: 'От момента подписания договора до открытия проходит в среднем 4–8 недель. Мы сопровождаем каждый этап и контролируем все процессы.',
       open: false,
     },
     {
-      q: 'Нужен ли опыт в торговле?',
-      a: 'Нет. Мы обучаем с нуля: от работы с поставщиками до управления командой. У нас отработанные стандарты и пошаговые инструкции.',
+      q: 'Нужен ли опыт в торговле или бизнесе?',
+      a: 'Нет, не нужен. Мы обучаем с нуля: от работы с поставщиками до управления командой и финансового учёта. У нас есть готовые стандарты и пошаговые инструкции.',
       open: false,
     },
     {
       q: 'Какой срок окупаемости?',
-      a: 'Средний срок окупаемости — 3–6 месяцев. Точка безубыточности достигается при обороте от 400 000 ₽.',
+      a: 'Средний срок окупаемости — 3–6 месяцев. Точка безубыточности достигается при обороте от 400 000 ₽, что обычно происходит на второй месяц работы.',
       open: false,
     },
     {
       q: 'Какая поддержка оказывается после открытия?',
-      a: 'Вы получаете персонального менеджера, доступ к CRM, регулярные маркетинговые материалы и оперативную помощь по любым вопросам.',
+      a: 'Вы получаете персонального менеджера, доступ к CRM-системе, регулярные маркетинговые материалы, оперативную помощь по любым вопросам и поддержку 7 дней в неделю.',
       open: false,
     },
     {
       q: 'Есть ли эксклюзив на территорию?',
-      a: 'Да, за каждым партнёром закрепляется эксклюзивная территория. Мы не открываем competing точки в вашем районе.',
+      a: 'Да, за каждым партнёром закрепляется эксклюзивная территория. Мы не открываем конкурирующие точки в вашем районе, чтобы вы могли спокойно развиваться.',
       open: false,
     },
     {
-      q: 'Как подбирается ассортимент?',
-      a: 'Мы анализируем ваш город, конкурентов и спрос. Ассортимент формируется индивидуально для максимального дохода.',
+      q: 'Как формируется ассортимент?',
+      a: 'Мы проводим анализ вашего города, изучаем конкурентов и покупательский спрос. Ассортимент формируется индивидуально для максимальной доходности вашей точки.',
       open: false,
     },
   ];
@@ -94,16 +93,6 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
       : 0;
   }
 
-  // ─── Gallery ───
-  galleryImages = [
-    { src: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&q=80', label: 'Современный магазин' },
-    { src: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80', label: 'Ассортимент на полках' },
-    { src: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80', label: 'Торговый зал' },
-    { src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80', label: 'Склад и логистика' },
-    { src: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=80', label: 'Обучение команды' },
-    { src: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80', label: 'Команда Пакетон' },
-  ];
-
   // ─── Form ───
   formName = '';
   formPhone = '';
@@ -117,15 +106,9 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
   showStickyCta = false;
   private scrollListener!: () => void;
 
-  // ─── Counter animation ───
-  animatedValues: { [key: string]: number } = {};
-
   constructor(private el: ElementRef, private renderer: Renderer2) {}
 
-  ngOnInit(): void {
-    // Pre-fill calculator
-    this.animatedValues['profit'] = 0;
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     // Scroll reveal
@@ -140,8 +123,7 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
 
-    const revealElements =
-      this.el.nativeElement.querySelectorAll('.reveal');
+    const revealElements = this.el.nativeElement.querySelectorAll('.reveal');
     revealElements.forEach((el: HTMLElement) => this.observer.observe(el));
 
     // Sticky CTA
@@ -159,8 +141,7 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     if (this.observer) this.observer.disconnect();
-    if (this.scrollListener)
-      window.removeEventListener('scroll', this.scrollListener);
+    if (this.scrollListener) window.removeEventListener('scroll', this.scrollListener);
   }
 
   toggleFaq(index: number): void {
@@ -170,7 +151,6 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
   onSubmit(): void {
     if (this.formName && this.formPhone) {
       this.formSubmitted = true;
-      // Здесь отправка в CRM
       console.log('Lead:', {
         name: this.formName,
         phone: this.formPhone,
@@ -193,10 +173,7 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const target = parseInt(
-              entry.target.getAttribute('data-target') || '0',
-              10
-            );
+            const target = parseInt(entry.target.getAttribute('data-target') || '0', 10);
             this.countUp(entry.target, target);
             counterObserver.unobserve(entry.target);
           }
@@ -205,35 +182,32 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
       { threshold: 0.5 }
     );
 
-    const counters =
-      this.el.nativeElement.querySelectorAll('.counter-animate');
+    const counters = this.el.nativeElement.querySelectorAll('.counter-animate');
     counters.forEach((el: HTMLElement) => counterObserver.observe(el));
   }
 
-
   private countUp(el: any, target: number): void {
-  const duration = 2000;
-  const startTime = performance.now();
+    const duration = 2000;
+    const startTime = performance.now();
 
-  const step = (currentTime: number) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-    const current = Math.round(eased * target);
-    el.textContent = current.toLocaleString('ru-RU');
+    const step = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(eased * target);
+      el.textContent = current.toLocaleString('ru-RU');
 
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  };
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
 
-  requestAnimationFrame(step);
-}
+    requestAnimationFrame(step);
+  }
 
   private initParallax(): void {
     const handleMove = (e: MouseEvent) => {
-      const orbs =
-        this.el.nativeElement.querySelectorAll('.parallax-orb');
+      const orbs = this.el.nativeElement.querySelectorAll('.parallax-orb');
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       orbs.forEach((orb: HTMLElement, i: number) => {
