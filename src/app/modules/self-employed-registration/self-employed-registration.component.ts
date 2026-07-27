@@ -13,7 +13,6 @@ import { CreateWholesaleOrderDto, WholesaleOrderService } from '../../core/api/w
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 
-// --- Новые интерфейсы для ответа бэкенда ---
 export interface InnDetailsDto {
   fullName: string;
   shortName: string;
@@ -32,35 +31,6 @@ export interface CheckInnResponseDto {
   success: boolean;
   inn: string;
   details?: InnCheckDetailsDto | null;
-}
-
-interface ContractorDetails {
-  id: string;
-  shortName: string;
-  fullName: string;
-  inn: string;
-  ogrn: string;
-  kpp: string;
-  lastName?: string;
-  firstName?: string;
-  middleName?: string;
-  korAccount?: string;
-  workDirection?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: {
-    region: string;
-    city: string;
-    street: string;
-    house: string;
-    postIndex: string;
-  };
-  partnerType?: {
-    id: string;
-    code: number;
-    fullName: string;
-    shortName: string;
-  };
 }
 
 export interface PartnerInfoDto {
@@ -99,45 +69,6 @@ export interface InnCheckResultDto {
   inn: string;
   details?: InnCheckDetailsDto | null;
 }
-
-const animations = [
-  trigger('fadeSlide', [
-    transition(':enter', [
-      style({ opacity: 0, transform: 'translateY(20px)' }),
-      animate('400ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
-    ]),
-    transition(':leave', [
-      animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0, transform: 'translateY(20px)' }))
-    ])
-  ]),
-  trigger('fadeIn', [
-    transition(':enter', [
-      style({ opacity: 0 }),
-      animate('600ms ease-out', style({ opacity: 1 }))
-    ])
-  ]),
-  trigger('slideDown', [
-    transition(':enter', [
-      style({ opacity: 0, transform: 'translateY(-15px)', height: 0 }),
-      animate('350ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
-    ]),
-    transition(':leave', [
-      animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-15px)', height: 0 }))
-    ])
-  ]),
-  trigger('bounceIn', [
-    transition(':enter', [
-      style({ opacity: 0, transform: 'scale(0.9)' }),
-      animate('400ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'scale(1)' }))
-    ])
-  ]),
-  trigger('slideInRight', [
-    transition(':enter', [
-      style({ opacity: 0, transform: 'translateX(-20px)' }),
-      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
-    ])
-  ])
-];
 
 interface BusinessAccountData {
   user: any;
@@ -178,6 +109,45 @@ interface FieldError {
   field: string;
   message: string;
 }
+
+const animations = [
+  trigger('fadeSlide', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateY(20px)' }),
+      animate('400ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
+    ]),
+    transition(':leave', [
+      animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ opacity: 0, transform: 'translateY(20px)' }))
+    ])
+  ]),
+  trigger('fadeIn', [
+    transition(':enter', [
+      style({ opacity: 0 }),
+      animate('600ms ease-out', style({ opacity: 1 }))
+    ])
+  ]),
+  trigger('slideDown', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateY(-15px)', height: 0 }),
+      animate('350ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'translateY(0)', height: '*' }))
+    ]),
+    transition(':leave', [
+      animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-15px)', height: 0 }))
+    ])
+  ]),
+  trigger('bounceIn', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'scale(0.9)' }),
+      animate('400ms cubic-bezier(0.34, 1.2, 0.64, 1)', style({ opacity: 1, transform: 'scale(1)' }))
+    ])
+  ]),
+  trigger('slideInRight', [
+    transition(':enter', [
+      style({ opacity: 0, transform: 'translateX(-20px)' }),
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+    ])
+  ])
+];
 
 @Component({
   selector: 'app-self-employed-registration',

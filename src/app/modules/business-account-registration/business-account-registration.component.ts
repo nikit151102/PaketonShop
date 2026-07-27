@@ -14,35 +14,7 @@ import { UserService } from '../../core/services/user.service';
 import { PartnerService } from '../../core/api/partner.service';
 import { CreateWholesaleOrderDto, WholesaleOrderService } from '../../core/api/wholesale-order.service';
 import { PartnerBankService } from '../../core/api/partner-bank.service';
-
-interface ContractorDetails {
-  id: string;
-  shortName: string;
-  fullName: string;
-  inn: string;
-  ogrn: string;
-  kpp: string;
-  lastName?: string;
-  firstName?: string;
-  middleName?: string;
-  korAccount?: string;
-  workDirection?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: {
-    region: string;
-    city: string;
-    street: string;
-    house: string;
-    postIndex: string;
-  };
-  partnerType?: {
-    id: string;
-    code: number;
-    fullName: string;
-    shortName: string;
-  };
-}
+import { BusinessAccountData, ContractorDetails, DocumentData, FieldError, Partner, PartnerType } from '../../core/interfaces/business-account-registration.interface';
 
 const animations = [
   trigger('fadeSlide', [
@@ -88,87 +60,6 @@ const animations = [
     ])
   ])
 ];
-
-interface BusinessAccountData {
-  user: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    birthday: string;
-    phoneNumber: string;
-  };
-  company: {
-    id?: string;
-    fullName: string;
-    shortName: string;
-    inn: string;
-    ogrn: string;
-    kpp: string;
-    partnerTypeId: string;
-    workDirection: string;
-    registrationDate?: Date;
-    address: {
-      country: string;
-      region: string;
-      city: string;
-      street: string;
-      house: string;
-      postIndex: string;
-    };
-  };
-  documents: DocumentData[];
-}
-
-interface DocumentData {
-  type: number;
-  file: File;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-}
-
-interface PartnerType {
-  id: string;
-  code: number;
-  fullName: string;
-  shortName: string;
-}
-
-interface Partner {
-  id: string;
-  fullName: string;
-  shortName: string;
-  inn: string;
-  ogrn: string;
-  kpp: string;
-  workDirection: string;
-  partnerType: PartnerType;
-  address: {
-    country: string;
-    region: string;
-    city: string;
-    street: string;
-    house: string;
-    postIndex: string;
-  };
-  phoneNumber?: string;
-  email?: string;
-  bank?: {
-    id: string;
-    bik: string;
-    partner: {
-      shortName: string;
-      fullName: string;
-    };
-  };
-}
-
-interface FieldError {
-  field: string;
-  message: string;
-}
 
 @Component({
   selector: 'app-business-account-registration',
