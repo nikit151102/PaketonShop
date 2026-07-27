@@ -2189,7 +2189,7 @@
             }
 
             .modern-input {
-              width: 100%;
+              width: -webkit-fill-available;
               padding: 10px 12px;
               font-size: 14px;
               background: white;

@@ -484,13 +484,15 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
     const partner = this.existingPartner;
     if (partner.partnerType) {
       this.selectedPartnerType = partner.partnerType;
-      this.companyForm.patchValue({ partnerTypeId: partner.partnerType.id });
+      // ДОБАВЛЕНО: { emitEvent: false }
+      this.companyForm.patchValue({ partnerTypeId: partner.partnerType.id }, { emitEvent: false });
     }
     this.companyForm.patchValue({
       fullName: partner.fullName || '', shortName: partner.shortName || '',
       workDirection: partner.workDirection || '', inn: partner.inn || '',
       ogrn: partner.ogrn || '', kpp: partner.kpp || ''
-    });
+    }, { emitEvent: false });
+    
     if (partner.address) {
       this.companyForm.patchValue({
         address: {
@@ -498,8 +500,9 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
           city: partner.address.city || '', street: partner.address.street || '',
           house: partner.address.house || '', postIndex: partner.address.postIndex || ''
         }
-      });
+      }, { emitEvent: false });
     }
+    
     this.accountData.company = {
       id: partner.id, fullName: partner.fullName, shortName: partner.shortName,
       inn: partner.inn, ogrn: partner.ogrn, kpp: partner.kpp || '',
@@ -510,7 +513,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
         house: partner.address.house || '', postIndex: partner.address.postIndex || ''
       } : { country: 'Россия', region: '', city: '', street: '', house: '', postIndex: '' }
     };
-    this.updateKppValidation();
+    this.updateCompanyFormValidators();
   }
 
 
@@ -522,7 +525,6 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ Определяем тип на основе выбранного partnerType
     const selectedType = this.companyForm.get('partnerTypeId')?.value;
     const apiType = selectedType === '2' ? 0 : selectedType === '3' ? 1 : 0; // 0 = ИП, 1 = Самозанятый
 
@@ -565,6 +567,8 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
             const partnerInfo = checkResult.details.partnerInfo;
 
             this.selectedPartnerType = this.partnerTypes.find(t => t.code === 16) || null;
+
+            // ДОБАВЛЕНО: { emitEvent: false } чтобы не триггерить очистку формы
             this.companyForm.patchValue({
               partnerTypeId: this.selectedPartnerType?.id,
               fullName: partnerInfo.fullName || '',
@@ -572,7 +576,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
               inn: partnerInfo.inn || inn,
               ogrn: partnerInfo.ogrn || '',
               workDirection: partnerInfo.typeOfActivity || ''
-            });
+            }, { emitEvent: false });
 
             // Заполнение адреса если есть
             if (partnerInfo.address) {
@@ -582,22 +586,29 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
                 street: partnerInfo.address.street || '',
                 house: partnerInfo.address.house || '',
                 postIndex: partnerInfo.address.postIndex || ''
-              });
+              }, { emitEvent: false });
             }
 
+            this.updateCompanyFormValidators(); // Обновляем валидаторы после заполнения
             this.progress.step2 = true;
             this.showSuccessToast('Данные ИП успешно загружены!');
           }
           // ✅ Обработка для Самозанятого (type: 1)
-          else if (apiType === 1 && checkResult.details?.self_employed?.is_self_employed) {
+          else if (apiType === 1 && checkResult.success === true) {
             this.selectedPartnerType = this.partnerTypes.find(t => t.code === 17) || null;
+
+            const fio = `${this.userForm.get('lastName')?.value || ''} ${this.userForm.get('firstName')?.value || ''} ${this.userForm.get('middleName')?.value || ''}`.trim();
+
+            // ДОБАВЛЕНО: { emitEvent: false }
             this.companyForm.patchValue({
               partnerTypeId: this.selectedPartnerType?.id,
               inn: inn,
-              // Формируем ФИО из данных пользователя если есть
-              fullName: `${this.userForm.get('lastName')?.value || ''} ${this.userForm.get('firstName')?.value || ''} ${this.userForm.get('middleName')?.value || ''}`.trim(),
-              shortName: `${this.userForm.get('lastName')?.value || ''} ${this.userForm.get('firstName')?.value?.[0] || ''}.${this.userForm.get('middleName')?.value?.[0] || ''}`.trim()
-            });
+              fullName: fio,
+              shortName: fio 
+            }, { emitEvent: false });
+
+            this.updateCompanyFormValidators(); 
+            
             this.progress.step2 = true;
             this.showSuccessToast('Статус плательщика НПД подтвержден!');
           }
@@ -630,6 +641,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
       this.resetInnCheck();
     }
   }
+
   // --------------------------------
 
   private updateUserFormValidators(): void {
@@ -795,13 +807,46 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
   private setupFormListeners(): void {
     this.companyForm.get('partnerTypeId')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(value => {
       this.selectedPartnerType = this.partnerTypes.find(t => t.id === value) || null;
-      this.updateKppValidation();
+
+      // 1. Очищаем данные предыдущей проверки и поля формы
+      this.resetInnCheckDataOnly();
+
+      // 2. Пересчитываем валидаторы в зависимости от нового типа
+      this.updateCompanyFormValidators();
     });
+
     this.userForm.get('password')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(password => {
       this.updatePasswordStrength(password);
     });
+
     this.companyForm.get('registrationDate')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(date => {
       this.companyRegistrationDate = date ? new Date(date) : null;
+    });
+  }
+
+  private resetInnCheckDataOnly(): void {
+    this.innSearchValue = '';
+    this.innCheckResult = null;
+    this.innCheckError = null;
+    this.isCheckingInn = false;
+    this.searchProgress = 0;
+    this.progress.step2 = false;
+
+    // Очищаем поля, которые зависят от типа партнёра и проверки ИНН
+    this.companyForm.patchValue({
+      inn: '',
+      ogrn: '',
+      fullName: '',
+      shortName: '',
+      workDirection: '',
+      address: {
+        country: 'Россия',
+        region: '',
+        city: '',
+        street: '',
+        house: '',
+        postIndex: ''
+      }
     });
   }
 
@@ -931,6 +976,60 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
   selectPartnerType(type: PartnerType): void {
     this.selectedPartnerType = type;
     this.companyForm.patchValue({ partnerTypeId: type.id });
+
+    // Добавляем очистку и обновление валидаторов
+    this.resetInnCheckDataOnly();
+    this.updateCompanyFormValidators();
+  }
+
+  private updateCompanyFormValidators(): void {
+    const isNpd = this.selectedPartnerType?.code === 17;
+    const isIp = this.selectedPartnerType?.code === 16;
+
+    // --- 1. ОГРН ---
+    const ogrnControl = this.companyForm.get('ogrn');
+    if (isNpd) {
+      ogrnControl?.clearValidators();
+    } else if (isIp) {
+      ogrnControl?.setValidators([Validators.required, Validators.pattern(/^\d{13}$|^\d{15}$/)]);
+    }
+    ogrnControl?.updateValueAndValidity();
+
+    // --- 2. Краткое наименование ---
+    const shortNameControl = this.companyForm.get('shortName');
+    if (isNpd) {
+      shortNameControl?.clearValidators(); // Для НПД разрешено любое значение (даже длинное ФИО)
+    } else if (isIp) {
+      shortNameControl?.setValidators([Validators.required, Validators.maxLength(50)]);
+    }
+    shortNameControl?.updateValueAndValidity();
+
+    // --- 3. Адрес ---
+    const addressGroup = this.companyForm.get('address') as FormGroup;
+    if (addressGroup) {
+      Object.keys(addressGroup.controls).forEach(key => {
+        const control = addressGroup.get(key);
+        if (isNpd) {
+          control?.clearValidators();
+        } else if (isIp) {
+          if (key === 'postIndex') {
+            control?.setValidators([Validators.pattern(/^\d{6}$/)]);
+          } else {
+            control?.setValidators([Validators.required]); // Для ИП адрес обязателен
+          }
+        }
+        control?.updateValueAndValidity();
+      });
+    }
+
+    // --- 4. Направление деятельности ---
+    const workDirectionControl = this.companyForm.get('workDirection');
+    if (isNpd) {
+      workDirectionControl?.clearValidators();
+      workDirectionControl?.updateValueAndValidity();
+    }
+
+    // --- 5. КПП (ваша существующая логика) ---
     this.updateKppValidation();
   }
 
@@ -1043,7 +1142,6 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
   }
 
   canSubmitDocuments(): boolean {
-    // Разрешаем отправку, если ИНН проверен успешно (независимо от наличия документов, т.к. они могут быть опциональны или загружены позже, но базовая валидация формы должна пройти)
     return this.innCheckResult?.success === true && this.companyForm.valid;
   }
 
@@ -1080,14 +1178,28 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
     const formCompanyFormData = this.companyForm.value;
 
     // ВАЖНО: Добавлен флаг isIndividual: true
-    const partnerCreateDTO = {
+
+
+    const deepClean = (obj: Record<string, any>): Record<string, any> =>
+      Object.fromEntries(
+        Object.entries(obj)
+          .filter(([_, value]) => value !== null && value !== undefined)
+          .map(([key, value]) => [
+            key,
+            value && typeof value === 'object' && !Array.isArray(value)
+              ? deepClean(value)
+              : value
+          ])
+      );
+
+    const partnerCreateDTO = deepClean({
       fullName: formCompanyFormData.fullName,
       shortName: formCompanyFormData.shortName,
       inn: formCompanyFormData.inn,
       ogrn: formCompanyFormData.ogrn,
       kpp: formCompanyFormData.kpp,
       partnerTypeCode: formCompanyFormData.partnerTypeId,
-      isIndividual: true, // <-- ФЛАГ ДЛЯ ИП И САМОЗАНЯТОГО
+      isIndividual: true,
       address: {
         country: this.accountData.company.address?.country || 'Россия',
         region: this.accountData.company.address?.region || '',
@@ -1095,7 +1207,7 @@ export class SelfEmployedRegistrationComponent implements OnInit, OnDestroy {
         street: this.accountData.company.address?.street || '',
         house: this.accountData.company.address?.house || ''
       }
-    };
+    });
 
     const newPartner: any = { partnerCreateDTO: partnerCreateDTO };
 
