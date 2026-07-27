@@ -997,7 +997,7 @@
       position: relative;
 
       .modern-input {
-        width: 100%;
+        width: -webkit-fill-available;
         padding: 10px 12px;
         border: 1px solid #e5e7eb;
         border-radius: 10px;
