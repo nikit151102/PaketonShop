@@ -105,10 +105,11 @@
                     </div>
                 </div>
             </div> -->
-
-            <!-- <app-qr-code [data]="'csc'" [width]="200" [mode]="'barcode'" [cardNumber]="'8800 •••• •••• 1234'"
-                [cardHolder]="user?.firstName + ' ' + user?.lastName">
-            </app-qr-code> -->
+            @if (user.personalSaleBarCode) {
+            <app-qr-code [data]="user.personalSaleBarCode" [width]="200" [mode]="'barcode'"
+                [cardNumber]="'8800 •••• •••• 1234'" [cardHolder]="user?.firstName + ' ' + user?.lastName">
+            </app-qr-code>
+            }
 
             <!-- Balance Widget -->
             <!-- <div class="balance-widget">

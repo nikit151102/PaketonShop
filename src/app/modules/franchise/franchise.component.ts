@@ -1,13 +1,19 @@
-import {
-  Component,
-  OnInit,
-  OnDestroy,
-  AfterViewInit,
-  ElementRef,
-  Renderer2,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+interface RoadmapStep {
+  title: string;
+  desc: string;
+  details: string[];
+  icon: string;
+}
+
+interface FinancialItem {
+  label: string;
+  value: string;
+  type: 'neutral' | 'expense' | 'income' | 'highlight';
+}
 
 @Component({
   selector: 'app-franchise',
@@ -17,106 +23,142 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './franchise.component.scss',
 })
 export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
-  // ─── FAQ ───
-  faqItems = [
-    {
-      q: 'Какой стартовый капитал необходим?',
-      a: 'Минимальные инвестиции начинаются от 500 000 ₽. Мы поможем оптимизировать затраты и подберём формат, который подходит именно вам и вашему городу.',
-      open: false,
-    },
-    {
-      q: 'Сколько времени занимает открытие?',
-      a: 'От момента подписания договора до открытия проходит в среднем 4–8 недель. Мы сопровождаем каждый этап и контролируем все процессы.',
-      open: false,
-    },
-    {
-      q: 'Нужен ли опыт в торговле или бизнесе?',
-      a: 'Нет, не нужен. Мы обучаем с нуля: от работы с поставщиками до управления командой и финансового учёта. У нас есть готовые стандарты и пошаговые инструкции.',
-      open: false,
-    },
-    {
-      q: 'Какой срок окупаемости?',
-      a: 'Средний срок окупаемости — 3–6 месяцев. Точка безубыточности достигается при обороте от 400 000 ₽, что обычно происходит на второй месяц работы.',
-      open: false,
-    },
-    {
-      q: 'Какая поддержка оказывается после открытия?',
-      a: 'Вы получаете персонального менеджера, доступ к CRM-системе, регулярные маркетинговые материалы, оперативную помощь по любым вопросам и поддержку 7 дней в неделю.',
-      open: false,
-    },
-    {
-      q: 'Есть ли эксклюзив на территорию?',
-      a: 'Да, за каждым партнёром закрепляется эксклюзивная территория. Мы не открываем конкурирующие точки в вашем районе, чтобы вы могли спокойно развиваться.',
-      open: false,
-    },
-    {
-      q: 'Как формируется ассортимент?',
-      a: 'Мы проводим анализ вашего города, изучаем конкурентов и покупательский спрос. Ассортимент формируется индивидуально для максимальной доходности вашей точки.',
-      open: false,
-    },
+  // ─── Данные: Рынок и О компании ───
+  marketStats = [
+    { value: '670+ млрд ₽', label: 'Объём рынка упаковки в РФ' },
+    { value: '5–8%', label: 'Ежегодный рост рынка' },
+    { value: '8000+', label: 'Наименований в ассортименте' },
+    { value: '20 лет', label: 'История развития компании' },
   ];
 
-  // ─── Calculator ───
-  investment = 500000;
-  avgCheck = 700;
-  clientsPerDay = 25;
-  marginPercent = 50;
+  // ─── Данные: Категории продукции ───
+  categories = [
+    { title: 'Упаковка для еды', desc: 'Контейнеры, ланч-боксы, эко-упаковка', icon: 'box' },
+    { title: 'Одноразовая посуда', desc: 'Для HoReCa, фастфудов и кейтеринга', icon: 'utensils' },
+    { title: 'Плёнки и пакеты', desc: 'ПВД, ПНД, стрейч-плёнка, майки', icon: 'package' },
+    { title: 'Бумажная упаковка', desc: 'Крафт-пакеты, пакеты с логотипом', icon: 'file' },
+    { title: 'Для кондитеров', desc: 'Коробки для тортов, подложки, капсулы', icon: 'cake' },
+    { title: 'Пластиковые бутылки', desc: 'ПЭТ-тара для напитков и молочной продукции', icon: 'bottle' },
+  ];
 
-  get dailyRevenue(): number {
-    return this.clientsPerDay * this.avgCheck;
-  }
-  get monthlyRevenue(): number {
-    return this.dailyRevenue * 30;
-  }
-  get monthlyCOGS(): number {
-    return Math.round(this.monthlyRevenue / (1 + this.marginPercent / 100));
-  }
-  get monthlyGross(): number {
-    return this.monthlyRevenue - this.monthlyCOGS;
-  }
-  get monthlyExpenses(): number {
-    const rent = 60000;
-    const salaries = 100000;
-    const taxes = Math.round(this.monthlyGross * 0.06);
-    const other = 25000;
-    return rent + salaries + taxes + other;
-  }
-  get monthlyProfit(): number {
-    return this.monthlyGross - this.monthlyExpenses;
-  }
-  get paybackMonths(): number {
-    return this.monthlyProfit > 0 ? Math.ceil(this.investment / this.monthlyProfit) : Infinity;
-  }
-  get profitability(): number {
-    return this.monthlyRevenue > 0
-      ? Math.round((this.monthlyProfit / this.monthlyRevenue) * 100)
-      : 0;
-  }
+  // ─── Данные: Финансы (строго ваши цифры) ───
+  financialMetrics = [
+    { label: 'Инвестиции в открытие', value: 'от 1 000 000 ₽', type: 'highlight' },
+    { label: 'Средний чек', value: '1 200 ₽', type: 'neutral' },
+    { label: 'Клиентов в день', value: 'от 80', type: 'neutral' },
+    { label: 'Плановая выручка', value: '1 200 000 ₽', type: 'income' },
+    { label: 'Чистая прибыль', value: '159 000 ₽', type: 'income' },
+    { label: 'Окупаемость (T5)', value: '10–14 месяцев', type: 'highlight' },
+  ];
 
-  // ─── Form ───
+  profitBreakdown: FinancialItem[] = [
+    { label: 'Выручка', value: '1 200 000 ₽', type: 'income' },
+    { label: 'Себестоимость (60%)', value: '− 720 000 ₽', type: 'expense' },
+    { label: 'Аренда помещения', value: '− 100 000 ₽', type: 'expense' },
+    { label: 'ЗП персонала', value: '− 150 000 ₽', type: 'expense' },
+    { label: 'Маркетинг и прочее', value: '− 71 000 ₽', type: 'expense' },
+    { label: 'Чистая прибыль', value: '159 000 ₽', type: 'highlight' },
+  ];
+
+  // ── Данные: Этапы открытия (10 шагов с деталями) ───
+  roadmapSteps: RoadmapStep[] = [
+  {
+    title: 'Заявка и знакомство',
+    desc: 'Оставляете заявку, и мы проводим бесплатную 30-минутную консультацию о потенциале вашего города.',
+    icon: 'clipboard',
+    details: ['Анализ вашего региона', 'Ответы на все вопросы']
+  },
+  {
+    title: 'Финансовая модель',
+    desc: 'Готовим персональный расчет окупаемости и прибыли конкретно под ваши условия и бюджет.',
+    icon: 'chart',
+    details: ['Прогноз ROI', 'Детализация затрат']
+  },
+  {
+    title: 'Подписание договора',
+    desc: 'Юридически закрепляем партнерство. Вы получаете эксклюзивные права на ваш город.',
+    icon: 'file-sign',
+    details: ['Паушальный взнос', 'Юридическая чистота']
+  },
+  {
+    title: 'Подбор помещения',
+    desc: 'Наши эксперты помогают найти идеальную точку 100–350 м² с высоким трафиком и удобной разгрузкой.',
+    icon: 'search',
+    details: ['Оценка трафика', 'Проверка документов']
+  },
+  {
+    title: 'Дизайн и ремонт',
+    desc: 'Передаем готовый дизайн-проект магазина и чек-лист для строителей. Контролируем сроки.',
+    icon: 'tools',
+    details: ['Фирменный стиль', 'Авторский надзор']
+  },
+  {
+    title: 'Оснащение оборудованием',
+    desc: 'Отгружаем торговое оборудование и технику напрямую с нашего распределительного центра.',
+    icon: 'grid',
+    details: ['Логистика под ключ', 'Монтаж и настройка']
+  },
+  {
+    title: 'Загрузка ассортимента',
+    desc: 'Формируем стартовый заказ из 8000+ SKU самых ходовых позиций для вашего региона.',
+    icon: 'clipboard', // можно заменить на 'cart' если есть такой icon
+    details: ['Товарная матрица', 'Система учета 1С']
+  },
+  {
+    title: 'Обучение команды',
+    desc: 'Проводим интенсив для вас и ваших продавцов: стандарты продаж, работа с ПО и B2B-клиентами.',
+    icon: 'graduation',
+    details: ['База знаний', 'Тестирование персонала']
+  },
+  {
+    title: 'Маркетинговый запуск',
+    desc: 'Организуем яркое открытие, настраиваем локальную рекламу и запускаем базу B2B-клиентов.',
+    icon: 'megaphone',
+    details: ['Рекламные материалы', 'Первые оптовые контракты']
+  },
+  {
+    title: 'Первая прибыль и поддержка',
+    desc: 'Вы выходите на плановые показатели. Мы остаемся на связи 24/7 для масштабирования.',
+    icon: 'flag',
+    details: ['Ежемесячный аудит', 'Помощь в масштабировании']
+  }
+];
+
+  // ─── Данные: Города ───
+  cities = ['Алейск', 'Барнаул', 'Бийск', 'Бердск', 'Белокуриха', 'Заринск', 'Камень-на-Оби', 'Новоалтайск', 'Новокузнецк', 'Новосибирск', 'Омск', 'Славгород', 'Рубцовск', 'Тюменск', 'Тюмень', 'Горно-Алтайск'];
+  openFranchises = [
+    'г. Горно-Алтайск, пр. Коммунистический, 1/6',
+    'г. Ханты-Мансийск, ул. Комсомольская, 63',
+    'г. Сочи, ул. Ленина, 96',
+  ];
+
+  // ─── Данные: FAQ ──
+  faqItems = [
+    { q: 'Нужен ли опыт в розничной торговле?', a: 'Нет, не нужен. Мы предоставляем пошаговые инструкции, обучаем вас и вашу команду, а персональный куратор сопровождает на всех этапах.', open: false },
+    { q: 'Как формируется ассортимент?', a: 'Мы проводим анализ вашего города и локации. Ассортимент из 8000+ позиций подбирается индивидуально для максимальной оборачиваемости.', open: false },
+    { q: 'Какая поддержка оказывается после открытия?', a: 'Полная: от консультаций по ценообразованию и документообороту до организации рекламных акций и отгрузок с нашего распределительного центра.', open: false },
+    { q: 'Есть ли эксклюзив на территорию?', a: 'Да, мы закрепляем за партнёром зону присутствия, чтобы исключить внутреннюю конкуренцию и обеспечить стабильный рост вашей клиентской базы.', open: false },
+  ];
+
+  // ─── Форма ───
   formName = '';
   formPhone = '';
   formCity = '';
   formSubmitted = false;
 
-  // ─── Scroll animation ───
   private observer!: IntersectionObserver;
 
-  // ─── Sticky CTA ───
-  showStickyCta = false;
-  private scrollListener!: () => void;
+  constructor(private el: ElementRef, private renderer: Renderer2) { }
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
-
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    // Scroll reveal
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             this.renderer.addClass(entry.target, 'revealed');
+            this.observer.unobserve(entry.target);
           }
         });
       },
@@ -125,23 +167,10 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
 
     const revealElements = this.el.nativeElement.querySelectorAll('.reveal');
     revealElements.forEach((el: HTMLElement) => this.observer.observe(el));
-
-    // Sticky CTA
-    this.scrollListener = () => {
-      this.showStickyCta = window.scrollY > 800;
-    };
-    window.addEventListener('scroll', this.scrollListener, { passive: true });
-
-    // Animate counters
-    this.animateCounters();
-
-    // Parallax light orbs
-    this.initParallax();
   }
 
   ngOnDestroy(): void {
     if (this.observer) this.observer.disconnect();
-    if (this.scrollListener) window.removeEventListener('scroll', this.scrollListener);
   }
 
   toggleFaq(index: number): void {
@@ -151,11 +180,6 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
   onSubmit(): void {
     if (this.formName && this.formPhone) {
       this.formSubmitted = true;
-      console.log('Lead:', {
-        name: this.formName,
-        phone: this.formPhone,
-        city: this.formCity,
-      });
     }
   }
 
@@ -164,57 +188,11 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
     formEl?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  formatCurrency(val: number): string {
-    return val.toLocaleString('ru-RU');
+  get firstFiveSteps() {
+    return this.roadmapSteps.slice(0, 5);
   }
 
-  private animateCounters(): void {
-    const counterObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const target = parseInt(entry.target.getAttribute('data-target') || '0', 10);
-            this.countUp(entry.target, target);
-            counterObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    const counters = this.el.nativeElement.querySelectorAll('.counter-animate');
-    counters.forEach((el: HTMLElement) => counterObserver.observe(el));
-  }
-
-  private countUp(el: any, target: number): void {
-    const duration = 2000;
-    const startTime = performance.now();
-
-    const step = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.round(eased * target);
-      el.textContent = current.toLocaleString('ru-RU');
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      }
-    };
-
-    requestAnimationFrame(step);
-  }
-
-  private initParallax(): void {
-    const handleMove = (e: MouseEvent) => {
-      const orbs = this.el.nativeElement.querySelectorAll('.parallax-orb');
-      const x = (e.clientX / window.innerWidth - 0.5) * 2;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-      orbs.forEach((orb: HTMLElement, i: number) => {
-        const factor = (i + 1) * 15;
-        orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
-      });
-    };
-    window.addEventListener('mousemove', handleMove, { passive: true });
+  get lastFiveStepsReversed() {
+    return this.roadmapSteps.slice(5, 10).slice().reverse();
   }
 }

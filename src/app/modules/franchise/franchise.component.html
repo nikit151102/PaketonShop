@@ -2,465 +2,321 @@
 <!-- HERO SECTION                                        -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="hero">
-    <div class="hero-bg">
-        <div class="parallax-orb orb-1"></div>
-        <div class="parallax-orb orb-2"></div>
-        <div class="parallax-orb orb-3"></div>
-        <div class="grid-overlay"></div>
+  <div class="container hero-content reveal">
+    <span class="hero-badge">Франшиза розничной торговли • 2026 г.</span>
+    <h1 class="hero-title">
+      <span class="brand-name">ПАКЕТОН.РФ</span>
+      <span class="hero-subtitle-main">Супермаркет упаковки</span>
+    </h1>
+    <p class="hero-subtitle">
+      Готовый бизнес с доходом от 159 000 ₽ в месяц. Более 8000 наименований востребованного товара, полная поддержка и окупаемость от 10 месяцев.
+    </p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" (click)="scrollToForm()">
+        Получить финансовую модель
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn btn-outline-light" (click)="scrollToForm()">Рассчитать прибыль</button>
     </div>
 
-    <div class="container hero-inner">
-        <div class="hero-content">
-            <div class="hero-badge reveal">🚀 Лидер рынка упаковки</div>
-            <h1 class="hero-title reveal">
-                Станьте владельцем прибыльного бизнеса с
-                <span class="gradient-text">готовой франшизой</span>
-            </h1>
-            <p class="hero-sub reveal">
-                Мы создали идеальную бизнес-модель, которая приносит стабильный доход.<br />
-                Вам остаётся только запустить магазин и получать прибыль вместе с нами.
-            </p>
-            <div class="hero-buttons reveal">
-                <button class="btn-primary btn-glow" (click)="scrollToForm()">
-                    <span>Получить презентацию</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </button>
-                <button class="btn-secondary" (click)="scrollToForm()">
-                    Рассчитать прибыль
-                </button>
-            </div>
-            <div class="hero-stats reveal">
-                <div class="hero-stat">
-                    <span class="hero-stat-num">от 500 000 ₽</span>
-                    <span class="hero-stat-label">Стартовый капитал</span>
-                </div>
-                <div class="hero-stat-divider"></div>
-                <div class="hero-stat">
-                    <span class="hero-stat-num">3–6 мес.</span>
-                    <span class="hero-stat-label">Окупаемость</span>
-                </div>
-                <div class="hero-stat-divider"></div>
-                <div class="hero-stat">
-                    <span class="hero-stat-num">до 21%</span>
-                    <span class="hero-stat-label">Рентабельность</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="hero-visual reveal">
-            <div class="hero-mockup">
-                <div class="mockup-glow"></div>
-                <div class="mockup-card">
-                    <div class="mockup-header">
-                        <div class="mockup-logo">Пакетон.РФ</div>
-                        <div class="mockup-badge-live">LIVE</div>
-                    </div>
-                    <div class="mockup-body">
-                        <div class="mockup-chart">
-                            <div class="chart-bar" style="--h: 40%"></div>
-                            <div class="chart-bar" style="--h: 55%"></div>
-                            <div class="chart-bar" style="--h: 70%"></div>
-                            <div class="chart-bar" style="--h: 60%"></div>
-                            <div class="chart-bar" style="--h: 85%"></div>
-                            <div class="chart-bar" style="--h: 95%"></div>
-                            <div class="chart-bar" style="--h: 100%"></div>
-                        </div>
-                        <div class="mockup-stat-row">
-                            <div class="mockup-mini-stat">
-                                <span class="mini-label">Выручка</span>
-                                <span class="mini-value green">750 000 ₽</span>
-                            </div>
-                            <div class="mockup-mini-stat">
-                                <span class="mini-label">Прибыль</span>
-                                <span class="mini-value green">161 500 ₽</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="float-card float-card-1">
-                    <div class="float-icon">📦</div>
-                    <div class="float-text">+340 заказов</div>
-                </div>
-                <div class="float-card float-card-2">
-                    <div class="float-icon">💰</div>
-                    <div class="float-text">+21% маржа</div>
-                </div>
-                <div class="float-card float-card-3">
-                    <div class="float-icon">🚀</div>
-                    <div class="float-text">Окупаемость 4 мес.</div>
-                </div>
-            </div>
-        </div>
+    <div class="hero-stats-row">
+      <div class="hero-stat-item" *ngFor="let stat of marketStats">
+        <span class="stat-value">{{ stat.value }}</span>
+        <span class="stat-label">{{ stat.label }}</span>
+      </div>
     </div>
-
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- WHY PAKETON                                         -->
+<!-- ABOUT & MARKET                                      -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section class="section why-section" id="why">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Преимущества</span>
-            <h2 class="section-title">Почему предприниматели выбирают <span class="gradient-text">Пакетон</span></h2>
-            <p class="section-subtitle">
-                Мы создали систему, которая работает без сбоев. Вам не нужно ничего придумывать — просто следуйте готовому плану.
-            </p>
+<section class="section section-white">
+  <div class="container">
+    <div class="grid-2-col">
+      <div class="content-block reveal">
+        <!-- <span class="section-tag">О компании</span> -->
+        <h2 class="section-title">Лидер регионального рынка упаковки в Сибири</h2>
+        <p class="text-body">
+          Компания «Пакетон» производит и продаёт самые разные виды упаковки: от одноразовой посуды и упаковки для кондитерских изделий до пластиковых бутылок.
+        </p>
+        <p class="text-body">
+          Мы поставляем продукцию предприятиям молочной, мясной и рыбной промышленности, хлебокомбинатам, торговым центрам, медицинским учреждениям, фастфудам и ресторанам. Упаковка — это не тренд, а базовая необходимость бизнеса с ежедневным спросом.
+        </p>
+        <ul class="check-list">
+          <li>Широкий ассортимент (8000+ SKU)</li>
+          <li>Высокое качество и надёжные поставки</li>
+          <li>Индивидуальный подход к каждому партнёру</li>
+        </ul>
+      </div>
+      <!-- <div class="image-block reveal">
+        <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=1000&auto=format&fit=crop" alt="Современный магазин упаковки" class="rounded-img shadow-lg">
+        <div class="floating-card">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2da63e" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <div>
+            <span class="fc-title">Рынок растёт</span>
+            <span class="fc-desc">Объём мирового рынка превысит 1,45 трлн $ к 2030 году</span>
+          </div>
         </div>
+      </div> -->
+    </div>
+  </div>
+</section>
 
-        <div class="why-grid">
-            <div class="glass-card reveal" *ngFor="let item of [
-        {icon: '✅', title: 'Проверенная модель', desc: 'Отработана на десятках точек по всей России. Каждая цифра подтверждена реальной финансовой отчётностью.'},
-        {icon: '🤝', title: 'Полное сопровождение', desc: 'Персональный менеджер и команда экспертов на всех этапах — от регистрации до стабильной прибыли.'},
-        {icon: '🎓', title: 'Обучение с нуля', desc: 'Интенсивная программа для вас и ваших сотрудников. Всё, что нужно знать для успешной работы.'},
-        {icon: '🏗️', title: 'Открытие под ключ', desc: 'Поиск помещения, дизайн-проект, закупка оборудования и выкладка товара — мы берём на себя.'},
-        {icon: '📦', title: 'Товарная матрица', desc: 'Индивидуальный анализ рынка вашего города и формирование ассортимента с максимальной маржинальностью.'},
-        {icon: '🏭', title: 'Прямые поставки', desc: 'Работаем напрямую с федеральными производителями. Вы получаете лучшие цены без посредников.'},
-        {icon: '📈', title: 'Высокая маржинальность', desc: 'Наценка достигает 50–100% на отдельные категории. Средняя рентабельность — 21%.'},
-        {icon: '⚡', title: 'Быстрая окупаемость', desc: 'Средний срок возврата инвестиций — от 3 до 6 месяцев. Точка безубыточности — с первого месяца.'}
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- WHAT YOU GET                                        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="section section-primary">
+  <div class="container">
+    <div class="section-header reveal">
+      <!-- <span class="section-tag light">Ваша выгода</span> -->
+      <h2 class="section-title text-white">Что вы получаете, купив франшизу?</h2>
+      <p class="section-subtitle text-white-muted">Мы не просто продаём бренд, мы передаём работающую систему заработка.</p>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card reveal" *ngFor="let item of [
+        {title: 'Доход с первого месяца', desc: 'Гарантированная выручка благодаря готовой товарной матрице и маркетинговому плану.', icon: 'wallet'},
+        {title: 'Рост выручки 30–100%', desc: 'Ежемесячное увеличение оборота за счёт расширения B2B-клиентской базы.', icon: 'chart-up'},
+        {title: 'Масштабирование B2B', desc: 'Увеличьте прибыль в 2–3 раза, заключая контракты с производствами, барами и медицинскими учреждениями.', icon: 'building'},
+        {title: 'Полная автоматизация', desc: 'Готовое ПО для магазина, отчёты P&L, ведение бухгалтерии и учёт товародвижения.', icon: 'computer'}
       ]">
-                <div class="card-icon">{{ item.icon }}</div>
-                <h3 class="card-title">{{ item.title }}</h3>
-                <p class="card-desc">{{ item.desc }}</p>
-            </div>
+        <div class="benefit-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path *ngIf="item.icon === 'wallet'" d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path *ngIf="item.icon === 'wallet'" d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path *ngIf="item.icon === 'wallet'" d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
+            <path *ngIf="item.icon === 'chart-up'" d="M3 3v18h18"/><path *ngIf="item.icon === 'chart-up'" d="M18 17V9"/><path *ngIf="item.icon === 'chart-up'" d="M13 17V5"/><path *ngIf="item.icon === 'chart-up'" d="M8 17v-3"/>
+            <rect *ngIf="item.icon === 'building'" x="4" y="2" width="16" height="20" rx="2" ry="2"/><path *ngIf="item.icon === 'building'" d="M9 22v-4h6v4"/><path *ngIf="item.icon === 'building'" d="M8 6h.01"/><path *ngIf="item.icon === 'building'" d="M16 6h.01"/><path *ngIf="item.icon === 'building'" d="M12 6h.01"/><path *ngIf="item.icon === 'building'" d="M12 10h.01"/><path *ngIf="item.icon === 'building'" d="M12 14h.01"/><path *ngIf="item.icon === 'building'" d="M16 10h.01"/><path *ngIf="item.icon === 'building'" d="M16 14h.01"/><path *ngIf="item.icon === 'building'" d="M8 10h.01"/><path *ngIf="item.icon === 'building'" d="M8 14h.01"/>
+            <rect *ngIf="item.icon === 'computer'" x="2" y="3" width="20" height="14" rx="2" ry="2"/><line *ngIf="item.icon === 'computer'" x1="8" y1="21" x2="16" y2="21"/><line *ngIf="item.icon === 'computer'" x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
         </div>
+        <h3 class="benefit-title">{{ item.title }}</h3>
+        <p class="benefit-desc">{{ item.desc }}</p>
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- CTA BANNER 1                                        -->
+<!-- FINANCIALS                                          -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section class="cta-banner reveal">
-    <div class="container cta-banner-inner">
-        <div>
-            <h3 class="cta-banner-title">Готовы начать свой бизнес?</h3>
-            <p class="cta-banner-text">Получите детальную презентацию с финансовой моделью и расчётами</p>
-        </div>
-        <button class="btn-primary btn-glow" (click)="scrollToForm()">
-            Получить презентацию
-        </button>
+<section class="section section-finance">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-tag">Экономика</span>
+      <h2 class="section-title">Прозрачные финансовые показатели</h2>
+      <p class="section-subtitle">Конкретные инвестиции, понимание всех затрат, возможность рассчитать ROI и T5 (период окупаемости).</p>
     </div>
+
+    <div class="finance-wrapper reveal">
+      <div class="finance-metrics">
+        <div class="metric-box" *ngFor="let m of financialMetrics" [class.highlight]="m.type === 'highlight'" [class.income]="m.type === 'income'">
+          <span class="metric-val">{{ m.value }}</span>
+          <span class="metric-lbl">{{ m.label }}</span>
+        </div>
+      </div>
+
+      <div class="finance-breakdown">
+        <h3 class="breakdown-title">Прогноз прибыли в месяц</h3>
+        <div class="breakdown-row" *ngFor="let item of profitBreakdown" [class]="item.type">
+          <span class="bd-label">{{ item.label }}</span>
+          <span class="bd-value">{{ item.value }}</span>
+        </div>
+        <div class="breakdown-note">
+          * Минимальные риски: вы получаете ликвидный товар и собственный бизнес, не оставаясь один на один с проблемами.
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- HOW IT WORKS — ROADMAP                              -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section roadmap-section" id="how">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Процесс</span>
-            <h2 class="section-title">Как работает <span class="gradient-text">франшиза</span></h2>
-            <p class="section-subtitle">Всего 5 шагов отделяют вас от собственного прибыльного дела</p>
-        </div>
-
-        <div class="roadmap">
-            <div class="roadmap-line"></div>
-
-            <div class="roadmap-step reveal" *ngFor="let step of [
-        {num: '01', icon: '📋', title: 'Оставляете заявку', desc: 'Заполните форму на сайте или позвоните нам. Мы свяжемся с вами в течение 30 минут и ответим на все вопросы.'},
-        {num: '02', icon: '🏢', title: 'Подбираем помещение', desc: 'Проводим анализ трафика и конкурентов, выбираем идеальную точку площадью 30–50 м² с высоким потенциалом.'},
-        {num: '03', icon: '🎯', title: 'Формируем ассортимент', desc: 'Разрабатываем товарную матрицу под специфику вашего города, целевую аудиторию и покупательский спрос.'},
-        {num: '04', icon: '🚀', title: 'Запускаем магазин', desc: 'Дизайн-проект, ремонт, закупка оборудования, обучение персонала и открытие за 4–8 недель.'},
-        {num: '05', icon: '💰', title: 'Получаете прибыль', desc: 'Стабильный доход с первого месяца работы. Мы продолжаем сопровождать вас и помогать расти.'}
-      ]; let i = index">
-                <div class="step-connector">
-                    <div class="step-number">{{ step.num }}</div>
-                </div>
-                <div class="step-content">
-                    <div class="step-icon-wrap">
-                        <span class="step-icon">{{ step.icon }}</span>
-                    </div>
-                    <h3 class="step-title">{{ step.title }}</h3>
-                    <p class="step-desc">{{ step.desc }}</p>
-                </div>
-            </div>
-        </div>
+<!-- ROADMAP - 10 STEPS (S-FLOW)                         -->
+<!-- ══════════════════════════════════════════════════ -->
+<section class="section section-roadmap">
+  <div class="container">
+    <div class="section-header reveal">
+      <h2 class="section-title">10 шагов к успешному старту</h2>
+      <p class="section-subtitle">Ваш путь от заявки до работающего магазина. Каждый этап логично и плавно перетекает в следующий.</p>
     </div>
+
+    <div class="roadmap-flow reveal">
+      <div class="timeline-step" *ngFor="let step of roadmapSteps; let i = index" [attr.data-step]="i + 1">
+        <div class="step-header">
+          <div class="step-icon">
+            <ng-container [ngSwitch]="step.icon">
+              <svg *ngSwitchCase="'clipboard'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              <svg *ngSwitchCase="'chart'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+              <svg *ngSwitchCase="'file-sign'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+              <svg *ngSwitchCase="'search'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <svg *ngSwitchCase="'tools'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <svg *ngSwitchCase="'grid'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <svg *ngSwitchCase="'graduation'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              <svg *ngSwitchCase="'megaphone'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 18-5v12L3 14v-3zM11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
+              <svg *ngSwitchCase="'flag'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              <svg *ngSwitchDefault width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            </ng-container>
+          </div>
+          <h3 class="step-title">{{ step.title }}</h3>
+        </div>
+        <p class="step-desc">{{ step.desc }}</p>
+        <ul class="step-details" *ngIf="step.details?.length">
+          <li *ngFor="let d of step.details">{{ d }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- INFRASTRUCTURE & SUPPORT                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="section section-primary">
+  <div class="container">
+    <div class="grid-2-col">
+      <div class="reveal">
+        <!-- <span class="section-tag light">Инфраструктура</span> -->
+        <h2 class="section-title text-white">Надёжный тыл вашего бизнеса</h2>
+        <p class="text-body text-white-muted mb-4">На протяжении всех этапов работы магазин находится в тесном сотрудничестве с нашими службами:</p>
+        <ul class="support-list">
+          <li *ngFor="let item of ['Консультационная поддержка 24/7', 'Контроль магазинов и учёт товародвижения', 'Организация документооборота', 'Техническая поддержка пользователей', 'Формирование ассортимента и ценообразование', 'Проведение рекламных акций', 'Отгрузка товара с распределительного центра']">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ item }}
+          </li>
+        </ul>
+      </div>
+      <!-- <div class="infra-cards reveal">
+        <div class="infra-card" *ngFor="let item of ['Юридическая компания', 'Собственный логистический комплекс', 'КЭРГО (внутренний сервис)', 'Сервисное сопровождение']">
+          <div class="infra-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <span>{{ item }}</span>
+        </div>
+      </div> -->
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- INVESTMENTS — FINANCIAL MODEL                       -->
+<!-- REQUIREMENTS & PRESENCE                             -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section class="section invest-section" id="invest">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Финансы</span>
-            <h2 class="section-title">Инвестиции и <span class="gradient-text">доходность</span></h2>
-            <p class="section-subtitle">Прозрачные цифры. Никаких скрытых платежей.</p>
+<section class="section section-white">
+  <div class="container">
+    <div class="grid-2-col">
+      <div class="reveal">
+        <!-- <span class="section-tag">Требования</span> -->
+        <h2 class="section-title">Помещение для магазина</h2>
+        <div class="req-list">
+          <div class="req-item">
+            <span class="req-label">Площадь</span>
+            <span class="req-val">100–350 м² (в одном уровне)</span>
+          </div>
+          <div class="req-item">
+            <span class="req-label">Тип</span>
+            <span class="req-val">Отдельно стоящее, встроенное или часть помещения</span>
+          </div>
+          <div class="req-item">
+            <span class="req-label">Расположение</span>
+            <span class="req-val">ТЦ, рынок, оптовая база или улица с оживлённым трафиком</span>
+          </div>
+          <div class="req-item">
+            <span class="req-label">Разгрузка</span>
+            <span class="req-val">Без ограничений подъезда грузового автотранспорта</span>
+          </div>
         </div>
+      </div>
 
-        <div class="finance-card glass-card reveal">
-            <div class="finance-grid">
-                <div class="finance-item">
-                    <span class="finance-label">Закупка товара</span>
-                    <span class="finance-value">500 000 ₽</span>
-                </div>
-                <div class="finance-item highlight">
-                    <span class="finance-label">Наценка</span>
-                    <span class="finance-value">50%</span>
-                    <span class="finance-badge">+250 000 ₽</span>
-                </div>
-                <div class="finance-item success">
-                    <span class="finance-label">Выручка</span>
-                    <span class="finance-value">750 000 ₽</span>
-                </div>
-                <div class="finance-divider"></div>
-                <div class="finance-item">
-                    <span class="finance-label">Аренда</span>
-                    <span class="finance-value">− 30 000 ₽</span>
-                </div>
-                <div class="finance-item">
-                    <span class="finance-label">Управленческие расходы</span>
-                    <span class="finance-value">− 30 000 ₽</span>
-                </div>
-                <div class="finance-item">
-                    <span class="finance-label">Налоги</span>
-                    <span class="finance-value">− 28 500 ₽</span>
-                </div>
-                <div class="finance-divider"></div>
-                <div class="finance-item profit">
-                    <span class="finance-label">Чистая прибыль</span>
-                    <span class="finance-value green-big">161 500 ₽</span>
-                </div>
-            </div>
+      <div class="reveal">
+        <!-- <span class="section-tag">География</span> -->
+        <h2 class="section-title">Города нашего присутствия</h2>
+        <div class="cities-cloud">
+          <span class="city-tag" *ngFor="let city of cities">{{ city }}</span>
         </div>
-
-        <div class="metrics-row reveal">
-            <div class="metric-card glass-card">
-                <div class="metric-icon">💎</div>
-                <div class="metric-value counter-animate" data-target="500000">0</div>
-                <div class="metric-unit">₽</div>
-                <div class="metric-label">Стартовые вложения</div>
-            </div>
-            <div class="metric-card glass-card">
-                <div class="metric-icon">⏱️</div>
-                <div class="metric-value">3–6</div>
-                <div class="metric-unit">мес.</div>
-                <div class="metric-label">Срок окупаемости</div>
-            </div>
-            <div class="metric-card glass-card">
-                <div class="metric-icon">📊</div>
-                <div class="metric-value counter-animate" data-target="21">0</div>
-                <div class="metric-unit">%</div>
-                <div class="metric-label">Рентабельность</div>
-            </div>
-            <div class="metric-card glass-card">
-                <div class="metric-icon">💰</div>
-                <div class="metric-value">161 500</div>
-                <div class="metric-unit">₽</div>
-                <div class="metric-label">Прибыль в месяц</div>
-            </div>
-        </div>
+        <!-- <div class="open-franchises mt-6">
+          <h4 class="sub-heading">Уже открытые франшизы:</h4>
+          <ul class="simple-list">
+            <li *ngFor="let f of openFranchises">{{ f }}</li>
+          </ul>
+        </div> -->
+      </div>
     </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- CTA BANNER 2                                        -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="cta-banner reveal">
-    <div class="container cta-banner-inner">
-        <div>
-            <h3 class="cta-banner-title">Хотите точный расчёт для вашего города?</h3>
-            <p class="cta-banner-text">Оставьте заявку — мы подготовим индивидуальную финансовую модель</p>
-        </div>
-        <button class="btn-primary btn-glow" (click)="scrollToForm()">
-            Рассчитать прибыль
-        </button>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- WHAT'S INCLUDED                                     -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section included-section" id="included">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Пакет</span>
-            <h2 class="section-title">Что входит в <span class="gradient-text">франшизу</span></h2>
-            <p class="section-subtitle">Всё необходимое для успешного старта и масштабирования бизнеса</p>
-        </div>
-
-        <div class="included-grid">
-            <div class="included-card glass-card reveal" *ngFor="let item of [
-        {icon: '🎓', title: 'Обучение и тренинги', desc: 'Полная программа для владельца и сотрудников: видеоуроки, живые вебинары, чек-листы и практические задания.'},
-        {icon: '🧑‍💼', title: 'Персональный куратор', desc: 'Ваш личный наставник, который отвечает на любые вопросы 7 дней в неделю и помогает решать задачи.'},
-        {icon: '🏗️', title: 'Открытие под ключ', desc: 'Полный цикл: поиск помещения, ремонт, дизайн-проект, закупка оборудования и выкладка товара.'},
-        {icon: '📢', title: 'Маркетинг и реклама', desc: 'Готовые рекламные макеты, стратегии продвижения, скрипты продаж и SMM-пак для привлечения клиентов.'},
-        {icon: '🏭', title: 'База поставщиков', desc: 'Доступ к проверенной базе федеральных поставщиков с эксклюзивными ценами и условиями.'},
-        {icon: '💻', title: 'CRM-система', desc: 'Автоматизация учёта товаров, аналитика продаж, управление складом и отчётность в реальном времени.'},
-        {icon: '📊', title: 'Финансовая модель', desc: 'Готовый Excel-файл с расчётами, P&L отчётом и прогнозом на 12 месяцев работы.'},
-        {icon: '🎨', title: 'Дизайн-проект', desc: 'Фирменный дизайн магазина, вывески, навигация, мерчандайзинг и витрины.'},
-        {icon: '📋', title: 'Стандарты и регламенты', desc: 'Подробные SOP, регламенты работы, скрипты продаж и инструкции для каждого сотрудника.'},
-        {icon: '📖', title: 'Инструкции и гайды', desc: 'Пошаговые руководства на каждый процесс: от приёмки товара до закрытия кассовой смены.'}
-      ]">
-                <div class="included-icon">{{ item.icon }}</div>
-                <h4 class="included-title">{{ item.title }}</h4>
-                <p class="included-desc">{{ item.desc }}</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- SUPPORT TIMELINE                                    -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section timeline-section" id="support">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Поддержка</span>
-            <h2 class="section-title">Мы сопровождаем <span class="gradient-text">на каждом этапе</span></h2>
-            <p class="section-subtitle">Вы никогда не остаётесь один на один с бизнесом — мы всегда рядом</p>
-        </div>
-
-        <div class="timeline reveal">
-            <div class="timeline-line"></div>
-
-            <div class="timeline-item" *ngFor="let phase of [
-        {phase: 'Перед открытием', icon: '🔍', items: ['Глубокий анализ рынка вашего города', 'Подбор помещения с высоким трафиком', 'Разработка бизнес-плана', 'Обучение владельца']},
-        {phase: 'Запуск', icon: '🚀', items: ['Дизайн-проект и визуализация', 'Ремонт и оснащение', 'Первичная закупка товара', 'Набор и обучение персонала']},
-        {phase: 'После открытия', icon: '📈', items: ['Персональный куратор 24/7', 'Маркетинговая поддержка', 'Аналитика продаж', 'Оптимизация ассортимента']},
-        {phase: 'Масштабирование', icon: '💎', items: ['Открытие второй точки', 'Новые каналы продаж', 'Программы лояльности', 'Выход в онлайн-торговлю']}
-      ]">
-                <div class="timeline-dot">
-                    <span>{{ phase.icon }}</span>
-                </div>
-                <div class="timeline-content glass-card">
-                    <h4 class="timeline-phase">{{ phase.phase }}</h4>
-                    <ul class="timeline-list">
-                        <li *ngFor="let item of phase.items">{{ item }}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- SALES FORMATS                                       -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section formats-section" id="formats">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Каналы продаж</span>
-            <h2 class="section-title">Зарабатывайте через <span class="gradient-text">все доступные форматы</span></h2>
-            <p class="section-subtitle">Максимизируйте доход, используя мультиканальную стратегию продаж</p>
-        </div>
-
-        <div class="formats-grid">
-            <div class="format-card glass-card reveal" *ngFor="let fmt of [
-        {icon: '🏪', title: 'Оффлайн-магазин', desc: 'Проходимая точка с профессиональной выкладкой, фирменным дизайном и высоким уровнем сервиса.', color: '#37C84A'},
-        {icon: '🌐', title: 'Интернет-магазин', desc: 'Собственный сайт с каталогом, корзиной и удобной доставкой по городу и области.', color: '#2196F3'},
-        {icon: '📦', title: 'Самовывоз', desc: 'Клиент заказывает онлайн и забирает в магазине — удобно, быстро и без затрат на доставку.', color: '#FF9800'},
-        {icon: '🤝', title: 'B2B-продажи', desc: 'Работа с бизнесом: рестораны, кафе, производства, маркетплейсы и корпоративные клиенты.', color: '#9C27B0'}
-      ]">
-                <div class="format-icon-wrap" [style.--accent]="fmt.color">
-                    <span class="format-icon">{{ fmt.icon }}</span>
-                </div>
-                <h4 class="format-title">{{ fmt.title }}</h4>
-                <p class="format-desc">{{ fmt.desc }}</p>
-                <div class="format-arrow">→</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- WHY PROFITABLE                                      -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section profitable-section" id="profitable">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Рынок</span>
-            <h2 class="section-title">Почему упаковка — это <span class="gradient-text">выгодный бизнес</span></h2>
-            <p class="section-subtitle">Упаковка и расходные материалы — один из самых стабильных и быстрорастущих рынков</p>
-        </div>
-
-        <div class="profitable-grid">
-            <div class="profitable-card glass-card reveal" *ngFor="let item of [
-        {icon: '🔄', title: 'Постоянный спрос', desc: 'Каждый бизнес нуждается в упаковке ежедневно. Это не тренд, а базовая необходимость — спрос всегда есть.'},
-        {icon: '🔁', title: 'Высокий LTV клиента', desc: 'Клиент, купивший однажды, возвращается снова и снова. Пожизненная ценность клиента стремится к бесконечности.'},
-        {icon: '📈', title: 'Маржинальность до 150%', desc: 'Наценка на отдельные категории товаров достигает 100–150%. Это позволяет быстро выходить на высокую прибыль.'},
-        {icon: '🎯', title: 'Широкий ассортимент', desc: 'Тысячи SKU: пакеты, коробки, скотч, плёнка, перчатки, хозтовары — на любой вкус и бюджет.'},
-        {icon: '🏢', title: 'B2B + B2C в одном бизнесе', desc: 'Работайте и с бизнесом (оптовые поставки), и с частными клиентами (розничные продажи).'},
-        {icon: '🛡️', title: 'Антикризисная ниша', desc: 'Даже в кризис упаковка остаётся востребованной. Спрос стабилен круглый год, без сезонных спадов.'}
-      ]">
-                <div class="profitable-icon">{{ item.icon }}</div>
-                <h4 class="profitable-title">{{ item.title }}</h4>
-                <p class="profitable-desc">{{ item.desc }}</p>
-            </div>
-        </div>
-    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- FAQ                                                 -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section class="section faq-section" id="faq">
-    <div class="container">
-        <div class="section-header reveal">
-            <span class="section-tag">Вопросы</span>
-            <h2 class="section-title">Частые <span class="gradient-text">вопросы</span></h2>
-            <p class="section-subtitle">Ответы на самые важные вопросы о франшизе Пакетон</p>
-        </div>
-
-        <div class="faq-list reveal">
-            <div class="faq-item glass-card" *ngFor="let item of faqItems; let i = index" [class.open]="item.open">
-                <button class="faq-question" (click)="toggleFaq(i)">
-                    <span>{{ item.q }}</span>
-                    <span class="faq-icon" [class.rotated]="item.open">+</span>
-                </button>
-                <div class="faq-answer" [class.show]="item.open">
-                    <p>{{ item.a }}</p>
-                </div>
-            </div>
-        </div>
+<section class="section section-white">
+  <div class="container narrow-container">
+    <div class="section-header reveal">
+      <!-- <span class="section-tag">FAQ</span> -->
+      <h2 class="section-title">Частые вопросы</h2>
     </div>
+    <div class="faq-list reveal">
+      <div class="faq-item" *ngFor="let item of faqItems; let i = index" [class.open]="item.open">
+        <button class="faq-question" (click)="toggleFaq(i)">
+          <span>{{ item.q }}</span>
+          <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="faq-answer" [class.show]="item.open">
+          <p>{{ item.a }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- FINAL CTA + FORM                                    -->
+<!-- FINAL CTA & CONTACTS                                -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="section final-cta" id="cta-final">
-    <div class="final-bg">
-        <div class="parallax-orb orb-final-1"></div>
-        <div class="parallax-orb orb-final-2"></div>
-    </div>
-    <div class="container final-cta-inner">
-        <div class="final-content reveal">
-            <h2 class="final-title">
-                Начните свой бизнес <span class="gradient-text">уже сегодня</span>
-            </h2>
-            <p class="final-text">
-                Мы проведём вас от идеи до стабильной прибыли. Оставьте заявку —<br />
-                и мы подготовим персональную финансовую модель и презентацию.
-            </p>
+  <div class="container">
+    <div class="cta-grid">
+      <div class="cta-info reveal">
+        <h2 class="section-title text-white">Начните свой бизнес<br>уже сегодня</h2>
+        <p class="text-body cta-lead">Оставьте заявку, и мы подготовим персональную финансовую модель и презентацию для вашего города.</p>
+
+        <div class="contact-details mt-6">
+          <div class="contact-row">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Алтайский край, г. Барнаул, ул. Попова, 165Б</span>
+          </div>
+          <div class="contact-row">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>+7 (3852) 555 861</span>
+          </div>
+          <div class="contact-row">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>Пакетон.рф</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-form-wrapper reveal">
+        <div class="form-card" *ngIf="!formSubmitted">
+          <h3 class="form-title">Получить презентацию франшизы</h3>
+          <div class="form-group">
+            <input type="text" placeholder="Ваше имя" [(ngModel)]="formName" class="form-input">
+          </div>
+          <div class="form-group">
+            <input type="tel" placeholder="Телефон" [(ngModel)]="formPhone" class="form-input">
+          </div>
+          <div class="form-group">
+            <input type="text" placeholder="Город" [(ngModel)]="formCity" class="form-input">
+          </div>
+          <button class="btn btn-primary btn-full" (click)="onSubmit()">Отправить заявку</button>
+          <p class="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности</p>
         </div>
 
-        <div class="final-form glass-card reveal" *ngIf="!formSubmitted">
-            <h3 class="form-title">Получить финансовую модель</h3>
-            <div class="form-group">
-                <input type="text" placeholder="Ваше имя" [(ngModel)]="formName" class="form-input" />
-            </div>
-            <div class="form-group">
-                <input type="tel" placeholder="Телефон" [(ngModel)]="formPhone" class="form-input" />
-            </div>
-            <div class="form-group">
-                <input type="text" placeholder="Город" [(ngModel)]="formCity" class="form-input" />
-            </div>
-            <button class="btn-primary btn-glow btn-full" (click)="onSubmit()">
-                Получить финансовую модель
-            </button>
-            <p class="form-note">Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности</p>
+        <div class="form-card success-state" *ngIf="formSubmitted">
+          <div class="success-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#2da63e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3 class="form-title">Заявка отправлена!</h3>
+          <p class="text-body text-center">Мы свяжемся с вами в течение 30 минут в рабочее время.</p>
         </div>
-
-        <div class="final-form glass-card reveal success-state" *ngIf="formSubmitted">
-            <div class="success-icon">✅</div>
-            <h3 class="form-title">Заявка отправлена!</h3>
-            <p class="form-success-text">
-                Мы свяжемся с вами в течение 30 минут в рабочее время.
-            </p>
-        </div>
+      </div>
     </div>
+  </div>
 </section>
