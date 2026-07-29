@@ -33,7 +33,6 @@ export class AuthComponent implements OnInit, OnDestroy {
   visible: boolean = false;
   authForm: FormGroup;
   isSubmitting: boolean = false;
-  authMode: 'login' | 'register' = 'login';
   isRedirecting = computed(() => this.authService.isRedirectingToProfile())
 
 
@@ -57,6 +56,22 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   private readonly toast = inject(ToastService);
 
+  // свойства для сброса пароля
+  authMode: 'login' | 'register' | 'forgot-password' = 'login';
+  restoreStep: 1 | 2 | 3 = 1;
+  restoreEmail = '';
+  restoreCode = '';
+  isCodeSent = false;
+  codeResendTimer = 0;
+  private resendInterval: any;
+
+  // Валидация кода
+  codeValidationMessages = {
+    required: 'Введите код',
+    pattern: 'Код должен содержать 5 цифр',
+    invalid: 'Неверный код'
+  };
+
   constructor(
     private authService: AuthService,
     private fb: FormBuilder,
@@ -71,10 +86,26 @@ export class AuthComponent implements OnInit, OnDestroy {
       password: ['', [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/) // Измененный паттерн
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
       ]],
-      confirmPassword: ['']
-    }, { validators: this.passwordMatchValidator() });
+      confirmPassword: [''],
+      // Поля для сброса пароля
+      restoreCode: ['', [
+        Validators.required,
+        Validators.pattern(/^\d{5}$/)
+      ]],
+      newPassword: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
+      ]],
+      confirmNewPassword: ['']
+    }, {
+      validators: [
+        this.passwordMatchValidator(),
+        this.newPasswordMatchValidator()
+      ]
+    });
   }
 
   ngOnInit(): void {
@@ -100,9 +131,315 @@ export class AuthComponent implements OnInit, OnDestroy {
         this.authForm.updateValueAndValidity();
       }
     });
+
+    this.checkActiveRestore();
   }
 
-  // Custom validator for password matching
+
+  /**
+   * Проверка, есть ли активный процесс восстановления
+   */
+  private checkActiveRestore(): void {
+    const restoreData = this.authService.getRestoreData();
+
+    if (restoreData && restoreData.email) {
+      this.authMode = 'forgot-password';
+      this.restoreEmail = restoreData.email;
+      this.restoreStep = restoreData.code ? 2 : 1;
+      this.isCodeSent = !!restoreData.code;
+
+      // Заполняем форму
+      this.authForm.patchValue({
+        email: restoreData.email,
+        restoreCode: restoreData.code || ''
+      });
+    }
+  }
+
+  /**
+   * Переключение на режим сброса пароля
+   */
+  startForgotPassword(): void {
+    this.authMode = 'forgot-password';
+    this.restoreStep = 1;
+    this.restoreEmail = '';
+    this.restoreCode = '';
+    this.isCodeSent = false;
+    this.formErrors = {};
+
+    this.authForm.patchValue({
+      email: '',
+      restoreCode: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    });
+  }
+
+  /**
+   * Возврат к режиму входа
+   */
+  backToLogin(): void {
+    this.authMode = 'login';
+    this.authService.clearRestoreData();
+    this.resetForm();
+  }
+
+  /**
+   * Шаг 1: Отправка кода на email
+   */
+  sendRestoreCode(): void {
+    const email = this.authForm.get('email')?.value;
+
+    if (!email || this.authForm.get('email')?.invalid) {
+      this.formErrors['email'] = this.validationMessages.email.required;
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.formErrors = {};
+
+    this.authService.restorePassword(email).pipe(
+      finalize(() => this.isSubmitting = false)
+    ).subscribe({
+      next: (success) => {
+        if (success) {
+          this.restoreEmail = email;
+          this.isCodeSent = true;
+          this.restoreStep = 2;
+
+          // Сохраняем email для следующих шагов
+          this.authService.saveRestoreData(email);
+
+          // Запускаем таймер повторной отправки
+          this.startResendTimer();
+
+          this.toast.success(
+            'Код отправлен на ваш email',
+            'Проверьте папку "Спам", если письмо не пришло'
+          );
+        } else {
+          this.formErrors['api'] = 'Не удалось отправить код. Проверьте email.';
+        }
+      },
+      error: (err) => {
+        this.formErrors['api'] = err.error?.message || 'Ошибка при отправке кода';
+      }
+    });
+  }
+
+  /**
+   * Шаг 2: Проверка кода
+   */
+  verifyRestoreCode(): void {
+    const code = this.authForm.get('restoreCode')?.value;
+
+    if (!code || this.authForm.get('restoreCode')?.invalid) {
+      this.formErrors['restoreCode'] = this.codeValidationMessages.required;
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.formErrors = {};
+
+    this.authService.confirmRestoreCode(this.restoreEmail, code).pipe(
+      finalize(() => this.isSubmitting = false)
+    ).subscribe({
+      next: (success) => {
+        if (success) {
+          // Сохраняем код для следующего шага
+          this.authService.saveRestoreData(this.restoreEmail, code);
+          this.restoreCode = code;
+          this.restoreStep = 3;
+
+          this.toast.success('Код подтверждён', 'Теперь задайте новый пароль');
+        } else {
+          this.formErrors['restoreCode'] = this.codeValidationMessages.invalid;
+        }
+      },
+      error: (err) => {
+        this.formErrors['api'] = err.error?.message || 'Ошибка проверки кода';
+      }
+    });
+  }
+
+  /**
+   * Шаг 3: Смена пароля
+   */
+  changePassword(): void {
+    const newPassword = this.authForm.get('newPassword')?.value;
+    const confirmNewPassword = this.authForm.get('confirmNewPassword')?.value;
+
+    if (!newPassword || !confirmNewPassword) {
+      this.formErrors['newPassword'] = 'Заполните все поля';
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      this.formErrors['confirmNewPassword'] = 'Пароли не совпадают';
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.formErrors = {};
+
+    this.authService.changeRestorePassword(
+      this.restoreEmail,
+      this.restoreCode,
+      newPassword
+    ).pipe(
+      finalize(() => this.isSubmitting = false)
+    ).subscribe({
+      next: (response) => {
+        // Очистка данных восстановления
+        this.authService.clearRestoreData();
+
+        this.toast.success(
+          'Пароль успешно изменён',
+          'Теперь войдите с новым паролем'
+        );
+
+        // Возврат к экрану входа с предустановленным email
+        this.authMode = 'login';
+        this.authForm.patchValue({
+          email: this.restoreEmail,
+          password: '',
+          confirmPassword: ''
+        });
+        this.resetForm();
+      },
+      error: (err) => {
+        this.formErrors['api'] = err.error?.message || 'Ошибка при смене пароля';
+      }
+    });
+  }
+
+  /**
+   * Повторная отправка кода
+   */
+  resendCode(): void {
+    if (this.codeResendTimer > 0) return;
+
+    this.sendRestoreCode();
+  }
+
+  /**
+   * Запуск таймера повторной отправки (60 секунд)
+   */
+  private startResendTimer(): void {
+    this.codeResendTimer = 60;
+
+    this.resendInterval = setInterval(() => {
+      this.codeResendTimer--;
+
+      if (this.codeResendTimer <= 0) {
+        clearInterval(this.resendInterval);
+      }
+    }, 1000);
+  }
+
+  /**
+   * Валидатор для совпадения новых паролей
+   */
+  newPasswordMatchValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (this.authMode !== 'forgot-password' || this.restoreStep !== 3) {
+        return null;
+      }
+
+      const newPassword = control.get('newPassword')?.value;
+      const confirmNewPassword = control.get('confirmNewPassword')?.value;
+
+      if (newPassword && confirmNewPassword && newPassword !== confirmNewPassword) {
+        return { passwordMismatch: true };
+      }
+      return null;
+    };
+  }
+
+
+  /**
+   * Обновление ошибок формы с учётом режима сброса пароля
+   */
+  updateFormErrors(): void {
+    this.formErrors = {};
+
+    // === Стандартные поля (login/register) ===
+    if (this.authMode === 'login' || this.authMode === 'register') {
+      const controlsToCheck = ['email', 'password', 'confirmPassword'];
+
+      controlsToCheck.forEach((field: string) => {
+        const control = this.authForm.get(field);
+        if (control?.invalid && (control.dirty || control.touched)) {
+          // ✅ Безопасный доступ к сообщениям без typeof this
+          const messages = (this.validationMessages as any)[field];
+          if (messages && control.errors) {
+            const errorKey = Object.keys(control.errors)[0];
+            this.formErrors[field] = messages[errorKey] || 'Ошибка валидации';
+          }
+        }
+      });
+    }
+
+    // === Поля для сброса пароля ===
+    if (this.authMode === 'forgot-password') {
+
+      // Шаг 1: email
+      if (this.restoreStep === 1) {
+        const emailControl = this.authForm.get('email');
+        if (emailControl?.invalid && (emailControl.dirty || emailControl.touched)) {
+          const emailMessages = this.validationMessages.email;
+          if (emailControl.errors) {
+            const errorKey = Object.keys(emailControl.errors)[0];
+            this.formErrors['email'] = emailMessages[errorKey as keyof typeof emailMessages] || 'Неверный email';
+          }
+        }
+      }
+
+      // Шаг 2: код
+      if (this.restoreStep === 2) {
+        const codeControl = this.authForm.get('restoreCode');
+        if (codeControl?.invalid && (codeControl.dirty || codeControl.touched)) {
+          if (codeControl.errors) {
+            const errorKey = Object.keys(codeControl.errors)[0];
+            // ✅ Простой объект без typeof this
+            const codeMessages: { [key: string]: string } = {
+              required: 'Введите код',
+              pattern: 'Код должен содержать 5 цифр',
+              invalid: 'Неверный код'
+            };
+            this.formErrors['restoreCode'] = codeMessages[errorKey] || 'Ошибка кода';
+          }
+        }
+      }
+
+      // Шаг 3: новый пароль
+      if (this.restoreStep === 3) {
+        const newPasswordControl = this.authForm.get('newPassword');
+        const confirmControl = this.authForm.get('confirmNewPassword');
+
+        if (newPasswordControl?.invalid && (newPasswordControl.dirty || newPasswordControl.touched)) {
+          const passwordMessages = this.validationMessages.password;
+          if (newPasswordControl.errors) {
+            const errorKey = Object.keys(newPasswordControl.errors)[0];
+            this.formErrors['newPassword'] = passwordMessages[errorKey as keyof typeof passwordMessages] || 'Ошибка пароля';
+          }
+        }
+
+        if (confirmControl?.invalid && (confirmControl.dirty || confirmControl.touched)) {
+          this.formErrors['confirmNewPassword'] = 'Пароли не совпадают';
+        }
+      }
+    }
+
+    // === Ошибки уровня формы ===
+    if (this.authForm.errors?.['passwordMismatch']) {
+      this.formErrors['confirmPassword'] = 'Пароли не совпадают';
+      this.formErrors['confirmNewPassword'] = 'Пароли не совпадают';
+    }
+  }
+
+
+
   passwordMatchValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       const formGroup = control as FormGroup;
@@ -151,34 +488,22 @@ export class AuthComponent implements OnInit, OnDestroy {
       this.hasNumbers(password);
   }
 
-  // Update error messages
-  updateFormErrors(): void {
-    this.formErrors = {};
-
-    Object.keys(this.authForm.controls).forEach(field => {
-      const control = this.authForm.get(field);
-
-      if (control && control.invalid && (control.dirty || control.touched)) {
-        const messages = this.validationMessages[field as keyof typeof this.validationMessages];
-        if (messages) {
-          Object.keys(control.errors || {}).forEach(key => {
-            this.formErrors[field] = messages[key as keyof typeof messages] || `Ошибка: ${key}`;
-          });
-        }
-      }
-    });
-
-    // Check for form-level errors
-    if (this.authForm.errors?.['passwordMismatch']) {
-      this.formErrors['confirmPassword'] = this.validationMessages.confirmPassword.mismatch;
-    }
-  }
 
   closePopUp() {
     this.authService.changeVisible(false);
   }
 
   onSubmit(): void {
+    if (this.authMode === 'forgot-password') {
+      if (this.restoreStep === 1) {
+        this.sendRestoreCode();
+      } else if (this.restoreStep === 2) {
+        this.verifyRestoreCode();
+      } else if (this.restoreStep === 3) {
+        this.changePassword();
+      }
+      return;
+    }
     if (this.authForm.invalid) {
       Object.keys(this.authForm.controls).forEach(key => {
         const control = this.authForm.get(key);
@@ -224,7 +549,7 @@ export class AuthComponent implements OnInit, OnDestroy {
 
       const userSourceType = StorageUtils.getLocalStorageCache(localStorageEnvironment.pktSource.key);
 
-      if(userSourceType) data.userSourceType = userSourceType;
+      if (userSourceType) data.userSourceType = userSourceType;
 
       this.authService.register(data).pipe(
         finalize(() => {
@@ -337,32 +662,107 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.resetForm();
   }
 
+
+  /**
+ * Обработчик ввода кода: авто-фокус и форматирование
+ */
+  onCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, ''); // Только цифры
+
+    // Ограничиваем 5 символами
+    if (value.length > 5) {
+      value = value.slice(0, 5);
+    }
+
+    input.value = value;
+    this.authForm.get('restoreCode')?.setValue(value);
+
+    // Авто-отправка при вводе 5 цифр
+    if (value.length === 5 && this.authForm.get('restoreCode')?.valid) {
+      // Опционально: можно авто-подтверждать
+      // this.verifyRestoreCode();
+    }
+  }
+
+
+  /**
+   * Сброс формы с учётом режима
+   */
   resetForm(): void {
     this.authForm.reset({
       email: '',
       password: '',
-      confirmPassword: ''
+      confirmPassword: '',
+      restoreCode: '',
+      newPassword: '',
+      confirmNewPassword: ''
     });
 
     this.formErrors = {};
     this.isSubmitting = false;
 
+    // Получаем все контролы
     const confirmPasswordControl = this.authForm.get('confirmPassword');
+    const confirmNewPasswordControl = this.authForm.get('confirmNewPassword');
+    const restoreCodeControl = this.authForm.get('restoreCode');
+    const newPasswordControl = this.authForm.get('newPassword');
 
     if (this.authMode === 'login') {
+      // ✅ В режиме входа: очищаем ВСЕ валидаторы кроме email/password
       confirmPasswordControl?.clearValidators();
-      confirmPasswordControl?.setErrors(null);
-    } else {
+      confirmNewPasswordControl?.clearValidators();
+      restoreCodeControl?.clearValidators();      // ← Было пропущено!
+      newPasswordControl?.clearValidators();      // ← Было пропущено!
+    }
+    else if (this.authMode === 'register') {
+      // ✅ В режиме регистрации: только confirmPassword обязателен
       confirmPasswordControl?.setValidators([Validators.required]);
+      confirmNewPasswordControl?.clearValidators();
+      restoreCodeControl?.clearValidators();      // ← Было пропущено!
+      newPasswordControl?.clearValidators();      // ← Было пропущено!
+    }
+    else if (this.authMode === 'forgot-password') {
+      // ✅ В режиме сброса пароля: настраиваем валидаторы по шагам
+      confirmPasswordControl?.clearValidators();
+
+      if (this.restoreStep === 3) {
+        confirmNewPasswordControl?.setValidators([Validators.required]);
+        newPasswordControl?.setValidators([
+          Validators.required,
+          Validators.minLength(8),
+          Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
+        ]);
+      } else {
+        confirmNewPasswordControl?.clearValidators();
+        newPasswordControl?.clearValidators();
+      }
+
+      if (this.restoreStep === 2) {
+        restoreCodeControl?.setValidators([
+          Validators.required,
+          Validators.pattern(/^\d{5}$/)
+        ]);
+      } else {
+        restoreCodeControl?.clearValidators();
+      }
     }
 
+    // ✅ Обновляем валидацию всех контролов
     confirmPasswordControl?.updateValueAndValidity();
+    confirmNewPasswordControl?.updateValueAndValidity();
+    restoreCodeControl?.updateValueAndValidity();   // ← Было пропущено!
+    newPasswordControl?.updateValueAndValidity();   // ← Было пропущено!
 
-    // Дополнительно обновляем валидацию всей формы
+    // ✅ Финальное обновление всей формы
     this.authForm.updateValueAndValidity();
   }
 
   ngOnDestroy(): void {
+    if (this.resendInterval) {
+      clearInterval(this.resendInterval);
+    }
     this.resetForm();
   }
+
 }

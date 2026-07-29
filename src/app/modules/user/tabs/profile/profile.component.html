@@ -105,7 +105,7 @@
                     </div>
                 </div>
             </div> -->
-            @if (user.personalSaleBarCode) {
+            @if (user?.personalSaleBarCode) {
             <app-qr-code [data]="user.personalSaleBarCode" [width]="200" [mode]="'barcode'"
                 [cardNumber]="'8800 •••• •••• 1234'" [cardHolder]="user?.firstName + ' ' + user?.lastName">
             </app-qr-code>
@@ -139,6 +139,7 @@
 
         <!-- Правая колонка - Меню -->
         <div class="profile-content">
+                <app-current-orders></app-current-orders>
             <div class="menu-grid">
                 <!-- Order History -->
                 <a [routerLink]="['/profile/orderHistory']" class="menu-card">

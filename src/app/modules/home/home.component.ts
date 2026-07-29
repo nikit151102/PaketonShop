@@ -11,6 +11,7 @@ import { CompareCommonBtnComponent } from '../../core/components/compare-common-
 import { GroupsSectionComponent } from './components/groups-section/groups-section.component';
 import { TitleComponent } from '../../core/components/title/title.component';
 import { ToastService } from '../../core/components/toast/toast.service';
+import { CurrentOrdersComponent } from '../../core/components/current-orders/current-orders.component';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +24,8 @@ import { ToastService } from '../../core/components/toast/toast.service';
     BusinessBlockComponent,
     CompareCommonBtnComponent,
     GroupsSectionComponent,
-    TitleComponent
+    TitleComponent,
+    CurrentOrdersComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

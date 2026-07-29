@@ -1,4 +1,43 @@
-/* Overlay */
+// ===== ЦВЕТА =====
+$primary: #3c8a27;           // Основной зелёный
+$primary-dark: #2d6c1d;      // Тёмный зелёный для hover
+$primary-light: #e6f4ea;     // Светлый зелёный для фонов
+$primary-bg: rgba(60, 138, 39, 0.08); // Полупрозрачный фон
+
+$success: #10b981;           // Успех
+$warning: #f59e0b;           // Предупреждение
+$info: #3b82f6;              // Информация
+$danger: #ef4444;            // Ошибка
+
+// Градации серого
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$gray-900: #0f172a;
+
+// ===== ОТСТУПЫ И РАЗМЕРЫ =====
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+
+// ===== ТЕНИ =====
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+// ===== АНИМАЦИИ (опционально, если вынесены отдельно) =====
+$transition-fast: 0.2s ease;
+$transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 0.3s ease;
+
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -524,5 +563,172 @@
       padding: 15px;
       font-size: 15.5px;
     }
+  }
+}
+
+
+// Ссылка "Забыли пароль?"
+.forgot-password-link {
+  margin-top: 15px;
+  text-align: center;
+  width: calc(100% - 50px);
+
+  .link-button {
+    background: none;
+    border: none;
+    color: $primary;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+      color: $primary-dark;
+    }
+  }
+}
+
+// Шаги восстановления
+.restore-step {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  animation: slideFade 0.3s ease forwards;
+
+  .step-header {
+    text-align: center;
+    margin-bottom: 8px;
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: $gray-800;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: $gray-500;
+      line-height: 1.4;
+
+      strong {
+        color: $gray-700;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Ввод кода
+.code-input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  .code-input {
+    width: 100%;
+    max-width: 200px;
+    padding: 14px;
+    border: 2px solid $gray-200;
+    border-radius: 12px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    background: #fafafa;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+      background: #fff;
+    }
+
+    &::placeholder {
+      letter-spacing: 4px;
+      color: $gray-400;
+    }
+
+    &:invalid {
+      border-color: $danger;
+    }
+  }
+
+  .code-hint {
+    font-size: 12px;
+    color: $gray-500;
+
+    .error-text {
+      color: $danger;
+      font-weight: 500;
+    }
+  }
+}
+
+// Повторная отправка
+.resend-section {
+  text-align: center;
+  font-size: 12px;
+  color: $gray-500;
+
+  .resend-link {
+    background: none;
+    border: none;
+    color: $primary;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      color: $gray-400;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Кнопка "Назад"
+.back-link {
+  background: none;
+  border: none;
+  color: $gray-500;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+// Анимация переключения шагов
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Адаптив для кода
+@media (max-width: 480px) {
+  .code-input {
+    font-size: 20px;
+    padding: 12px;
+    letter-spacing: 6px;
   }
 }

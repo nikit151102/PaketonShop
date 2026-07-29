@@ -46,9 +46,10 @@ export class DeliveryOrderService {
   /**
    * Получение списка заказов с фильтрацией
    */
-  getOrders(page: number, pageSize: number): Observable<any> {
+  getOrders(page: number, pageSize: number, filters: any = [], sorts: any = []): Observable<any> {
     const requestBody = {
-      filters: [],
+      filters: filters,
+      sorts: sorts,
       page: page,
       pageSize: pageSize
     };

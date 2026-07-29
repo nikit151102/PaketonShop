@@ -1,0 +1,392 @@
+$primary: #3c8a27;
+$primary-dark: #2d6c1d;
+$primary-light: #e6f4ea;
+$success: #10b981;
+$warning: #f59e0b;
+$info: #3b82f6;
+$danger: #ef4444;
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.order-history {
+    margin: 0 auto;
+    padding: 24px;
+
+    @media (max-width: 768px) {
+        padding: 16px;
+    }
+}
+
+// States
+.loading-state,
+.error-state,
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: $radius-lg;
+    border: 1px solid $gray-200;
+    animation: fadeIn 0.3s ease;
+
+    .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid $gray-200;
+        border-top-color: $primary;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    .error-icon,
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    h3 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        font-weight: 600;
+        color: $gray-800;
+    }
+
+    p {
+        margin: 0 0 24px;
+        font-size: 14px;
+        color: $gray-500;
+    }
+
+    .retry-btn,
+    .empty-btn {
+        padding: 10px 24px;
+        background: $primary;
+        color: white;
+        border: none;
+        border-radius: $radius-md;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+            background: $primary-dark;
+            transform: translateY(-2px);
+            box-shadow: $shadow-md;
+        }
+    }
+}
+
+.orders-container {
+    animation: fadeIn 0.4s ease;
+}
+
+.orders-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    overflow-y: auto;
+}
+
+// ===== COMPACT ORDER CARD - TWO BLOCKS =====
+.order-card-compact {
+    display: flex;
+    gap: 12px;
+    padding: 8px;
+    background: white;
+    border-radius: $radius-md;
+    border: 1px solid $gray-200;
+    transition: all 0.2s ease;
+    width: 280px; // ✅ Фиксированная ширина для компактности
+    max-width: 280px;
+    flex-shrink: 0; // ✅ Не сжиматься в сетке
+
+    &:hover {
+        border-color: $primary;
+        box-shadow: $shadow-md;
+    }
+
+
+    // === Блок 1: Визуал + Статус ===
+    .card-block-visual {
+        position: relative;
+        width: 90px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .card-images {
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+
+            .image-stack {
+                position: relative;
+                width: 100%;
+                height: 100%;
+            }
+
+            .stacked-image {
+                position: absolute;
+                width: 40px; // ✅ Меньше размер
+                height: 40px;
+                border-radius: $radius-sm;
+                overflow: hidden;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease;
+
+                &:hover {
+                    transform: scale(1.15) translateY(-3px);
+                    z-index: 10 !important;
+                }
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .image-placeholder {
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, $primary-light);
+                    color: $primary;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+            }
+        }
+
+        // Статус справа сверху
+        .order-status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+
+            &.status-draft {
+                background: rgba($warning, 0.1);
+                color: #92400e;
+            }
+
+            &.status-processing,
+            &.status-approved,
+            &.status-building,
+            &.status-delivering {
+                background: rgba($info, 0.1);
+                color: #1e40af;
+            }
+
+            &.status-arrived,
+            &.status-completed {
+                background: rgba($success, 0.1);
+                color: #065f46;
+            }
+
+            &.status-canceled {
+                background: rgba($danger, 0.1);
+                color: #991b1b;
+            }
+        }
+    }
+
+    // === Блок 2: Информация + Цена ===
+    .card-block-info {
+        flex: 1;
+        min-width: 0; // ✅ Позволяет сжиматься
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 8px;
+
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            .info-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 11px;
+
+                .label {
+                    color: $gray-500;
+                    font-weight: 500;
+                }
+
+                .value {
+                    color: $gray-800;
+                    font-weight: 600;
+                    text-align: right;
+                }
+
+                .order-number {
+                    color: $primary;
+                    font-size: 12px;
+                }
+            }
+        }
+
+        // Футер с ценой
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 8px;
+            border-top: 1px dashed $gray-200;
+
+            .total-label {
+                font-size: 11px;
+                color: $gray-500;
+                font-weight: 500;
+            }
+
+            .total-price {
+                font-size: 16px; // ✅ Крупная цена
+                font-weight: 800;
+                color: $primary;
+            }
+        }
+    }
+}
+
+// === Сетка заказов с горизонтальным скроллом ===
+.orders-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto; // ✅ Горизонтальная прокрутка
+    overflow-y: hidden;
+    padding-bottom: 8px; // ✅ Место для скроллбара
+    scroll-snap-type: x mandatory; // ✅ Плавная прокрутка
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $gray-100;
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $gray-400;
+        border-radius: 3px;
+
+        &:hover {
+            background: $primary;
+        }
+    }
+}
+
+
+// Scroll Loader
+.scroll-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    color: $gray-500;
+
+    .loading-spinner-small {
+        width: 20px;
+        height: 20px;
+        border: 2px solid $gray-200;
+        border-top-color: $primary;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+}
+
+// Payment Badge (если нужно)
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+
+    .payment-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    &.payment-not-paid {
+        background: $gray-100;
+        color: $gray-600;
+
+        .payment-dot {
+            background: $gray-400;
+        }
+    }
+
+    &.payment-partial {
+        background: #fef3c7;
+        color: #92400e;
+
+        .payment-dot {
+            background: $warning;
+        }
+    }
+
+    &.payment-paid {
+        background: #d1fae5;
+        color: #065f46;
+
+        .payment-dot {
+            background: $success;
+        }
+    }
+
+    &.payment-pending {
+        background: #dbeafe;
+        color: #1e40af;
+
+        .payment-dot {
+            background: $info;
+        }
+    }
+}

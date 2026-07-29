@@ -13,10 +13,11 @@ import { PaymentWidgetComponent } from '../../../../core/components/payment-widg
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { TopupModalComponent } from '../../../../core/components/topup-modal/topup-modal.component';
 import { QrCodeComponent } from '../../../../core/components/qr-code/qr-code.component';
+import { CurrentOrdersComponent } from '../../../../core/components/current-orders/current-orders.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, QrCodeComponent],
+  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, QrCodeComponent, CurrentOrdersComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [
@@ -80,6 +81,7 @@ export class ProfileComponent implements OnInit {
   private router = inject(Router);
   private basketsStateService = inject(BasketsStateService);
   private paymentService = inject(PaymentService);
+  
 
   ngOnInit(): void {
     this.checkScreenSize();

@@ -125,4 +125,96 @@ export class AuthService {
   getCurrentUser(): User | null {
     return StorageUtils.getFromAnyCache<User>(this.USER_KEY);
   }
+
+  
+  /**
+   * Шаг 1: Отправка кода восстановления на email
+   */
+  restorePassword(email: string): Observable<boolean> {
+    const formData = new FormData();
+    formData.append('email', email);
+
+    return this.http.patch<boolean>(
+      `${environment.production}/api/Profile/RestorePassword`,
+      formData
+    );
+  }
+
+  /**
+   * Шаг 2: Проверка кода восстановления
+   */
+  confirmRestoreCode(email: string, code: string): Observable<boolean> {
+    const formData = new FormData();
+    formData.append('Email', email);
+    formData.append('Code', code);
+
+    return this.http.patch<boolean>(
+      `${environment.production}/api/Profile/ConfirmRestorePassword`,
+      formData
+    );
+  }
+
+  /**
+   * Шаг 3: Смена пароля после подтверждения кода
+   */
+  changeRestorePassword(email: string, code: string, newPassword: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('Email', email);
+    formData.append('Code', code);
+    formData.append('NewPassword', newPassword);
+
+    return this.http.patch(
+      `${environment.production}/api/Profile/ChangeRestorePassword`,
+      formData
+    );
+  }
+
+  /**
+   * Сохранение данных восстановления в localStorage
+   */
+  saveRestoreData(email: string, code?: string): void {
+    const data = {
+      email,
+      code: code || null,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + 30 * 60 * 1000 // 30 минут
+    };
+    localStorage.setItem('password_restore', JSON.stringify(data));
+  }
+
+  /**
+   * Получение данных восстановления из localStorage
+   */
+  getRestoreData(): { email: string; code?: string; expiresAt: number } | null {
+    try {
+      const raw = localStorage.getItem('password_restore');
+      if (!raw) return null;
+
+      const data = JSON.parse(raw);
+      
+      // Проверка срока действия
+      if (Date.now() > data.expiresAt) {
+        this.clearRestoreData();
+        return null;
+      }
+      
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Очистка данных восстановления
+   */
+  clearRestoreData(): void {
+    localStorage.removeItem('password_restore');
+  }
+
+  /**
+   * Проверка, активен ли процесс восстановления
+   */
+  hasActiveRestore(): boolean {
+    return !!this.getRestoreData();
+  }
 }
