@@ -17,6 +17,7 @@ import { localStorageEnvironment } from '../environment';
 import { FloatingContactButtonsComponent } from './core/components/floating-contact-buttons/floating-contact-buttons.component';
 import { UserApiService } from './core/api/user.service';
 import { AuthService } from './core/services/auth.service';
+import { CookieConsentComponent } from './core/components/cookie-consent/cookie-consent.component';
 
 declare let ym: any;
 
@@ -31,6 +32,7 @@ declare let ym: any;
     AuthComponent,
     LocationComponent,
     FloatingContactButtonsComponent,
+    CookieConsentComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -57,9 +59,16 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
-    this.userApiService.validateToken().subscribe((value: boolean) => {
-      this.authService.logout();
-    })
+    this.userApiService.validateToken().subscribe({
+      next: (isValid: boolean) => {
+        if (!isValid) {
+          this.authService.logout();
+        }
+      },
+      error: () => {
+        this.authService.logout();
+      }
+    });
 
   }
 
@@ -91,12 +100,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.loadBaskets();
     }
 
-    // this.userId$.pipe(take(1)).subscribe((userId) => {
-    //   if (userId) {
-
-    //   }
-    // })
-
+    if (this.authService.hasActiveRestore()) {
+      this.authService.changeVisible(true);
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,41 @@
+<div 
+  class="cookie-banner" 
+  *ngIf="isVisible()"
+  [class.animate-in]="isAnimating()"
+  [class.animate-out]="!isAnimating() && isVisible()">
+  
+  <div class="cookie-banner__container">
+    
+    <!-- Текст -->
+    <div class="cookie-banner__content">
+      <div class="cookie-banner__text">
+        <p>
+          Продолжая пользоваться сайтом, вы принимаете 
+          <a (click)="goToPage('/documents/cookie-policy')" class="cookie-banner__link">
+            соглашение по работе с файлами cookies
+          </a>. 
+          Отключить файлы cookies вы можете в настройках браузера.
+        </p>
+      </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="cookie-banner__actions">
+      <button 
+        type="button" 
+        class="btn btn--decline"
+        (click)="onDecline()"
+        aria-label="Отклонить cookies">
+        Отклонить
+      </button>
+      <button 
+        type="button" 
+        class="btn btn--accept"
+        (click)="onAccept()"
+        aria-label="Принять cookies">
+        Принять
+      </button>
+    </div>
+
+  </div>
+</div>

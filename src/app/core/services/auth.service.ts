@@ -175,12 +175,16 @@ export class AuthService {
   /**
    * Сохранение данных восстановления в localStorage
    */
-  saveRestoreData(email: string, code?: string): void {
+  saveRestoreData(email: string, code?: string, step?: 1 | 2 | 3): void {
+    const currentStep = step || (code ? 3 : 2);
+
     const data = {
       email,
       code: code || null,
+      step: currentStep,
+      codeSentAt: currentStep === 2 ? Date.now() : null, // ← когда был отправлен код
       timestamp: Date.now(),
-      expiresAt: Date.now() + 30 * 60 * 1000 // 30 минут
+      expiresAt: Date.now() + 30 * 60 * 1000
     };
     localStorage.setItem('password_restore', JSON.stringify(data));
   }
@@ -188,20 +192,25 @@ export class AuthService {
   /**
    * Получение данных восстановления из localStorage
    */
-  getRestoreData(): { email: string; code?: string; expiresAt: number } | null {
+  getRestoreData(): { email: string; code?: string; step: 1 | 2 | 3; expiresAt: number; codeSentAt?: number | null } | null {
     try {
       const raw = localStorage.getItem('password_restore');
       if (!raw) return null;
 
       const data = JSON.parse(raw);
 
-      // Проверка срока действия
       if (Date.now() > data.expiresAt) {
         this.clearRestoreData();
         return null;
       }
 
-      return data;
+      return {
+        email: data.email,
+        code: data.code || undefined,
+        step: data.step || (data.code ? 3 : 2),
+        expiresAt: data.expiresAt,
+        codeSentAt: data.codeSentAt || null 
+      };
     } catch {
       return null;
     }

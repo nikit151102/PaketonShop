@@ -27,6 +27,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -50,18 +51,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .profile-hero {
         background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
         border-radius: $radius-xl;
-        padding: 28px 32px;
+        padding: 12px 12px;
         margin-bottom: 32px;
         box-shadow: $shadow-lg;
         animation: fadeInUp 0.5s ease;
 
         @media (max-width: 768px) {
-            padding: 20px 24px;
             margin-bottom: 24px;
-        }
-
-        @media (max-width: 480px) {
-            padding: 16px 20px;
         }
 
         &__content {
@@ -132,7 +128,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 border-radius: 50%;
                 border: 2px solid white;
                 background: #22c55e;
-                
+
                 &.offline {
                     background: $gray-400;
                 }
@@ -157,7 +153,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             .profile-meta {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 16px;
+                gap: 6px;
 
                 .meta-badge {
                     display: inline-flex;
@@ -388,6 +384,9 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         // Content
         .profile-content {
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
             min-width: 0;
 
             // Menu Grid
@@ -433,12 +432,12 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     &--logout {
                         &:hover {
                             border-color: #ef4444;
-                            
+
                             .menu-card__icon {
                                 background: #ef4444;
                                 color: white;
                             }
-                            
+
                             .menu-card__arrow {
                                 color: #ef4444;
                             }
@@ -499,43 +498,43 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     @media (max-width: 480px) {
         .stats-grid {
             gap: 8px;
-            
+
             .stat-card {
                 padding: 12px;
-                
+
                 &__icon {
                     width: 36px;
                     height: 36px;
-                    
+
                     svg {
                         width: 18px;
                         height: 18px;
                     }
                 }
-                
+
                 &__value {
                     font-size: 18px;
                 }
-                
+
                 &__label {
                     font-size: 10px;
                 }
             }
         }
-        
+
         .menu-card {
             padding: 16px;
-            
+
             &__icon {
                 width: 44px;
                 height: 44px;
-                
+
                 svg {
                     width: 20px;
                     height: 20px;
                 }
             }
-            
+
             &__title {
                 font-size: 14px;
             }
@@ -573,7 +572,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     &__icon {
         flex-shrink: 0;
         color: #f59e0b;
-        
+
         svg {
             width: 24px;
             height: 24px;
@@ -582,7 +581,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &__content {
         flex: 1;
-        
+
         @media (max-width: 480px) {
             text-align: center;
         }
@@ -599,7 +598,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-size: 13px;
         color: #78350f;
         line-height: 1.4;
-        
+
         strong {
             font-weight: 600;
             color: #92400e;

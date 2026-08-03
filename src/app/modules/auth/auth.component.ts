@@ -112,7 +112,12 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.authService.visiblePopUp$.subscribe((value: boolean) => {
       this.visible = value;
       if (value) {
-        this.resetForm();
+        const restoreData = this.authService.getRestoreData();
+        if (restoreData && restoreData.email) {
+          this.restoreFromSavedData(restoreData);
+        } else {
+          this.resetForm();
+        }
       }
     });
 
@@ -135,6 +140,108 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.checkActiveRestore();
   }
 
+  /**
+   * Восстановление состояния из сохранённых данных
+   */
+  private restoreFromSavedData(restoreData: {
+    email: string;
+    code?: string;
+    step: 1 | 2 | 3;
+    codeSentAt?: number | null;
+  }): void {
+    this.authMode = 'forgot-password';
+    this.restoreEmail = restoreData.email;
+
+    this.restoreStep = restoreData.step || (restoreData.code ? 3 : 2);
+    this.isCodeSent = this.restoreStep >= 2;
+    this.formErrors = {};
+
+    this.authForm.patchValue({
+      email: restoreData.email,
+      restoreCode: restoreData.code || '',
+      newPassword: '',
+      confirmNewPassword: ''
+    });
+
+    this.updateValidatorsForCurrentStep();
+
+    // Если на шаге 2, запускаем таймер (или вычисляем оставшееся время)
+    if (this.restoreStep === 2 && restoreData.codeSentAt) {
+      const elapsed = Math.floor((Date.now() - restoreData.codeSentAt) / 1000);
+      const remaining = Math.max(0, 60 - elapsed);
+
+      if (remaining > 0) {
+        this.codeResendTimer = remaining;
+        this.startResendTimerFrom(remaining);
+      }
+    }
+  }
+
+
+  private startResendTimerFrom(seconds: number): void {
+    this.codeResendTimer = seconds;
+    this.resendInterval = setInterval(() => {
+      this.codeResendTimer--;
+      if (this.codeResendTimer <= 0) {
+        clearInterval(this.resendInterval);
+      }
+    }, 1000);
+  }
+
+  /**
+   * Обновление валидаторов для текущего шага восстановления
+   */
+private updateValidatorsForCurrentStep(): void {
+  const emailControl = this.authForm.get('email');
+  const passwordControl = this.authForm.get('password');
+  const confirmPasswordControl = this.authForm.get('confirmPassword');
+  const confirmNewPasswordControl = this.authForm.get('confirmNewPassword');
+  const restoreCodeControl = this.authForm.get('restoreCode');
+  const newPasswordControl = this.authForm.get('newPassword');
+
+  // ✅ Сбрасываем ВСЕ валидаторы
+  emailControl?.clearValidators();
+  passwordControl?.clearValidators();
+  confirmPasswordControl?.clearValidators();
+  confirmNewPasswordControl?.clearValidators();
+  restoreCodeControl?.clearValidators();
+  newPasswordControl?.clearValidators();
+
+  // ✅ Устанавливаем только нужные для текущего шага
+  if (this.restoreStep === 1) {
+    emailControl?.setValidators([Validators.required, Validators.email]);
+  }
+  else if (this.restoreStep === 2) {
+    restoreCodeControl?.setValidators([
+      Validators.required,
+      Validators.pattern(/^\d{5}$/)
+    ]);
+  }
+  else if (this.restoreStep === 3) {
+    newPasswordControl?.setValidators([
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
+    ]);
+    confirmNewPasswordControl?.setValidators([Validators.required]);
+  }
+
+  // ✅ Обновляем все контролы
+  emailControl?.updateValueAndValidity();
+  passwordControl?.updateValueAndValidity();
+  confirmPasswordControl?.updateValueAndValidity();
+  confirmNewPasswordControl?.updateValueAndValidity();
+  restoreCodeControl?.updateValueAndValidity();
+  newPasswordControl?.updateValueAndValidity();
+
+  this.authForm.updateValueAndValidity();
+}
+
+goToRestoreStep(step: 1 | 2 | 3): void {
+  this.restoreStep = step;
+  this.formErrors = {};
+  this.updateValidatorsForCurrentStep();
+}
 
   /**
    * Проверка, есть ли активный процесс восстановления
@@ -143,16 +250,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     const restoreData = this.authService.getRestoreData();
 
     if (restoreData && restoreData.email) {
-      this.authMode = 'forgot-password';
-      this.restoreEmail = restoreData.email;
-      this.restoreStep = restoreData.code ? 2 : 1;
-      this.isCodeSent = !!restoreData.code;
-
-      // Заполняем форму
-      this.authForm.patchValue({
-        email: restoreData.email,
-        restoreCode: restoreData.code || ''
-      });
+      this.restoreFromSavedData(restoreData);
     }
   }
 
@@ -173,6 +271,8 @@ export class AuthComponent implements OnInit, OnDestroy {
       newPassword: '',
       confirmNewPassword: ''
     });
+
+    this.updateValidatorsForCurrentStep();
   }
 
   /**
@@ -207,10 +307,9 @@ export class AuthComponent implements OnInit, OnDestroy {
           this.isCodeSent = true;
           this.restoreStep = 2;
 
-          // Сохраняем email для следующих шагов
-          this.authService.saveRestoreData(email);
-
-          // Запускаем таймер повторной отправки
+          // Сохраняем email И step=2
+          this.authService.saveRestoreData(email, undefined, 2);
+          this.updateValidatorsForCurrentStep();
           this.startResendTimer();
 
           this.toast.success(
@@ -246,11 +345,11 @@ export class AuthComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (success) => {
         if (success) {
-          // Сохраняем код для следующего шага
-          this.authService.saveRestoreData(this.restoreEmail, code);
+          // Сохраняем email, code И step=3
+          this.authService.saveRestoreData(this.restoreEmail, code, 3);
           this.restoreCode = code;
           this.restoreStep = 3;
-
+          this.updateValidatorsForCurrentStep();
           this.toast.success('Код подтверждён', 'Теперь задайте новый пароль');
         } else {
           this.formErrors['restoreCode'] = this.codeValidationMessages.invalid;
