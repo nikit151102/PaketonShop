@@ -264,7 +264,7 @@
   </app-payment-widget>
 
   <!-- Уведомление об успешном создании заказа -->
-  <div class="modal-overlay" *ngIf="showsuccessNotification" (click)="showsuccessNotification = false">
+  <div class="modal-overlay" *ngIf="showsuccessNotification">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal__header">
         <div class="modal__icon" [class.modal__icon--success]="paymentMethod === 'online'"

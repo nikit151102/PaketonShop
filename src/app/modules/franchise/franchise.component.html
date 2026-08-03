@@ -26,7 +26,10 @@
       </div>
     </div>
   </div>
-</section>
+  <div>
+   <img [src]="activeFranchise === 'large' ? 'franchise/large_market.png' : 'franchise/mini_market.png'" alt="магазин">
+  </div>
+  </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- ABOUT & MARKET                                      -->
@@ -75,7 +78,7 @@
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- WHAT YOU GET                                        -->
 <!-- ═══════════════════════════════════════════════════ -->
-<section class="section section-primary">
+<section class="section section-primary" *ngIf="activeFranchise === 'large'">
   <div class="container">
     <div class="section-header reveal">
       <h2 class="section-title text-white">{{ activeFranchise === 'large' ? 'Что вы получаете, купив франшизу?' : 'Преимущества франшизы минимаркета' }}</h2>
@@ -83,7 +86,7 @@
     </div>
 
     <div class="benefits-grid">
-      <div class="benefit-card reveal" *ngFor="let item of (activeFranchise === 'large' ? largeBenefits : miniBenefits)">
+      <div class="benefit-card reveal" *ngFor="let item of largeBenefits">
         <div class="benefit-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path *ngIf="item.icon === 'wallet'" d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path *ngIf="item.icon === 'wallet'" d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path *ngIf="item.icon === 'wallet'" d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
@@ -107,7 +110,6 @@
 <section class="section section-finance">
   <div class="container">
     <div class="section-header reveal">
-      <span class="section-tag">Экономика</span>
       <h2 class="section-title">{{ activeFranchise === 'large' ? 'Прозрачные финансовые показатели' : 'Экономика минимаркета' }}</h2>
       <p class="section-subtitle">{{ activeFranchise === 'large' ? 'Конкретные инвестиции, понимание всех затрат, возможность рассчитать ROI и T5 (период окупаемости).' : 'Минимальные вложения, быстрая окупаемость и проверенная модель для старта с небольшим бюджетом.' }}</p>
     </div>
@@ -150,7 +152,6 @@
 <section class="section section-roadmap">
   <div class="container">
     <div class="section-header reveal">
-      <span class="section-tag">Процесс</span>
       <h2 class="section-title">{{ activeFranchise === 'large' ? '10 шагов к успешному старту' : 'Дорожная карта открытия' }}</h2>
       <p class="section-subtitle">{{ activeFranchise === 'large' ? 'Ваш путь от заявки до работающего магазина. Каждый этап логично и плавно перетекает в следующий.' : 'Чёткий план из 5 этапов для быстрого запуска минимаркета «Пакетон.РФ».' }}</p>
     </div>

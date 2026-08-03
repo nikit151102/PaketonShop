@@ -1,0 +1,178 @@
+/* === БАННЕР === */
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 16px;
+    background: transparent;
+    pointer-events: none; // Чтобы не блокировал клики, когда скрыт
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(100%);
+
+    @media (max-width: 955px) {
+        bottom: 75px;
+    }
+
+    &.animate-in {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    &.animate-out {
+        opacity: 0;
+        transform: translateY(100%);
+        pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+        padding: 12px;
+    }
+}
+
+/* Контейнер баннера */
+.cookie-banner__container {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: #020202;
+    pointer-events: auto;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+}
+
+/* Контент: иконка + текст */
+.cookie-banner__content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.cookie-banner__icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.cookie-banner__text {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #585859;
+
+    p {
+        margin: 0;
+    }
+
+    a {
+        color: #60a5fa;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+        cursor: pointer;
+
+        &:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+    }
+}
+
+/* Кнопки */
+.cookie-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Стили кнопок */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+
+    &--accept {
+        background: linear-gradient(135deg, #3c8a27, #4eb432);
+        color: white;
+        box-shadow: 0 2px 8px rgba(60, 138, 39, 0.3);
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(60, 138, 39, 0.4);
+        }
+
+        &:active {
+            transform: translateY(0);
+        }
+    }
+
+    &--decline {
+        background: rgba(255, 255, 255, 0.1);
+        color: #585859;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #dadde0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 9px 16px;
+        font-size: 13px;
+        border-radius: 9px;
+    }
+}
+
+/* Анимация появления */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Для мобильных: кнопки на всю ширину */
+@media (max-width: 480px) {
+    .cookie-banner__actions {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
