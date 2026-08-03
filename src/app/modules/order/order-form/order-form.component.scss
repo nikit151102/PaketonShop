@@ -463,6 +463,32 @@ $radius-sm: 10px;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
+
+    input[type="radio"]:disabled + .delivery-option__custom {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #c9c7c7;
+  }
+
+  input[type="radio"]:disabled ~ .delivery-option__content {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  // Если вариант выбран и disabled — подсветим его
+  input[type="radio"]:checked:disabled + .delivery-option__custom {
+    background: $primary;
+    border-color: $primary;
+    
+    &::after {
+      background: white;
+    }
+  }
+
+  // Скрываем бейдж "Бесплатно" для заблокированных опций (опционально)
+  &.disabled .delivery-option__badge--free {
+    display: none;
+  }
 }
 
 .delivery-option {

@@ -12,12 +12,12 @@ import { PaymentService } from '../../../../core/api/payment.service';
 import { PaymentWidgetComponent } from '../../../../core/components/payment-widget/payment-widget.component';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { TopupModalComponent } from '../../../../core/components/topup-modal/topup-modal.component';
-import { QrCodeComponent } from '../../../../core/components/qr-code/qr-code.component';
+import { DigitalCardComponent } from '../../../../core/components/qr-code/qr-code.component';
 import { CurrentOrdersComponent } from '../../../../core/components/current-orders/current-orders.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, QrCodeComponent, CurrentOrdersComponent],
+  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, DigitalCardComponent, CurrentOrdersComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [
@@ -81,7 +81,7 @@ export class ProfileComponent implements OnInit {
   private router = inject(Router);
   private basketsStateService = inject(BasketsStateService);
   private paymentService = inject(PaymentService);
-  
+
 
   ngOnInit(): void {
     this.checkScreenSize();
@@ -124,7 +124,7 @@ export class ProfileComponent implements OnInit {
     }, 300);
   }
 
-  editAvatar(): void {}
+  editAvatar(): void { }
 
   getUserInitials(): string {
     if (!this.user) return '';
@@ -140,6 +140,7 @@ export class ProfileComponent implements OnInit {
     sessionStorage.removeItem(sessionStorageEnvironment.auth.key);
     sessionStorage.removeItem(sessionStorageEnvironment.user.key);
     this.basketsStateService.clearBaskets();
+    this.userService.clearUserDataCache();
     this.router.navigate(['']);
   }
 
@@ -155,9 +156,9 @@ export class ProfileComponent implements OnInit {
   // Проверка заполненности профиля
   isProfileIncomplete(): boolean {
     if (!this.user) return false;
-    
+
     const missingFields = [];
-    
+
     if (!this.user.email || this.user.email === 'Email не указан') {
       missingFields.push('email');
     }
@@ -170,15 +171,15 @@ export class ProfileComponent implements OnInit {
     if (!this.user.lastName || this.user.lastName.trim() === '') {
       missingFields.push('фамилию');
     }
-    
+
     return missingFields.length > 0;
   }
 
   getMissingFieldsList(): string[] {
     if (!this.user) return [];
-    
+
     const missing = [];
-    
+
     if (!this.user.email || this.user.email === 'Email не указан') {
       missing.push('email');
     }
@@ -191,7 +192,7 @@ export class ProfileComponent implements OnInit {
     if (!this.user.lastName || this.user.lastName.trim() === '') {
       missing.push('фамилию');
     }
-    
+
     return missing;
   }
 
@@ -274,5 +275,19 @@ export class ProfileComponent implements OnInit {
 
   goToTransactionHistory(): void {
     this.router.navigate(['/profile/transactions']);
+  }
+
+  get isVisibleDigitalCard(): boolean {
+    return !!this.user?.personalSaleBarCode &&
+      this.user?.wholesaleOrders?.some(
+        (order: any) => order.wholesalePartnerType === 2 && order.wholesaleOrderStatus === 4
+      ) === true;
+  }
+
+  get isVisibleDigitalCardB2B(): boolean {
+    return !!this.user?.personalSaleBarCode &&
+      this.user?.wholesaleOrders?.some(
+        (order: any) => order.wholesalePartnerType === 1 && order.wholesaleOrderStatus === 4
+      ) === true;
   }
 }

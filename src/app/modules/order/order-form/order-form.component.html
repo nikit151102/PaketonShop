@@ -151,7 +151,7 @@
       </div>
 
       <!-- С предвыбранным значением -->
-      <app-contact-type-selector [selectedType]="selectedContactType" (contactTypeChange)="onContactTypeChange($event)">
+      <app-contact-type-selector [selectedType]="getSelectedContactType" [orderStatus]="orderStatus" (contactTypeChange)="onContactTypeChange($event)">
       </app-contact-type-selector>
     </div>
 
@@ -169,57 +169,75 @@
 
       <div class="form-card__body">
         <!-- Компактные опции доставки -->
+
         <div class="delivery-options">
-          <label class="delivery-option">
-            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="pickup" (click)="deliveryCost.emit(0)">
+
+          <!-- Самовывоз: показываем, если можно менять ИЛИ если это выбранный вариант -->
+          <label class="delivery-option" *ngIf="canChangeDelivery || formData.delivery === 'pickup'">
+            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="pickup"
+              (click)="deliveryCost.emit(0)" [disabled]="!canChangeDelivery">
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
-              <span class="delivery-option__title">Самовывоз с ПВЗ</span>
+              <span class="delivery-option__title">
+                <!-- <span class="delivery-option__icon">🏪</span> -->
+                Самовывоз с ПВЗ
+              </span>
               <span class="delivery-option__badge delivery-option__badge--free">Бесплатно</span>
               <span class="delivery-option__desc">Заберите заказ из пункта выдачи</span>
             </span>
           </label>
 
-          <label class="delivery-option">
-            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="transport" (click)="deliveryCost.emit(0)">
+          <!-- Транспортная компания -->
+          <label class="delivery-option" *ngIf="canChangeDelivery || formData.delivery === 'transport'">
+            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="transport"
+              (click)="deliveryCost.emit(0)" [disabled]="!canChangeDelivery">
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
-              <span class="delivery-option__title">Транспортная компания</span>
+              <span class="delivery-option__title">
+                <!-- <span class="delivery-option__icon">🚚</span> -->
+                Транспортная компания
+              </span>
               <!-- <span class="delivery-option__badge">от 500 ₽</span> -->
               <span class="delivery-option__desc">Доставка по всей России</span>
             </span>
           </label>
 
-          <label class="delivery-option">
-            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="city">
+          <!-- Доставка по городу -->
+          <label class="delivery-option" *ngIf="canChangeDelivery || formData.delivery === 'city'">
+            <input type="radio" name="delivery" [(ngModel)]="formData.delivery" value="city"
+              [disabled]="!canChangeDelivery">
             <span class="delivery-option__custom"></span>
             <span class="delivery-option__content">
-              <span class="delivery-option__title">Доставка по городу</span>
+              <span class="delivery-option__title">
+                <!-- <span class="delivery-option__icon">🛵</span> -->
+                Доставка по городу
+              </span>
               <!-- <span class="delivery-option__badge">500 ₽</span> -->
               <span class="delivery-option__desc">Курьером по вашему адресу</span>
             </span>
           </label>
+
         </div>
 
         <!-- Детали выбранного способа -->
         <div class="delivery-details" *ngIf="formData.delivery">
-          <app-pickup-delivery *ngIf="formData.delivery === 'pickup'"
+          <app-pickup-delivery *ngIf="formData.delivery === 'pickup'" [orderData]="getAddressSelect()"
             (storeSelected)="onDeliveryDataChange('store', $event)" (allStoresOut)="getAllStores($event)">
           </app-pickup-delivery>
 
-          <app-transport-delivery *ngIf="formData.delivery === 'transport'"
+          <app-transport-delivery *ngIf="formData.delivery === 'transport'" [orderData]="getAddressSelect()"
             (addressSelected)="onDeliveryDataChange('transport', $event)">
           </app-transport-delivery>
 
-          <app-city-delivery *ngIf="formData.delivery === 'city'"
-          [isDeliveryCancelled]="orderData.deliveryCancelled"
+          <app-city-delivery *ngIf="formData.delivery === 'city'" [isDeliveryCancelled]="orderData.deliveryCancelled"
             (addressSelected)="onDeliveryDataChange('city', $event)">
           </app-city-delivery>
         </div>
 
 
         <!-- Блок проверки наличия в выбранном магазине -->
-        <div class="availability-check" *ngIf="formData.delivery === 'pickup' && selectedStoreId && availabilityCheck && false">
+        <div class="availability-check"
+          *ngIf="formData.delivery === 'pickup' && selectedStoreId && availabilityCheck && false">
 
           <!-- Умный блок наличия -->
           <div class="smart-availability" [class.smart-availability--success]="availabilityCheck.allAvailable"
@@ -246,7 +264,8 @@
                   {{ availabilityCheck.allAvailable ? 'Все товары в наличии' : 'Часть товаров отсутствует' }}
                 </div>
                 <div class="availability-status__subtitle">
-                  {{ availabilityCheck.allAvailable ? 'Можете забрать заказ сегодня' : 'Проверьте альтернативные магазины' }}
+                  {{ availabilityCheck.allAvailable ? 'Можете забрать заказ сегодня' : 'Проверьте альтернативные
+                  магазины' }}
                 </div>
               </div>
             </div>

@@ -1,9 +1,10 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
-import { environment } from '../../../environment';
+import { environment, localStorageEnvironment } from '../../../environment';
 import { StorageUtils } from '../../../utils/storage.utils';
+import { UserService } from './user.service';
 
 export interface User {
   id: string;
@@ -28,6 +29,8 @@ export interface AuthResponse {
   providedIn: 'root',
 })
 export class AuthService {
+  private userService = inject(UserService);
+
   private visibleSubject = new BehaviorSubject<boolean>(false);
   visiblePopUp$ = this.visibleSubject.asObservable();
 
@@ -36,8 +39,8 @@ export class AuthService {
   );
   authToken$ = this.authTokenSubject.asObservable();
 
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'auth_user';
+  private readonly TOKEN_KEY = localStorageEnvironment.auth.key;
+  private readonly USER_KEY = localStorageEnvironment.user.key;
 
   public isRedirectingToProfile = signal<boolean>(true);
 
@@ -112,7 +115,7 @@ export class AuthService {
     StorageUtils.clearMemoryCache(this.USER_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
-
+    this.userService.clearUserDataCache();
     this.authTokenSubject.next(null);
   }
 
@@ -126,7 +129,7 @@ export class AuthService {
     return StorageUtils.getFromAnyCache<User>(this.USER_KEY);
   }
 
-  
+
   /**
    * Шаг 1: Отправка кода восстановления на email
    */
@@ -191,13 +194,13 @@ export class AuthService {
       if (!raw) return null;
 
       const data = JSON.parse(raw);
-      
+
       // Проверка срока действия
       if (Date.now() > data.expiresAt) {
         this.clearRestoreData();
         return null;
       }
-      
+
       return data;
     } catch {
       return null;

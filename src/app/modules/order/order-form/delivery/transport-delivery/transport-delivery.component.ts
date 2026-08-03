@@ -34,6 +34,7 @@ interface MapPoint {
 })
 export class TransportDeliveryComponent implements OnInit {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
+  @Input() orderData: any;
   @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 
@@ -98,7 +99,7 @@ export class TransportDeliveryComponent implements OnInit {
     try {
       await this.loadYmaps();
       this.ymapsLoaded = true;
-    } catch (error) {}
+    } catch (error) { }
   }
 
   private async loadCitiesFromJson(): Promise<void> {
@@ -245,6 +246,25 @@ export class TransportDeliveryComponent implements OnInit {
     this.placemarks = [];
     this.mapInitialized = false;
   }
+
+  /**
+   * Можно ли изменять способ доставки?
+   * Только если статус заказа = 0 (черновик) или orderData не передан
+   */
+  get canChangeTransportDelivery(): boolean {
+    return !this.orderData || this.orderData.orderStatus === 0;
+  }
+
+  /**
+   * Получить текст статуса доставки для отображения
+   */
+  getTransportStatusText(): string {
+    if (!this.selectedAddress) return 'Не выбрано';
+
+    const company = this.getTransportCompanyName(this.selectedAddress.transportCompanyType || 1);
+    return `${company}: ${this.getFullAddress(this.selectedAddress)}`;
+  }
+
 
   // Поиск города
   onCitySearch(): void {

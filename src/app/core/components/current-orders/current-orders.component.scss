@@ -40,7 +40,7 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
 .order-history {
     margin: 0 auto;
-    padding: 24px;
+    padding: 0 24px;
 
     @media (max-width: 768px) {
         padding: 16px;
@@ -127,9 +127,10 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border-radius: $radius-md;
     border: 1px solid $gray-200;
     transition: all 0.2s ease;
-    width: 280px; // ✅ Фиксированная ширина для компактности
+    width: 280px;
     max-width: 280px;
-    flex-shrink: 0; // ✅ Не сжиматься в сетке
+    flex-shrink: 0;
+    cursor: pointer;
 
     &:hover {
         border-color: $primary;
@@ -160,7 +161,7 @@ $shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
             .stacked-image {
                 position: absolute;
-                width: 40px; // ✅ Меньше размер
+                width: 40px;
                 height: 40px;
                 border-radius: $radius-sm;
                 overflow: hidden;

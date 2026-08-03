@@ -39,6 +39,7 @@ interface NewAddressData {
 })
 export class CityDeliveryComponent implements OnInit {
   @Input() isDeliveryCancelled: boolean | null = false;
+  @Input() addressSelect:any;
   @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 

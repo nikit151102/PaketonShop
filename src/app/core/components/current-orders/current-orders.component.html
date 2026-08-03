@@ -28,7 +28,7 @@
     <!-- Orders List - Compact Horizontal Cards -->
     <div class="orders-container" *ngIf="orders.length > 0">
         <div class="orders-grid">
-            <div class="order-card-compact" *ngFor="let order of orders">
+            <div [routerLink]="['/order', order.id] "class="order-card-compact" *ngFor="let order of orders" > 
 
                 <!-- Блок 1: Изображения + Статус -->
                 <div class="card-block-visual">

@@ -12,6 +12,8 @@ import { GroupsSectionComponent } from './components/groups-section/groups-secti
 import { TitleComponent } from '../../core/components/title/title.component';
 import { ToastService } from '../../core/components/toast/toast.service';
 import { CurrentOrdersComponent } from '../../core/components/current-orders/current-orders.component';
+import { User, UserService } from '../../core/services/user.service';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -41,6 +43,11 @@ export class HomeComponent implements OnInit {
   selectedCategory: string = '';
 
   private readonly toast = inject(ToastService);
+  private userService = inject(UserService);
+
+  userId$: Observable<string | null> = this.userService.user$.pipe(
+    map((user: User | null) => user?.id ?? null),
+  );
 
   constructor(
     private categoryService: CategoryService,
@@ -50,7 +57,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
-
+  
   }
 
   loadCategories(): void {

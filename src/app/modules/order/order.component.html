@@ -101,7 +101,6 @@
               <div class="progress-bar">
                 <div class="progress-bar__fill" [style.width]="savingProgress + '%'"></div>
               </div>
-              <span class="progress-text">Сохранение заказа...</span>
             </div>
           </div>
 
@@ -117,54 +116,60 @@
 
             <div class="payment-method-card__body">
               <div class="payment-options">
-                <!-- <label class="payment-option">
-                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="online">
-                  <span class="payment-option__custom"></span>
-                  <span class="payment-option__content">
-                    <span class="payment-option__title">Онлайн оплата</span>
-                    <span class="payment-option__badge">Картой онлайн</span>
-                  </span>
-                </label>
-                <label class="payment-option">
-                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="balance">
-                  <span class="payment-option__custom"></span>
-                  <span class="payment-option__content">
-                    <span class="payment-option__title">Списание с баланса</span>
-                    <span class="payment-option__badge" *ngIf="operativeInfo().balance">Доступно: {{
-                      operativeInfo().balance
-                      }} руб.</span>
-                    <span class="payment-option__desc">Оплатите заказ средствами с вашего лицевого счета</span>
-                  </span>
-                </label> -->
-                <label class="payment-option">
-                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="cash">
-                  <span class="payment-option__custom"></span>
-                  <span class="payment-option__content">
-                    <span class="payment-option__title">Наличными при получении</span>
-                    <span class="payment-option__badge">Наличные</span>
-                    <span class="payment-option__desc">Оплатите заказ наличными курьеру или в пункте выдачи</span>
-                  </span>
-                </label>
 
-                <label class="payment-option">
-                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="card">
-                  <span class="payment-option__custom"></span>
-                  <span class="payment-option__content">
-                    <span class="payment-option__title">Картой при получении</span>
-                    <span class="payment-option__badge">Терминал</span>
-                    <span class="payment-option__desc">Оплатите картой курьеру или в пункте выдачи</span>
-                  </span>
-                </label>
+                <ng-container *ngFor="let option of filteredPaymentOptions">
 
-                <label class="payment-option"> <!-- *ngIf="orderFormData?.selectedCompanyId"  -->
-                  <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" value="invoice">
-                  <span class="payment-option__custom"></span>
-                  <span class="payment-option__content">
-                    <span class="payment-option__title">Оплата по счету</span>
-                    <span class="payment-option__badge">Для юрлиц</span>
-                    <span class="payment-option__desc">Отправим счет на e-mail или через ЭДО — безналичная оплата</span>
-                  </span>
-                </label>
+                  <!-- Режим редактирования -->
+                  <label class="payment-option" *ngIf="canChangePaymentMethod"
+                    [class.payment-option--disabled]="!canSelectPaymentOption(option)">
+
+                    <input type="radio" name="paymentMethod" [(ngModel)]="paymentMethod" [value]="option.value"
+                      [disabled]="!canSelectPaymentOption(option)">
+
+                    <span class="payment-option__custom"></span>
+
+                    <span class="payment-option__content">
+                      <span class="payment-option__title">
+                        <span class="payment-option__icon">{{ option.icon }}</span>
+                        {{ option.title }}
+                      </span>
+
+                      <span class="payment-option__badge">{{ option.badge }}</span>
+
+                      <!-- Динамическое описание -->
+                      <span class="payment-option__desc">
+                        {{ getPaymentOptionFullDesc(option) }}
+
+                        <!-- Подсказка, если способ недоступен -->
+                        <span *ngIf="!canSelectPaymentOption(option)" class="option-unavailable">
+                          • Недоступно
+                        </span>
+                      </span>
+                    </span>
+                  </label>
+
+                  <!-- Режим просмотра: только выбранный вариант -->
+                  <div class="payment-option payment-option--readonly"
+                    *ngIf="!canChangePaymentMethod && paymentMethod === option.value">
+
+                    <span class="payment-option__custom payment-option__custom--locked">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                          d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                      </svg>
+                    </span>
+
+                    <span class="payment-option__content">
+                      <span class="payment-option__title">
+                        <span class="payment-option__icon">{{ option.icon }}</span>
+                        {{ option.title }}
+                      </span>
+                      <span class="payment-option__badge payment-option__badge--locked">Выбрано</span>
+                      <span class="payment-option__desc">{{ getPaymentOptionFullDesc(option) }}</span>
+                    </span>
+                  </div>
+
+                </ng-container>
 
               </div>
 
@@ -207,14 +212,15 @@
                   <p class="payment-info__text">Терминал для оплаты картой есть в пунктах выдачи</p>
                 </div>
               </div>
-              <app-invoice-delivery *ngIf="paymentMethod === 'invoice'"  
-                [(deliveryMethod)]="invoiceDeliveryMethod" [(email)]="invoiceEmail"
-                (deliverySelected)="onInvoiceDeliverySelected($event)"> <!--orderFormData?.selectedCompanyId && -->
+              <app-invoice-delivery *ngIf="paymentMethod === 'invoice'" [(deliveryMethod)]="invoiceDeliveryMethod"
+                [(email)]="invoiceEmail" (deliverySelected)="onInvoiceDeliverySelected($event)">
+                <!--orderFormData?.selectedCompanyId && -->
               </app-invoice-delivery>
             </div>
           </div>
 
           <!-- Кнопки действий -->
+          @if (orderData?.orderStatus == 0) {
           <div class="summary-actions">
             <button class="summary-actions__btn summary-actions__btn--primary" (click)="processOrder()">
               <!-- [class.loading]="isProcessing" -->
@@ -245,6 +251,7 @@
               <a href="#" class="hint-link">пользовательского соглашения</a>
             </p>
           </div>
+          }
         </div>
       </div>
     </div>

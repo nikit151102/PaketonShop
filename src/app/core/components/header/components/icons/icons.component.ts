@@ -32,7 +32,7 @@ export class IconsComponent implements OnInit {
   operativeInfo = computed(() => this.userService.operativeInfo())
 
   ngOnInit(): void {
-    if (this.isObjectEmpty(this.operativeInfo())) {
+    if (this.isObjectEmpty(this.operativeInfo()) && StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
       this.userApiService.getOperativeInfo();
     }
   }

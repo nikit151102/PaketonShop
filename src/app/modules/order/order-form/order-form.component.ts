@@ -83,7 +83,9 @@ export class OrderFormComponent implements OnInit {
     return this._orderData;
   }
 
-
+  getAddressSelect(): any {
+    return this.orderData
+  }
   ngOnChanges(changes: any): void {
     // Если orderData изменился после загрузки
     if (changes.orderData && changes.orderData.currentValue && !this.isInitialized) {
@@ -106,6 +108,23 @@ export class OrderFormComponent implements OnInit {
       case ContactTypeEnum.DoNotCallAndDelete:
         break;
     }
+  }
+
+
+  /**
+   * Можно ли изменять способ доставки?
+   * Только если статус заказа = 0 (черновик)
+   */
+  get canChangeDelivery(): boolean {
+    return this.orderData?.orderStatus === 0 || !this.orderData;
+  }
+
+  get getSelectedContactType() {
+    return this.orderData?.contactType ?? ContactTypeEnum.Call;
+  }
+
+  get orderStatus() {
+    return this.orderData?.orderStatus ?? 0;
   }
 
   // Для оптимизации отправки (дебаунс)
@@ -192,7 +211,6 @@ export class OrderFormComponent implements OnInit {
 
     // 3. Устанавливаем selectedContactType
     this.selectedContactType = this.orderData.contactType ?? ContactTypeEnum.Call;
-
     // 4. Заполняем данные о доставке после инициализации дочерних компонентов
     setTimeout(() => {
       this.initializeDeliveryData();

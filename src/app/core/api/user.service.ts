@@ -40,7 +40,6 @@ export class UserApiService {
       })
     );
   }
-
   
   getOperativeInfo(){
     this.operativeInfo().subscribe((value:any)=>{
@@ -48,4 +47,7 @@ export class UserApiService {
     })
   }
 
+    validateToken(): Observable<any> {
+    return this.http.post(`${environment.production}/auth/validateToken`, {});
+  }
 }

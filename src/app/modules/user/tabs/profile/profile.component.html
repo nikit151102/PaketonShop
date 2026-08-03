@@ -105,10 +105,25 @@
                     </div>
                 </div>
             </div> -->
-            @if (user?.personalSaleBarCode) {
-            <app-qr-code [data]="user.personalSaleBarCode" [width]="200" [mode]="'barcode'"
-                [cardNumber]="'8800 •••• •••• 1234'" [cardHolder]="user?.firstName + ' ' + user?.lastName">
-            </app-qr-code>
+            @if (isVisibleDigitalCardB2B) {
+            <app-digital-card cardVariant="custom" [data]="user.personalSaleBarCode" mode="barcode"
+                [gradient]="'linear-gradient(135deg, #3c8a27 0%, #2d6c1d 100%)'" textColor="#ffffff" icon=""
+                brandName="пакетон.рф" cardTypeLabel="Партнёрская карта" numberLabel="" cardNumber="" holderLabel=""
+                cardHolder="" footerText="Действует бессрочно" 
+                [statusCode]="'Договор подписан'" 
+                >
+              [statusColor]="user.contractSigned"
+               [blurCode]="!user.contractSigned"
+            </app-digital-card>
+            <!-- footerText="Действует до 31.12.2026"
+            numberLabel="Уровень" cardNumber="PLATINUM" -->
+            }
+            @if (isVisibleDigitalCard) {
+            <app-digital-card cardVariant="custom" [data]="user.personalSaleBarCode" mode="barcode"
+                [gradient]="'linear-gradient(135deg, #3c8a27 0%, #2d6c1d 100%)'" textColor="#ffffff" icon=""
+                brandName="пакетон.рф" cardTypeLabel="Карта лояльности" numberLabel="" cardNumber="" holderLabel=""
+                cardHolder="" footerText="Действует бессрочно">
+            </app-digital-card>
             }
 
             <!-- Balance Widget -->
@@ -139,7 +154,7 @@
 
         <!-- Правая колонка - Меню -->
         <div class="profile-content">
-                <app-current-orders></app-current-orders>
+            <app-current-orders></app-current-orders>
             <div class="menu-grid">
                 <!-- Order History -->
                 <a [routerLink]="['/profile/orderHistory']" class="menu-card">

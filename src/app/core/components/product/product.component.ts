@@ -118,7 +118,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        
+
       }
     });
   }
@@ -131,7 +131,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.isUserBasket = baskets.length > 0 && this.userService.authUser();
     this.productBasketsCount = this.getProductBaskets().length;
     this.checkProductInBaskets();
-    this.filteredBaskets = [...baskets]; 
+    this.filteredBaskets = [...baskets];
   }
 
   private get activeBasketId(): string | null {
@@ -244,7 +244,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>{}
+        error: (err) => { }
       });
   }
 
@@ -266,7 +266,7 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.quantitySelectorVisible = false;
             this.selectedQuantity = 1;
           },
-          error: (err) =>{}
+          error: (err) => { }
         });
       return;
     }
@@ -282,7 +282,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>{
+        error: (err) => {
 
         }
       });
@@ -306,8 +306,8 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>{
-          
+        error: (err) => {
+
         }
       });
   }
@@ -330,8 +330,8 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>{
-          
+        error: (err) => {
+
         }
       });
   }
@@ -349,8 +349,8 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.selectedQuantity = 1;
           }
         },
-        error: (err) =>{
-          
+        error: (err) => {
+
         }
       });
   }
@@ -392,7 +392,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.loadUpdatedProductData();
         },
         error: (err) => {
-          
+
         }
       });
   }
@@ -422,9 +422,11 @@ export class ProductComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.loadUpdatedProductData();
-          this.userApiService.getOperativeInfo();
+          if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
+            this.userApiService.getOperativeInfo();
+          }
         },
-        error: (err) => {}
+        error: (err) => { }
       });
   }
 
@@ -440,7 +442,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.loadUpdatedProductData();
         },
         error: (err) => {
-          
+
         },
       });
   }
@@ -538,7 +540,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     serviceCall.pipe(take(1)).subscribe({
       next: () => {
-        
+
         this.product.compare = !this.product.compare
       },
       error: (error) => {
@@ -647,7 +649,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       count: newCount
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -661,7 +663,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       count: value
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -676,7 +678,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
         this.showNotification('Товар добавлен в корзину');
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -687,7 +689,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.basketsStateService.updateBaskets(res.data);
         },
-        error: (err) => {}
+        error: (err) => { }
       });
   }
 
@@ -700,7 +702,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.loadUpdatedProductData();
         this.showNotification(`Товар удален из корзины "${basket?.name || ''}"`);
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -717,7 +719,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.loadBaskets();
         this.showNotification(`Корзина "${basketName}" создана`);
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -757,7 +759,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsService.deleteBasket(
       basketId).subscribe({
         next: () => this.loadBaskets(),
-        error: (err) => {}
+        error: (err) => { }
       });
   }
   onUpdateQuantityFromInput(event: { basketId: string, value: string }) {

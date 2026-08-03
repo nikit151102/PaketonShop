@@ -17,6 +17,7 @@ type ViewMode = 'city' | 'list' | 'map' | any;
 })
 export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() selectedStoreId: string | null = null;
+  @Input() orderData: any;
   @Output() storeSelected = new EventEmitter<any>();
   @Output() storeUnselected = new EventEmitter<void>();
   @Output() allStoresOut = new EventEmitter<any>();
@@ -65,6 +66,30 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     private renderer: Renderer2
   ) { }
 
+  ngOnChanges(changes: any): void {
+    if (changes['orderData']) {
+      const value = changes['orderData'].currentValue;
+
+      console.log('📦 orderData изменился:', value);
+
+      // Обрабатываем только если:
+      // 1. Есть значение
+      // 2. Магазины уже загружены (или это первый вызов)
+      // 3. Это не первый change (чтобы не дублировать)
+      if (value && (!this.loadingAllStores || changes['orderData'].firstChange)) {
+        this.handleExternalStoreSelect(value);
+      } else if (value && this.loadingAllStores) {
+        // Откладываем, если магазины ещё грузятся
+        this.pendingStoreSelect = value;
+      }
+    }
+
+    if (changes['isDeliveryCancelled']) {
+      setTimeout(() => { }, 100);
+    }
+  }
+
+
   ngOnInit(): void {
     // Сначала загружаем все магазины
     this.loadAllStores();
@@ -92,6 +117,172 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
+
+  /**
+   * Обработка внешнего выбора магазина (из parent-компонента)
+   */
+  private handleExternalStoreSelect(value: any): void {
+    console.log('🎯 Обработка внешнего выбора магазина:', value);
+
+    let targetStore: ProductPlace | null = null;
+
+    // === Вариант 1: Пришёл просто ID (строка) ===
+    if (typeof value === 'string') {
+      targetStore = this.allStores.find(s => s.id === value) || null;
+    }
+
+    // === Вариант 2: Пришёл объект ProductPlace ===
+    else if (value?.address?.latitude && value?.address?.longitude && value?.storeSchedule) {
+      // Это полноценный объект магазина
+      targetStore = value as ProductPlace;
+
+      // Добавляем в список, если нет
+      if (!this.allStores.find(s => s.id === targetStore!.id)) {
+        this.allStores.push(targetStore!);
+      }
+    }
+
+    // === Вариант 3: Пришёл объект заказа с address/productPlace ===
+    else if (value?.address || value?.productPlace) {
+      console.log('📦 Получен объект заказа, извлекаем данные магазина...');
+
+      // Пробуем найти по productPlace (если есть)
+      if (value.productPlace) {
+        targetStore = this.allStores.find(s => s.id === value.productPlace.id) || null;
+      }
+
+      // Если не нашли по productPlace, пробуем найти по совпадению адреса
+      if (!targetStore && value.address) {
+        const orderAddress = value.address;
+
+        targetStore = this.allStores.find(s =>
+          s.address?.city?.toLowerCase() === orderAddress.city?.toLowerCase() &&
+          s.address?.street?.toLowerCase() === orderAddress.street?.toLowerCase() &&
+          s.address?.house === orderAddress.house
+        ) || null;
+
+        if (targetStore) {
+          console.log('✅ Магазин найден по совпадению адреса:', targetStore.shortName);
+        }
+      }
+
+      // Если всё ещё не нашли — создаём полноценный объект из данных заказа
+      if (!targetStore && value.address?.city && value.address?.street) {
+        console.log('⚠️ Магазин не найден, создаём полноценный объект из адреса заказа');
+
+        // Генерируем ID, если нет
+        const storeId = value.address?.id || value.productPlace?.id || `temp-${Date.now()}`;
+
+        targetStore = {
+          id: storeId,
+          shortName: `${value.address.city}, ${value.address.street}`,
+          fullName: this.buildFullNameFromAddress(value.address),
+          email: null,
+          phoneNumber: value.phoneNumber || null,
+          productPlaceType: 0,
+          isDeliveryIncluded: false,
+          getInstructions: [],
+          advantageList: [],
+          address: {
+            id: value.address.id || `addr-${Date.now()}`, // ✅ Важно: address.id должен быть!
+            region: value.address.region || null,
+            area: value.address.area || null,
+            city: value.address.city,
+            street: value.address.street,
+            house: value.address.house,
+            housing: value.address.housing || null,
+            floorNumber: value.address.floorNumber || null,
+            office: value.address.office || null,
+            postIndex: value.address.postIndex || null,
+            latitude: value.address.latitude || null,
+            longitude: value.address.longitude || null,
+            system: value.address.system || 'web',
+            transportCompanyType: null,
+            isDeleted: false
+          },
+          // ✅ Создаём заглушку для storeSchedule
+          storeSchedule: {
+            id: `schedule-${storeId}`,
+            storeId: storeId,
+            workingHours: [], // Можно добавить дефолтные часы, если известны
+            exceptionDays: [],
+            isDeleted: false
+          },
+          partner: null,
+          imageInstanceLinks: [],
+          imageInstances: [],
+          isDeleted: false
+        } as ProductPlace;
+
+        // Добавляем в список, чтобы не создавать каждый раз
+        if (!this.allStores.find(s => s.id === targetStore!.id)) {
+          this.allStores.push(targetStore!);
+        }
+      }
+    }
+
+    // === Применяем выбор ===
+    if (targetStore) {
+      console.log('✅ Выбираем магазин:', targetStore.shortName);
+
+      // ✅ Используем тот же метод selectStore, что и при ручном выборе
+      this.selectStore(targetStore);
+    } else {
+      console.warn('⚠️ Не удалось найти магазин для:', value);
+
+      // Если магазины ещё загружаются — откладываем обработку
+      if (this.loadingAllStores) {
+        console.log('⏳ Магазины ещё загружаются, откладываем...');
+        this.pendingStoreSelect = value;
+      } else {
+        // Пробуем загрузить конкретный магазин с сервера (если есть ID)
+        const storeId = value?.id || value?.productPlace?.id || value?.address?.id;
+        if (storeId) {
+          console.log('🔄 Пробуем загрузить магазин с сервера:', storeId);
+          this.loadStoreById(storeId);
+        }
+      }
+    }
+  }
+
+  /**
+   * Вспомогательный метод: построение fullName из адреса
+   */
+  private buildFullNameFromAddress(address: any): string {
+    const parts: string[] = [];
+    if (address.city) parts.push(`г. ${address.city}`);
+    if (address.street) parts.push(`ул. ${address.street}`);
+    if (address.house) parts.push(`д. ${address.house}`);
+    if (address.housing) parts.push(`корп. ${address.housing}`);
+    return parts.join(', ');
+  }
+
+  /**
+   * Загрузка конкретного магазина по ID с сервера
+   */
+  private loadStoreById(storeId: string): void {
+    this.productPlaceService.getProductPlaceById(storeId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (store) => {
+          if (store) {
+            // Добавляем в общий список
+            if (!this.allStores.find(s => s.id === store.id)) {
+              this.allStores.push(store);
+            }
+            // Выбираем
+            this.selectStore(store);
+          }
+        },
+        error: (err) => {
+          console.error('❌ Не удалось загрузить магазин:', err);
+        }
+      });
+  }
+
+  // Добавьте это свойство в класс для отложенной обработки
+  private pendingStoreSelect: any = null;
+
   // Загрузка всех магазинов с сервера
   private loadAllStores(): void {
     this.loadingAllStores = true;
@@ -103,10 +294,16 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
         next: (stores: ProductPlace[]) => {
           this.allStores = stores || [];
           this.storesSubject.next(stores || []);
-          this.allStoresOut.emit(this.allStores)
-          // После загрузки магазинов загружаем города
+          this.allStoresOut.emit(this.allStores);
+
           this.loadCities();
           this.loadingAllStores = false;
+
+          if (this.pendingStoreSelect) {
+            console.log('🔄 Обрабатываем отложенный storeSelect:', this.pendingStoreSelect);
+            this.handleExternalStoreSelect(this.pendingStoreSelect);
+            this.pendingStoreSelect = null;
+          }
         },
         error: (err) => {
           this.error = 'Не удалось загрузить список магазинов';
@@ -336,7 +533,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
           checkZoomRange: true,
           zoomMargin: 30
         });
-      } catch (error) {}
+      } catch (error) { }
     }
   }
 
@@ -416,7 +613,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
     this.mapMarkers.forEach(marker => {
       try {
         this.ymap.geoObjects.remove(marker);
-      } catch (error) {}
+      } catch (error) { }
     });
     this.mapMarkers = [];
   }
@@ -459,7 +656,7 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
       setTimeout(() => {
         try {
           marker.balloon.open();
-        } catch (error) {}
+        } catch (error) { }
       }, 300);
     }
   }
@@ -601,14 +798,17 @@ export class PickupDeliveryComponent implements OnInit, OnDestroy, AfterViewInit
   // Выбор магазина
   selectStore(store: ProductPlace): void {
     this.selectedStore = store;
-    this.viewMode = 'city'; // Возвращаемся к виду с выбранным магазином
+    this.selectedCity = store.address?.city || null;
+    this.viewMode = 'city';
+
     this.storeSelected.emit({
       'type': 'pickup',
       'id': store.id,
-      'addressId': store.address.id,
-      'shopCity': store.address.city,
-      'shopAddress': store.address
+      'addressId': store.address?.id || null, 
+      'shopCity': store.address?.city || '',
+      'shopAddress': store.address || null
     });
+
     // Центрируем карту на выбранном магазине
     if (store.address?.latitude && store.address?.longitude && this.mapReady && this.ymap) {
       this.centerMapOnStore(store);

@@ -107,6 +107,16 @@ export class UserService {
     this.setUser(null, storageType);
   }
 
+  
+  /**
+   * Очистить данные пользователя
+   * @param storageType - 'local' | 'session', по умолчанию localStorage
+   */
+  clearUserDataCache(storageType: 'local' | 'session' = 'local'): void {
+    this.setUser(null, storageType);
+    this.userSubject.next(null);
+  }
+
   /**
    * Пример запроса к API для получения данных пользователя
    * @returns Observable с данными пользователя

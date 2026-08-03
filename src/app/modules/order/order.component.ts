@@ -74,6 +74,60 @@ export class OrderComponent implements OnInit, OnDestroy {
   paymentToken: string | null = null;
   showPaymentWidget: boolean = false;
 
+
+
+  /**
+   * Список доступных способов оплаты
+   */
+  paymentOptions = [
+    {
+      value: 'cash',
+      title: 'Наличными при получении',
+      badge: 'Наличные',
+      desc: 'Оплатите заказ наличными курьеру или в пункте выдачи',
+      icon: '',
+      showForCompanies: false,
+      requiresAuth: false
+    },
+    {
+      value: 'card',
+      title: 'Картой при получении',
+      badge: 'Терминал',
+      desc: 'Оплатите картой курьеру или в пункте выдачи',
+      icon: '',
+      showForCompanies: false,
+      requiresAuth: false
+    },
+    {
+      value: 'invoice',
+      title: 'Оплата по счету',
+      badge: 'Для юрлиц',
+      desc: 'Отправим счет на e-mail или через ЭДО — безналичная оплата',
+      icon: '',
+      showForCompanies: false,
+      requiresAuth: false
+    },
+    // {
+    //   value: 'online',
+    //   title: 'Онлайн оплата',
+    //   badge: 'Картой онлайн',
+    //   desc: 'Безопасная оплата через защищённый шлюз',
+    //   icon: '🔐',
+    //   showForCompanies: false,
+    //   requiresAuth: true
+    // },
+    // {
+    //   value: 'balance',
+    //   title: 'Списание с баланса',
+    //   badge: 'Баланс',
+    //   desc: 'Оплатите средствами с вашего лицевого счёта',
+    //   icon: '🪙',
+    //   showForCompanies: true,
+    //   requiresAuth: true
+    // }
+  ];
+
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -146,6 +200,70 @@ export class OrderComponent implements OnInit, OnDestroy {
           this.isLoading = false;
         }
       });
+  }
+
+
+  /**
+ * Получить полное описание способа оплаты (с балансом, если нужно)
+ */
+  getPaymentOptionFullDesc(option: any): string {
+    if (option.value === 'balance') {
+      const balance = this.operativeInfo()?.balance;
+      if (balance !== undefined && balance !== null) {
+        return `${option.desc} Доступно: ${balance} руб.`;
+      }
+      return `${option.desc} Баланс не загружен`;
+    }
+    return option.desc;
+  }
+
+  /**
+   * Можно ли выбрать этот способ оплаты?
+   */
+  canSelectPaymentOption(option: any): boolean {
+    // Если способ требует авторизации, но пользователь не авторизован
+    if (option.requiresAuth && !this.currentUserData) {
+      return false;
+    }
+
+    // Если это баланс, но баланс не загружен или отрицательный
+    if (option.value === 'balance') {
+      const balance = this.operativeInfo()?.balance;
+      return balance !== undefined && balance !== null && balance > 0;
+    }
+
+    return true;
+  }
+
+
+  /**
+   * Можно ли изменять способ оплаты?
+   * Только если статус заказа = 0 (черновик)
+   */
+  get canChangePaymentMethod(): boolean {
+    return this.orderData?.orderStatus === 0;
+  }
+
+  /**
+   * Фильтруем опции: для компаний показываем только invoice, для физлиц — остальные
+   */
+  get filteredPaymentOptions() {
+    const isCompany = !!this.orderFormData?.selectedCompanyId;
+
+    return this.paymentOptions.filter(option => {
+      if (isCompany) {
+        return option.showForCompanies;
+      }
+      return !option.showForCompanies;
+    });
+  }
+
+  /**
+   * Получить описание для режима просмотра
+   */
+  getPaymentMethodDescription(method: string): string {
+    const option = this.paymentOptions.find(o => o.value === method);
+    return option?.desc || '';
   }
 
   calculateDiscount(): void {
@@ -611,7 +729,7 @@ export class OrderComponent implements OnInit, OnDestroy {
           next: (response: any) => {
             this.showSuccessNotification('Способ оплаты изменен на "Наличными при получении"');
           },
-          error: (error) =>  {}
+          error: (error) => { }
         });
     }
   }

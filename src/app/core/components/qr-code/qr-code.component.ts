@@ -3,59 +3,94 @@ import { CommonModule } from '@angular/common';
 import QRCode from 'qrcode';
 import JsBarcode from 'jsbarcode';
 
+export type CardVariant = 'loyalty' | 'business' | 'custom';
+
+export interface CardStyle {
+  primaryColor: string;
+  secondaryColor: string;
+  textColor: string;
+  accentColor: string;
+  gradient: string;
+  icon: string;
+}
+
 @Component({
-  selector: 'app-qr-code',
+  selector: 'app-digital-card',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="loyalty-card" *ngIf="data">
-      <!-- Верхняя часть карты -->
+    <div class="digital-card" 
+         [style.background]="computedStyle.gradient"
+         [class.digital-card--placeholder]="!data"
+         [class.digital-card--variant-loyalty]="cardVariant === 'loyalty'"
+         [class.digital-card--variant-business]="cardVariant === 'business'">
+      
+      <!-- Декоративные элементы -->
+      <div class="card-glow card-glow--1"></div>
+      <div class="card-glow card-glow--2"></div>
+
+      <!-- Верхняя часть -->
       <div class="card-top">
         <div class="card-brand">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
+          <span class="card-brand__name">{{ brandName || 'ПАКЕТОН.РФ' }}</span>
         </div>
-        <div class="card-type">Карта лояльности</div>
+        <div class="card-type" [style.color]="computedStyle.textColor">{{ cardTypeLabel || 'Карта' }}</div>
       </div>
 
-      <!-- Код -->
+      <!-- Область кода с поддержкой размытия -->
       <div class="card-code-area">
-        <canvas #qrCanvas *ngIf="mode === 'qr'" class="qr-canvas"></canvas>
-        <svg #barcodeSvg *ngIf="mode === 'barcode'" class="barcode-full-width"></svg>
-      </div>
-
-      <!-- Нижняя часть карты -->
-      <div class="card-bottom">
-        <!-- <div class="card-number">{{ cardNumber }}</div>
-        <div class="card-holder">{{ cardHolder || 'Участник программы' }}</div> -->
-        <div class="card-holder">Участник программы</div>
-      </div>
-    </div>
-
-    <!-- Placeholder -->
-    <div class="loyalty-card loyalty-card--placeholder" *ngIf="!data">
-      <div class="card-top">
-        <div class="card-brand">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span>ПАКЕТОН</span>
-        </div>
-        <div class="card-type">Карта лояльности</div>
-      </div>
-      <div class="card-code-area placeholder-area">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <path d="M7 7h10M7 12h10M7 17h6"/>
+        
+        <!-- QR-код (размывается отдельно) -->
+        <canvas #qrCanvas 
+                *ngIf="mode === 'qr' && data" 
+                class="qr-canvas"
+                [class.code-element-blurred]="blurCode">
+        </canvas>
+        
+        <!-- Штрих-код (размывается отдельно) -->
+        <svg #barcodeSvg 
+             *ngIf="mode === 'barcode' && data" 
+             class="barcode-full-width"
+             [class.code-element-blurred]="blurCode">
         </svg>
-        <p>Нет данных для кода</p>
+        
+        <!-- Плейсхолдер если нет данных -->
+        <div class="placeholder-code" *ngIf="!data">
+          <p [style.color]="computedStyle.textColor + '99'">{{ placeholderText || 'Нет данных' }}</p>
+        </div>
+        
+        <!-- Оверлей "Недоступно" (всегда чёткий, поверх кода) -->
+        <div class="blur-overlay" *ngIf="blurCode && data">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <span>Недоступно</span>
+        </div>
+        
       </div>
+
+      <!-- Нижняя часть -->
       <div class="card-bottom">
-        <!-- <div class="card-number">•••• •••• •••• ••••</div> -->
-        <div class="card-holder">Участник программы</div>
+        <div class="card-info" *ngIf="cardNumber">
+          <div class="card-info__label" [style.color]="computedStyle.textColor + '99'">{{ numberLabel || 'Номер' }}</div>
+          <div class="card-info__value" [style.color]="computedStyle.textColor">{{ cardNumber || '•••• •••• •••• ••••' }}</div>
+        </div>
+        <div class="card-info card-info--right" *ngIf="holderLabel">
+          <div class="card-info__label" [style.color]="computedStyle.textColor + '99'">{{ holderLabel || 'Владелец' }}</div>
+          <div class="card-info__value card-info__value--holder" [style.color]="computedStyle.textColor">
+            {{ cardHolder || holderPlaceholder || 'Участник' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Статус (отображается, если передан) -->
+      <div class="card-status" *ngIf="statusCode" [style.color]="statusColor || (computedStyle.textColor + 'cc')">
+        {{ statusCode }}
+      </div>
+
+      <!-- Футер (опционально) -->
+      <div class="card-footer" *ngIf="footerText" [style.color]="computedStyle.textColor + 'cc'">
+        {{ footerText }}
       </div>
     </div>
   `,
@@ -67,28 +102,27 @@ import JsBarcode from 'jsbarcode';
       margin: 0 auto;
     }
 
-    /* === PLASTIC CARD === */
-    .loyalty-card {
-      background: linear-gradient(135deg, #3c8a27 0%, #2d6c1d 60%, #1a4f12 100%);
+    .digital-card {
       border-radius: 20px;
       padding: 16px;
       position: relative;
       overflow: hidden;
       box-shadow:
         0 4px 6px rgba(0, 0, 0, 0.1),
-        0 10px 30px rgba(60, 138, 39, 0.25),
+        0 10px 30px rgba(0, 0, 0, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      aspect-ratio:  1.86/1; 
+      aspect-ratio: 2/1;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      color: white;
 
       &:hover {
         transform: translateY(-4px);
         box-shadow:
           0 8px 12px rgba(0, 0, 0, 0.12),
-          0 20px 40px rgba(60, 138, 39, 0.3),
+          0 20px 40px rgba(0, 0, 0, 0.2),
           inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
 
@@ -97,27 +131,26 @@ import JsBarcode from 'jsbarcode';
       }
     }
 
-    /* Декоративный блик на пластике */
-    .loyalty-card::before {
-      content: '';
+    /* Декоративные блики */
+    .card-glow {
       position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.15;
+    }
+    .card-glow--1 {
       top: -50%;
       right: -30%;
       width: 200px;
       height: 200px;
-      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
-      pointer-events: none;
+      background: radial-gradient(circle, white 0%, transparent 70%);
     }
-
-    .loyalty-card::after {
-      content: '';
-      position: absolute;
+    .card-glow--2 {
       bottom: -20%;
       left: -20%;
       width: 150px;
       height: 150px;
-      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
-      pointer-events: none;
+      background: radial-gradient(circle, white 0%, transparent 70%);
     }
 
     /* Верхняя часть */
@@ -133,28 +166,22 @@ import JsBarcode from 'jsbarcode';
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    .card-brand__name {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
       color: white;
-
-      svg {
-        width: 28px;
-        height: 28px;
-        opacity: 0.9;
-      }
-
-      span {
-        font-size: 20px;
-        font-weight: 800;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-      }
     }
 
     .card-type {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.7);
       text-transform: uppercase;
       letter-spacing: 1.5px;
+      opacity: 0.8;
     }
 
     /* Область кода */
@@ -162,9 +189,10 @@ import JsBarcode from 'jsbarcode';
       display: flex;
       align-items: center;
       justify-content: center;
-      position: relative;
+      position: relative;  /* Для позиционирования оверлея */
       z-index: 1;
-      padding: 12px 0;
+      padding: 7px 0;
+      min-height: 70px;  /* Чтобы область не схлопывалась */
 
       .qr-canvas {
         display: block;
@@ -174,6 +202,7 @@ import JsBarcode from 'jsbarcode';
         background: white;
         padding: 6px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: filter 0.3s ease;
       }
 
       .barcode-full-width {
@@ -185,26 +214,62 @@ import JsBarcode from 'jsbarcode';
         border-radius: 8px;
         padding: 8px 12px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        transition: filter 0.3s ease;
       }
 
-      &.placeholder-area {
+      .placeholder-code {
+        display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 8px;
         border: 2px dashed rgba(255, 255, 255, 0.2);
         border-radius: 12px;
-
-        svg {
-          opacity: 0.4;
-          color: white;
-        }
+        padding: 16px;
+        width: 100%;
+        max-width: 140px;
 
         p {
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.5);
           margin: 0;
+          opacity: 0.6;
         }
+      }
+
+      /* 🔹 Размытие ТОЛЬКО элемента кода, а не контейнера */
+      .code-element-blurred {
+        filter: blur(6px);
+        pointer-events: none;
+        user-select: none;
+        opacity: 0.5;
+      }
+    }
+
+    /* 🔹 Оверлей "Недоступно" — всегда чёткий, поверх размытого кода */
+    .blur-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.75);
+      border-radius: 10px;
+      color: white;
+      font-size: 11px;
+      font-weight: 500;
+      z-index: 3;  /* Выше, чем код (z-index: 1) */
+      pointer-events: auto;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(2px);  /* Лёгкий блюр фона оверлея для красоты */
+      white-space: nowrap;
+
+      svg {
+        opacity: 0.95;
+        flex-shrink: 0;
       }
     }
 
@@ -215,66 +280,169 @@ import JsBarcode from 'jsbarcode';
       align-items: flex-end;
       position: relative;
       z-index: 1;
+      gap: 12px;
     }
 
-    .card-number {
-      font-family: 'Courier New', monospace;
-      font-size: 16px;
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      &--right {
+        text-align: right;
+        align-items: flex-end;
+      }
+    }
+
+    .card-info__label {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.7;
+    }
+
+    .card-info__value {
+      font-size: 13px;
       font-weight: 700;
-      color: white;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      word-break: break-all;
+
+      &--holder {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
 
-    .card-holder {
+    /* Статус */
+    .card-status {
       font-size: 11px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.6);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: right;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      text-align: center;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+    }
+
+    /* Футер */
+    .card-footer {
+      font-size: 10px;
+      text-align: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 4px;
     }
 
     /* Адаптивность */
     @media (max-width: 480px) {
-      .loyalty-card {
-        padding: 18px;
+      .digital-card {
+        padding: 14px;
         border-radius: 16px;
       }
 
-      .card-brand span {
-        font-size: 17px;
+      .card-brand__name {
+        font-size: 16px;
       }
 
       .card-code-area .qr-canvas {
         max-width: 120px;
       }
 
-      .card-number {
-        font-size: 14px;
-        letter-spacing: 1.5px;
+      .card-info__value {
+        font-size: 12px;
       }
 
-      .card-holder {
+      .card-status {
         font-size: 10px;
-        max-width: 100px;
+        padding: 4px 10px;
       }
     }
   `]
 })
-export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
+export class DigitalCardComponent implements OnInit, OnChanges, AfterViewChecked {
   @Input() data: string = '';
   @Input() width: number = 140;
   @Input() mode: 'qr' | 'barcode' = 'qr';
+  @Input() cardVariant: CardVariant = 'loyalty';
+  
+  // 🔹 Новые параметры
+  @Input() blurCode: boolean = false;           // Размытие кода
+  @Input() statusCode: string = '';             // Текст статуса
+  @Input() statusColor?: string;                // Цвет статуса (опционально)
+
+  // Текстовые поля (все опциональны)
+  @Input() brandName: string = '';
+  @Input() cardTypeLabel: string = '';
+  @Input() numberLabel: string = '';
+  @Input() holderLabel: string = '';
   @Input() cardNumber: string = '';
   @Input() cardHolder: string = '';
+  @Input() holderPlaceholder: string = '';
+  @Input() placeholderText: string = '';
+  @Input() footerText: string = '';
+
+  // Стили (опционально, переопределяют preset)
+  @Input() primaryColor?: string;
+  @Input() secondaryColor?: string;
+  @Input() textColor?: string;
+  @Input() accentColor?: string;
+  @Input() gradient?: string;
+  @Input() icon?: string;
 
   @ViewChild('qrCanvas') qrCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('barcodeSvg') barcodeSvg!: ElementRef<SVGElement>;
 
   private needsRegenerate = false;
+
+  // Предустановленные стили для вариантов
+  private readonly presets: Record<CardVariant, CardStyle> = {
+    loyalty: {
+      primaryColor: '#3c8a27',
+      secondaryColor: '#1a4f12',
+      textColor: '#ffffff',
+      accentColor: '#4eb432',
+      gradient: 'linear-gradient(135deg, #3c8a27 0%, #2d6c1d 60%, #1a4f12 100%)',
+      icon: '🎁'
+    },
+    business: {
+      primaryColor: '#1e3a5f',
+      secondaryColor: '#0f172a',
+      textColor: '#ffffff',
+      accentColor: '#3b82f6',
+      gradient: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%, #0a0f1a 100%)',
+      icon: '💼'
+    },
+    custom: {
+      primaryColor: '#666',
+      secondaryColor: '#333',
+      textColor: '#fff',
+      accentColor: '#999',
+      gradient: 'linear-gradient(135deg, #666 0%, #333 100%)',
+      icon: '📇'
+    }
+  };
+
+  constructor() {}
+
+  /**
+   * Вычисляем финальные стили: preset + переопределения через @Input
+   */
+  get computedStyle(): CardStyle {
+    const preset = this.presets[this.cardVariant] || this.presets.custom;
+    return {
+      primaryColor: this.primaryColor ?? preset.primaryColor,
+      secondaryColor: this.secondaryColor ?? preset.secondaryColor,
+      textColor: this.textColor ?? preset.textColor,
+      accentColor: this.accentColor ?? preset.accentColor,
+      gradient: this.gradient ?? preset.gradient,
+      icon: this.icon ?? preset.icon
+    };
+  }
 
   ngOnInit(): void {
     setTimeout(() => this.generate(), 0);
@@ -311,12 +479,12 @@ export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
         width: this.width,
         margin: 1,
         color: {
-          dark: '#1a4f12',
+          dark: this.computedStyle.secondaryColor,
           light: '#ffffff'
         }
       },
       (error) => {
-        if (error) {}
+        if (error) console.error('QR generation error:', error);
       }
     );
   }
@@ -335,7 +503,8 @@ export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
         height: 20,
         displayValue: false,
         margin: 4,
-        background: 'transparent'
+        background: 'transparent',
+        lineColor: this.computedStyle.secondaryColor
       });
     } catch (error) {
       try {
@@ -345,10 +514,11 @@ export class QrCodeComponent implements OnInit, OnChanges, AfterViewChecked {
           height: 20,
           displayValue: false,
           margin: 4,
-          background: 'transparent'
+          background: 'transparent',
+          lineColor: this.computedStyle.secondaryColor
         });
       } catch (e) {
-       
+        console.error('Barcode generation error:', e);
       }
     }
   }
