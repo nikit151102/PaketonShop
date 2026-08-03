@@ -257,7 +257,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   cancelOrder(order: Order): void {
     if (confirm(`Вы уверены, что хотите отменить заказ #${this.formatOrderId(order.id)}?`)) {
-      this.deliveryOrderService.changeOrderStatus(order.id, 11).subscribe((value: any) => {
+      this.deliveryOrderService.cancelOrder(order.id).subscribe((value: any) => {
         this.loadOrders(true);
       })
     }
