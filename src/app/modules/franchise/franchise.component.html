@@ -1,4 +1,24 @@
 <!-- ═══════════════════════════════════════════════════ -->
+<!-- FRANCHISE TYPE TOGGLE                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section class="section section-white" style="padding-top: 0; padding-bottom: 0;">
+  <div class="container">
+    <div class="franchise-toggle-container reveal">
+      <div class="franchise-toggle">
+        <button class="toggle-btn" [class.active]="activeFranchise === 'large'" (click)="activeFranchise = 'large'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Крупный супермаркет</span>
+        </button>
+        <button class="toggle-btn" [class.active]="activeFranchise === 'mini'" (click)="activeFranchise = 'mini'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Мини-маркет</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
 <!-- HERO SECTION (СВЕТЛАЯ ТЕМА)                         -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section class="hero">
@@ -27,7 +47,7 @@
     </div>
   </div>
   <div>
-   <img [src]="activeFranchise === 'large' ? 'franchise/large_market.png' : 'franchise/mini_market.png'" alt="магазин">
+   <img style="width: 100%;" [src]="activeFranchise === 'large' ? 'franchise/large_market.png' : 'franchise/mini_market.png'" alt="магазин">
   </div>
   </section>
 
@@ -55,38 +75,29 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════ -->
-<!-- FRANCHISE TYPE TOGGLE                               -->
-<!-- ═══════════════════════════════════════════════════ -->
-<section class="section section-white" style="padding-top: 0; padding-bottom: 0;">
-  <div class="container">
-    <div class="franchise-toggle-container reveal">
-      <div class="franchise-toggle">
-        <button class="toggle-btn" [class.active]="activeFranchise === 'large'" (click)="activeFranchise = 'large'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Крупный супермаркет</span>
-        </button>
-        <button class="toggle-btn" [class.active]="activeFranchise === 'mini'" (click)="activeFranchise = 'mini'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-          <span>Мини-маркет</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- ═══════════════════════════════════════════════════ -->
 <!-- WHAT YOU GET                                        -->
 <!-- ═══════════════════════════════════════════════════ -->
+
 <section class="section section-primary" *ngIf="activeFranchise === 'large'">
   <div class="container">
     <div class="section-header reveal">
-      <h2 class="section-title text-white">{{ activeFranchise === 'large' ? 'Что вы получаете, купив франшизу?' : 'Преимущества франшизы минимаркета' }}</h2>
-      <p class="section-subtitle text-white-muted">{{ activeFranchise === 'large' ? 'Мы не просто продаём бренд, мы передаём работающую систему заработка.' : 'Всё необходимое для быстрого и безопасного старта вашего бизнеса с минимальными вложениями.' }}</p>
+      <h2 class="section-title text-white">
+      Что вы получаете, купив франшизу?
+      </h2>
+      <p class="section-subtitle text-white-muted">
+       Мы не просто продаём бренд, мы передаём работающую систему заработка. 
+      </p>
     </div>
 
     <div class="benefits-grid">
-      <div class="benefit-card reveal" *ngFor="let item of largeBenefits">
+      <!-- ✅ Используем динамический массив в зависимости от activeFranchise -->
+      <div class="benefit-card reveal" 
+           *ngFor="let item of largeBenefits; let i = index"
+           [class]="'reveal-delay-' + (i % 4 + 1)">
+        
         <div class="benefit-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path *ngIf="item.icon === 'wallet'" d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path *ngIf="item.icon === 'wallet'" d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path *ngIf="item.icon === 'wallet'" d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>
@@ -201,9 +212,6 @@
 
     <div class="roadmap-success reveal">
       <div class="success-badge">
-        <div class="success-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
         <h3>Успешный старт!</h3>
         <p>{{ activeFranchise === 'large' ? 'Ваш магазин открыт и начинает приносить прибыль с первого месяца работы под нашим контролем.' : 'Ваш минимаркет открыт и начинает приносить стабильную прибыль с минимальными рисками.' }}</p>
       </div>
