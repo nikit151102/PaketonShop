@@ -13,7 +13,6 @@ $warning-color: #f59e0b;
   max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
-  font-family: 'Inter', sans-serif;
   color: $text-primary;
 
   @media (max-width: 768px) {
@@ -220,7 +219,6 @@ $warning-color: #f59e0b;
   }
 
   .sku-code {
-    font-family: 'Courier New', monospace;
     font-size: 14px;
     font-weight: 600;
     color: $text-primary;

@@ -202,7 +202,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return `
-      <div style="font-family:Inter,sans-serif;min-width:200px;">
+      <div style="min-width:200px;">
         <h3 style="margin:0 0 8px;font-size:16px;color:#111827;">${store.shortName}</h3>
         <p style="margin:4px 0;font-size:13px;"><strong>Адрес:</strong> ${address}</p>
         ${phone ? `<p style="margin:4px 0;font-size:13px;"><strong>Телефон:</strong> ${phone}</p>` : ''}

@@ -35,7 +35,6 @@
 }
 
 .contacts-section {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text-primary);
   background: var(--bg-secondary);
   overflow-x: hidden; 
@@ -304,7 +303,6 @@
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 14px;
-    font-family: inherit;
     background: var(--bg-secondary);
     transition: var(--transition);
     outline: none;

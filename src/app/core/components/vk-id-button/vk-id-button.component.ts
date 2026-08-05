@@ -19,7 +19,6 @@ declare global {
   `,
   styles: [`
     :host { display: block; }
-    .user-info { font-family: monospace; }
   `]
 })
 export class VkIdWidgetComponent implements OnInit, AfterViewInit {

@@ -37,7 +37,6 @@ $shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
   padding: 24px;
   min-height: 100vh;
   background: $bg-light;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   @media (max-width: 768px) {
     padding: 16px;
@@ -388,7 +387,6 @@ $shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
   &__id {
     font-size: 11px;
     color: $text-muted;
-    font-family: monospace;
   }
 
   &__message {

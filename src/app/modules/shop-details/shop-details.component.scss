@@ -21,7 +21,6 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 24px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
 }
 
 .breadcrumbs {
@@ -595,7 +594,6 @@
             }
 
             .coord-value {
-                font-family: 'Courier New', monospace;
                 font-weight: 600;
                 color: var(--text);
             }
