@@ -74,6 +74,7 @@ export class DeliveryOrderService {
     );
   }
 
+
   /**
   * Повторить заказ
   */
@@ -126,11 +127,11 @@ export class DeliveryOrderService {
    * Отмена заказа
    */
   cancelOrder(orderId: string): Observable<{ message: string; status: number }> {
-    return this.http.post<{ message: string; status: number }>(
-      `${this.apiUrl}/${orderId}/cancel`,
-      {}
+    return this.http.put<{ message: string; status: number }>(
+      `${this.apiUrl}/CancelOrder/${orderId}`, {}
     );
   }
+
 
   /**
    * Получение статистики по заказам
