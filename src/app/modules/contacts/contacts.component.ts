@@ -27,7 +27,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly email = 'paketon@bk.ru';
   readonly vk = 'https://vk.com';
   readonly telegram = 'https://t.me';
-  readonly address = 'г. Барнаул, Попова, 165Б';
+  readonly address = 'г. Барнаул, Северный Власихинский, 39 (офис)';
 
   // ==================== ОПЕРАТОРЫ ====================
   readonly operators = [
