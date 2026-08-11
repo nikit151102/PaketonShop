@@ -371,7 +371,7 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label class="field-label">Банк <span class="required">*</span></label>
               <div class="bank-search">
                 <div class="input-wrapper">
@@ -402,8 +402,20 @@
               <div class="field-error" *ngIf="partnerForm.get('bankId')?.invalid && partnerForm.get('bankId')?.touched">
                 Выберите банк из списка
               </div>
-            </div>
+            </div> -->
 
+            <div class="form-row">
+              <div class="form-group">
+                <label class="field-label">Бик банка <span class="optional">(необязательно)</span></label>
+                <input type="text" formControlName="bankBik" placeholder="" class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label class="field-label">Наименование банка<span class="optional">(необязательно)</span></label>
+                <input type="text" formControlName="bankName" placeholder="30101810000000000000" class="form-input">
+              </div>
+            </div>
+        
             <div class="form-row">
               <div class="form-group">
                 <label class="field-label">Расчетный счет <span class="optional">(необязательно)</span></label>

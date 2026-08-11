@@ -1,4 +1,4 @@
-<div class="product-card" [ngClass]="view" (click)="onProductClick($event)">
+<div class="product-card"  *ngIf="product" [ngClass]="view" (click)="onProductClick($event)">
   <div class="top-bar">
     <div class="actions">
       <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite"

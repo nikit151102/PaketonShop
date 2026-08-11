@@ -133,13 +133,13 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       this.open();
     }
 
-    this.partnerForm.get('bankSearch')?.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(search => this.searchBanks(search));
+    // this.partnerForm.get('bankSearch')?.valueChanges
+    //   .pipe(
+    //     debounceTime(300),
+    //     distinctUntilChanged(),
+    //     takeUntil(this.destroy$)
+    //   )
+    //   .subscribe(search => this.searchBanks(search));
 
     this.partnerForm.get('partnerTypeId')?.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -382,7 +382,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
 
   private loadInitialData(): void {
     this.loadPartnerTypes();
-    this.loadBanks();
+    // this.loadBanks();
   }
 
   private loadPartnerTypes(): void {
@@ -517,8 +517,10 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       kpp: ['', this.kppValidator],
       korAccount: [''],
       bankAccount: [''],
-      bankId: ['', Validators.required],
-      bankSearch: [''],
+      bankId: [''],
+      // bankSearch: [''],
+      bankBik: [''],
+      bankName: [''],
       address: this.fb.group({
         country: ['Россия', Validators.required],
         region: ['', Validators.required],
@@ -544,6 +546,8 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       inn: this.partner.inn || '',
       ogrn: this.partner.ogrn || '',
       kpp: this.partner.kpp || '',
+      bankBik: this.partner.bankBik || '',
+      bankName: this.partner.bankName || '',
       korAccount: this.partner.korAccount || '',
       bankAccount: this.partner.bankAccount || '',
       bankId: this.partner.bankId || '',
@@ -571,22 +575,22 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  onBankSelect(bank: PartnerBank): void {
-    this.selectedBank = bank;
-    this.partnerForm.patchValue({
-      bankId: bank.id,
-      bankSearch: bank.partner.shortName
-    });
-    this.filteredBanks = [];
-  }
+  // onBankSelect(bank: PartnerBank): void {
+  //   this.selectedBank = bank;
+  //   this.partnerForm.patchValue({
+  //     bankId: bank.id,
+  //     bankSearch: bank.partner.shortName
+  //   });
+  //   this.filteredBanks = [];
+  // }
 
-  clearBankSelection(): void {
-    this.selectedBank = null;
-    this.partnerForm.patchValue({
-      bankId: '',
-      bankSearch: ''
-    });
-  }
+  // clearBankSelection(): void {
+  //   this.selectedBank = null;
+  //   this.partnerForm.patchValue({
+  //     bankId: '',
+  //     bankSearch: ''
+  //   });
+  // }
 
   nextStep(): void {
     if (!this.validateCurrentStep()) {
@@ -623,7 +627,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         }
         break;
       case 3:
-        ['inn', 'ogrn', 'bankId'].forEach(controlName => {
+        ['inn', 'ogrn'].forEach(controlName => {
           this.partnerForm.get(controlName)?.markAsTouched();
         });
         if (this.selectedPartnerType?.code === 1) {
@@ -676,7 +680,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   }
 
   private validateStep3(): boolean {
-    const requiredControls = ['inn', 'ogrn', 'bankId'];
+    const requiredControls = ['inn', 'ogrn'];
     const allRequiredValid = requiredControls.every(controlName => {
       const control = this.partnerForm.get(controlName);
       return control?.valid || false;
@@ -691,7 +695,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
   }
 
   private validateStep4(): boolean {
-    const addressControls = ['country', 'region', 'city', 'street', 'house', 'postIndex'];
+    const addressControls = ['country', 'region', 'city', 'street', 'house'];
     return addressControls.every(controlName => {
       const control = this.partnerForm.get(`address.${controlName}`);
       return control?.valid || false;
@@ -820,10 +824,12 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       phoneNumber: formValue.phoneNumber,
       bankAccount: formValue.bankAccount,
       partnerTypeId: formValue.partnerTypeId,
+      bankBik: formValue.bankBik,
+      bankName: formValue.bankName,
     };
 
     const data: any = {
-      bankId: formValue.bankId,
+      // bankId: formValue.bankId,
       partnerCreateDTO: partnerCreateDTO
     };
 

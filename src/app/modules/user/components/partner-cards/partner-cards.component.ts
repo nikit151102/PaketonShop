@@ -35,8 +35,16 @@ interface Partner {
     inn: string;
     ogrn: string;
     partnerTypeId?: string | number;
+    partnerType: PartnerType;
   };
   actualWholesaleOrdersAny?: boolean;
+}
+
+interface PartnerType {
+  code: number
+  fullName: string;
+  id: string;
+  shortName: string;
 }
 
 interface Address {
@@ -237,12 +245,13 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
   }
 
   getPartnerTypeText(company: Partner): string {
-    if (this.isLegalEntity(company)) {
-      return 'Юридическое лицо';
-    } else if (this.isIndividualEntity(company)) {
-      return 'Физическое лицо';
+    console.log('company', company)
+    if (company.partner?.partnerType?.fullName) {
+      return company.partner.partnerType.fullName;
+    } else {
+      return 'Тип не указан';
     }
-    return 'Тип не указан';
+
   }
 
   getPartnerTypeTooltip(company: Partner): string {
