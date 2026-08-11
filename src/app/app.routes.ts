@@ -140,6 +140,14 @@ export const routes: Routes = [
     }
   },
   {
+    path: 'edit-order/:id',
+    loadComponent: () => import('./modules/edit-order/edit-order.component').then((m) => m.EditOrderComponent),
+    data: {
+      title: 'Заказ №{{orderId}} — статус | Пакетон.рф',
+      description: 'Статус заказа №{{orderId}}. История, трекинг, доставка упаковки.',
+    }
+  },
+  {
     path: 'compare',
     loadComponent: () => import('./modules/compare-products/compare-products.component').then((m) => m.CompareProductsComponent),
     data: {

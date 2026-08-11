@@ -391,7 +391,7 @@
 
                 <div class="bank-results" *ngIf="filteredBanks.length > 0 && partnerForm.get('bankSearch')?.value">
                   <div class="bank-result" *ngFor="let bank of filteredBanks" (click)="onBankSelect(bank)">
-                    <div class="bank-name">{{ bank.partner.shortName }}</div>
+                    <div class="bank-name">{{ bank.partner.fullName }}</div>
                     <div class="bank-details">
                       <span class="bank-bik">БИК: {{ bank.bik }}</span>
                       <span class="bank-inn">ИНН: {{ bank.partner.inn }}</span>

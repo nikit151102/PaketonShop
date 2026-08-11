@@ -15,7 +15,7 @@ export class PartnerBankService {
       {
         filters: [],
         page: 0,
-        pageSize: 100
+        pageSize: 1000
       }
     );
   }
