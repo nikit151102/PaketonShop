@@ -444,6 +444,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     });
   }
 
+
   private searchBanks(search: string): void {
     if (!search) {
       this.filteredBanks = [];
@@ -451,11 +452,15 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     }
 
     const searchLower = search.toLowerCase();
-    this.filteredBanks = this.banks.filter(bank =>
-      bank.partner.shortName.toLowerCase().includes(searchLower) ||
-      bank.partner.fullName.toLowerCase().includes(searchLower) ||
-      bank.bik.toLowerCase().includes(searchLower)
-    );
+    this.filteredBanks = this.banks.filter(bank => {
+      const shortName = bank?.partner?.shortName?.toLowerCase() ?? '';
+      const fullName = bank?.partner?.fullName?.toLowerCase() ?? '';
+      const bik = bank?.bik?.toLowerCase() ?? '';
+
+      return shortName.includes(searchLower) ||
+        fullName.includes(searchLower) ||
+        bik.includes(searchLower);
+    });
   }
 
   private onPartnerTypeChange(typeId: string): void {
