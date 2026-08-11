@@ -196,7 +196,6 @@ export class ShopsComponent implements OnInit, OnDestroy {
 
       },
       error: (error: any) => {
-        console.error('Ошибка загрузки магазинов:', error);
         this.loading = false;
       }
     });
@@ -216,9 +215,7 @@ export class ShopsComponent implements OnInit, OnDestroy {
             this.prepareDisplayData();
           }
         },
-        (error) => {
-          console.warn('Не удалось получить геолокацию:', error);
-        }
+        (error) => {}
       );
     }
   }
@@ -293,7 +290,7 @@ export class ShopsComponent implements OnInit, OnDestroy {
       address: address,
       city: store.address?.city || 'Не указан',
       region: store.address?.region || '',
-      phone: store.partner?.phone || '+7 (999) 999-99-99',
+      phone: store.phoneNumber || '',
       email: store.partner?.email || 'info@company.ru',
       hours: this.getWorkingHoursString(scheduleInfo),
       status: status.status,
@@ -316,7 +313,7 @@ export class ShopsComponent implements OnInit, OnDestroy {
       } : undefined,
       showSchedule: false
     };
-
+    
     this.shopDisplayCache.set(cacheKey, shopDisplay);
     return shopDisplay;
   }

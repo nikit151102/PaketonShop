@@ -19,7 +19,6 @@ export class BasketsStateService implements OnDestroy {
     this.cacheUnsubscribe = StorageUtils.subscribeToCache(
       memoryCacheEnvironment.baskets.key,
       (data: any, key) => {
-        console.log('BasketsStateService: кэш обновлен', data);
         this.basketsSubject.next(data || null);
       }
     );

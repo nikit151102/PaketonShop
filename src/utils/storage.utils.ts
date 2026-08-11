@@ -180,9 +180,7 @@ export class StorageUtils {
       const expires = Date.now() + ttl * 1000;
       const item: CacheItem<T> = { data, expires };
       localStorage.setItem(key, JSON.stringify(item));
-    } catch (e) {
-      console.error('LocalStorage error:', e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -219,7 +217,6 @@ export class StorageUtils {
 
       return null;
     } catch (e) {
-      console.error('LocalStorage error:', e);
       return null;
     }
   }
@@ -231,9 +228,7 @@ export class StorageUtils {
   static removeLocalStorageCache(key: string): void {
     try {
       localStorage.removeItem(key);
-    } catch (e) {
-      console.error('LocalStorage error (remove):', e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -243,9 +238,7 @@ export class StorageUtils {
   static clearLocalStorage(): void {
     try {
       localStorage.clear();
-    } catch (e) {
-      console.error('LocalStorage error (clear):', e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -269,9 +262,7 @@ export class StorageUtils {
           }
         }
       }
-    } catch (e) {
-      console.error('LocalStorage cleanup error:', e);
-    }
+    } catch (e) {}
   }
 
   // ======================== SessionStorage ======================== //
@@ -284,9 +275,7 @@ export class StorageUtils {
   static setSessionStorage<T>(key: string, data: T): void {
     try {
       sessionStorage.setItem(key, JSON.stringify(data));
-    } catch (e) {
-      console.error('SessionStorage error:', e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -298,7 +287,6 @@ export class StorageUtils {
       const data = sessionStorage.getItem(key);
       return data ? JSON.parse(data) : null;
     } catch (e) {
-      console.error('SessionStorage error:', e);
       return null;
     }
   }
@@ -310,9 +298,7 @@ export class StorageUtils {
   static removeSessionStorage(key: string): void {
     try {
       sessionStorage.removeItem(key);
-    } catch (e) {
-      console.error('SessionStorage error (remove):', e);
-    }
+    } catch (e) {}
   }
 
   /**
@@ -321,9 +307,7 @@ export class StorageUtils {
   static clearSessionStorage(): void {
     try {
       sessionStorage.clear();
-    } catch (e) {
-      console.error('SessionStorage error (clear):', e);
-    }
+    } catch (e) {}
   }
 
   // ======================== Комбинированный кэш ======================== //

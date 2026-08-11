@@ -1,6 +1,5 @@
 .addresses-container {
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, sans-serif;
   position: relative;
   padding: 24px;
 }
@@ -484,7 +483,6 @@
       font-size: 11px;
       font-weight: 500;
       color: #475569;
-      font-family: 'SF Mono', monospace;
     }
   }
 }
@@ -689,7 +687,6 @@
     .meta-coords {
       font-size: 10px;
       color: #94a3b8;
-      font-family: monospace;
     }
   }
 }
@@ -1093,7 +1090,6 @@
 
   .coordinates-hint {
     font-size: 12px;
-    font-family: monospace;
     color: #327120;
     background: white;
     padding: 6px 12px;

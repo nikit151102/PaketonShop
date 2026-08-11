@@ -1,914 +1,371 @@
 :host {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
+  --primary: #327120;
+  --primary-light: rgba(50, 113, 32, 0.08);
+  --primary-gradient: linear-gradient(135deg, #327120 0%, #4a9e30 100%);
+  --se-primary: #2563eb;
+  --se-light: rgba(37, 99, 235, 0.08);
+  --se-gradient: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  --text: #111827;
+  --text-secondary: #6b7280;
+  --bg: #fafafa;
+  --white: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .business-section {
-    padding-top: 10px;
-    display: flex;
-    align-items: center;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 24px 20px;
 }
 
 .business-container {
-    /* max-width: 1400px; */
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* Сетка преимуществ */
-.advantages-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-
-    @media (max-width: 1024px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-    }
+// === ВЕРХНИЙ РЯД: КОМПАКТНЫЕ ПИЛЛЫ ===
+.advantages-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
-.advantage-card {
-    background: white;
-    border-radius: 20px;
-    padding: 16px;
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.05),
-        0 10px 15px -3px rgba(0, 0, 0, 0.08),
-        0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    overflow: hidden;
+.adv-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: var(--transition);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary);
+  }
+
+  &.featured {
+    background: var(--primary-gradient);
+    border-color: transparent;
+
+    .pill-icon {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .pill-text strong,
+    .pill-text span {
+      color: white;
+    }
 
     &:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 2px rgba(59, 130, 246, 0.1);
-        border-color: rgba(59, 130, 246, 0.3);
-
-        .advantage-icon-wrapper {
-            transform: scale(1.1) rotate(5deg);
-        }
+      border-color: transparent;
     }
-
-    &.advantage-highlight {
-        background: linear-gradient(135deg, #327120d4 0%, #4cad30 100%);
-        color: white;
-
-        .advantage-title,
-        .advantage-description {
-            color: white;
-        }
-
-        .advantage-badge {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-
-        .icon-background {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-    }
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #327120, #327120);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    &:hover::before {
-        opacity: 1;
-    }
+  }
 }
 
-.advantage-icon-wrapper {
-    transition: transform 0.3s ease;
+.pill-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--primary-light);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: var(--transition);
 }
 
-.icon-background {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, #327120 0%, #327120 100%);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+.pill-text {
+  min-width: 0;
 
-    svg {
-        width: 32px;
-        height: 32px;
-    }
-}
-
-.advantage-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.advantage-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1e293b;
-    margin-top: 0;
-    margin-bottom: 8px;
-    line-height: 1.3;
-}
-
-.advantage-description {
-    font-size: 13px;
-    color: #64748b;
-    line-height: 1.5;
-    margin-bottom: 16px;
-    margin-top: 0;
-    flex: 1;
-}
-
-.advantage-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #3b82f6;
-
-    span {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-
-        &::before {
-            content: '✓';
-            font-weight: bold;
-        }
-    }
-}
-
-/* Блок для юридических лиц */
-.legal-entity-block {
-    background: white;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-        transform: translateY(-4px);
-        box-shadow:
-            0 25px 50px -12px rgba(0, 0, 0, 0.15),
-            0 0 0 2px rgba(59, 130, 246, 0.1);
-
-        .cta-button {
-            transform: translateX(4px);
-        }
-    }
-}
-
-.legal-header {
-    background: linear-gradient(135deg, #0f172aa6 0%, #1e293bc7 100%);
-    color: white;
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200px;
-        height: 200px;
-        background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), transparent);
-        border-radius: 50%;
-    }
-}
-
-.legal-badge {
-    display: inline-block;
-    background: linear-gradient(135deg,
-            rgba(50, 113, 32, 0.831372549) 0%,
-            #4cad30 100%);
-    padding: 8px 16px;
-    border-radius: 20px;
+  strong {
+    display: block;
     font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  span {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.3;
+  }
 }
 
-.legal-title {
-    font-size: 36px;
-    font-weight: 800;
-    margin: 0;
-    line-height: 1.2;
-    background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-
-    @media (max-width: 768px) {
-        font-size: 28px;
-    }
+// === НИЖНИЙ РЯД: ДВА БЛОКА ===
+.dual-blocks-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: stretch;
 }
 
-.legal-subtitle {
-    font-size: 18px;
-    color: #cbd5e1;
-    margin: 0;
-    line-height: 1.5;
+.legal-card {
+  position: relative;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: var(--transition);
+  display: flex;
 
-    @media (max-width: 768px) {
-        font-size: 16px;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary);
+
+    .card-cta svg {
+      transform: translateX(4px);
     }
+  }
 }
 
-.legal-content {
-    padding: 16px;
+.card-accent {
+  width: 4px;
+  flex-shrink: 0;
 
-    @media (max-width: 768px) {
-        padding: 24px;
-    }
+  &.b2b-accent {
+    background: var(--primary-gradient);
+  }
+
+  &.se-accent {
+    background: var(--primary-gradient);
+  }
 }
 
-.benefits-section {
-    margin-bottom: 16px;
+.card-inner {
+  flex: 1;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
 }
 
-.benefits-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+.card-head {
+  margin-bottom: 16px;
 
-    @media (max-width: 1024px) {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    @media (max-width: 640px) {
-        grid-template-columns: 1fr;
-    }
-}
-
-.benefit-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 10px;
-    background: rgba(241, 245, 249, 0.5);
-    border-radius: 16px;
-    transition: all 0.3s ease;
-
-    &:hover {
-        background: rgba(59, 130, 246, 0.05);
-        transform: translateX(4px);
-
-        .benefit-icon {
-            background: linear-gradient(135deg,
-                    rgba(50, 113, 32, 0.831372549) 0%,
-                    #4cad30 100%);
-            color: white;
-        }
-    }
-}
-
-.benefit-icon {
-    width: 44px;
-    height: 44px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #3b82f6;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
-    svg {
-        width: 20px;
-        height: 20px;
-    }
-}
-
-.benefit-content {
-    flex: 1;
-
-    h4 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e293b;
-    }
-
-    p {
-        margin: 0;
-        font-size: 14px;
-        color: #64748b;
-        line-height: 1.5;
-    }
-}
-
-.legal-cta {
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    border-radius: 20px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 40px;
-
-    @media (max-width: 1024px) {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    @media (max-width: 768px) {
-        padding: 10px;
-        gap: 5px;
-    }
-}
-
-.cta-content {
-    flex: 1;
-
-    h3 {
-        font-size: 28px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0;
-
-        @media (max-width: 768px) {
-            font-size: 24px;
-        }
-    }
-
-    p {
-        font-size: 16px;
-        color: #64748b;
-        margin: 0;
-        line-height: 1.5;
-    }
-}
-
-.cta-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: linear-gradient(135deg, #327120 0%, #327120 100%);
+  .card-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
     color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    height: 48px;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
 
-    &:hover {
-        transform: translateX(4px);
+    &.b2b-badge {
+      background: var(--primary-gradient);
     }
+
+    &.se-badge {
+      background: var(--primary-gradient);
+    }
+  }
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .card-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+}
+
+.perks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.3;
 
     svg {
-        transition: transform 0.3s ease;
+      flex-shrink: 0;
+      color: var(--primary);
     }
-
-    &:hover svg {
-        transform: translateX(4px);
-    }
+  }
 }
 
-.legal-image {
-    flex-shrink: 0;
-
-    .image-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-
-
-        svg {
-            width: 80px;
-            height: 80px;
-
-            @media (max-width: 768px) {
-                width: 60px;
-                height: 60px;
-            }
-        }
-    }
+// SE блок — зелёные галочки заменяем на синие
+.legal-card:nth-child(2) .perks-list li svg {
+  color: var(--primary-gradient);
 }
 
-.legal-footer {
-    background: #f8fafc;
-    padding: 24px 40px;
-    border-top: 1px solid #e2e8f0;
+.card-cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  margin-top: auto;
+  transition: var(--transition);
 
-    @media (max-width: 768px) {
-        padding: 20px 24px;
-    }
+  svg {
+    transition: transform 0.25s ease;
+  }
+
+  &.b2b-cta {
+    background: var(--primary-gradient);
+    box-shadow: 0 4px 12px rgba(50, 113, 32, 0.2);
+  }
+
+  &.se-cta {
+    background: var(--primary-gradient);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
 }
 
-.partners {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-
-    @media (max-width: 768px) {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-    }
+.legal-card:hover .b2b-cta {
+  box-shadow: 0 6px 16px rgba(50, 113, 32, 0.35);
 }
 
-.partner-count {
-    font-size: 16px;
-    font-weight: 500;
-    color: #64748b;
+.legal-card:hover .se-cta {
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
 }
 
-.partner-logos {
-    display: flex;
-    gap: 16px;
-    align-items: center;
+// === АДАПТИВНОСТЬ ===
+@media (max-width: 1024px) {
+  .advantages-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dual-blocks-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-inner {
+    padding: 20px 24px;
+  }
 }
 
-.partner-logo {
-    width: 48px;
-    height: 48px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-
-    &:hover {
-        transform: translateY(-2px);
-    }
-}
-
-/* Анимации и эффекты */
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.legal-entity-block {
-    animation: float 6s ease-in-out infinite;
-}
-
-/* Микро-взаимодействия */
-@media (hover: hover) {
-    .benefit-item {
-        &:active {
-            transform: scale(0.98);
-        }
-    }
-
-    .cta-button {
-        &:active {
-            transform: scale(0.98);
-        }
-    }
-}
-
-/* Дополнительные медиа-запросы для очень маленьких экранов */
-@media (max-width: 480px) {
-    .business-section {
-        padding: 20px 16px;
-    }
-
-    .advantage-card {
-        padding: 24px;
-    }
-
-    .legal-header {
-        padding: 24px;
-    }
-
-    .legal-title {
-        font-size: 24px;
-    }
-
-    .benefit-item {
-        padding: 16px;
-    }
-
-    .cta-button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-/* Базовые настройки для мобильных устройств */
 @media (max-width: 768px) {
   .business-section {
-    padding: 8px;
+    padding: 20px 16px;
   }
-  
+
   .business-container {
     gap: 16px;
   }
-  
-  /* Уменьшаем сетку преимуществ */
-  .advantages-grid {
-    gap: 12px;
+
+  .advantages-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
-  
-  .advantage-card {
-    padding: 12px;
-    border-radius: 16px;
-    gap: 8px;
-    
-    &:hover {
-      transform: translateY(-4px) scale(1.01);
-    }
+
+  .adv-pill {
+    padding: 12px 16px;
   }
-  
-  .icon-background {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    
-    svg {
-      width: 24px;
-      height: 24px;
-    }
-  }
-  
-  .advantage-title {
-    font-size: 16px;
-    margin-bottom: 4px;
-  }
-  
-  .advantage-description {
-    font-size: 13px;
-    margin-bottom: 8px;
-  }
-  
-  .advantage-badge {
-    padding: 4px 8px;
-    font-size: 11px;
-    border-radius: 8px;
-  }
-  
-  /* Блок для юридических лиц - мобильная версия */
-  .legal-entity-block {
-    border-radius: 16px;
-    
-    &:hover {
-      transform: translateY(-2px);
-    }
-  }
-  
-  .legal-header {
-    padding: 12px;
-  }
-  
-  .legal-badge {
-    padding: 6px 12px;
-    font-size: 12px;
-    border-radius: 16px;
-    margin-bottom: 4px;
-  }
-  
-  .legal-title {
-    font-size: 20px;
-    line-height: 1.3;
-  }
-  
-  .legal-subtitle {
-    font-size: 14px;
-    line-height: 1.4;
-  }
-  
-  .legal-content {
-    padding: 12px;
-  }
-  
-  /* Сетка преимуществ в блоке для бизнеса */
-  .benefits-grid {
-    gap: 8px;
-  }
-  
-  .benefit-item {
-    padding: 8px;
-    border-radius: 12px;
-    gap: 12px;
-    
-    &:hover {
-      transform: translateX(2px);
-    }
-  }
-  
-  .benefit-icon {
+
+  .pill-icon {
     width: 36px;
     height: 36px;
-    border-radius: 10px;
-    
+
     svg {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
   }
-  
-  .benefit-content {
-    h4 {
-      font-size: 14px;
-      margin-bottom: 2px;
-    }
-    
-    p {
+
+  .pill-text strong {
+    font-size: 13px;
+  }
+
+  .pill-text span {
+    font-size: 11px;
+  }
+
+  .card-head h3 {
+    font-size: 18px;
+  }
+
+  .card-inner {
+    padding: 18px 20px;
+  }
+
+  .perks-list {
+    gap: 6px;
+    margin-bottom: 16px;
+
+    li {
       font-size: 12px;
-      line-height: 1.4;
+      gap: 8px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
     }
   }
-  
-  /* CTA блок */
-  .legal-cta {
-    padding: 12px;
-    border-radius: 16px;
-    gap: 16px;
-  }
-  
-  .cta-content {
-    h3 {
-      font-size: 18px;
-      margin-bottom: 4px;
-    }
-    
-    p {
-      font-size: 14px;
-    }
-  }
-  
-  .cta-button {
-    height: 40px;
-    padding: 0 16px;
-    font-size: 14px;
-    border-radius: 10px;
-    gap: 8px;
-    
-    svg {
-      width: 16px;
-      height: 16px;
-    }
-  }
-  
-  .legal-image {
-    .image-container svg {
-      width: 60px;
-      height: 60px;
-    }
+
+  .card-cta {
+    padding: 10px 16px;
+    font-size: 13px;
+    justify-content: center;
   }
 }
 
-/* Для очень маленьких экранов (до 480px) */
 @media (max-width: 480px) {
   .business-section {
-    padding: 6px;
+    padding: 16px 12px;
   }
-  
-  .advantages-grid {
-    gap: 8px;
+
+  .adv-pill {
+    padding: 10px 14px;
+    gap: 10px;
   }
-  
-  .advantage-card {
-    padding: 10px;
-    border-radius: 12px;
-  }
-  
-  .icon-background {
-    width: 40px;
-    height: 40px;
-    
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-  
-  .advantage-title {
-    font-size: 14px;
-  }
-  
-  .advantage-description {
-    font-size: 12px;
-  }
-  
-  .legal-header {
-    padding: 10px;
-  }
-  
-  .legal-title {
-    font-size: 18px;
-  }
-  
-  .legal-subtitle {
-    font-size: 13px;
-  }
-  
-  .benefit-item {
-    padding: 6px;
-    gap: 8px;
-  }
-  
-  .benefit-icon {
+
+  .pill-icon {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-  
-  .benefit-content {
-    h4 {
-      font-size: 13px;
-    }
-    
-    p {
-      font-size: 11px;
-    }
-  }
-  
-  .legal-cta {
-    padding: 10px;
-    gap: 12px;
-  }
-  
-  .cta-content {
-    h3 {
-      font-size: 16px;
-    }
-    
-    p {
-      font-size: 13px;
-    }
-  }
-  
-  .cta-button {
-    height: 36px;
-    font-size: 13px;
-  }
-}
 
-/* Для планшетов (от 769px до 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .business-section {
-    padding: 12px;
-  }
-  
-  .business-container {
-    gap: 20px;
-  }
-  
-  .advantages-grid {
-    gap: 16px;
-  }
-  
-  .advantage-card {
-    padding: 14px;
-  }
-  
-  .icon-background {
-    width: 56px;
-    height: 56px;
-    
     svg {
-      width: 28px;
-      height: 28px;
+      width: 16px;
+      height: 16px;
     }
   }
-  
-  .advantage-title {
-    font-size: 18px;
-  }
-  
-  .advantage-description {
-    font-size: 14px;
-  }
-  
-  .legal-header {
-    padding: 14px;
-  }
-  
-  .legal-title {
-    font-size: 24px;
-  }
-  
-  .legal-subtitle {
+
+  .card-head h3 {
     font-size: 16px;
   }
-  
-  .benefits-grid {
-    gap: 12px;
-  }
-  
-  .benefit-item {
-    padding: 12px;
-  }
-  
-  .legal-cta {
-    padding: 16px;
-  }
-  
-  .cta-content {
-    h3 {
-      font-size: 22px;
-    }
-  }
-  
-  .cta-button {
-    height: 44px;
-    font-size: 15px;
-  }
-}
 
-/* Уменьшаем размер шрифтов для основного контента */
-@media (max-width: 768px) {
-  :host {
-    font-size: 14px;
-  }
-  
-  h2, h3, h4 {
-    font-weight: 600;
-  }
-}
-
-/* Корректируем отступы для лучшего восприятия на мобильных */
-@media (max-width: 768px) {
-  .legal-entity-block {
-    margin: 0 2px;
-  }
-  
-  .benefit-item + .benefit-item {
-    margin-top: 0;
-  }
-}
-
-/* Делаем текст более читаемым на маленьких экранах */
-@media (max-width: 480px) {
-  .advantage-description,
-  .benefit-content p,
-  .legal-subtitle,
-  .cta-content p {
-    line-height: 1.5;
-  }
-}
-
-/* Оптимизация для планшетов в портретной ориентации */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
-  .advantages-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .benefits-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .legal-cta {
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
+  .card-subtitle {
+    font-size: 12px;
   }
 }

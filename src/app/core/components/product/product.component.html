@@ -1,8 +1,13 @@
 <div class="product-card" [ngClass]="view" (click)="onProductClick($event)">
   <div class="top-bar">
     <div class="actions">
-      <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite">❤</span>
-      <span *ngIf="showCompare" (click)="toggleCompare($event)" [class.active]="product.compare">⇄</span>
+      <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite"
+        class="favorite-icon">
+        ❤
+      </span>
+      <span (click)="toggleCompare($event)" [class.active]="product.compare" class="compare-icon">
+        ⇄
+      </span>
     </div>
   </div>
 
@@ -51,7 +56,16 @@
           </div>
 
           <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
-            <span class="arrow-icon">📋</span>
+            <span class="arrow-icon">
+              <svg style="color: #656363;" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                <path d="M9 12h8" />
+                <path d="M9 16h8" />
+                <path d="M9 8h8" />
+              </svg>
+            </span>
             <span class="basket-badge" *ngIf="productBasketsCount > 0">
               {{ productBasketsCount }}
             </span>
@@ -71,11 +85,20 @@
       <div *ngIf="!isInActiveBasket() && hasProductInBaskets()" class="other-baskets-controls">
         <div class="add-cart-wrapper">
           <button class="add-cart" (click)="addToActiveBasket()">
-            <span class="cart-icon">🛒</span>
+            <!-- <span class="cart-icon"></span> -->
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
           <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
-            <span class="arrow-icon">📋</span>
+            <span class="arrow-icon">
+              <svg style="color: #656363;" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                <path d="M9 12h8" />
+                <path d="M9 16h8" />
+                <path d="M9 8h8" />
+              </svg>
+            </span>
             <span class="basket-badge" *ngIf="productBasketsCount > 0">
               {{ productBasketsCount }}
             </span>
@@ -96,11 +119,20 @@
           </div>
 
           <button *ngIf="!quantitySelectorVisible" class="add-cart" (click)="addOneToCart()">
-            <span class="cart-icon">🛒</span>
+            <!-- <span class="cart-icon"></span> -->
             <span class="cart-price">{{ product.viewPrice | number:'1.2-2' }} ₽</span>
           </button>
           <button class="cart-arrow" *ngIf="basketsData.length > 0" (click)="toggleBasketPopup($event)">
-            <span class="arrow-icon">📋</span>
+            <span class="arrow-icon">
+              <svg style="color: #656363;" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                <path d="M9 12h8" />
+                <path d="M9 16h8" />
+                <path d="M9 8h8" />
+              </svg>
+            </span>
             <span class="basket-badge" *ngIf="productBasketsCount > 0">
               {{ productBasketsCount }}
             </span>

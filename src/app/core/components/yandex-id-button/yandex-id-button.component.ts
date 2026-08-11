@@ -102,7 +102,6 @@ export class YandexIdButtonComponent {
         throw new Error('Failed to get access token');
       }
     } catch (error) {
-      console.error('Token exchange error:', error);
       this.loginError.emit(error);
       this.isLoading = false;
       this.closePopup();
@@ -124,7 +123,6 @@ export class YandexIdButtonComponent {
       this.loginSuccess.emit(serverResponse);
       this.isLoading = false;
     } catch (error) {
-      console.error('Get user info error:', error);
       this.loginError.emit(error);
       this.isLoading = false;
       this.closePopup();
@@ -143,7 +141,6 @@ export class YandexIdButtonComponent {
 
       return response;
     } catch (error) {
-      console.error('Error sending to backend:', error);
       throw error;
     }
   }

@@ -1,13 +1,17 @@
 <div class="home-page">
   <!-- <app-groups-section id="groups_modile"></app-groups-section> -->
 
+  @if (userId$ | async; as userId) {
+  <app-current-orders></app-current-orders>
+  }
+  
   <!-- Карусель -->
   <app-carousel-banner></app-carousel-banner>
 
   <app-business-block></app-business-block>
   <!-- Категории -->
   <section class="section">
-    <app-title [title]="'Категории'" [description]="'Погрузитесь в мир выгодных покупок вместе с нами'"></app-title>
+    <app-title [title]="'Категории'" [description]="'Выберите интересующую вас категорию'"></app-title>
     <app-category-section [categories]="categories"> </app-category-section>
   </section>
 
@@ -31,8 +35,7 @@
       [description]="'Выбирайте и заказывайте хиты продаж прямо сейчас'"></app-title>
     <app-compare-common-btn></app-compare-common-btn>
     <div class="products">
-      <app-product [product]="product"
-        *ngFor="let product of products">
+      <app-product [product]="product" *ngFor="let product of products">
       </app-product>
     </div>
   </section>

@@ -444,7 +444,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         this.userError = true;
         this.userLoading = false;
       }
@@ -498,7 +497,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading addresses:', error);
         this.addressesLoading = false;
       }
     });
@@ -545,7 +543,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading favorites:', error);
         this.favoritesLoading = false;
       }
     });
@@ -602,7 +599,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
         this.ordersLoading = false;
       }
     });
@@ -677,7 +673,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading partners:', error);
         this.companiesLoading = false;
       }
     });
@@ -731,7 +726,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading baskets:', error);
         this.basketsLoading = false;
       }
     });
@@ -893,7 +887,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleNotifications(): void {
-    console.log('Toggle notifications');
   }
 
   editProfile(): void {
@@ -917,7 +910,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   downloadInvoices(): void {
-    console.log('Download invoices');
   }
 
   viewCoupons(): void {
@@ -931,7 +923,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addToCart(item: Recommendation): void {
-    console.log('Add to cart:', item);
   }
 
   markAllAsRead(): void {
@@ -948,8 +939,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateStats(): void {
-    console.log('Update stats for period:', this.selectedPeriod);
-    this.loadOrders(); // Перезагружаем заказы для обновления статистики
+    this.loadOrders();
   }
 
   logout(): void {

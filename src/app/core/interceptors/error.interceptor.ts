@@ -24,10 +24,7 @@ export class ErrorInterceptor implements HttpInterceptor {
           this.router.navigate(['/auth/login']);
         } else if (error.status === 403) {
           this.router.navigate(['/forbidden']);
-        } else if (error.status >= 500) {
-          console.error('Server error:', error);
-        }
-
+        } 
         return throwError(() => error);
       }),
     );

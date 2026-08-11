@@ -98,7 +98,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
           this.loading = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки вопросов:', err);
           this.error = 'Не удалось загрузить вопросы. Пожалуйста, попробуйте позже.';
           this.loading = false;
         },
@@ -120,7 +119,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
           this.loadingMore = false;
         },
         error: (err) => {
-          console.error('Ошибка загрузки дополнительных вопросов:', err);
           this.loadingMore = false;
           this.currentPage--;
         },
@@ -181,7 +179,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
           }, 300);
         },
         error: (err) => {
-          console.error('Ошибка создания вопроса:', err);
           this.sending = false;
           this.error = 'Не удалось отправить вопрос. Пожалуйста, попробуйте позже.';
           this.showNotification('Ошибка при отправке вопроса', 'error');
@@ -215,7 +212,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
           }
         },
         error: (err) => {
-          console.error('Ошибка оценки:', err);
           question.requestMessage.likeCount = originalLikes;
           question.requestMessage.rateValue = originalRate;
         },
@@ -249,7 +245,6 @@ export class QuestionsComponent implements OnInit, OnChanges {
           }
         },
         error: (err) => {
-          console.error('Ошибка оценки:', err);
           question.requestMessage.dislikeCount = originalDislikes;
           question.requestMessage.rateValue = originalRate;
         },
@@ -371,6 +366,5 @@ export class QuestionsComponent implements OnInit, OnChanges {
 
   private showNotification(message: string, type: 'success' | 'error'): void {
     // Здесь можно реализовать систему уведомлений
-    console.log(`${type}: ${message}`);
   }
 }

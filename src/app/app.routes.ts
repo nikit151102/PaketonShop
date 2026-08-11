@@ -4,7 +4,7 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./modules/home/home.component').then((m) => m.HomeComponent),
-    data: { 
+    data: {
       reuse: true,
       title: 'Главная — Пакетон.рф | Упаковка оптом и в розницу',
       description: 'Пакеты, коробки, скотч, стрейч-плёнка с доставкой по России. Низкие цены, скидки от объёма. Более 1000 товаров в наличии.',
@@ -62,6 +62,15 @@ export const routes: Routes = [
       title: 'Новости и акции — Пакетон.рф',
       description: 'Актуальные новости, скидки, распродажи упаковки. Будьте в курсе выгодных предложений.',
       keywords: 'новости, акции, скидки на упаковку'
+    }
+  },
+  {
+    path: 'franchise',
+    loadComponent: () => import('./modules/franchise/franchise.component').then((m) => m.FranchiseComponent),
+    data: {
+      title: 'Франшиза Пакетон.рф — Открой свой бизнес по продаже упаковки',
+      description: 'Откройте прибыльный бизнес с франшизой Пакетон.рф! Готовая бизнес-модель магазина упаковки, полная поддержка партнеров, широкий ассортимент и узнаваемый бренд. Узнайте условия открытия.',
+      keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
     }
   },
   {
@@ -148,6 +157,16 @@ export const routes: Routes = [
       keywords: 'бизнес-аккаунт, оптовая упаковка, юрлицам'
     }
   },
+  {
+    path: 'register-self-employed',
+    loadComponent: () => import('./modules/self-employed-registration/self-employed-registration.component').then((m) => m.SelfEmployedRegistrationComponent),
+    data: {
+      title: 'Регистрация бизнес-аккаунта | Пакетон.рф',
+      description: 'Оптовые цены, отсрочка платежа, персональный менеджер для юрлиц и ИП. Зарегистрируйте бизнес-аккаунт.',
+      keywords: 'бизнес-аккаунт, оптовая упаковка, юрлицам'
+    }
+  },
+
   {
     path: 'documents',
     loadChildren: () => import('./modules/documents/documents.routes').then((m) => m.documentsRoutes),

@@ -1,11 +1,14 @@
-<div class="contact-type-selector" [class.compact]="variant === 'compact'" [class.cards]="variant === 'cards'">
+<div class="contact-type-selector" 
+     [class.compact]="variant === 'compact'" 
+     [class.cards]="variant === 'cards'"
+     [class.read-only]="isReadOnly">
   
   <div class="contact-type-options" *ngIf="variant === 'default'">
     <div 
       class="contact-type-option"
-      *ngFor="let option of options"
+      *ngFor="let option of visibleOptions"
       [class.selected]="selectedValue === option.value"
-      [class.disabled]="disabled"
+      [class.disabled]="isDisabled"
       (click)="selectType(option.value)">
       
       <div class="option-radio">
@@ -35,14 +38,14 @@
 
   <div class="contact-type-pills" *ngIf="variant === 'compact'">
     <button
-      *ngFor="let option of options"
+      *ngFor="let option of visibleOptions"
       class="pill"
       [class.active]="selectedValue === option.value"
-      [class.disabled]="disabled"
+      [class.disabled]="isDisabled"
       [style.background]="selectedValue === option.value ? option.bgColor : 'transparent'"
       [style.border-color]="selectedValue === option.value ? option.color : '#e5e7eb'"
       (click)="selectType(option.value)"
-      [disabled]="disabled">
+      [disabled]="isDisabled">
       
       <span class="pill-icon">{{ option.icon }}</span>
       <span class="pill-label" *ngIf="showLabels">{{ option.label }}</span>
@@ -51,10 +54,10 @@
 
   <div class="contact-type-cards" *ngIf="variant === 'cards'">
     <div
-      *ngFor="let option of options"
+      *ngFor="let option of visibleOptions"
       class="card"
       [class.selected]="selectedValue === option.value"
-      [class.disabled]="disabled"
+      [class.disabled]="isDisabled"
       [style.border-color]="selectedValue === option.value ? option.color : '#e5e7eb'"
       (click)="selectType(option.value)">
       

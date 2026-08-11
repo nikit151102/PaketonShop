@@ -106,20 +106,17 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
       
       if (!container && attempts < maxAttempts) {
         attempts++;
-        console.log(`Ждем контейнер виджета, попытка ${attempts}...`);
         setTimeout(tryInitialize, 100);
         return;
       }
       
       if (!container) {
-        console.error('Контейнер для виджета не найден после всех попыток');
         this.onError.emit('Контейнер для виджета не найден');
         this.showLoader = false;
         return;
       }
       
       if (!this.checkYooMoneyScript()) {
-        console.error('Скрипт ЮMoney не загружен');
         this.onError.emit('Скрипт виджета оплаты не подключен');
         this.showLoader = false;
         return;
@@ -149,7 +146,6 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
           modal: true,
         },
         error_callback: (error: any) => {
-          console.error('Ошибка инициализации виджета оплаты:', error);
           this.onError.emit(error);
           this.showLoader = false;
         }
@@ -157,12 +153,10 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
 
       this.checkout.render(container.id)
         .then(() => {
-          console.log('Платежная форма успешно загружена');
           this.showLoader = false;
           this.onWidgetLoaded.emit();
 
           this.checkout.on('success', () => {
-            console.log('Оплата прошла успешно');
             this.onSuccess.emit({
               token: this.confirmationToken,
               amount: this.amount
@@ -174,7 +168,6 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
           });
 
           this.checkout.on('fail', () => {
-            console.log('Оплата не удалась');
             this.onFail.emit({
               token: this.confirmationToken,
               amount: this.amount
@@ -183,12 +176,10 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
 
         })
         .catch((error: any) => {
-          console.error('Ошибка отображения платежной формы:', error);
           this.onError.emit(error);
           this.showLoader = false;
         });
     } catch (error) {
-      console.error('Критическая ошибка при создании виджета:', error);
       this.onError.emit(error);
       this.showLoader = false;
     }
@@ -204,7 +195,7 @@ export class PaymentWidgetComponent implements OnInit, OnDestroy, AfterViewInit 
           this.checkout.destroy();
         }
       } catch (e) {
-        console.error('Ошибка при уничтожении виджета:', e);
+
       }
       this.checkout = null;
     }

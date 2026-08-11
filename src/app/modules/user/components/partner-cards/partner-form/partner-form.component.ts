@@ -180,7 +180,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         this.isLoadingUserData = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки данных пользователя:', error);
         this.isLoadingUserData = false;
       }
     });
@@ -407,7 +406,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Ошибка загрузки типов партнеров:', err);
         this.partnerTypes = [];
         this.filteredPartnerTypes = [];
       },
@@ -437,7 +435,6 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Ошибка загрузки банков:', err);
         this.banks = [];
         this.filteredBanks = [];
       }
@@ -793,21 +790,16 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка сервера';
-          console.error('Ошибка сохранения партнера:', err);
         }
       });
   }
 
 
   goToContractRegistration(): void {
-    console.log('createdCompanyInn:', this.createdCompanyInn); // Добавьте отладку
 
     if (this.createdCompanyInn) {
       this.closeForm();
-      console.log('Navigating to /register-business with inn:', this.createdCompanyInn);
       this.router.navigate(['/register-business'], { queryParams: { inn: this.createdCompanyInn } });
-    } else {
-      console.error('createdCompanyInn is empty!');
     }
   }
 

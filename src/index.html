@@ -1,25 +1,44 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 
 <head>
-  <title>Пакетон.рф — упаковка оптом и в розницу | Доставка по всей России</title>
-  <meta name="description"
-    content="Пакетон.рф — интернет-магазин упаковки для бизнеса и дома. Пакеты, коробки, скотч, стрейч-плёнка. Низкие цены, быстрая доставка, скидки от объёма. Закажите сейчас!" />
-  <meta name="keywords" content="PaketonShop, купить, интернет-магазин, доставка" />
-  <meta name="robots" content="index, follow" />
   <meta charset="utf-8" />
-  <base href="/" />
+  <title>Пакетон.рф — упаковка оптом и в розницу | Доставка по всей России</title>
+  <meta name="description" content="Пакетон.рф — интернет-магазин упаковки для бизнеса и дома..." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+  <base href="/" />
 
-  <script nonce="csp_nonce" src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"
-    onload="console.log('VK SDK loaded successfully')" onerror="console.error('VK SDK failed to load')"></script>
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+  <script nonce="csp_nonce" src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
+
+  <script type="text/javascript">
+    (function (m, e, t, r, i, k, a) {
+      m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+      m[i].l = 1 * new Date();
+      for (var j = 0; j < document.scripts.length; j++) { if (document.scripts[j].src === r) { return; } }
+      k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=110808930', 'ym');
+
+    ym(110808930, 'init', {
+      ssr: true,
+      webvisor: true,
+      clickmap: true,
+      ecommerce: "dataLayer",
+      accurateTrackBounce: true,
+      trackLinks: true
+    });
+  </script>
+
 </head>
 
 <body>
   <app-root></app-root>
   <script src="https://yookassa.ru/checkout-widget/v1/checkout-widget.js"></script>
+
+  <noscript>
+    <div><img src="https://mc.yandex.ru/watch/110808930" style="position:absolute; left:-9999px;" alt="" /></div>
+  </noscript>
 </body>
 
 </html>

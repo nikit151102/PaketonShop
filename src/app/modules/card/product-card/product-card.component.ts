@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ProductGalleryComponent } from '../../../core/ui/product-gallery/product-gallery.component';
@@ -12,6 +12,7 @@ import { ProductFavoriteService } from '../../../core/api/product-favorite.servi
 import { UserApiService } from '../../../core/api/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductsService } from '../../../core/services/products.service';
+import { ProductPackingSelectorComponent } from '../../../core/ui/product-packing-selector/product-packing-selector.component';
 interface BreadCrumb {
   id: string;
   name: string;
@@ -33,6 +34,7 @@ interface Basket {
     RouterModule,
     ProductGalleryComponent,
     CleanArrayLinkPipe,
+    ProductPackingSelectorComponent
   ],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss'],
@@ -56,7 +58,8 @@ export class ProductCardComponent implements OnInit, OnChanges {
     private basketsService: BasketsService,
     private authService: AuthService,
     private productFavoriteService: ProductFavoriteService,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -69,7 +72,9 @@ export class ProductCardComponent implements OnInit, OnChanges {
       const currentValue = changes['productData'].currentValue;
       const previousValue = changes['productData'].previousValue;
 
-      if (JSON.stringify(currentValue) !== JSON.stringify(previousValue)) {
+      if (currentValue && previousValue &&
+        currentValue.productBarCode && previousValue.productBarCode &&
+        currentValue.productBarCode.id !== previousValue.productBarCode.id) {
         this.refreshProductData();
       }
       this.checkProductInBaskets();
@@ -80,7 +85,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
     const baskets: any = StorageUtils.getMemoryCache(
       memoryCacheEnvironment.baskets.key,
     );
-console.log('baskets',baskets)
     if (!baskets || !Array.isArray(baskets)) {
       return null;
     }
@@ -177,18 +181,33 @@ console.log('baskets',baskets)
 
   // Проверяем наличие товара в корзинах и обновляем состояние
   private checkProductInBaskets(): void {
-    if (this.hasProductInBaskets()) {
+    if (this.productData && this.productData.countInActiveBasket && this.productData.countInActiveBasket > 0) {
       this.quantitySelectorVisible = true;
       this.selectedQuantity = this.getTotalProductCount();
+    } else {
+      this.selectedQuantity = 0;
+      this.quantitySelectorVisible = false;
     }
+    this.cdr.detectChanges();
   }
+
+
+  //Выбор фасовки товара
+  selectBarcode(idBarcode: string) { }
 
   // Обновляем количество товара в активной корзине
   updateActiveBasketQty(delta: number): void {
-    console.log('delta',delta)
     const activeBasketId = this.activeBasketId;
+    const authToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.auth.key,
+    );
+
+    if (!authToken) {
+      this.authService.changeVisible(true);
+      return;
+    }
+
     if (!activeBasketId) return;
-  console.log('delta',delta)
     const currentCount = this.getActiveBasketCount();
     const newCount = currentCount + delta;
 
@@ -197,9 +216,8 @@ console.log('baskets',baskets)
       return;
     }
 
-    // Используем changeProductFromBasket вместо addProduct
     this.basketsService
-      .changeProductFromBasket(activeBasketId, this.productData.id, newCount)
+      .changeProductFromBasket(activeBasketId, this.productData.productBarCode.id, newCount)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -207,8 +225,7 @@ console.log('baskets',baskets)
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества в активной корзине:', err),
+        error: (err) =>{}
       });
   }
   // Обновляем количество из поля ввода
@@ -221,7 +238,7 @@ console.log('baskets',baskets)
 
     // Используем changeProductFromBasket вместо addProduct
     this.basketsService
-      .changeProductFromBasket(activeBasketId, this.productData.id, value)
+      .changeProductFromBasket(activeBasketId, this.productData.productBarCode.id, value)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -229,8 +246,7 @@ console.log('baskets',baskets)
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества из поля ввода:', err),
+        error: (err) => {}
       });
   }
 
@@ -248,14 +264,14 @@ console.log('baskets',baskets)
     }
 
     // Используем changeProductFromBasket вместо addProduct
-    this.basketsService.changeProductFromBasket(basketId, this.productData.id, newCount)
+    this.basketsService.changeProductFromBasket(basketId, this.productData.productBarCode.id, newCount)
       .pipe(take(1)).subscribe({
         next: () => {
           this.loadUpdatedProductData();
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) => console.error('Ошибка при обновлении количества:', err)
+        error: (err) => {}
       });
   }
 
@@ -283,7 +299,7 @@ console.log('baskets',baskets)
     }
 
     this.basketsService.addProduct({
-      productId: this.productData.id,
+      productId: this.productData.productBarCode.id,
       basketId: basketId,
       count: this.selectedQuantity
     }).pipe(take(1)).subscribe({
@@ -293,7 +309,7 @@ console.log('baskets',baskets)
         this.showBasketPopup = false;
         this.showNotification('Товар добавлен в корзину', 'success');
       },
-      error: (err) => console.error('Ошибка при добавлении в корзину:', err)
+      error: (err) => {}
     });
   }
 
@@ -301,7 +317,7 @@ console.log('baskets',baskets)
   removeFromBasket(basketId: any): void {
     const basket = this.baskets?.find((b: any) => b.id === basketId);
 
-    this.basketsService.changeProductFromBasket(basketId, this.productData.id, 0)
+    this.basketsService.changeProductFromBasket(basketId, this.productData.productBarCode.id, 0)
       .pipe(take(1)).subscribe({
         next: () => {
           this.loadUpdatedProductData();
@@ -311,7 +327,7 @@ console.log('baskets',baskets)
             this.selectedQuantity = 0;
           }
         },
-        error: (err) => console.error('Ошибка при удалении из корзины:', err)
+        error: (err) => {}
       });
   }
 
@@ -328,13 +344,13 @@ console.log('baskets',baskets)
         this.loadUpdatedProductData();
         this.showNotification(`Корзина "${basketName}" создана`, 'success');
       },
-      error: (err) => console.error('Ошибка при создании корзины:', err)
+      error: (err) => {}
     });
   }
 
   // Загружаем обновленные данные товара
   private loadUpdatedProductData(): void {
-    this.productsService.getById(this.productData.id).subscribe((values: any) => {
+    this.productsService.getById(this.productData.productBarCode.id).subscribe((values: any) => {
       this.productData = values.data;
       setTimeout(() => {
         this.checkProductInBaskets();
@@ -418,7 +434,6 @@ console.log('baskets',baskets)
         this.showNotification('Артикул скопирован!', 'success');
       })
       .catch((err) => {
-        console.error('Ошибка копирования:', err);
         this.showNotification('Не удалось скопировать артикул', 'error');
       });
   }
@@ -434,7 +449,7 @@ console.log('baskets',baskets)
     }
 
     this.productFavoriteService
-      .addToFavorites(this.productData.id)
+      .addToFavorites(this.productData.productBarCode.id)
       .subscribe({
         next: (value: any) => {
           this.productData.isFavorite = !this.productData.isFavorite;
@@ -444,9 +459,7 @@ console.log('baskets',baskets)
             'success'
           );
         },
-        error: (error) => {
-          console.error('Произошла ошибка:', error);
-        }
+        error: (error) => {}
       });
   }
 

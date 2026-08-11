@@ -28,6 +28,20 @@ export const documentsRoutes: Routes = [
         (m) => m.NewsletterConsentComponent,
       ),
   },
+    {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./tabs/privacy-policy/privacy-policy.component').then(
+        (m) => m.PrivacyPolicyComponent,
+      ),
+  },
+      {
+    path: 'cookie-policy',
+    loadComponent: () =>
+      import('./tabs/cookie-policy/cookie-policy.component').then(
+        (m) => m.CookiePolicyComponent,
+      ),
+  },
 ];
 
 

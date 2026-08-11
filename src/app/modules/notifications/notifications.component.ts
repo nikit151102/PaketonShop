@@ -30,6 +30,5 @@ export class NotificationsComponent {
   }
 
   openNotification(notification: any) {
-    console.log('Открыть уведомление:', notification);
   }
 }

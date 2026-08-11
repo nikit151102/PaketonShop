@@ -151,7 +151,6 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Ошибка загрузки транзакций:', err);
           this.error = err.error?.message || 'Не удалось загрузить историю транзакций';
           this.hasMore = false;
         }

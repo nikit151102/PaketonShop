@@ -12,6 +12,7 @@ import localeRuExtra from '@angular/common/locales/extra/ru';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { TrackerInterceptor } from './core/interceptors/tracker.interceptor';
 
 // Регистрируем русскую локаль
 registerLocaleData(localeRu, 'ru', localeRuExtra);
@@ -32,6 +33,10 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
-
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TrackerInterceptor,
+      multi: true,
+    },
   ],
 };

@@ -38,13 +38,24 @@ interface NewAddressData {
   styleUrls: ['./city-delivery.component.scss']
 })
 export class CityDeliveryComponent implements OnInit {
+  @Input() isDeliveryCancelled: boolean | null = false;
+  @Input() addressSelect:any;
   @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
+
+  private readonly AVAILABLE_CITIES = [
+    'барнаул',
+    'новосибирск',
+    'бийск',
+    'рубцовск'
+  ];
 
   // Состояния
   loading = true;
   error: string | null = null;
   isSaving = false;
+  deliveryUnavailable = false;
+  deliveryUnavailableMessage = '';
 
   // Адреса
   addresses: Address[] = [];
@@ -74,13 +85,19 @@ export class CityDeliveryComponent implements OnInit {
 
   constructor(private addressService: AddressesService) { }
 
+  ngOnChanges(changes: any): void {
+    if (changes.isDeliveryCancelled) {
+      setTimeout(() => { }, 100);
+    }
+  }
+
   ngOnInit(): void {
     this.loadAddresses();
     this.generateRandomDeliveryCost();
   }
 
   private generateRandomDeliveryCost(): void {
-    this.deliveryCost = Math.floor(Math.random() * (450 - 300 + 1)) + 300;
+    this.deliveryCost = 550;
   }
 
   loadAddresses(): void {
@@ -90,8 +107,7 @@ export class CityDeliveryComponent implements OnInit {
     this.addressService.getUserAddresses().subscribe({
       next: (response: any) => {
         this.addresses = (response.data || []).filter((address: any) => {
-          return address?.transportCompanyType == null ||
-            address?.transportCompanyType == 0;
+          return address?.transportCompanyType == null || address?.transportCompanyType == 0;
         });
         if (this.addresses.length > 0 && !this.selectedAddress) {
           this.selectAddress(this.addresses[0]);
@@ -100,14 +116,30 @@ export class CityDeliveryComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Ошибка загрузки адресов:', err);
         this.error = 'Не удалось загрузить адреса. Попробуйте позже.';
         this.loading = false;
       }
     });
   }
 
+  private checkDeliveryAvailability(city: string): boolean {
+    if (!city) return false;
+    const normalizedCity = city.trim().toLowerCase();
+    return this.AVAILABLE_CITIES.includes(normalizedCity);
+  }
+
   selectAddress(address: Address): void {
+    if (!this.checkDeliveryAvailability(address.city)) {
+      this.deliveryUnavailable = true;
+      this.deliveryUnavailableMessage = `Доставка в город «${address.city}» временно недоступна.\nДоступные города: Барнаул, Новосибирск, Бийск, Рубцовск.`;
+      this.selectedAddress = address;
+      this.showAddressList = false;
+      this.showMessage(`Доставка в «${address.city}» недоступна`, 'error');
+      return;
+    }
+
+    this.deliveryUnavailable = false;
+    this.deliveryUnavailableMessage = '';
     this.selectedAddress = address;
     this.showAddressList = false;
     this.generateRandomDeliveryCost();
@@ -143,8 +175,7 @@ export class CityDeliveryComponent implements OnInit {
   }
 
   private prepareAddressForApi(): any {
-    const fullName = `г. ${this.newAddress.city}, ул. ${this.newAddress.street}, д. ${this.newAddress.house}${this.newAddress.housing ? `, корп. ${this.newAddress.housing}` : ''
-      }${this.newAddress.office ? `, офис/кв. ${this.newAddress.office}` : ''}`;
+    const fullName = `г. ${this.newAddress.city}, ул. ${this.newAddress.street}, д. ${this.newAddress.house}${this.newAddress.housing ? `, корп. ${this.newAddress.housing}` : ''}${this.newAddress.office ? `, офис/кв. ${this.newAddress.office}` : ''}`;
 
     return {
       city: this.newAddress.city,
@@ -167,8 +198,16 @@ export class CityDeliveryComponent implements OnInit {
   addNewAddress(): void {
     if (!this.isNewAddressValid()) return;
 
-    this.isSaving = true;
+    // ✅ Проверяем доступность доставки ДО сохранения
+    if (!this.checkDeliveryAvailability(this.newAddress.city)) {
+      this.showMessage(
+        `Доставка в город «${this.newAddress.city}» временно недоступна. Доступные города: Барнаул, Новосибирск, Бийск, Рубцовск.`,
+        'error'
+      );
+      return;
+    }
 
+    this.isSaving = true;
     const addressData = this.prepareAddressForApi();
 
     this.addressService.createAddress(addressData)
@@ -184,7 +223,6 @@ export class CityDeliveryComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Ошибка создания адреса:', err);
           this.showMessage(err.error?.message || 'Не удалось сохранить адрес', 'error');
         }
       });
@@ -192,17 +230,12 @@ export class CityDeliveryComponent implements OnInit {
 
   deleteAddress(address: Address, event: Event): void {
     event.stopPropagation();
-
-    if (!confirm(`Удалить адрес "${this.getFullAddress(address)}"?`)) {
-      return;
-    }
-
+    if (!confirm(`Удалить адрес "${this.getFullAddress(address)}"?`)) return;
     if (!address.id) return;
 
     this.addressService.deleteAddress(address.id).subscribe({
       next: () => {
         this.addresses = this.addresses.filter(a => a.id !== address.id);
-
         if (this.selectedAddress?.id === address.id) {
           this.selectedAddress = this.addresses.length > 0 ? this.addresses[0] : null;
           if (this.selectedAddress) {
@@ -212,41 +245,27 @@ export class CityDeliveryComponent implements OnInit {
             this.dataChange.emit({ address: null });
           }
         }
-
         this.showMessage('Адрес удален', 'success');
       },
       error: (err) => {
-        console.error('Ошибка удаления:', err);
         this.showMessage('Не удалось удалить адрес', 'error');
       }
     });
   }
 
   resetNewAddressForm(): void {
-    this.newAddress = {
-      city: '',
-      street: '',
-      house: '',
-      housing: '',
-      floorNumber: '',
-      office: '',
-      comment: ''
-    };
+    this.newAddress = { city: '', street: '', house: '', housing: '', floorNumber: '', office: '', comment: '' };
   }
 
   private showMessage(message: string, type: 'success' | 'error'): void {
     if (type === 'success') {
       this.successMessage = message;
       this.errorMessage = null;
-      setTimeout(() => {
-        this.successMessage = null;
-      }, 3000);
+      setTimeout(() => { this.successMessage = null; }, 3000);
     } else {
       this.errorMessage = message;
       this.successMessage = null;
-      setTimeout(() => {
-        this.errorMessage = null;
-      }, 5000);
+      setTimeout(() => { this.errorMessage = null; }, 5000);
     }
   }
 
@@ -270,24 +289,21 @@ export class CityDeliveryComponent implements OnInit {
   }
 
   private emitDataChange(): void {
-    const data = {
+    this.dataChange.emit({
       address: this.selectedAddress,
       deliveryCost: this.deliveryCost,
       deliveryService: 'Yandex'
-    };
-    this.dataChange.emit(data);
+    });
   }
 
   getFullAddress(address: Address): string {
-    const parts = [];
-
+    const parts: string[] = [];
     if (address.city) parts.push(`г. ${address.city}`);
     if (address.street) parts.push(`ул. ${address.street}`);
     if (address.house) parts.push(`д. ${address.house}`);
     if (address.housing) parts.push(`корп. ${address.housing}`);
     if (address.floorNumber) parts.push(`${address.floorNumber} этаж`);
     if (address.office) parts.push(`офис/кв. ${address.office}`);
-
     return parts.join(', ');
   }
 

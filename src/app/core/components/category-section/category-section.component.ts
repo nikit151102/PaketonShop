@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnChanges, SimpleChanges, HostListener, NgZone } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { CapitalizeFirstPipe } from '../../pipes/capitalize-first.pipe';
 
 @Component({
   selector: 'app-category-section',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CapitalizeFirstPipe],
   templateUrl: './category-section.component.html',
   styleUrl: './category-section.component.scss',
 })

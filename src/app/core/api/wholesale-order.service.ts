@@ -18,7 +18,11 @@ export interface CreateWholesaleOrderDto {
   endDateTime: string | null;
   partnerInstanceId: string;
   userInstanceId: string;
+  wholesalePartnerType: number;
+  productPlaceCode?: any;
+  documentArchiveLink?: any;
 }
+
 
 export interface FilterField {
   field: string;
@@ -218,4 +222,6 @@ export class WholesaleOrderService {
     };
     return this.http.post<PaginatedResponse<WholesaleOrder>>(`${this.baseUrl}/Filter`, query);
   }
+
+
 }

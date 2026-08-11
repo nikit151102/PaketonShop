@@ -1,45 +1,56 @@
-// Переменные
-$primary-color: #327220;
-$primary-light: lighten($primary-color, 10%);
-$primary-dark: darken($primary-color, 10%);
-$text-dark: #1e293b;
-$text-light: #64748b;
-$white: #ffffff;
-$bg-light: #f8fafc;
-$shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-$shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-$shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-// Миксины
-@mixin container {
+:host {
+  display: block;
+  --primary-color: #327220;
+  --primary-hover: #3a8228;
+  --primary-light: rgba(50, 114, 32, 0.08);
+  --primary-gradient: linear-gradient(135deg, #327220 0%, #4a9e30 100%);
+  --success-color: #10b981;
+  --danger-color: #dc2626;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-// Основные стили
-.contacts-section {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: $text-dark;
-  background: $bg-light;
-  overflow: hidden;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 .container {
-  @include container;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
 }
 
-// Hero секция
+.contacts-section {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  overflow-x: hidden; 
+  width: 100%;
+}
+
+// ==================== HERO СЕКЦИЯ ====================
+
 .contacts-hero {
-  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-  padding: 6px 24px;
+  background: var(--primary-gradient);
+  padding: 25px 0;
   position: relative;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
+  margin: 24px;
+  max-width: calc(100% - 48px); 
 
   &::before {
     content: '';
@@ -52,42 +63,28 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.1;
   }
 
-  @media (max-width: 768px) {
-    padding: 60px 0;
-  }
-}
-
-.contacts-hero__title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: $white;
-  margin: 0 0 0px;
-  line-height: 1.2;
-  position: relative;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 768px) {
-    font-size: 2.5rem;
-  }
-
-  @media (max-width: 480px) {
+  &__title {
     font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+    line-height: 1.2;
+    position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    position: relative;
   }
 }
 
-.contacts-hero__subtitle {
-  font-size: 1.25rem;
-  color: rgba($white, 0.9);
-  margin: 0;
-  max-width: 600px;
-  line-height: 1.6;
+// ==================== ОСНОВНОЙ БЛОК ====================
 
-  @media (max-width: 768px) {
-    font-size: 1.125rem;
-  }
-}
-
-// Основной блок с контактами
 .contacts-main {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -96,36 +93,31 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-top: -40px;
   position: relative;
   z-index: 10;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 40px 24px;
-    margin-top: 0;
-  }
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-// Сетка контактов
+// ==================== КАРТОЧКИ КОНТАКТОВ ====================
+
 .contacts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  gap: 20px;
+  width: 100%;
 }
 
-// Карточка контакта
 .contact-card {
-  background: $white;
-  border-radius: 24px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
   padding: 24px;
-  box-shadow: $shadow-md;
-  transition: $transition;
-  border: 1px solid rgba($primary-color, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  border: 1px solid rgba(50, 114, 32, 0.1);
   position: relative;
   overflow: hidden;
+  min-width: 0;
 
   &::before {
     content: '';
@@ -134,74 +126,80 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     left: 0;
     right: 0;
     height: 4px;
-    background: var(--card-color, $primary-color);
+    background: var(--card-color, var(--primary-color));
     opacity: 0;
-    transition: $transition;
+    transition: var(--transition);
   }
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: $shadow-lg;
+    box-shadow: var(--shadow-lg);
 
     &::before {
       opacity: 1;
     }
-  }
-}
 
-.contact-card__icon {
-  width: 56px;
-  height: 56px;
-  background: rgba(var(--card-color-rgb, $primary-color), 0.1);
-  border-radius: 16px;
-  @include flex-center;
-  margin-bottom: 20px;
-  color: var(--card-color, $primary-color);
-  transition: $transition;
-
-  .contact-card:hover & {
-    background: var(--card-color, $primary-color);
-    color: $white;
+    .contact-card__icon {
+      background: var(--card-color, var(--primary-color));
+      color: white;
+    }
   }
 
-  svg {
-    width: 28px;
-    height: 28px;
+  &__icon {
+    width: 56px;
+    height: 56px;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--card-color, var(--primary-color));
+    transition: var(--transition);
   }
-}
 
-.contact-card__title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 16px;
-  color: $text-dark;
-}
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: var(--text-primary);
+  }
 
-.contact-card__subtitle {
-  font-size: 1rem;
-  font-weight: 500;
-  margin: 16px 0 8px;
-  color: $text-light;
-}
+  &__subtitle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-.contact-card__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 
-.contact-card__text {
-  margin: 0;
-  color: $text-light;
-  line-height: 1.6;
+    li {
+      margin-bottom: 8px;
+    }
+  }
+
+  &__text {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    word-break: break-word;
+  }
 }
 
 .contact-link {
-  color: $text-dark;
+  color: var(--text-primary);
   text-decoration: none;
-  transition: $transition;
+  transition: var(--transition);
   display: inline-block;
   position: relative;
+  font-weight: 500;
+  word-break: break-word;
 
   &::after {
     content: '';
@@ -210,12 +208,12 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     left: 0;
     width: 0;
     height: 2px;
-    background: $primary-color;
-    transition: $transition;
+    background: var(--primary-color);
+    transition: var(--transition);
   }
 
   &:hover {
-    color: $primary-color;
+    color: var(--primary-color);
 
     &::after {
       width: 100%;
@@ -224,58 +222,57 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &--large {
     font-size: 1.125rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 12px;
+    display: block;
   }
 }
 
-// Социальные ссылки
 .social-links {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .social-link {
   padding: 8px 16px;
-  background: rgba($primary-color, 0.1);
-  border-radius: 30px;
-  color: $primary-color;
+  background: var(--primary-light);
+  border-radius: 20px;
+  color: var(--primary-color);
   text-decoration: none;
-  font-weight: 500;
-  transition: $transition;
+  font-weight: 600;
+  font-size: 13px;
+  transition: var(--transition);
 
   &:hover {
-    background: $primary-color;
-    color: $white;
+    background: var(--primary-color);
+    color: white;
     transform: translateY(-2px);
   }
 }
 
-// Форма обратной связи
+// ==================== ФОРМА ====================
+
 .contact-form-wrapper {
   height: fit-content;
   position: sticky;
   top: 30px;
-
-  @media (max-width: 1024px) {
-    position: static;
-  }
+  min-width: 0; 
 }
 
 .contact-form-card {
-  background: $white;
-  border-radius: 32px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
   padding: 40px;
-  box-shadow: $shadow-lg;
-  border: 1px solid rgba($primary-color, 0.1);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(50, 114, 32, 0.1);
 }
 
 .contact-form__title {
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0 0 32px;
-  color: $text-dark;
+  color: var(--text-primary);
   position: relative;
 
   &::after {
@@ -285,7 +282,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     left: 0;
     width: 60px;
     height: 4px;
-    background: $primary-color;
+    background: var(--primary-gradient);
     border-radius: 2px;
   }
 }
@@ -293,7 +290,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .form-group {
@@ -301,25 +298,28 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   input,
   textarea {
-    width: stretch;
+    width: 100%;
     padding: 16px 20px;
-    border: 2px solid #e2e8f0;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-family: inherit;
-    background: transparent;
-    transition: $transition;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    background: var(--bg-secondary);
+    transition: var(--transition);
     outline: none;
+    color: var(--text-primary);
 
     &:focus {
-      border-color: $primary-color;
-      box-shadow: 0 0 0 4px rgba($primary-color, 0.1);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px var(--primary-light);
+      background: var(--bg-primary);
     }
 
-    &:not(:placeholder-shown)+label,
-    &:focus+label {
+    &:not(:placeholder-shown) + label,
+    &:focus + label {
       transform: translateY(-28px) scale(0.9);
-      color: $primary-color;
+      color: var(--primary-color);
+      background: var(--bg-primary);
+      padding: 0 6px;
     }
   }
 
@@ -327,90 +327,78 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
     left: 20px;
     top: 16px;
-    color: $text-light;
+    color: var(--text-secondary);
     pointer-events: none;
-    transition: $transition;
-    background: $white;
-    padding: 0 4px;
+    transition: var(--transition);
+    font-weight: 500;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
   }
 }
 
 .submit-btn {
-  background: $primary-color;
-  color: $white;
+  background: var(--primary-gradient);
+  color: white;
   border: none;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 16px 32px;
-  font-size: 1.125rem;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: $transition;
-  @include flex-center;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
   margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(50, 114, 32, 0.25);
+  width: 100%;
 
-  &:hover {
-    background: $primary-dark;
+  &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: $shadow-md;
+    box-shadow: 0 6px 20px rgba(50, 114, 32, 0.35);
 
     svg {
       transform: translateX(4px);
     }
   }
 
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   svg {
-    transition: $transition;
+    transition: var(--transition);
   }
 }
 
+// ==================== КАРТА ====================
 
-.category-tabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 40px;
-  flex-wrap: wrap;
-}
-
-.category-tab {
-  padding: 12px 28px;
-  border: 2px solid #e2e8f0;
-  background: transparent;
-  border-radius: 40px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: $text-light;
-  cursor: pointer;
-  transition: $transition;
-
-  &:hover {
-    border-color: $primary-color;
-    color: $primary-color;
-  }
-
-  &.active {
-    background: $primary-color;
-    border-color: $primary-color;
-    color: $white;
-  }
+.map-section {
+  padding: 60px 0;
+  width: 100%;
+  overflow: hidden; 
 }
 
 .map-container {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 30px;
+  gap: 24px;
   min-height: 600px;
-
-  @media (max-width: 992px) {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
+  width: 100%;
+  max-width: 100%;
 }
 
 .map-wrapper {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0; 
+  width: 100%;
 }
 
 .city-selector {
@@ -418,145 +406,355 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  width: 100%;
 }
 
 .city-label {
-  font-weight: 500;
-  color: $text-dark;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  svg {
+    color: var(--primary-color);
+    flex-shrink: 0;
+  }
 }
 
 .city-select {
-  padding: 12px 24px;
-  border: 2px solid #e2e8f0;
-  border-radius: 40px;
-  font-size: 1rem;
-  color: $text-dark;
-  background: $white;
+  padding: 10px 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
   cursor: pointer;
   outline: none;
-  transition: $transition;
+  transition: var(--transition);
   flex: 1;
   min-width: 200px;
+  max-width: 100%;
+  font-weight: 500;
 
   &:hover,
   &:focus {
-    border-color: $primary-color;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-light);
   }
 }
 
 .map {
+  width: 100%;
+  max-width: 100%;
   height: 500px;
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: $shadow-lg;
-  background: #e2e8f0;
-
-  @media (max-width: 992px) {
-    height: 400px;
-  }
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
 }
 
+// ==================== СПИСОК МАГАЗИНОВ ====================
+
 .stores-list {
-  background: $bg-light;
-  border-radius: 24px;
-  padding: 24px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 20px;
   height: 500px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  scrollbar-width: thin;
-  scrollbar-color: $primary-color #e2e8f0;
+  gap: 12px;
+  border: 2px solid var(--border-color);
+  min-width: 0; 
+  width: 100%;
 
   &::-webkit-scrollbar {
     width: 6px;
   }
 
   &::-webkit-scrollbar-track {
-    background: #e2e8f0;
+    background: var(--border-color);
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: $primary-color;
+    background: var(--primary-color);
     border-radius: 3px;
-  }
-
-  @media (max-width: 992px) {
-    height: 400px;
   }
 }
 
 .store-item {
-  background: $white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: $shadow-sm;
-  transition: $transition;
-  border: 1px solid transparent;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 2px solid transparent;
+  width: 100%;
+  min-width: 0;
 
   &:hover {
     transform: translateX(4px);
-    border-color: $primary-color;
-    box-shadow: $shadow-md;
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    flex: 1;
+    word-break: break-word;
+  }
+
+  &__badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    margin-bottom: 12px;
+  }
+
+  &__address,
+  &__phone {
+    margin: 6px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+    word-break: break-word;
+
+    svg {
+      flex-shrink: 0;
+      color: var(--primary-color);
+      margin-top: 2px;
+    }
+
+    a {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: var(--transition);
+      word-break: break-word;
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  // ==================== РЕЖИМ РАБОТЫ ====================
+  
+  &__schedule {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-color);
+
+    .schedule-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+
+      svg {
+        flex-shrink: 0;
+        color: var(--primary-color);
+      }
+
+      .schedule-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .schedule-status {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--text-secondary);
+        }
+
+        &.open {
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--success-color);
+
+          .status-dot {
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+          }
+        }
+
+        &.closed {
+          background: rgba(220, 38, 38, 0.1);
+          color: var(--danger-color);
+
+          .status-dot {
+            background: var(--danger-color);
+          }
+        }
+      }
+    }
+
+    .schedule-text {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      font-weight: 500;
+      word-break: break-word;
+    }
+  }
+
+  &__advantages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  &__btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--radius-sm);
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+      background: var(--primary-gradient);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px rgba(50, 114, 32, 0.25);
+    }
   }
 }
 
-.store-item__info {
-  margin-bottom: 16px;
-}
-
-.store-item__address,
-.store-item__phone {
-  margin: 8px 0;
-  color: $text-light;
-  font-size: 0.95rem;
-  display: flex;
+.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
 
-  span {
-    font-size: 1.1rem;
+  &-advantages {
+    background: var(--primary-light);
+    color: var(--primary-color);
   }
 }
 
-.store-item__btn {
-  width: 100%;
-  padding: 12px;
-  background: transparent;
-  border: 2px solid $primary-color;
+.advantage-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--primary-light);
+  color: var(--primary-color);
   border-radius: 12px;
-  color: $primary-color;
+  font-size: 11px;
   font-weight: 600;
-  cursor: pointer;
-  transition: $transition;
 
-  &:hover {
-    background: $primary-color;
-    color: $white;
-    transform: scale(1.02);
+  svg {
+    color: var(--primary-color);
+    flex-shrink: 0;
+  }
+}
+
+.loading-stores {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
   }
 }
 
 .no-stores {
   text-align: center;
   padding: 40px 20px;
-  color: $text-light;
-  font-size: 1.125rem;
+  color: var(--text-secondary);
+
+  svg {
+    color: var(--border-color);
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 
-// Секция операторов
+// ==================== ОПЕРАТОРЫ ====================
+
 .operators-section {
-  padding: 5px 0;
-  background: $bg-light;
+  padding: 60px 0;
+  background: var(--bg-secondary);
+  width: 100%;
+  overflow: hidden;
 }
 
 .operators__title {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 30px;
+  margin: 0 0 40px;
   text-align: center;
-  color: $text-dark;
+  color: var(--text-primary);
   position: relative;
 
   &::after {
@@ -567,91 +765,113 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateX(-50%);
     width: 80px;
     height: 4px;
-    background: $primary-color;
+    background: var(--primary-gradient);
     border-radius: 2px;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
   }
 }
 
 .operators-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  gap: 24px;
+  width: 100%;
 }
 
 .operator-card {
-  background: $white;
-  border-radius: 24px;
-  padding: 16px 16px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 24px;
   text-align: center;
-  box-shadow: $shadow-md;
-  transition: $transition;
-  border: 1px solid rgba($primary-color, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+  border: 2px solid transparent;
+  min-width: 0;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: $shadow-lg;
-    border-color: $primary-color;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+
+    .operator__avatar {
+      background: var(--primary-gradient);
+      color: white;
+      transform: scale(1.05);
+    }
   }
 }
 
 .operator__avatar {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  object-fit: cover;
-  margin: 0 auto 0px;
-  border: 4px solid $white;
-  box-shadow: $shadow-sm;
-  transition: $transition;
+  background: var(--primary-light);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  transition: var(--transition);
+}
 
-  .operator-card:hover & {
-    transform: scale(1.05);
-    border-color: $primary-color;
-  }
+.operator__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .operator__name {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 5px;
-  color: $text-dark;
-  line-height: 1.4;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
 }
 
 .operator__phone,
 .operator__email {
-  display: block;
-  color: $text-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-secondary);
   text-decoration: none;
-  margin: 4px 0;
-  transition: $transition;
+  font-size: 13px;
+  transition: var(--transition);
   word-break: break-word;
 
+  svg {
+    flex-shrink: 0;
+  }
+
   &:hover {
-    color: $primary-color;
-    transform: translateX(4px);
+    color: var(--primary-color);
   }
 }
 
-// Анимации
+// ==================== АНИМАЦИИ ====================
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -664,146 +884,174 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.contact-card:nth-child(2) {
-  animation-delay: 0.1s;
-}
+.contact-card:nth-child(2) { animation-delay: 0.1s; }
+.contact-card:nth-child(3) { animation-delay: 0.2s; }
+.contact-card:nth-child(4) { animation-delay: 0.3s; }
 
-.contact-card:nth-child(3) {
-  animation-delay: 0.2s;
-}
+// ==================== АДАПТИВНОСТЬ ====================
 
-.contact-card:nth-child(4) {
-  animation-delay: 0.3s;
-}
+@media (max-width: 1024px) {
+  .contacts-main {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 40px 24px;
+    margin-top: 0;
+  }
 
+  .contact-form-wrapper {
+    position: static;
+  }
 
-// Карта и контейнеры
-.map-container {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 30px;
-  min-height: 600px;
-
-  @media (max-width: 992px) {
+  .map-container {
     grid-template-columns: 1fr;
     min-height: auto;
   }
+
+  .map-wrapper,
+  .stores-list {
+    width: 100%;
+  }
+
+  .operators-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.map-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%; // Гарантируем, что занимает всю ширину
-}
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
 
-.map {
-  height: 500px;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: $shadow-lg;
-  background: #e2e8f0;
-  width: 100%; // Карта на всю ширину родителя
+  .contacts-hero {
+    padding: 32px 20px;
+    margin: 16px;
+    max-width: calc(100% - 32px);
 
-  @media (max-width: 992px) {
+    &__title {
+      font-size: 1.75rem;
+    }
+
+    &__subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .contacts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map {
     height: 400px;
-    width: 100%; // Подтверждаем на всю ширину
-  }
-  
-  @media (max-width: 640px) {
-    height: 350px;
-    border-radius: 16px; // Уменьшаем скругление на мобильных
-  }
-  
-  @media (max-width: 480px) {
-    height: 300px;
-  }
-}
-
-.stores-list {
-  background: $bg-light;
-  border-radius: 24px;
-  padding: 24px;
-  height: 500px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  scrollbar-width: thin;
-  scrollbar-color: $primary-color #e2e8f0;
-
-  &::-webkit-scrollbar {
-    width: 6px;
   }
 
-  &::-webkit-scrollbar-track {
-    background: #e2e8f0;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $primary-color;
-    border-radius: 3px;
-  }
-
-  @media (max-width: 992px) {
+  .stores-list {
     height: 400px;
-    width: 100%; // На всю ширину на мобильных
+    padding: 16px;
   }
-  
-  @media (max-width: 640px) {
-    padding: 16px; // Уменьшаем отступы на маленьких экранах
-    border-radius: 16px;
-  }
-}
 
-.city-selector {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  width: 100%; // На всю ширину
-  
-  @media (max-width: 480px) {
+  .operators__title {
+    font-size: 1.5rem;
+  }
+
+  .city-selector {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
-}
 
-.city-select {
-  padding: 12px 24px;
-  border: 2px solid #e2e8f0;
-  border-radius: 40px;
-  font-size: 1rem;
-  color: $text-dark;
-  background: $white;
-  cursor: pointer;
-  outline: none;
-  transition: $transition;
-  flex: 1;
-  min-width: 200px;
-  width: auto; // Автоматическая ширина
-  
-  @media (max-width: 480px) {
-    width: 100%; // На всю ширину на мобильных
+  .city-select {
+    width: 100%;
     min-width: auto;
   }
 }
 
-// Дополнительные гарантии для мобильных устройств
-.container {
-  @include container;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
+@media (max-width: 640px) {
+  .contacts-hero {
+    margin: 12px;
+    padding: 24px 16px;
+    max-width: calc(100% - 24px);
+  }
+
+  .contacts-main {
+    padding: 30px 16px;
+  }
+
+  .map-section {
+    padding: 30px 0;
+  }
+
+  .map-container {
+    gap: 16px;
+  }
+
+  .map {
+    height: 300px;
+    border-radius: var(--radius-md);
+  }
+
+  .stores-list {
+    height: 350px;
+    padding: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .store-item {
+    padding: 12px;
+
+    &__name {
+      font-size: 14px;
+    }
+
+    &__address,
+    &__phone {
+      font-size: 12px;
+    }
+  }
+
+  .operators-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .operator-card {
+    padding: 20px;
+  }
+
+  .contact-form-card {
+    padding: 24px;
+  }
 }
 
-.map-section {
-  width: 100%;
-  overflow-x: hidden; // Предотвращаем горизонтальный скролл
-  
-  .container {
-    width: 100%;
+@media (max-width: 480px) {
+  .contacts-hero {
+    margin: 8px;
+    padding: 20px 12px;
+    max-width: calc(100% - 16px);
+
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .contacts-main {
+    padding: 24px 12px;
+    gap: 20px;
+  }
+
+  .contact-card {
+    padding: 20px;
+  }
+
+  .map {
+    height: 250px;
+  }
+
+  .stores-list {
+    height: 300px;
+  }
+
+  .submit-btn {
+    padding: 14px 20px;
+    font-size: 14px;
   }
 }

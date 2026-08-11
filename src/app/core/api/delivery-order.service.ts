@@ -46,9 +46,10 @@ export class DeliveryOrderService {
   /**
    * Получение списка заказов с фильтрацией
    */
-  getOrders(page: number, pageSize: number): Observable<any> {
+  getOrders(page: number, pageSize: number, filters: any = [], sorts: any = []): Observable<any> {
     const requestBody = {
-      filters: [],
+      filters: filters,
+      sorts: sorts,
       page: page,
       pageSize: pageSize
     };
@@ -66,12 +67,13 @@ export class DeliveryOrderService {
   /**
    * Изменение статуса заказа
    */
-  changeOrderStatus(orderId: string, status: number): Observable<{ message: string; status: number }> {
-    return this.http.patch<{ message: string; status: number }>(
-      `${this.apiUrl}/${orderId}/status`,
-      { status }
+  changeOrderStatus(orderId: string, orderStatus: number): Observable<{ message: string; status: number }> {
+    return this.http.put<{ message: string; status: number }>(
+      `${this.apiUrl}/ChangeStatus/${orderId}`,
+      { orderStatus }
     );
   }
+
 
   /**
   * Повторить заказ
@@ -125,11 +127,11 @@ export class DeliveryOrderService {
    * Отмена заказа
    */
   cancelOrder(orderId: string): Observable<{ message: string; status: number }> {
-    return this.http.post<{ message: string; status: number }>(
-      `${this.apiUrl}/${orderId}/cancel`,
-      {}
+    return this.http.put<{ message: string; status: number }>(
+      `${this.apiUrl}/CancelOrder/${orderId}`, {}
     );
   }
+
 
   /**
    * Получение статистики по заказам

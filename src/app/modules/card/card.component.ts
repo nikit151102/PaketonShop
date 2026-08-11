@@ -40,13 +40,16 @@ export class CardComponent {
     private route: ActivatedRoute,
     private productsService: ProductsService,
   ) { }
-
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.loadData(params.get('id')!);
+      const newId = params.get('id');
+
+      // Проверяем, что newId существует и отличается от текущего
+      if (newId && this.productData?.id !== newId) {
+        this.loadData(newId);
+      }
     });
   }
-
   loadData(id: string) {
     this.productsService.getById(id).subscribe((values: any) => {
       this.productData = values.data;
@@ -83,9 +86,8 @@ export class CardComponent {
     navigator.clipboard.writeText(this.productData.description)
       .then(() => {
         // Можно добавить временное уведомление
-        console.log('Описание скопировано');
       })
-      .catch(err => console.error('Ошибка копирования:', err));
+      .catch(err => {})
   }
 
   // Действия с характеристиками
@@ -102,9 +104,7 @@ export class CardComponent {
       });
     } else {
       navigator.clipboard.writeText(window.location.href)
-        .then(() => {
-          console.log('Ссылка скопирована');
-        });
+        .then(() => {});
     }
   }
 }

@@ -105,7 +105,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          console.log('Ответ от бэкенда:', response);
           
           // Проверяем разные возможные структуры ответа
           if (response && Array.isArray(response)) {
@@ -115,7 +114,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
           } else if (response?.result && Array.isArray(response.result)) {
             this.comparisonData = response.result;
           } else {
-            console.warn('Неожиданная структура ответа:', response);
             this.comparisonData = [];
           }
           
@@ -123,19 +121,13 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
           
           if (this.hasData) {
             this.selectedCategory = this.comparisonData[0];
-            console.log('Загружено категорий:', this.comparisonData.length);
-            console.log('Первая категория:', this.selectedCategory);
-          } else {
-            console.warn('Нет данных для сравнения');
           }
           
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Ошибка загрузки данных сравнения:', error);
           this.errorMessage = 'Не удалось загрузить данные для сравнения';
           this.isLoading = false;
-          this.loadMockData(); // Загружаем мок-данные при ошибке
         }
       });
   }
@@ -143,7 +135,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
   selectCategory(category: ComparisonCategory, index: number): void {
     this.selectedCategory = category;
     this.selectedCategoryIndex = index;
-    console.log('Выбрана категория:', category.productCategory.name);
   }
 
   getProductPropertyValue(product: Product, propertyName: string): string {
@@ -233,14 +224,12 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
   }
 
   addToBasket(product: Product): void {
-    console.log('Добавлено в корзину:', product.shortName);
     // Здесь будет логика добавления в корзину
     // Можно использовать product.countInActiveBasket для отслеживания количества
   }
 
   toggleFavorite(product: Product): void {
     product.isFavorite = !product.isFavorite;
-    console.log('Избранное обновлено для:', product.shortName);
     // Здесь будет API вызов для обновления избранного
   }
 
@@ -251,7 +240,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Товар удален из сравнения:', response);
           
           // Удаляем из локального массива
           const index = this.selectedCategory!.products.findIndex(p => p.id === productId);
@@ -264,9 +252,7 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
             }
           }
         },
-        error: (error) => {
-          console.error('Ошибка удаления из сравнения:', error);
-        }
+        error: (error) =>  {}
       });
   }
 
@@ -282,13 +268,10 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
     
     Promise.all(deletePromises)
       .then(() => {
-        console.log('Все товары удалены из сравнения');
         this.selectedCategory!.products = [];
         this.loadComparisonData();
       })
-      .catch(error => {
-        console.error('Ошибка при очистке сравнения:', error);
-      });
+      .catch(error =>  {});
   }
 
   getProductImage(product: Product): string {
@@ -303,7 +286,6 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
   }
 
   private loadMockData(): void {
-    console.log('Загрузка мок-данных для демонстрации');
     
     this.comparisonData = [
       {
@@ -528,6 +510,5 @@ export class CompareProductsComponent implements OnInit, OnDestroy {
     this.selectedCategoryIndex = 0;
     this.isLoading = false;
     
-    console.log('Мок-данные загружены:', this.comparisonData);
   }
 }

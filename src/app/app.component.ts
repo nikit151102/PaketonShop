@@ -1,6 +1,6 @@
-import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, computed } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, Subscription, take } from 'rxjs';
+import { filter, map, Observable, Subscription, take } from 'rxjs';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 
 import { HeaderComponent } from './core/components/header/header.component';
@@ -10,7 +10,16 @@ import { LocationComponent } from './core/components/location/location.component
 import { MobileBottomNavComponent } from './core/components/mobile-bottom-nav/mobile-bottom-nav.component';
 import { BasketsService } from './core/api/baskets.service';
 import { BasketsStateService } from './core/services/baskets-state.service';
-import { UserService } from './core/services/user.service';
+import { User, UserService } from './core/services/user.service';
+import { LocationService } from './core/components/location/location.service';
+import { StorageUtils } from '../utils/storage.utils';
+import { localStorageEnvironment } from '../environment';
+import { FloatingContactButtonsComponent } from './core/components/floating-contact-buttons/floating-contact-buttons.component';
+import { UserApiService } from './core/api/user.service';
+import { AuthService } from './core/services/auth.service';
+import { CookieConsentComponent } from './core/components/cookie-consent/cookie-consent.component';
+
+declare let ym: any;
 
 @Component({
   selector: 'app-root',
@@ -21,7 +30,9 @@ import { UserService } from './core/services/user.service';
     MobileBottomNavComponent,
     FooterComponent,
     AuthComponent,
-    LocationComponent
+    LocationComponent,
+    FloatingContactButtonsComponent,
+    CookieConsentComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -35,25 +46,63 @@ export class AppComponent implements OnInit, OnDestroy {
   private imageObserver?: IntersectionObserver;
   private protectedImages = new Set<HTMLImageElement>();
   private previousUrl = '';
+  private userService = inject(UserService);
 
   constructor(
     private basketsService: BasketsService,
     private router: Router,
     private basketsStateService: BasketsStateService,
-    private userService: UserService,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
+    public locationService: LocationService,
+    private userApiService: UserApiService,
+    private authService: AuthService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
+
+    this.userApiService.validateToken().subscribe({
+      next: (isValid: boolean) => {
+        if (!isValid) {
+          this.authService.logout();
+        }
+      },
+      error: () => {
+        this.authService.logout();
+      }
+    });
+
   }
 
   ngOnInit(): void {
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Сообщаем Яндексу о новом "виртуальном" просмотре страницы
+      ym(110808930, 'hit', event.urlAfterRedirects);
+    });
+
+    const currentCity = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.currentCity.key
+    );
+
+    if (currentCity == null) {
+      this.locationService.showCityModal$.next(true)
+    }
+
     if (!this.isBrowser) return;
-    
+
     this.initMobileDetection();
     this.initRouterEvents();
     this.initImageProtection();
     this.injectProtectionStyles();
-    this.loadBaskets();
+
+    if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
+      this.loadBaskets();
+    }
+
+    if (this.authService.hasActiveRestore()) {
+      this.authService.changeVisible(true);
+    }
   }
 
   ngOnDestroy(): void {
@@ -96,7 +145,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'c': () => (event.target as HTMLElement)?.tagName === 'IMG' && this.showToast('Копирование изображений запрещено', 'warning'),
         'u': () => this.showToast('Инструменты разработчика временно ограничены', 'info')
       };
-      
+
       if (combos[event.key]) {
         if (event.key !== 'c' || (event.target as HTMLElement)?.tagName === 'IMG') {
           event.preventDefault();
@@ -119,7 +168,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.basketsStateService.updateBaskets(res.data);
           this.userService.updateIsAuthUser(true);
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err)
+        error: (err) => { }
       });
   }
 
@@ -141,20 +190,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private isOnlyPageParamChanged(prev: string, curr: string): boolean {
     if (!prev) return false;
-    
+
     const [prevPath, prevSearch] = prev.split('?');
     const [currPath, currSearch] = curr.split('?');
     if (prevPath !== currPath) return false;
-    
+
     const prevParams = new URLSearchParams(prevSearch);
     const currParams = new URLSearchParams(currSearch);
-    
+
     for (const [key, value] of prevParams) {
       if (key === 'page') {
         if (currParams.get(key) !== value) continue;
       } else if (currParams.get(key) !== value) return false;
     }
-    
+
     return true;
   }
 
@@ -163,7 +212,7 @@ export class AppComponent implements OnInit, OnDestroy {
       (entries) => entries.forEach(e => e.isIntersecting && this.protectImage(e.target as HTMLImageElement)),
       { threshold: 0.1 }
     );
-    
+
     document.querySelectorAll('img').forEach(img => this.protectImage(img));
   }
 
@@ -175,11 +224,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private protectImage(img: HTMLImageElement): void {
     if (this.protectedImages.has(img)) return;
-    
+
     img.classList.add('protected-image');
     img.setAttribute('draggable', 'false');
     img.setAttribute('crossorigin', 'anonymous');
-    
+
     if (!img.parentElement?.classList.contains('image-protector')) {
       const protector = document.createElement('div');
       protector.className = 'image-protector';
@@ -187,11 +236,11 @@ export class AppComponent implements OnInit, OnDestroy {
         position: 'relative',
         display: 'inline-block'
       });
-      
+
       img.parentNode?.insertBefore(protector, img);
       protector.appendChild(img);
     }
-    
+
     this.protectedImages.add(img);
     this.imageObserver?.observe(img);
   }
@@ -214,7 +263,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const toast = document.createElement('div');
     const colors = { info: '#2196f3', warning: '#ff9800', error: '#f44336' };
-    
+
     toast.className = 'toast-message';
     Object.assign(toast.style, {
       position: 'fixed',
@@ -230,9 +279,10 @@ export class AppComponent implements OnInit, OnDestroy {
       boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
       animation: 'fadeInOut 2s ease-in-out'
     });
-    
+
     toast.textContent = message;
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
+
 }

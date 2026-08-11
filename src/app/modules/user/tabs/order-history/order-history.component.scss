@@ -59,7 +59,6 @@ $radius-xl: 20px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
-  background: linear-gradient(135deg, $gray-50 0%, white 100%);
   min-height: 100vh;
 
   @media (max-width: 768px) {
@@ -314,7 +313,7 @@ $radius-xl: 20px;
 
   .order-number {
     .number {
-      font-size: 18px;
+      font-size: 14px;
       font-weight: 700;
       color: $gray-800;
     }

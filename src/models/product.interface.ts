@@ -350,6 +350,7 @@ export interface ProductVariant {
   stock: number;
   imageUrl?: string;
   barcode?: string;
+  productBarCode?: any;
   isDefault?: boolean;
   properties?: VariantProperty[];
 }

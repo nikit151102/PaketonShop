@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input, OnInit, forwardRef } from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit, OnChanges, SimpleChanges, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -31,19 +31,19 @@ export interface ContactTypeOption {
     }
   ]
 })
-export class ContactTypeSelectorComponent implements OnInit, ControlValueAccessor {
+export class ContactTypeSelectorComponent implements OnInit, OnChanges, ControlValueAccessor {
   @Output() contactTypeChange = new EventEmitter<number>();
   @Input() selectedType: ContactTypeEnum = ContactTypeEnum.Call;
+  @Input() orderStatus: number | null = null;
   @Input() disabled = false;
   @Input() showLabels = true;
   @Input() showDescriptions = true;
   @Input() variant: 'default' | 'compact' | 'cards' = 'default';
-  
+
   ContactTypeEnum = ContactTypeEnum;
-  
+
   selectedValue: number = ContactTypeEnum.Call;
-  
-  // Опции для выбора
+
   options: ContactTypeOption[] = [
     {
       value: ContactTypeEnum.Call,
@@ -71,9 +71,30 @@ export class ContactTypeSelectorComponent implements OnInit, ControlValueAccesso
     }
   ];
 
-  // ControlValueAccessor implementation
-  private onChange: any = () => {};
-  private onTouched: any = () => {};
+  private onChange: any = () => { };
+  private onTouched: any = () => { };
+  
+  get visibleOptions(): ContactTypeOption[] {
+    if (this.isReadOnly) {
+      const selected = this.options.find(opt => opt.value === this.selectedValue);
+      return selected ? [selected] : [];
+    }
+    return this.options;
+  }
+
+  get isReadOnly(): boolean {
+    return this.orderStatus !== null && this.orderStatus !== 0;
+  }
+
+  get isDisabled(): boolean {
+    return this.disabled || this.isReadOnly;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedType'] && !changes['selectedType'].isFirstChange()) {
+      this.selectedValue = changes['selectedType'].currentValue;
+    }
+  }
 
   ngOnInit(): void {
     this.selectedValue = this.selectedType;
@@ -84,8 +105,8 @@ export class ContactTypeSelectorComponent implements OnInit, ControlValueAccesso
   }
 
   selectType(value: ContactTypeEnum): void {
-    if (this.disabled) return;
-    
+    if (this.isDisabled) return;
+
     this.selectedValue = value;
     this.selectedType = value;
     this.onChange(value);
@@ -98,14 +119,14 @@ export class ContactTypeSelectorComponent implements OnInit, ControlValueAccesso
   }
 
   setValue(value: number): void {
-    if (this.disabled) return;
+    if (this.isDisabled) return;
+    
     this.selectedValue = value;
     this.selectedType = value;
     this.onChange(value);
     this.contactTypeChange.emit(value);
   }
 
-  // ControlValueAccessor methods
   writeValue(value: number): void {
     if (value !== undefined && value !== null) {
       this.selectedValue = value;
@@ -125,7 +146,6 @@ export class ContactTypeSelectorComponent implements OnInit, ControlValueAccesso
     this.disabled = isDisabled;
   }
 
-  // Вспомогательные методы
   getOptionLabel(value: number): string {
     const option = this.options.find(opt => opt.value === value);
     return option ? option.label : '';

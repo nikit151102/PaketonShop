@@ -69,7 +69,6 @@ export class AuthInterceptor implements HttpInterceptor {
       // Кодируем в base64 для безопасной передачи
       return btoa(encodeURIComponent(value));
     } catch (error) {
-      console.warn('Failed to encode header value:', error);
       // Если не удалось закодировать, возвращаем только ASCII символы
       return value.replace(/[^\x00-\x7F]/g, '');
     }
@@ -90,7 +89,7 @@ export class AuthInterceptor implements HttpInterceptor {
  * Добавление заголовков к запросу
  */
 private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
-  // ✅ Если это FormData — добавляем ТОЛЬКО Authorization, не трогая Content-Type
+  // Если это FormData — добавляем ТОЛЬКО Authorization, не трогая Content-Type
   if (req.body instanceof FormData) {
     const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
     
@@ -128,9 +127,7 @@ private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
         headers[key] = value;
       }
     });
-  } catch (error) {
-    console.warn('Could not add device headers:', error);
-  }
+  } catch (error) {}
 
   headers['X-Requested-With'] = 'XMLHttpRequest';
   headers['X-App-Version'] = '1.0.0';
@@ -167,7 +164,6 @@ private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
   //       }
   //     });
   //   } catch (error) {
-  //     console.warn('Could not add device headers:', error);
   //   }
 
   //   // Добавляем дополнительные заголовки

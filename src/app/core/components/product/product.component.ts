@@ -64,13 +64,13 @@ export class ProductComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
   ) {
     // Эффект для отслеживания изменений авторизации
-    effect(() => {
-      const isAuth = this.userService.authUser();
-      if (this.product?.id && isAuth) {
-        this.refreshProductBasketsInfo();
-      }
-      this.updateProductState();
-    });
+    // effect(() => {
+    //   const isAuth = this.userService.authUser();
+    //   if (this.product?.id && isAuth) {
+    //     this.refreshProductBasketsInfo();
+    //   }
+    //   this.updateProductState();
+    // });
   }
 
   private userApiService = inject(UserApiService);
@@ -82,7 +82,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsStateService.baskets$
       .pipe(takeUntil(this.destroy$))
       .subscribe(baskets => {
-        console.log('ProductComponent: получены новые корзины', baskets);
         this.basketsData = baskets || [];
         this.updateProductState();
         // Принудительно обновляем UI
@@ -110,7 +109,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   private refreshProductBasketsInfo(): void {
     if (!this.product?.id) return;
 
-    this.productsService.getById(this.product.id).pipe(take(1)).subscribe({
+    this.productsService.getById(this.product.productBarCode.id).pipe(take(1)).subscribe({
       next: (response: any) => {
         if (response?.data) {
           this.product.userBaskets = response.data.userBaskets;
@@ -119,7 +118,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.error('Ошибка обновления продукта:', err);
+
       }
     });
   }
@@ -132,7 +131,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.isUserBasket = baskets.length > 0 && this.userService.authUser();
     this.productBasketsCount = this.getProductBaskets().length;
     this.checkProductInBaskets();
-    this.filteredBaskets = [...baskets]; // Создаем новую ссылку для триггера
+    this.filteredBaskets = [...baskets];
   }
 
   private get activeBasketId(): string | null {
@@ -231,13 +230,12 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId) {
-      console.error('Активная корзина не найдена');
       return;
     }
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: this.selectedQuantity
       })
@@ -246,8 +244,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при добавлении в активную корзину:', err),
+        error: (err) => { }
       });
   }
 
@@ -260,7 +257,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     if (newCount <= 0) {
       this.basketsService
-        .changeProductFromBasket(activeBasketId, this.product.id, 0)
+        .changeProductFromBasket(activeBasketId, this.product.productBarCode.id, 0)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -269,14 +266,14 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.quantitySelectorVisible = false;
             this.selectedQuantity = 1;
           },
-          error: (err) => console.error('Ошибка при удалении товара из корзины:', err),
+          error: (err) => { }
         });
       return;
     }
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: newCount
       })
@@ -285,8 +282,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества в активной корзине:', err),
+        error: (err) => {
+
+        }
       });
   }
 
@@ -299,7 +297,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: activeBasketId,
         count: value
       })
@@ -308,8 +306,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества из поля ввода:', err),
+        error: (err) => {
+
+        }
       });
   }
 
@@ -322,7 +321,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     this.basketsService
       .addProduct({
-        productId: this.product.id,
+        productId: this.product.productBarCode.id,
         basketId: basketItem.userBasketId,
         count: newCount
       })
@@ -331,14 +330,15 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) =>
-          console.error('Ошибка при обновлении количества:', err),
+        error: (err) => {
+
+        }
       });
   }
 
   removeFromSpecificBasket(basketItem: any): void {
     this.basketsService
-      .changeProductFromBasket(basketItem.userBasketId, this.product.id, 0)
+      .changeProductFromBasket(basketItem.userBasketId, this.product.productBarCode.id, 0)
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -349,13 +349,14 @@ export class ProductComponent implements OnInit, OnDestroy {
             this.selectedQuantity = 1;
           }
         },
-        error: (err) =>
-          console.error('Ошибка при удалении товара из корзины:', err),
+        error: (err) => {
+
+        }
       });
   }
 
   private loadUpdatedProductData(): void {
-    this.productsService.getById(this.product.id).pipe(take(1)).subscribe((values: any) => {
+    this.productsService.getById(this.product.productBarCode.id).pipe(take(1)).subscribe((values: any) => {
       this.product = values.data;
       this.updateProductState();
       this.hideBasketDetails();
@@ -378,10 +379,10 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   private updateBasket(count: number): void {
     const basketId = this.activeBasketId;
-    if (!basketId) return console.error('Корзина не найдена');
+    if (!basketId) return
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count })
       .pipe(take(1))
       .subscribe({
         next: () => {
@@ -390,7 +391,9 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.quantitySelectorVisible = true;
           this.loadUpdatedProductData();
         },
-        error: (err) => console.error('Ошибка при обновлении корзины', err),
+        error: (err) => {
+
+        }
       });
   }
 
@@ -414,14 +417,16 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (!basketId) return;
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count: 1 })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count: 1 })
       .pipe(take(1))
       .subscribe({
         next: () => {
           this.loadUpdatedProductData();
-          this.userApiService.getOperativeInfo();
+          if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
+            this.userApiService.getOperativeInfo();
+          }
         },
-        error: (err) => console.error('Ошибка при добавлении товара', err),
+        error: (err) => { }
       });
   }
 
@@ -430,13 +435,15 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (!basketId || quantity <= 0) return;
 
     this.basketsService
-      .addProduct({ productId: this.product.id, basketId, count: quantity })
+      .addProduct({ productId: this.product.productBarCode.id, basketId, count: quantity })
       .pipe(take(1))
       .subscribe({
         next: () => {
           this.loadUpdatedProductData();
         },
-        error: (err) => console.error('Ошибка при установке количества', err),
+        error: (err) => {
+
+        },
       });
   }
 
@@ -483,7 +490,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/product', this.product.id]);
+    this.router.navigate(['/product', this.product.productBarCode.id]);
   }
 
   toggleFavorite(event: MouseEvent, isFavorite: boolean) {
@@ -492,7 +499,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     if (isFavorite) {
       this.productFavoriteService
-        .removeFromFavorites(this.product.id)
+        .removeFromFavorites(this.product.productBarCode.id)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -501,16 +508,13 @@ export class ProductComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             if (error.status === 401) {
-              console.error('Пользователь не авторизован');
               this.authService.changeVisible(true);
-            } else {
-              console.error('Произошла ошибка:', error);
             }
           }
         });
     } else {
       this.productFavoriteService
-        .addToFavorites(this.product.id)
+        .addToFavorites(this.product.productBarCode.id)
         .pipe(take(1))
         .subscribe({
           next: () => {
@@ -519,10 +523,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           },
           error: (error) => {
             if (error.status === 401) {
-              console.error('Пользователь не авторизован');
               this.authService.changeVisible(true);
-            } else {
-              console.error('Произошла ошибка:', error);
             }
           }
         });
@@ -534,17 +535,17 @@ export class ProductComponent implements OnInit, OnDestroy {
     event.preventDefault();
 
     const serviceCall = this.product.compareProduct
-      ? this.comparingService.deleteCompareProduct(this.product.id)
-      : this.comparingService.setCompareProduct(this.product.id);
+      ? this.comparingService.deleteCompareProduct(this.product.productBarCode.id)
+      : this.comparingService.setCompareProduct(this.product.productBarCode.id);
 
     serviceCall.pipe(take(1)).subscribe({
-      next: () => this.product.compareProduct = !this.product.compareProduct,
+      next: () => {
+
+        this.product.compare = !this.product.compare
+      },
       error: (error) => {
         if (error.status === 401) {
-          console.error('Пользователь не авторизован');
           this.authService.changeVisible(true);
-        } else {
-          console.error('Произошла ошибка:', error);
         }
       }
     });
@@ -643,12 +644,12 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
 
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.productBarCode.id,
       basketId: basketId,
       count: newCount
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => console.error('Ошибка при обновлении количества:', err)
+      error: (err) => { }
     });
   }
 
@@ -657,18 +658,18 @@ export class ProductComponent implements OnInit, OnDestroy {
     if (isNaN(value) || value < 1) return;
 
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.productBarCode.id,
       basketId: basketId,
       count: value
     }).pipe(take(1)).subscribe({
       next: () => this.loadUpdatedProductData(),
-      error: (err) => console.error('Ошибка при обновлении количества:', err)
+      error: (err) => { }
     });
   }
 
   addToSpecificBasket(basketId: string): void {
     this.basketsService.addProduct({
-      productId: this.product.id,
+      productId: this.product.productBarCode.id,
       basketId: basketId,
       count: 1
     }).pipe(take(1)).subscribe({
@@ -677,7 +678,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
         this.showNotification('Товар добавлен в корзину');
       },
-      error: (err) => console.error('Ошибка при добавлении в корзину:', err)
+      error: (err) => { }
     });
   }
 
@@ -688,7 +689,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.basketsStateService.updateBaskets(res.data);
         },
-        error: (err) => console.error('Ошибка загрузки корзин', err)
+        error: (err) => { }
       });
   }
 
@@ -696,12 +697,12 @@ export class ProductComponent implements OnInit, OnDestroy {
     const baskets = this.basketsStateService.getCurrentBaskets();
     const basket = baskets?.find((b: any) => b.id === basketId);
 
-    this.basketsService.changeProductFromBasket(basketId, this.product.id, 0).pipe(take(1)).subscribe({
+    this.basketsService.changeProductFromBasket(basketId, this.product.productBarCode.id, 0).pipe(take(1)).subscribe({
       next: () => {
         this.loadUpdatedProductData();
         this.showNotification(`Товар удален из корзины "${basket?.name || ''}"`);
       },
-      error: (err) => console.error('Ошибка при удалении из корзины:', err)
+      error: (err) => { }
     });
   }
 
@@ -718,7 +719,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.loadBaskets();
         this.showNotification(`Корзина "${basketName}" создана`);
       },
-      error: (err) => console.error('Ошибка при создании корзины:', err)
+      error: (err) => { }
     });
   }
 
@@ -754,11 +755,11 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.updateBasketItemQuantity(event.basketId, event.delta);
   }
 
-  onDeleteBasket(basketId: string) { 
+  onDeleteBasket(basketId: string) {
     this.basketsService.deleteBasket(
       basketId).subscribe({
         next: () => this.loadBaskets(),
-        error: (err) => console.error('Ошибка при обновлении количества:', err)
+        error: (err) => { }
       });
   }
   onUpdateQuantityFromInput(event: { basketId: string, value: string }) {

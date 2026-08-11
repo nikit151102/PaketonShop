@@ -21,14 +21,14 @@
     <!-- Форма -->
     <form [formGroup]="authForm" autocomplete="off" class="auth-form" (ngSubmit)="onSubmit()">
       <!-- API Error Message -->
-      <div *ngIf="formErrors['api']" class="api-error-message">
+      <!-- <div *ngIf="formErrors['api']" class="api-error-message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path
             d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <span>{{ formErrors['api'] }}</span>
-      </div>
+      </div> -->
 
       <!-- Логин -->
       <div *ngIf="authMode === 'login'" class="form-slide">
@@ -172,6 +172,141 @@
           [class.loading]="isSubmitting">
           <span *ngIf="!isSubmitting">Зарегистрироваться</span>
           <span *ngIf="isSubmitting" class="loading-spinner"></span>
+        </button>
+      </div>
+
+      <!-- Сброс пароля -->
+      <div *ngIf="authMode === 'forgot-password'" class="form-slide">
+
+        <!-- Шаг 1: Ввод email -->
+        <div *ngIf="restoreStep === 1" class="restore-step">
+          <div class="step-header">
+            <h3>Восстановление пароля</h3>
+            <p>Введите email, на который придёт код подтверждения</p>
+          </div>
+
+          <div class="input-group" [class.invalid]="formErrors['email']">
+            <input type="email" id="restoreEmail" formControlName="email" autocomplete="email" placeholder=" "
+              (blur)="updateFormErrors()" />
+            <label for="restoreEmail">Email</label>
+            <div style="display: flex;">
+              <div class="error-icon" *ngIf="formErrors['email']">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <div class="error-message" *ngIf="formErrors['email']">
+                {{ formErrors['email'] }}
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="submit-btn" [disabled]="isSubmitting || authForm.get('email')?.invalid"
+            [class.loading]="isSubmitting" (click)="sendRestoreCode()">
+            <span *ngIf="!isSubmitting">Отправить код</span>
+            <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          </button>
+
+          <button type="button" class="back-link" (click)="backToLogin()">
+            ← Вернуться ко входу
+          </button>
+        </div>
+
+        <!-- Шаг 2: Ввод кода -->
+        <div *ngIf="restoreStep === 2" class="restore-step">
+          <div class="step-header">
+            <h3>Подтверждение кода</h3>
+            <p>Введите 5-значный код, отправленный на <strong>{{ restoreEmail }}</strong></p>
+          </div>
+
+          <div class="code-input-group">
+            <input type="text" id="restoreCode" formControlName="restoreCode" maxlength="5" pattern="\d{5}"
+              placeholder="00000" class="code-input" (input)="onCodeInput($event)" />
+
+            <div class="code-hint">
+              <span *ngIf="!formErrors['restoreCode']">Введите 5 цифр</span>
+              <span *ngIf="formErrors['restoreCode']" class="error-text">{{ formErrors['restoreCode'] }}</span>
+            </div>
+          </div>
+
+          <div class="resend-section">
+            <span *ngIf="codeResendTimer > 0">
+              Отправить код повторно через {{ codeResendTimer }}с
+            </span>
+            <button *ngIf="codeResendTimer === 0" type="button" class="resend-link" (click)="resendCode()">
+              Отправить код повторно
+            </button>
+          </div>
+
+          <button type="button" class="submit-btn" [disabled]="isSubmitting || authForm.get('restoreCode')?.invalid"
+            [class.loading]="isSubmitting" (click)="verifyRestoreCode()">
+            <span *ngIf="!isSubmitting">Подтвердить</span>
+            <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          </button>
+
+          <button type="button" class="back-link" (click)="restoreStep = 1">
+            ← Изменить email
+          </button>
+        </div>
+
+        <!-- Шаг 3: Новый пароль -->
+        <div *ngIf="restoreStep === 3" class="restore-step">
+          <div class="step-header">
+            <h3>Новый пароль</h3>
+            <p>Придумайте надёжный пароль для вашего аккаунта</p>
+          </div>
+
+          <div class="input-group" [class.invalid]="formErrors['newPassword']">
+            <input type="password" id="newPassword" formControlName="newPassword" autocomplete="new-password"
+              placeholder=" " (blur)="updateFormErrors()" />
+            <label for="newPassword">Новый пароль</label>
+            <div class="password-requirements">
+              <div class="requirement" [class.valid]="authForm.get('newPassword')?.value?.length >= 8">
+                • Минимум 8 символов
+              </div>
+              <div class="requirement" [class.valid]="hasLowercase(authForm.get('newPassword')?.value)">
+                • Строчные буквы (a-z)
+              </div>
+              <div class="requirement" [class.valid]="hasUppercase(authForm.get('newPassword')?.value)">
+                • Заглавные буквы (A-Z)
+              </div>
+              <div class="requirement" [class.valid]="hasNumbers(authForm.get('newPassword')?.value)">
+                • Цифры (0-9)
+              </div>
+            </div>
+          </div>
+
+          <div class="input-group" [class.invalid]="formErrors['confirmNewPassword']">
+            <input type="password" id="confirmNewPassword" formControlName="confirmNewPassword"
+              autocomplete="new-password" placeholder=" " (blur)="updateFormErrors()" />
+            <label for="confirmNewPassword">Повторите пароль</label>
+            <div class="password-match" *ngIf="authForm.get('confirmNewPassword')?.dirty">
+              <span class="match-indicator" [class.valid]="!formErrors['confirmNewPassword']">
+                {{ formErrors['confirmNewPassword'] ? '✗' : '✓' }}
+                {{ formErrors['confirmNewPassword'] ? 'Пароли не совпадают' : 'Пароли совпадают' }}
+              </span>
+            </div>
+          </div>
+
+          <button type="button" class="submit-btn" [disabled]="isSubmitting || authForm.invalid"
+            [class.loading]="isSubmitting" (click)="changePassword()">
+            <span *ngIf="!isSubmitting">Сменить пароль</span>
+            <span *ngIf="isSubmitting" class="loading-spinner"></span>
+          </button>
+
+          <button type="button" class="back-link" (click)="restoreStep = 2">
+            ← Назад
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Ссылка "Забыли пароль?" под формой входа -->
+      <div *ngIf="authMode === 'login'" class="forgot-password-link">
+        <button type="button" class="link-button" (click)="startForgotPassword()">
+          Забыли пароль?
         </button>
       </div>
     </form>

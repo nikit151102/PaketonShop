@@ -1,0 +1,17 @@
+<div class="product-card">
+    <div class="product-header">
+        <h3 class="product-title">Выберите фасовку</h3>
+        <p class="product-subtitle">Количество в упаковке</p>
+    </div>
+
+    <div class="packing-grid">
+        @for (item of sortedProductPacking; track $index) {
+        <button class="packing-btn" [class.active]="selectedBarcodeId === item.id" (click)="selectBarcode(item.id)">
+            <span class="coefficient">{{ item.coefficient }}</span>
+            @if (baseMeasurementUnit) {
+            <span class="unit">{{baseMeasurementUnit.shortName}}</span>
+            }
+        </button>
+        }
+    </div>
+</div>

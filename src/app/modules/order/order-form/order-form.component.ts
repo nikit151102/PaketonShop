@@ -83,7 +83,9 @@ export class OrderFormComponent implements OnInit {
     return this._orderData;
   }
 
-
+  getAddressSelect(): any {
+    return this.orderData
+  }
   ngOnChanges(changes: any): void {
     // Если orderData изменился после загрузки
     if (changes.orderData && changes.orderData.currentValue && !this.isInitialized) {
@@ -95,30 +97,40 @@ export class OrderFormComponent implements OnInit {
   }
 
   onContactTypeChange(value: number): void {
-    console.log('Выбран тип связи:', value);
     // value: 0 - позвонить, 1 - заменить, 2 - удалить
     this.formData.contactType = value
     this.formChanged.emit(this.formData);
     switch (value) {
       case ContactTypeEnum.Call:
-        console.log('Будет звонок клиенту');
         break;
       case ContactTypeEnum.DoNotCallAndReplace:
-        console.log('Замена на аналог без звонка');
         break;
       case ContactTypeEnum.DoNotCallAndDelete:
-        console.log('Удаление позиции без звонка');
         break;
     }
+  }
+
+
+  /**
+   * Можно ли изменять способ доставки?
+   * Только если статус заказа = 0 (черновик)
+   */
+  get canChangeDelivery(): boolean {
+    return this.orderData?.orderStatus === 0 || !this.orderData;
+  }
+
+  get getSelectedContactType() {
+    return this.orderData?.contactType ?? ContactTypeEnum.Call;
+  }
+
+  get orderStatus() {
+    return this.orderData?.orderStatus ?? 0;
   }
 
   // Для оптимизации отправки (дебаунс)
   private formChangeSubject = new Subject<any>();
 
-  companies: Company[] = [
-    { id: 1, name: 'ООО "Пример"', inn: '0000000000' },
-    { id: 2, name: 'ООО "Логистика"', inn: '0000000000' },
-  ];
+  companies: Company[] = [];
 
   constructor(private userService: UserService) { }
 
@@ -158,8 +170,6 @@ export class OrderFormComponent implements OnInit {
   private initializeFromOrderData(): void {
     if (!this.orderData) return;
 
-    console.log('Initializing from orderData:', this.orderData);
-
     // 1. Заполняем данные пользователя
     if (this.orderData.userInstance) {
       const user = this.orderData.userInstance;
@@ -188,7 +198,7 @@ export class OrderFormComponent implements OnInit {
         phoneNumber: user.phoneNumber
       };
 
-      if(user.firstName == null || user.lastName == null || user.email == null ||  user.phoneNumber == null) {
+      if (user.firstName == null || user.lastName == null || user.email == null || user.phoneNumber == null) {
         this.isEditing = true;
       }
     }
@@ -201,7 +211,6 @@ export class OrderFormComponent implements OnInit {
 
     // 3. Устанавливаем selectedContactType
     this.selectedContactType = this.orderData.contactType ?? ContactTypeEnum.Call;
-
     // 4. Заполняем данные о доставке после инициализации дочерних компонентов
     setTimeout(() => {
       this.initializeDeliveryData();
@@ -216,9 +225,6 @@ export class OrderFormComponent implements OnInit {
    */
   private initializeDeliveryData(): void {
     const deliveryType = this.formData.delivery;
-
-    console.log('Initializing delivery data for type:', deliveryType);
-    console.log('Order data:', this.orderData);
 
     if (deliveryType === 'pickup' && this.orderData.productPlace) {
       // Для самовывоза
@@ -388,8 +394,6 @@ export class OrderFormComponent implements OnInit {
   }
 
   onDeliveryDataChange(type: string, data: any) {
-    console.log('onDeliveryDataChange called with type:', type, 'data:', data);
-
     this.orderDelivery.emit({
       'type': type,
       'id': data.id,
@@ -402,11 +406,15 @@ export class OrderFormComponent implements OnInit {
       'type': type,
       'id': data.addressId
     };
-    this.deliveryCost.emit(data.coast);
+    if (type == 'city') {
+      this.deliveryCost.emit(data.coast);
+    } else {
+      this.deliveryCost.emit(0);
+    }
+
     // ИСПРАВЛЕНИЕ: проверяем что type содержит 'pickup' или равен 'store'
     if ((type === 'pickup' || type === 'store') && data.id) {
       this.selectedStoreId = data.id;
-      console.log('Setting selectedStoreId to:', data.id);
       this.checkAvailabilityInSelectedStore();
     }
 
@@ -432,12 +440,10 @@ export class OrderFormComponent implements OnInit {
     }
 
     this.onFormChange();
-    console.log('orderProducts', this.orderProducts)
   }
 
   getAllStores(data: any) {
     this.allStores = data;
-    console.log('allStores', data)
 
     // Если уже выбран магазин, проверяем наличие
     if (this.selectedStoreId) {
@@ -446,17 +452,14 @@ export class OrderFormComponent implements OnInit {
   }
 
   onCompanyAdded(): void {
-    console.log('Компания добавлена');
     this.onFormChange();
   }
 
   onCompanyEdited(company: any): void {
-    console.log('Компания отредактирована:', company);
     this.onFormChange();
   }
 
   onCompanyDeleted(companyId: string): void {
-    console.log('Компания удалена:', companyId);
 
     if (this.selectedCompanyId === companyId) {
       this.selectedCompanyId = null;
@@ -494,8 +497,6 @@ export class OrderFormComponent implements OnInit {
     if (this.companies.length > 1) {
       this.companies.splice(index, 1);
       this.onFormChange();
-    } else {
-      console.log('Нельзя удалить последнюю компанию');
     }
   }
 
@@ -511,23 +512,16 @@ export class OrderFormComponent implements OnInit {
    * Проверяет наличие всех товаров в выбранном магазине
    */
   private checkAvailabilityInSelectedStore(): void {
-    console.log('checkAvailabilityInSelectedStore called');
-    console.log('selectedStoreId:', this.selectedStoreId);
-    console.log('orderProducts:', this.orderProducts);
-    console.log('allStores:', this.allStores);
 
     if (!this.selectedStoreId || !this.orderProducts || this.orderProducts.length === 0 || !this.allStores || this.allStores.length === 0) {
-      console.log('Conditions not met for checking availability');
       this.availabilityCheck = null;
       return;
     }
 
     // Находим выбранный магазин
     const selectedStore = this.allStores.find(store => store.id === this.selectedStoreId);
-    console.log('selectedStore:', selectedStore);
 
     if (!selectedStore) {
-      console.log('Selected store not found');
       this.availabilityCheck = null;
       return;
     }
@@ -537,14 +531,11 @@ export class OrderFormComponent implements OnInit {
 
     // Проверяем каждый товар в корзине
     this.orderProducts.forEach(product => {
-      console.log('Checking product:', product.name, 'remains:', product.remains);
 
       // Ищем остатки этого товара в выбранном магазине
       const productRemain = product.remains?.find((remain: any) =>
         remain.productPlaceId === this.selectedStoreId
       );
-
-      console.log('productRemain for store:', productRemain);
 
       const availableQty = productRemain?.count || 0;
       const requiredQty = product.qty || 1;
@@ -567,12 +558,8 @@ export class OrderFormComponent implements OnInit {
       }
     });
 
-    console.log('availableProducts:', availableProducts);
-    console.log('unavailableProducts:', unavailableProducts);
-
     // Находим альтернативные магазины в том же городе
     const alternativeStores = this.findAlternativeStores(selectedStore.address?.city);
-    console.log('alternativeStores:', alternativeStores);
 
     // Формируем результат проверки
     this.availabilityCheck = {
@@ -583,7 +570,6 @@ export class OrderFormComponent implements OnInit {
       bestAlternativeStore: alternativeStores.length > 0 ? alternativeStores[0] : null
     };
 
-    console.log('availabilityCheck result:', this.availabilityCheck);
   }
   /**
    * Находит альтернативные магазины в том же городе с максимальным наличием товаров

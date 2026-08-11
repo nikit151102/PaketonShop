@@ -1,293 +1,463 @@
-<div class="offer-container">
-  <!-- Хедер с информацией -->
-  <div class="offer-header">
-    <div class="header-content">
-      <h1>Публичная оферта</h1>
-      <div class="offer-meta">
-        <span class="badge">Редакция действует с {{effectiveDate}}</span>
-        <span class="date">Актуально на {{currentDate | date:'dd.MM.yyyy'}}</span>
+<div class="offer-document">
+  <!-- Шапка документа -->
+  <header class="document-header">
+    <div class="company-info">
+      <h2 class="company-name">ООО «СЕРВИСМАРКЕТ»</h2>
+      <div class="company-details">
+        <span>ОГРН 1215400016952</span>
+        <span>ИНН 5406932847</span>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="action-btn print" (click)="printOffer()" title="Распечатать">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M6 9V4H18V9M6 15H4V9H20V15H18M6 19V15H18V19H6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="18" cy="12" r="1" fill="currentColor"/>
-        </svg>
-        <span>Печать</span>
-      </button>
+    <div class="document-title-block">
+      <h1 class="document-title">ПУБЛИЧНАЯ ОФЕРТА</h1>
+      <p class="document-subtitle">на заключение договора купли-продажи товаров дистанционным способом</p>
     </div>
-  </div>
-
-  <!-- Навигационное оглавление -->
-  <div class="offer-toc">
-    <h3>Содержание</h3>
-    <div class="toc-grid">
-      <button *ngFor="let section of sections" 
-              class="toc-item" 
-              [class.active]="activeSection === section.id"
-              (click)="scrollToSection(section.id)">
-        {{section.title}}
-      </button>
-    </div>
-  </div>
-
-  <!-- Основной контент -->
-  <div class="offer-content">
-    <!-- Условия продажи товаров -->
-    <section id="general" class="offer-section">
-      <div class="section-header" (click)="toggleSection('general')">
-        <h2>Условия продажи товаров</h2>
-        <span class="toggle-icon">{{sections[0].open ? '−' : '+'}}</span>
+    <div class="document-meta">
+      <div class="meta-item">
+        <span class="meta-label">Дата публикации:</span>
+        <span class="meta-value">{{effectiveDate}}</span>
       </div>
-      <div class="section-content" [class.open]="sections[0].open">
-        <p>Настоящие условия продажи товаров (далее по тексту «Условия продажи») являются публичной офертой Продавца, предлагающей заключить договор купли-продажи товаров дистанционным способом на условиях, изложенных далее.</p>
-        
-        <div class="alert alert-warning">
-          <strong>Внимание!</strong> Просим Вас внимательно ознакомиться с Условиями продажи, и если Вы не согласны с каким либо положением нижеприведенных условий, Вам предлагается отказаться от дистанционной покупки Товаров, предлагаемых к продаже Продавцом на сайте Пакетон.рф и обратиться в любой из удобных Вам магазинов «Пакетон.рф».
-        </div>
+      <div class="meta-item">
+        <span class="meta-label">Актуально на:</span>
+        <span class="meta-value">{{currentDate | date:'dd.MM.yyyy'}}</span>
+      </div>
+    </div>
+  </header>
 
-        <h3>Договор купли-продажи товаров заключается между:</h3>
-        <div class="highlight-box">
-          <p>Обществом с ограниченной ответственностью «СЕРВИСМАРКЕТ», Юр. адрес 630107 г. Новосибирск. ул. И. Севастьянова. д.9 кв.322 ОГРН 1215400016952 («Продавец») и физическим лицом, достигшим возраста 14 лет, приобретающим товары на сайте пакетон.рф (далее «Покупатель»).</p>
-        </div>
+  <!-- Оглавление -->
+  <nav class="table-of-contents">
+    <h3 class="toc-title">СОДЕРЖАНИЕ</h3>
+    <ol class="toc-list">
+      <li *ngFor="let section of sections; let i = index" 
+          class="toc-item"
+          [class.active]="activeSection === section.id">
+        <a (click)="scrollToSection(section.id)">
+          <span class="toc-number">{{i + 1}}.</span>
+          <span class="toc-text">{{section.title}}</span>
+        </a>
+      </li>
+    </ol>
+  </nav>
 
-        <h3>Термины и определения</h3>
-        <dl class="terms-list">
+  <!-- Основной текст документа -->
+  <main class="document-body">
+    <!-- Преамбула -->
+    <div class="preamble">
+      <p>
+        Настоящие условия продажи товаров (далее по тексту «Условия продажи») являются публичной офертой Продавца 
+        в соответствии со статьями 435 и 437 Гражданского кодекса Российской Федерации и предлагают заключить 
+        договор купли-продажи товаров дистанционным способом на условиях, изложенных далее.
+      </p>
+      <div class="notice-box">
+        <div class="notice-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <div class="notice-content">
+          <strong>Внимание!</strong> Просим Вас внимательно ознакомиться с Условиями продажи. 
+          Если Вы не согласны с каким-либо положением, Вам предлагается отказаться от дистанционной покупки 
+          Товаров и обратиться в любой из удобных Вам магазинов «Пакетон.рф».
+        </div>
+      </div>
+    </div>
+
+    <!-- Стороны договора -->
+    <div class="contract-parties">
+      <h3 class="parties-title">Стороны договора:</h3>
+      <div class="party-card">
+        <div class="party-label">Продавец:</div>
+        <div class="party-info">
+          <strong>Общество с ограниченной ответственностью «СЕРВИСМАРКЕТ»</strong>
+          <p>Юридический адрес: 630107, г. Новосибирск, ул. И. Севастьянова, д. 9, кв. 322</p>
+          <p>ОГРН 1215400016952</p>
+        </div>
+      </div>
+      <div class="party-card">
+        <div class="party-label">Покупатель:</div>
+        <div class="party-info">
+          <strong>Физическое лицо</strong>
+          <p>достигшее возраста 14 лет, приобретающее товары на сайте пакетон.рф</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Раздел 1: Условия продажи товаров -->
+    <section id="general" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">1.</span>
+        Условия продажи товаров
+      </h2>
+      
+      <h3 class="subsection-title">1.1. Термины и определения</h3>
+      <dl class="definitions">
+        <div class="definition-item">
           <dt>Сайт</dt>
           <dd>— Пакетон.рф</dd>
-          
+        </div>
+        <div class="definition-item">
           <dt>Интернет-магазин</dt>
-          <dd>— раздел сайта Пакетон.рф на котором Покупатель зарегистрированный в нем, может ознакомиться с представленными для продажи Товарами, их описанием и ценами, выбрать определённый Товар, выбрать способ оплаты и доставки Товаров, непосредственно в нём сделать и оплатить Заказ или сделать запрос на Заказ воспользовавшись указанными в нем адресом электронной почты или телефонным номером.</dd>
-          
+          <dd>— раздел сайта Пакетон.рф, на котором Покупатель, зарегистрированный в нем, может ознакомиться 
+          с представленными для продажи Товарами, их описанием и ценами, выбрать определённый Товар, 
+          выбрать способ оплаты и доставки Товаров, непосредственно в нём сделать и оплатить Заказ или 
+          сделать запрос на Заказ, воспользовавшись указанными в нем адресом электронной почты или телефонным номером.</dd>
+        </div>
+        <div class="definition-item">
           <dt>Товары</dt>
-          <dd>— продукция, предлагаемая к продаже Продавцом на территории Российской Федерации в Интернет- магазине.</dd>
-          
+          <dd>— продукция, предлагаемая к продаже Продавцом на территории Российской Федерации в Интернет-магазине.</dd>
+        </div>
+        <div class="definition-item">
           <dt>Заказ</dt>
-          <dd>— оформленный запрос Покупателя на покупку и доставку по указанному в запросе адресу/самовывоз Товаров, выбранных в Интернет-магазине, отправленный посредством сети Интернет и/или сообщенный Покупателем Продавцу по телефону</dd>
-          
+          <dd>— оформленный запрос Покупателя на покупку и доставку по указанному в запросе адресу/самовывоз 
+          Товаров, выбранных в Интернет-магазине, отправленный посредством сети Интернет и/или сообщенный 
+          Покупателем Продавцу по телефону.</dd>
+        </div>
+        <div class="definition-item">
           <dt>Предложение Продавца</dt>
           <dd>— информация о Товарах, предлагаемых к продаже в Интернет-магазине.</dd>
-          
+        </div>
+        <div class="definition-item">
           <dt>Акция</dt>
-          <dd>— Предложение Продавца, содержащее информацию о скидках, подарках, иных особых условиях приобретения Товаров.</dd>
-          
+          <dd>— Предложение Продавца, содержащее информацию о скидках, подарках, иных особых условиях 
+          приобретения Товаров.</dd>
+        </div>
+        <div class="definition-item">
           <dt>Подарок</dt>
-          <dd>— любой товар по усмотрению Продавца, предлагаемый Продавцом в качестве бонуса к заказу Покупателя, оформляемому согласно условиям Специального предложения.</dd>
-        </dl>
+          <dd>— любой товар по усмотрению Продавца, предлагаемый Продавцом в качестве бонуса к заказу 
+          Покупателя, оформляемому согласно условиям Специального предложения.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- Раздел 2: Общие положения -->
+    <section id="general-provisions" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">2.</span>
+        Общие положения
+      </h2>
+      
+      <ol class="numbered-list">
+        <li>Все Предложения продавца действительны исключительно на территории Российской Федерации 
+        и распространяются на товары, которые есть в наличии на складе Продавца.</li>
+        <li>Информация о наличии товаров указывается на странице каждого отдельного товара.</li>
+        <li>Срок действия Специальных предложений устанавливается Продавцом.</li>
+        <li>Все Специальные предложения действительны в отношении Товаров и Подарков, 
+        имеющихся в наличии на складе Продавца.</li>
+        <li>В случае отсутствия на складе Продавца Подарка по Специальному предложению, 
+        Продавец имеет право в одностороннем порядке заменять без уведомления Покупателя 
+        первоначально предложенный Подарок на другой Подарок, имеющийся в наличии у Продавца.</li>
+      </ol>
+
+      <div class="important-box">
+        <div class="important-badge">Важно</div>
+        <p>Срок годности Товаров составляет не менее 3 (трех) месяцев с даты их отправки Покупателю. 
+        Срок годности Товаров с пометкой «Акция» или «Специальное предложение» может составлять 
+        менее 3 (трех) месяцев с даты их отправки Покупателю.</p>
       </div>
     </section>
 
-    <!-- Общие положения -->
-    <section id="general-provisions" class="offer-section">
-      <div class="section-header" (click)="toggleSection('general-provisions')">
-        <h2>Общие положения</h2>
-        <span class="toggle-icon">{{sections[0].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[0].open">
-        <ul class="provisions-list">
-          <li>Все Предложения продавца действительны исключительно на территории Российской Федерации и распространяются на товары, которые есть в наличии на складе Продавца.</li>
-          <li>Информация о наличии товаров указывается на странице каждого отдельного товара.</li>
-          <li>Срок действия Специальных предложений устанавливается Продавцом.</li>
-          <li>Все Специальные предложения действительны в отношении Товаров и Подарков, имеющихся в наличии на складе Продавца.</li>
-          <li>В случае отсутствия на складе Продавца Подарка по Специальному предложению, Продавец имеет право в одностороннем порядке заменять без уведомления Покупателя первоначально предложенный Подарок на другой Подарок, имеющийся в наличии у Продавца.</li>
-        </ul>
+    <!-- Раздел 3: Цены и сумма заказа -->
+    <section id="prices" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">3.</span>
+        Цены и сумма заказа
+      </h2>
+      
+      <ol class="numbered-list">
+        <li>Цены на Товары обозначены в рублях РФ, включая НДС 22% и без учета стоимости доставки.</li>
+        <li>Цена на услуги по доставке товаров также может включать НДС.</li>
+        <li>Цены на сайте могут меняться Продавцом без дополнительного уведомления Покупателя 
+        до момента получения от Покупателя сообщения о его намерении приобрести товар, 
+        которым является нажатие Покупателем кнопки «Заказать».</li>
+      </ol>
 
-        <div class="mark-box">
-          <span class="mark-badge">Важно</span>
-          <p>Срок годности Товаров составляет не менее 3 (трех) месяцев с даты их отправки Покупателю. Срок годности Товаров с пометкой «Акция» или «Специальное предложение» может составлять менее 3 (трех) месяцев с даты их отправки Покупателю.</p>
-        </div>
-      </div>
+      <h3 class="subsection-title">3.1. Процедура оформления заказа</h3>
+      <ol class="procedure-list">
+        <li>Выбрать товар</li>
+        <li>Выбрать адрес и способ доставки</li>
+        <li>Указать фамилию, имя, отчество (при наличии) получателя</li>
+        <li>Выбрать способ оплаты</li>
+        <li>Согласиться с условиями настоящей Оферты</li>
+        <li>Согласиться с условиями Политики защиты данных</li>
+        <li>Нажать кнопку "Заказать"</li>
+      </ol>
+
+      <p class="section-text">
+        С момента получения от Покупателя сообщения о его намерении приобрести товар на условиях предоплаты, 
+        цены в заказе Покупателя фиксируются на 24 часа, в течение которых он имеет право оплатить заказ 
+        по зафиксированной цене.
+      </p>
     </section>
 
-    <!-- Цены и сумма заказа -->
-    <section id="prices" class="offer-section">
-      <div class="section-header" (click)="toggleSection('prices')">
-        <h2>Цены и сумма заказа</h2>
-        <span class="toggle-icon">{{sections[1].open ? '−' : '+'}}</span>
+    <!-- Раздел 4: Оформление и оплата заказа -->
+    <section id="order" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">4.</span>
+        Оформление и оплата заказа
+      </h2>
+      
+      <h3 class="subsection-title">4.1. Общие положения по оформлению заказов</h3>
+      <p class="section-text">
+        Оформив заказ, Вы извещаете Продавца о своем полном и безоговорочном согласии с содержанием заказа 
+        и выражаете безоговорочное согласие на заключение договора купли-продажи на действующих Условиях продажи.
+      </p>
+
+      <div class="highlight-box">
+        <p>Для оформления заказа в Интернет-магазине Пакетон.рф Покупателю необходимо авторизоваться: 
+        ввести свой логин (электронную почту) и пароль в специальную форму при каждом оформлении 
+        нового заказа на Сайте.</p>
       </div>
-      <div class="section-content" [class.open]="sections[1].open">
-        <ul class="prices-list">
-          <li>Цены на Товары обозначены в рублях РФ, включая НДС 22% и без учета стоимости доставки.</li>
-          <li>Цена на услуги по доставке товаров также могут включать НДС.</li>
-          <li>Цены на сайте могут меняться Продавцом без дополнительного уведомления Покупателя, до момента получения от Покупателя сообщения о его намерении приобрести товар, которым является нажатие Покупателем кнопки «Заказать».</li>
-        </ul>
 
-        <div class="info-box">
-          <h4>Процедура оформления заказа:</h4>
-          <ol>
-            <li>Выбрать товар</li>
-            <li>Выбрать адрес и способ доставки</li>
-            <li>Указать фамилию, имя, отчество (при наличии) получателя</li>
-            <li>Выбрать способ оплаты</li>
-            <li>Согласиться с условиями настоящей Оферты</li>
-            <li>Согласиться с условиями Политики защиты данных</li>
-            <li>Нажать кнопку "Заказать"</li>
-          </ol>
-        </div>
-
-        <p>С момента получения от Покупателя сообщения о его намерении приобрести товар на условиях предоплаты, цены в заказе Покупателя фиксируются на 24 часа, в течение которых он имеет право оплатить заказ по зафиксированной цене.</p>
-      </div>
-    </section>
-
-    <!-- Оформление и оплата заказа -->
-    <section id="order" class="offer-section">
-      <div class="section-header" (click)="toggleSection('order')">
-        <h2>Оформление и оплата заказа</h2>
-        <span class="toggle-icon">{{sections[2].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[2].open">
-        <h3>Общие положения по оформлению заказов</h3>
-        <p>Оформив заказ, Вы извещаете Продавца о своем полном и безоговорочном согласии с содержанием заказа и выражаете безоговорочное согласие на заключение договора купли-продажи на действующих Условиях продажи.</p>
-        
-        <div class="highlight-box">
-          <p>Для оформления заказа в Интернет-магазине Пакетон.рф Покупателю необходимо авторизоваться: ввести свой логин (электронную почту) и пароль в специальную форму при каждом оформлении нового заказа на Сайте.</p>
-        </div>
-
-        <h3>Способы оплаты</h3>
-        <div class="payment-methods">
-          <div class="payment-method">
-            <span class="method-icon">💳</span>
-            <span>ПAO «Сбербанк» — по банковским картам (VISA International, Mastercard Worldwide, МИР)</span>
+      <h3 class="subsection-title">4.2. Способы оплаты</h3>
+      <div class="payment-grid">
+        <div class="payment-card">
+          <div class="payment-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
           </div>
-          <div class="payment-method">
-            <span class="method-icon">🏦</span>
-            <span>Альфа-Клик</span>
-          </div>
-          <div class="payment-method">
-            <span class="method-icon">💵</span>
-            <span>Яндекс.Касса — наличными через терминалы, банкоматы Сбербанка</span>
+          <div class="payment-info">
+            <strong>Банковские карты</strong>
+            <p>VISA, Mastercard, МИР через ПАО «Сбербанк»</p>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Доставка заказа -->
-    <section id="delivery" class="offer-section">
-      <div class="section-header" (click)="toggleSection('delivery')">
-        <h2>Доставка заказа</h2>
-        <span class="toggle-icon">{{sections[4].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[4].open">
-        <h3>Курьерские службы</h3>
-        <div class="delivery-services">
-          <span class="service-tag">DPD</span>
-          <span class="service-tag">СДЭК</span>
-          <span class="service-tag">Боксберри</span>
-          <span class="service-tag">ОЗОН</span>
-        </div>
-
-        <p>Доставка заказа по адресу, указанному Покупателем, осуществляется курьерскими службами ЗАО «Армадилло Бизнес Посылка» (DPD); ООО «СДЭК-Союз» (СДЭК); ООО "Боксберри.ру" (Боксберри); ООО "Интернет Решения" (ОЗОН).</p>
-        
-        <p>География доставки определяется самой курьерской службой и может быть изменена без предварительного уведомления Покупателя.</p>
-        
-        <p>Продавец передает заказ на терминал курьерской службы в г. Барнаул в течение 2 рабочих дней после подтверждения заказа менеджером, не считая день получения заказа от Покупателя.</p>
-        
-        <div class="info-box">
-          <p>Когда заказ будет доставлен в постамат, Вам придет смс с номером постамата и кодом. Срок хранения заказа в постамате 4 дня.</p>
-        </div>
-
-        <h4>Контакты для продления срока хранения:</h4>
-        <div class="contacts-grid">
-          <div class="contact-card">
-            <strong>DPD:</strong>
-            <a href="tel:88002504434">8 800 250 44 34</a>
+        <div class="payment-card">
+          <div class="payment-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
           </div>
-          <div class="contact-card">
-            <strong>СДЭК:</strong>
-            <a href="tel:74950090405">+7 495 009 04 05</a>
+          <div class="payment-info">
+            <strong>Альфа-Клик</strong>
+            <p>Интернет-банк Альфа-Банк</p>
           </div>
-          <div class="contact-card">
-            <strong>Горячая линия:</strong>
-            <a href="tel:79039373110">+7 903 937 31 10</a>
+        </div>
+        <div class="payment-card">
+          <div class="payment-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="payment-info">
+            <strong>Яндекс.Касса</strong>
+            <p>Наличными через терминалы и банкоматы</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Возврат товара -->
-    <section id="return" class="offer-section">
-      <div class="section-header" (click)="toggleSection('return')">
-        <h2>Возврат товара</h2>
-        <span class="toggle-icon">{{sections[5].open ? '−' : '+'}}</span>
+    <!-- Раздел 5: Доставка заказа -->
+    <section id="delivery" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">5.</span>
+        Доставка заказа
+      </h2>
+      
+      <h3 class="subsection-title">5.1. Курьерские службы</h3>
+      <p class="section-text">
+        Доставка заказа по адресу, указанному Покупателем, осуществляется следующими курьерскими службами:
+      </p>
+      
+      <div class="delivery-grid">
+        <div class="delivery-card">
+          <strong>DPD</strong>
+          <span>ЗАО «Армадилло Бизнес Посылка»</span>
+        </div>
+        <div class="delivery-card">
+          <strong>СДЭК</strong>
+          <span>ООО «СДЭК-Союз»</span>
+        </div>
+        <div class="delivery-card">
+          <strong>Боксберри</strong>
+          <span>ООО «Боксберри.ру»</span>
+        </div>
+        <div class="delivery-card">
+          <strong>ОЗОН</strong>
+          <span>ООО «Интернет Решения»</span>
+        </div>
       </div>
-      <div class="section-content" [class.open]="sections[5].open">
-        <div class="return-types">
-          <div class="return-type">
-            <h3>Возврат товаров надлежащего качества</h3>
-            <p>В соответствии с Законом РФ от 07.02.1992 N 2300-1 "О защите прав потребителей" Покупатель вправе отказаться от Товара в любое время до его передачи, а после передачи товара - в течение 7 дней.</p>
-            <p>Возврат Товара надлежащего качества возможен в случае, если сохранены его товарный вид, потребительские свойства, а также документ, подтверждающий факт и условия покупки указанного Товара.</p>
-          </div>
 
-          <div class="return-type">
-            <h3>Возврат товаров ненадлежащего качества</h3>
-            <p>Товар ненадлежащего качества - это товар, содержащий недостатки.</p>
-            
-            <h4>Покупатель вправе требовать:</h4>
-            <ul>
-              <li>безвозмездного устранения недостатков товара или возмещения расходов на их исправление</li>
-              <li>соразмерного уменьшения покупной цены</li>
-              <li>замены на товар аналогичной марки или на такой же товар другой марки с соответствующим перерасчетом покупной цены</li>
-              <li>отказаться от исполнения договора и потребовать возврата уплаченной за товар средств</li>
-            </ul>
-          </div>
+      <p class="section-text">
+        География доставки определяется самой курьерской службой и может быть изменена 
+        без предварительного уведомления Покупателя.
+      </p>
+
+      <p class="section-text">
+        Продавец передает заказ на терминал курьерской службы в г. Барнаул в течение 
+        2 рабочих дней после подтверждения заказа менеджером, не считая день получения 
+        заказа от Покупателя.
+      </p>
+
+      <div class="info-box">
+        <p>Когда заказ будет доставлен в постамат, Вам придет смс с номером постамата и кодом. 
+        Срок хранения заказа в постамате — 4 дня.</p>
+      </div>
+
+      <!-- <h3 class="subsection-title">5.2. Контакты для продления срока хранения</h3>
+      <div class="contacts-table">
+        <div class="contact-row">
+          <span class="contact-name">DPD:</span>
+          <a href="tel:88002504434" class="contact-link">8 800 250 44 34</a>
+        </div>
+        <div class="contact-row">
+          <span class="contact-name">СДЭК:</span>
+          <a href="tel:74950090405" class="contact-link">+7 495 009 04 05</a>
+        </div>
+        <div class="contact-row">
+          <span class="contact-name">Горячая линия:</span>
+          <a href="tel:79039373110" class="contact-link">+7 903 937 31 10</a>
+        </div>
+      </div> -->
+    </section>
+
+    <!-- Раздел 6: Возврат товара -->
+    <section id="return" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">6.</span>
+        Возврат товара
+      </h2>
+      
+      <h3 class="subsection-title">6.1. Возврат товаров надлежащего качества</h3>
+      <p class="section-text">
+        В соответствии с Законом РФ от 07.02.1992 N 2300-1 "О защите прав потребителей" 
+        Покупатель вправе отказаться от Товара в любое время до его передачи, а после передачи 
+        товара — в течение 7 дней.
+      </p>
+      <p class="section-text">
+        Возврат Товара надлежащего качества возможен в случае, если сохранены его товарный вид, 
+        потребительские свойства, а также документ, подтверждающий факт и условия покупки 
+        указанного Товара.
+      </p>
+
+      <h3 class="subsection-title">6.2. Возврат товаров ненадлежащего качества</h3>
+      <p class="section-text">
+        Товар ненадлежащего качества — это товар, содержащий недостатки.
+      </p>
+      
+      <h4 class="subsection-subtitle">Покупатель вправе требовать:</h4>
+      <ul class="rights-list">
+        <li>безвозмездного устранения недостатков товара или возмещения расходов на их исправление;</li>
+        <li>соразмерного уменьшения покупной цены;</li>
+        <li>замены на товар аналогичной марки или на такой же товар другой марки 
+        с соответствующим перерасчетом покупной цены;</li>
+        <li>отказаться от исполнения договора и потребовать возврата уплаченной за товар средств.</li>
+      </ul>
+    </section>
+
+    <!-- Раздел 7: Возврат денежных средств -->
+    <section id="refund" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">7.</span>
+        Возврат денежных средств
+      </h2>
+      
+      <p class="section-text">
+        Возврат переведенных средств производится на Ваш банковский счет в течение 10 дней 
+        (иной срок может зависеть от условий работы Банка Покупателя).
+      </p>
+
+      <h3 class="subsection-title">7.1. Способы направления требования о возврате</h3>
+      <ul class="refund-list">
+        <li>
+          <strong>Письменное требование</strong>
+          <span>в возвращаемом отправлении</span>
+        </li>
+        <li>
+          <strong>По телефону:</strong>
+          <a href="tel:79050845188">+7 905 084-51-88</a>
+        </li>
+        <li>
+          <strong>По email:</strong>
+          <a href="mailto:paketon@bk.ru">paketon&#64;bk.ru</a>
+        </li>
+        <li>
+          <strong>Почтой:</strong>
+          <span>656057 г. Барнаул, а/я 2468 ООО «Сервисмаркет»</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Раздел 8: Персональные данные -->
+    <section id="personal" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">8.</span>
+        Персональные данные
+      </h2>
+      
+      <p class="section-text">
+        Обработка персональных данных осуществляется на условиях, изложенных в Политике защиты данных, 
+        размещенных на Сайте.
+      </p>
+      <p class="section-text">
+        Покупатель гарантирует верность и полноту своих персональных данных на дату их предоставления 
+        Продавцу и обязуется своевременно извещать Продавца об их изменении.
+      </p>
+    </section>
+
+    <!-- Раздел 9: Прочее -->
+    <section id="other" class="document-section">
+      <h2 class="section-title">
+        <span class="section-number">9.</span>
+        Прочее
+      </h2>
+      
+      <p class="section-text">
+        Продавец вправе в любой момент в одностороннем порядке изменять Условия продажи при условии 
+        надлежащего уведомления Покупателя. Надлежащим уведомлением Покупателя является размещение 
+        информации на сайте Пакетон.рф.
+      </p>
+    </section>
+
+    <!-- Контактная информация -->
+    <section class="contact-section">
+      <h2 class="section-title">Контактная информация</h2>
+      <div class="contact-info-grid">
+        <div class="contact-info-item">
+          <span class="contact-label">Адрес для претензий:</span>
+          <span class="contact-value">656057 г. Барнаул, а/я 2468 ООО «Сервисмаркет»</span>
+        </div>
+        <div class="contact-info-item">
+          <span class="contact-label">Телефон для справок:</span>
+          <a href="tel:79050845188" class="contact-value">+7 905 084-51-88</a>
+        </div>
+        <div class="contact-info-item">
+          <span class="contact-label">Email:</span>
+          <a href="mailto:paketon@bk.ru" class="contact-value">paketon&#64;bk.ru</a>
+        </div>
+        <div class="contact-info-item">
+          <span class="contact-label">Сайт:</span>
+          <a href="https://пакетон.рф" class="contact-value">пакетон.рф</a>
         </div>
       </div>
     </section>
 
-    <!-- Возврат денежных средств -->
-    <section id="refund" class="offer-section">
-      <div class="section-header" (click)="toggleSection('refund')">
-        <h2>Возврат денежных средств</h2>
-        <span class="toggle-icon">{{sections[6].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[6].open">
-        <p>Возврат переведенных средств производится на Ваш банковский счет в течение 10 дней (иной срок может зависеть от условий работы Банка Покупателя).</p>
-        
-        <h3>Способы направления требования о возврате:</h3>
-        <ul class="refund-methods">
-          <li>Письменное требование в возвращаемом отправлении</li>
-          <li>По телефону: <a href="tel:79050845188">+7 905 084-51-88</a></li>
-          <li>По email: <a href="mailto:paketon@bk.ru">paketon&#64;bk.ru</a></li>
-          <li>Почтой: 656057 г. Барнаул, а/я 2468 ООО «Сервисмаркет»</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Персональные данные -->
-    <section id="personal" class="offer-section">
-      <div class="section-header" (click)="toggleSection('personal')">
-        <h2>Персональные данные</h2>
-        <span class="toggle-icon">{{sections[7].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[7].open">
-        <p>Обработка персональных данных осуществляется на условиях, изложенных в Политике защиты данных размещенных на Сайте.</p>
-        <p>Покупатель гарантирует верность и полноту своих персональных данных на дату их предоставления Продавцу и обязуется своевременно извещать Продавца об их изменении.</p>
-      </div>
-    </section>
-
-    <!-- Прочее -->
-    <section id="other" class="offer-section">
-      <div class="section-header" (click)="toggleSection('other')">
-        <h2>Прочее</h2>
-        <span class="toggle-icon">{{sections[8].open ? '−' : '+'}}</span>
-      </div>
-      <div class="section-content" [class.open]="sections[8].open">
-        <p>Продавец вправе в любой момент в одностороннем порядке изменять Условия продажи при условии надлежащего уведомления Покупателя. Надлежащим уведомлением Покупателя является размещение информации на сайте Пакетон.рф.</p>
-        
-        <div class="contacts-block">
-          <h3>Контактная информация</h3>
-          <p><strong>Адрес для претензий:</strong> 656057 г. Барнаул, а/я 2468 ООО «Сервисмаркет»</p>
-          <p><strong>Телефон для справок:</strong> <a href="tel:79050845188">+7 905 084-51-88</a></p>
+    <!-- Подпись -->
+    <!-- <footer class="document-footer">
+      <div class="signature-block">
+        <div class="signature-line">
+          <span class="signature-placeholder"></span>
+          <span class="signature-label">Генеральный директор ООО «СЕРВИСМАРКЕТ»</span>
+        </div>
+        <div class="signature-date">
+          <span>«___» _____________ 2026 г.</span>
         </div>
       </div>
-    </section>
-  </div>
+      <div class="document-stamp">
+        <p>Настоящий документ вступает в силу с момента его публикации на сайте Пакетон.рф 
+        и действует бессрочно до момента его замены новым документом.</p>
+      </div>
+    </footer> -->
+  </main>
 
   <!-- Кнопка "Наверх" -->
-  <button class="scroll-top" *ngIf="showScrollTop" (click)="scrollToTop()" title="Наверх">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 5L12 19M12 5L18 11M12 5L6 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <button class="scroll-top-btn" *ngIf="showScrollTop" (click)="scrollToTop()" title="Вернуться в начало">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="18 15 12 9 6 15"/>
     </svg>
   </button>
 </div>

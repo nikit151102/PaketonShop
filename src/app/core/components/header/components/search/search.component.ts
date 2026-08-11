@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, catchError, of, tap, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, catchError, of, tap, takeUntil, filter } from 'rxjs';
 import { ProductInstance, ProductsService, SearchRequest } from '../../../../services/products.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 
 interface AutocompleteProduct {
   id: string;
+  barcode?: any
   name: string;
   sku: string;
   image: string;
@@ -71,11 +72,27 @@ export class SearchComponent implements OnInit, OnDestroy {
   constructor(
     private elementRef: ElementRef,
     private productsService: ProductsService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
     this.setupAutocomplete();
+
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.autocompleteResults = [];
+      this.isInputFocused = false;
+      this.cdr.detectChanges();
+    });
+
+    this.searchQuery = '';
+    this.autocompleteResults = [];
+    this.isInputFocused = false;
+    this.isLoading = false;
+    this.errorMessage = '';
   }
 
   ngOnDestroy() {
@@ -86,86 +103,86 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.removeScrollListener();
   }
 
-private setupAutocomplete() {
-  this.searchSubject.pipe(
-    debounceTime(300),
-    // Убираем лишнюю проверку на пробелы
-    distinctUntilChanged(), // Простое сравнение строк работает корректно
-    tap((query) => {
-      // Проверяем длину после trim, но запоминаем что ищем
-      const trimmedQuery = query?.trim() || '';
-      
-      if (trimmedQuery.length >= 2 || query?.includes(' ')) {
-        // Если есть пробелы или достаточно символов - ищем
-        this.resetAutocomplete();
-        this.isLoading = true;
-        this.errorMessage = '';
-      } else if (trimmedQuery.length === 0 && !query?.includes(' ')) {
-        // Только если строка действительно пустая (не содержит пробелов)
-        this.autocompleteResults = [];
-        this.isLoading = false;
-      }
-      // Если есть пробелы, но мало символов - не очищаем результаты
-    }),
-    switchMap(query => {
-      // Всегда передаём оригинальный query в сервис
-      if (!query || (query.trim().length < 2 && !query.includes(' '))) {
-        return of(null);
-      }
+  private setupAutocomplete() {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      // Убираем лишнюю проверку на пробелы
+      distinctUntilChanged(), // Простое сравнение строк работает корректно
+      tap((query) => {
+        // Проверяем длину после trim, но запоминаем что ищем
+        const trimmedQuery = query?.trim() || '';
 
-      const searchRequest: SearchRequest = {
-        filters: [
-          {
-            field: 'searchQuery',
-            values: [query], // Используем оригинальный query с пробелами
-            type: 0
-          },
-          ...this.buildFilterParams()
-        ],
-        page: 0,
-        pageSize: this.pageSize
-      };
-
-      return this.productsService.searchAutocomplete(searchRequest).pipe(
-        catchError(error => {
-          console.error('Ошибка автокомплита:', error);
-          this.errorMessage = 'Не удалось загрузить подсказки';
+        if (trimmedQuery.length >= 2 || query?.includes(' ')) {
+          // Если есть пробелы или достаточно символов - ищем
+          this.resetAutocomplete();
+          this.isLoading = true;
+          this.errorMessage = '';
+        } else if (trimmedQuery.length === 0 && !query?.includes(' ')) {
+          // Только если строка действительно пустая (не содержит пробелов)
+          this.autocompleteResults = [];
           this.isLoading = false;
+        }
+        // Если есть пробелы, но мало символов - не очищаем результаты
+      }),
+      switchMap(query => {
+        // Всегда передаём оригинальный query в сервис
+        if (!query || (query.trim().length < 2 && !query.includes(' '))) {
           return of(null);
-        })
-      );
-    }),
-    takeUntil(this.destroy$)
-  ).subscribe((response: any) => {
-    this.isLoading = false;
-    if (response?.data) {
-      this.totalAutocompleteResults = response.total || response.data.length;
-      this.autocompleteResults = this.mapAutocompleteResults(response.data);
-      console.log('autocompleteResults',this.autocompleteResults)
-      this.hasMoreAutocomplete = response.data.length === this.pageSize;
+        }
 
-      setTimeout(() => this.setupScrollListener(), 100);
-    } else if (this.searchQuery?.includes(' ') && this.searchQuery.trim().length < 2) {
-      // Если в строке только пробелы или пробел + 1 символ, показываем предыдущие результаты
-      // или просто не очищаем
-    }
-  });
-}
+        const searchRequest: SearchRequest = {
+          filters: [
+            {
+              field: 'searchQuery',
+              values: [query], // Используем оригинальный query с пробелами
+              type: 0
+            },
+            ...this.buildFilterParams()
+          ],
+          page: 0,
+          pageSize: this.pageSize
+        };
 
-private setupScrollListener() {
-  this.removeScrollListener();
+        return this.productsService.searchAutocomplete(searchRequest).pipe(
+          catchError(error => {
+            this.errorMessage = 'Не удалось загрузить подсказки';
+            this.isLoading = false;
+            return of(null);
+          })
+        );
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe((response: any) => {
+      this.isLoading = false;
+      if (response?.data) {
+        this.totalAutocompleteResults = response.total || response.data.length;
+        this.autocompleteResults = this.mapAutocompleteResults(response.data);
+        this.hasMoreAutocomplete = response.data.length === this.pageSize;
 
-  // Используем autocompleteList вместо autocompleteDropdown
-  const listElement = this.autocompleteList?.nativeElement;
-  if (!listElement) return;
+        this.cdr.detectChanges();
 
-  const onScroll = (event: Event) => {
-    this.onAutocompleteScroll(event);
-  };
+        setTimeout(() => this.setupScrollListener(), 100);
+      } else if (this.searchQuery?.includes(' ') && this.searchQuery.trim().length < 2) {
+        // Если в строке только пробелы или пробел + 1 символ, показываем предыдущие результаты
+        // или просто не очищаем
+      }
+    });
+  }
 
-  listElement.addEventListener('scroll', onScroll, { passive: true });
-  this.autocompleteScrollListener = () => listElement.removeEventListener('scroll', onScroll);
-}
+  private setupScrollListener() {
+    this.removeScrollListener();
+
+    // Используем autocompleteList вместо autocompleteDropdown
+    const listElement = this.autocompleteList?.nativeElement;
+    if (!listElement) return;
+
+    const onScroll = (event: Event) => {
+      this.onAutocompleteScroll(event);
+    };
+
+    listElement.addEventListener('scroll', onScroll, { passive: true });
+    this.autocompleteScrollListener = () => listElement.removeEventListener('scroll', onScroll);
+  }
 
   private removeScrollListener() {
     if (this.autocompleteScrollListener) {
@@ -238,6 +255,7 @@ private setupScrollListener() {
   private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
     return products.map(product => ({
       id: product.id,
+      barcode: product.productBarCode?.id,
       name: product.fullName || product.name,
       sku: product.article || product.sku,
       image: this.getProductImage(product),
@@ -253,12 +271,12 @@ private setupScrollListener() {
     }
     // Генерируем плейсхолдер с первой буквой артикула
     const letter = product.article?.charAt(0) || 'P';
-    return `https://via.placeholder.com/60x60/327120/ffffff?text=${letter}`;
+    return `no-image.png`;
   }
 
   handleImageError(event: Event) {
     const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/60x60/e2e8f0/64748b?text=No+Image';
+    img.src = 'no-image.png';
   }
 
   // Кастомный скролл для подгрузки
@@ -304,7 +322,6 @@ private setupScrollListener() {
 
     this.productsService.searchAutocomplete(searchRequest).pipe(
       catchError(error => {
-        console.error('Ошибка загрузки автокомплита:', error);
         this.errorMessage = 'Ошибка при загрузке';
         this.isLoadingMore = false;
 
@@ -328,6 +345,8 @@ private setupScrollListener() {
         if (response.total) {
           this.totalAutocompleteResults = response.total;
         }
+
+        this.cdr.detectChanges();
       }
     });
   }
@@ -379,8 +398,6 @@ private setupScrollListener() {
   }
 
   applyFilters() {
-    console.log('Фильтры применены:', this.filters, this.selectedBrands);
-
     // Сбрасываем автокомплит и запускаем новый поиск
     this.resetAutocomplete();
     this.performSearch();
@@ -409,7 +426,6 @@ private setupScrollListener() {
 
   private showNotification(message: string) {
     // Здесь можно добавить уведомление
-    console.log(message);
   }
 
   clearSearch() {
@@ -419,20 +435,21 @@ private setupScrollListener() {
     this.searchInput.nativeElement.focus();
   }
 
-onSearch() {
-  // Принудительно обновляем модель из DOM, если нужно
-  if (this.searchInput && this.searchInput.nativeElement) {
-    const domValue = this.searchInput.nativeElement.value;
-    if (domValue !== this.searchQuery) {
-      this.searchQuery = domValue;
+  onSearch() {
+    // Принудительно обновляем модель из DOM, если нужно
+    if (this.searchInput && this.searchInput.nativeElement) {
+      const domValue = this.searchInput.nativeElement.value;
+      if (domValue !== this.searchQuery) {
+        this.searchQuery = domValue;
+      }
     }
+
+    this.searchSubject.next(this.searchQuery);
   }
-  
-  this.searchSubject.next(this.searchQuery);
-}
 
   onInputFocus() {
     this.isInputFocused = true;
+    this.cdr.detectChanges();
 
     // Если есть результаты и запрос, показываем их
     const trimmedQuery = this.searchQuery?.trim() || '';
@@ -442,13 +459,21 @@ onSearch() {
   }
 
   onInputBlur() {
-    // Задержка для возможности клика по автокомплиту
+    const activeElement = document.activeElement;
     setTimeout(() => {
-      if (!this.isElementFocused(this.autocompleteDropdown?.nativeElement)) {
+      if (!this.elementRef.nativeElement.contains(activeElement)) {
         this.isInputFocused = false;
         this.removeScrollListener();
+        this.cdr.detectChanges();
       }
     }, 200);
+  }
+
+  navigateToSearch() {
+    if(this.searchQuery && this.searchQuery != null)
+    this.router.navigate(['/category/search'], {
+      queryParams: { searchQuery: this.searchQuery }
+    });
   }
 
   private isElementFocused(element: HTMLElement): boolean {
@@ -487,14 +512,13 @@ onSearch() {
     this.productsService.searchProducts(searchRequest).subscribe({
       next: (response: any) => {
         this.isLoading = false;
-        
+
         // Показываем количество результатов
         if (response.total) {
           this.showNotification(`Найдено ${response.total} товаров`);
         }
       },
       error: (error: any) => {
-        console.error('Ошибка поиска:', error);
         this.errorMessage = 'Ошибка при выполнении поиска';
         this.isLoading = false;
 
@@ -518,13 +542,19 @@ onSearch() {
     return params;
   }
 
-  selectItem(item: AutocompleteProduct) {
-    this.searchQuery = item.name;
+  selectItem(event: Event, item: AutocompleteProduct) {
+    event.preventDefault();
+    event.stopPropagation();
+
     this.autocompleteResults = [];
     this.isInputFocused = false;
     this.removeScrollListener();
     this.searchQuery = '';
-    this.router.navigate(['/product', item.id]);
+    this.searchSubject.next('');
+
+    if (item.barcode) {
+      this.router.navigate(['/product', item.barcode]);
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -538,7 +568,8 @@ onSearch() {
       target.closest('.search-bar__input') ||
       target.closest('.search-bar__submit') ||
       target.closest('.search-bar__filter') ||
-      target.closest('.filters-panel')) {
+      target.closest('.filters-panel') ||
+      target.closest('.autocomplete-dropdown')) {
       return;
     }
 

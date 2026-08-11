@@ -115,15 +115,11 @@ export class NicheProductsComponent implements OnInit {
       .subscribe({
         next: (data: any) => {
           this.nicheData = data.data;
-          console.log('nicheData', this.nicheData)
-          console.log('subCategories', data.data?.subCategories)
           // this.filters = this.categoryData.properties
           this.subCategories = data.data?.subCategories || [];
           this.updateVisibleCategories(); // Обновляем видимые категории после загрузки
         },
-        error: (err) => {
-          console.error('Ошибка загрузки категории:', err);
-        }
+        error: (err) =>  {}
       });
   }
 

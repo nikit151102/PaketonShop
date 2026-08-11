@@ -12,10 +12,12 @@ import { PaymentService } from '../../../../core/api/payment.service';
 import { PaymentWidgetComponent } from '../../../../core/components/payment-widget/payment-widget.component';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { TopupModalComponent } from '../../../../core/components/topup-modal/topup-modal.component';
+import { DigitalCardComponent } from '../../../../core/components/qr-code/qr-code.component';
+import { CurrentOrdersComponent } from '../../../../core/components/current-orders/current-orders.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent],
+  imports: [RouterModule, CommonModule, FormsModule, PaymentWidgetComponent, TopupModalComponent, DigitalCardComponent, CurrentOrdersComponent],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   animations: [
@@ -80,6 +82,7 @@ export class ProfileComponent implements OnInit {
   private basketsStateService = inject(BasketsStateService);
   private paymentService = inject(PaymentService);
 
+
   ngOnInit(): void {
     this.checkScreenSize();
     this.loadUserData();
@@ -104,13 +107,11 @@ export class ProfileComponent implements OnInit {
     this.userApiService.getData().subscribe({
       next: (response) => {
         this.user = response.data;
-        console.log('response.data',response.data)
         this.isLoading = false;
         this.userApiService.getOperativeInfo();
         this.simulateAdditionalData();
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         this.isLoading = false;
       }
     });
@@ -123,9 +124,7 @@ export class ProfileComponent implements OnInit {
     }, 300);
   }
 
-  editAvatar(): void {
-    console.log('Edit avatar');
-  }
+  editAvatar(): void { }
 
   getUserInitials(): string {
     if (!this.user) return '';
@@ -141,6 +140,7 @@ export class ProfileComponent implements OnInit {
     sessionStorage.removeItem(sessionStorageEnvironment.auth.key);
     sessionStorage.removeItem(sessionStorageEnvironment.user.key);
     this.basketsStateService.clearBaskets();
+    this.userService.clearUserDataCache();
     this.router.navigate(['']);
   }
 
@@ -156,9 +156,9 @@ export class ProfileComponent implements OnInit {
   // Проверка заполненности профиля
   isProfileIncomplete(): boolean {
     if (!this.user) return false;
-    
+
     const missingFields = [];
-    
+
     if (!this.user.email || this.user.email === 'Email не указан') {
       missingFields.push('email');
     }
@@ -171,15 +171,15 @@ export class ProfileComponent implements OnInit {
     if (!this.user.lastName || this.user.lastName.trim() === '') {
       missingFields.push('фамилию');
     }
-    
+
     return missingFields.length > 0;
   }
 
   getMissingFieldsList(): string[] {
     if (!this.user) return [];
-    
+
     const missing = [];
-    
+
     if (!this.user.email || this.user.email === 'Email не указан') {
       missing.push('email');
     }
@@ -192,7 +192,7 @@ export class ProfileComponent implements OnInit {
     if (!this.user.lastName || this.user.lastName.trim() === '') {
       missing.push('фамилию');
     }
-    
+
     return missing;
   }
 
@@ -227,12 +227,10 @@ export class ProfileComponent implements OnInit {
           }, 100);
           this.closeTopupModal();
         } else {
-          console.error('Не получен confirmationToken');
           this.handlePaymentError('Не удалось получить токен оплаты');
         }
       },
       error: (error) => {
-        console.error('Ошибка при создании платежа:', error);
         this.handlePaymentError(error);
       }
     });
@@ -240,7 +238,6 @@ export class ProfileComponent implements OnInit {
 
   // Методы для обработки платежа
   handlePaymentSuccess(event: any): void {
-    console.log('Платеж успешен:', event);
 
     this.isProcessingTopup = true;
     const token = event.token || event;
@@ -252,36 +249,45 @@ export class ProfileComponent implements OnInit {
   }
 
   handlePaymentFail(event: any): void {
-    console.log('Платеж не удался:', event);
     this.showPaymentWidget = false;
     this.paymentToken = null;
     this.showErrorNotification('Оплата не удалась. Попробуйте снова.');
   }
 
   handlePaymentError(error: any): void {
-    console.error('Ошибка платежа:', error);
     this.showPaymentWidget = false;
     this.paymentToken = null;
     this.showErrorNotification('Произошла ошибка при оплате');
   }
 
   handleWidgetClose(): void {
-    console.log('Виджет закрыт');
     this.showPaymentWidget = false;
     this.paymentToken = null;
   }
 
   private showSuccessNotification(message: string): void {
     // Можно добавить более красивую нотификацию позже
-    console.log(message);
   }
 
   private showErrorNotification(message: string): void {
     // Можно добавить более красивую нотификацию позже
-    console.error(message);
   }
 
   goToTransactionHistory(): void {
     this.router.navigate(['/profile/transactions']);
+  }
+
+  get isVisibleDigitalCard(): boolean {
+    return !!this.user?.personalSaleBarCode &&
+      this.user?.wholesaleOrders?.some(
+        (order: any) => order.wholesalePartnerType === 2 && order.wholesaleOrderStatus === 4
+      ) === true;
+  }
+
+  get isVisibleDigitalCardB2B(): boolean {
+    return !!this.user?.personalSaleBarCode &&
+      this.user?.wholesaleOrders?.some(
+        (order: any) => order.wholesalePartnerType === 1 && order.wholesaleOrderStatus === 4
+      ) === true;
   }
 }

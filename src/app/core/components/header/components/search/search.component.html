@@ -29,7 +29,7 @@
       </button>
 
       <!-- Кнопка поиска -->
-      <button class="search-bar__submit" (click)="performSearch()" [disabled]="isLoading" aria-label="Найти">
+      <button class="search-bar__submit" (click)="navigateToSearch()" [disabled]="isLoading" aria-label="Найти">
         Найти
       </button>
     </div>
@@ -53,7 +53,7 @@
   <!-- search.component.html (только часть с автокомплитом) -->
 
   <!-- Выпадающий список автокомплита -->
-  <div class="autocomplete-dropdown" *ngIf="autocompleteResults.length && isInputFocused" #autocompleteDropdown>
+  <div class="autocomplete-dropdown" *ngIf="autocompleteResults.length && isInputFocused" #autocompleteDropdown (mousedown)="$event.preventDefault()">
 
     <div class="autocomplete-header">
       <span class="autocomplete-title">
@@ -63,7 +63,7 @@
     </div>
 
     <div class="autocomplete-list" #autocompleteList>
-      <div class="autocomplete-item" *ngFor="let item of autocompleteResults; let i = index" (click)="selectItem(item)">
+      <div class="autocomplete-item" *ngFor="let item of autocompleteResults; let i = index" (mousedown)="selectItem($event, item)">
 
         <!-- Изображение товара -->
         <div class="item-image">

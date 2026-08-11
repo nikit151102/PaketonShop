@@ -12,37 +12,9 @@ import { localStorageEnvironment } from '../../../environment';
 import { UserApiService } from '../../core/api/user.service';
 import { UserService } from '../../core/services/user.service';
 import { PartnerService } from '../../core/api/partner.service';
-import { WholesaleOrderService } from '../../core/api/wholesale-order.service';
+import { CreateWholesaleOrderDto, WholesaleOrderService } from '../../core/api/wholesale-order.service';
 import { PartnerBankService } from '../../core/api/partner-bank.service';
-
-interface ContractorDetails {
-  id: string;
-  shortName: string;
-  fullName: string;
-  inn: string;
-  ogrn: string;
-  kpp: string;
-  lastName?: string;
-  firstName?: string;
-  middleName?: string;
-  korAccount?: string;
-  workDirection?: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: {
-    region: string;
-    city: string;
-    street: string;
-    house: string;
-    postIndex: string;
-  };
-  partnerType?: {
-    id: string;
-    code: number;
-    fullName: string;
-    shortName: string;
-  };
-}
+import { BusinessAccountData, ContractorDetails, DocumentData, FieldError, Partner, PartnerType } from '../../core/interfaces/business-account-registration.interface';
 
 const animations = [
   trigger('fadeSlide', [
@@ -88,87 +60,6 @@ const animations = [
     ])
   ])
 ];
-
-interface BusinessAccountData {
-  user: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    birthday: string;
-    phoneNumber: string;
-  };
-  company: {
-    id?: string;
-    fullName: string;
-    shortName: string;
-    inn: string;
-    ogrn: string;
-    kpp: string;
-    partnerTypeId: string;
-    workDirection: string;
-    registrationDate?: Date;
-    address: {
-      country: string;
-      region: string;
-      city: string;
-      street: string;
-      house: string;
-      postIndex: string;
-    };
-  };
-  documents: DocumentData[];
-}
-
-interface DocumentData {
-  type: number;
-  file: File;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-}
-
-interface PartnerType {
-  id: string;
-  code: number;
-  fullName: string;
-  shortName: string;
-}
-
-interface Partner {
-  id: string;
-  fullName: string;
-  shortName: string;
-  inn: string;
-  ogrn: string;
-  kpp: string;
-  workDirection: string;
-  partnerType: PartnerType;
-  address: {
-    country: string;
-    region: string;
-    city: string;
-    street: string;
-    house: string;
-    postIndex: string;
-  };
-  phoneNumber?: string;
-  email?: string;
-  bank?: {
-    id: string;
-    bik: string;
-    partner: {
-      shortName: string;
-      fullName: string;
-    };
-  };
-}
-
-interface FieldError {
-  field: string;
-  message: string;
-}
 
 @Component({
   selector: 'app-business-account-registration',
@@ -287,8 +178,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     hints: [] as { message: string; valid: boolean }[]
   };
 
+
   private destroy$ = new Subject<void>();
   isActiveUser: boolean = false;
+  pkt_c1: any;
 
   stepHints: { [key: number]: { title: string; description: string; tips: string[] } } = {
     1: {
@@ -342,6 +235,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.companyId = params['companyId'] || null;
       const inn = params['inn'] || null;
+      this.pkt_c1 = params['pkt_c1'] || null;
 
       if (this.companyId) {
         const authToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
@@ -419,7 +313,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Error loading user data:', error);
           this.searchPartnerByInnAndGoToStep3(inn);
         }
       });
@@ -441,7 +334,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.partnerService.getPartnerByInn(inn).pipe(
       delay(500),
       catchError(error => {
-        console.error('Error finding partner by INN:', error);
         if (error.status === 404) {
           this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
           this.showManualFormFields();
@@ -469,9 +361,10 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           this.innSearchResult = contractorData;
           this.fillFormWithContractorData(contractorData);
           this.showCompanyForm = true;
-          this.progress.step2 = true;
-          this.currentStep = 3; // Переходим на 3 шаг
-
+          setTimeout(() => {
+            this.progress.step2 = true;
+            this.currentStep = 3;
+          }, 0);
           this.showSuccessToast(`Компания найдена! Переход к загрузке документов`);
         } else {
           this.error = `Компания с ИНН ${inn} найдена, но данные неполные. Пожалуйста, заполните данные вручную`;
@@ -553,7 +446,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           );
         }),
         catchError(error => {
-          console.error('Registration error:', error);
           let errorMessage = 'Ошибка при регистрации пользователя';
           if (error.error?.message) {
             errorMessage = error.error.message;
@@ -593,7 +485,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.error('Subscription error:', error);
           this.isRegisteringUser = false;
           reject(false);
         }
@@ -612,7 +503,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         this.partnerService.getPartnerByInn(inn).pipe(
           delay(500),
           catchError(error => {
-            console.error('Error finding partner by INN:', error);
             if (error.status === 404) {
               this.error = `Компания с ИНН ${inn} не найдена. Пожалуйста, заполните данные вручную`;
             } else {
@@ -779,7 +669,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
           this.showStepSuccessMessage('Регистрация успешна! Теперь укажите данные компании');
         }
       } catch (error) {
-        console.error('Registration failed:', error);
       } finally {
         this.isLoading = false;
       }
@@ -818,13 +707,37 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       this.error = 'Пожалуйста, найдите компанию по ИНН или заполните данные вручную';
       return false;
     }
-
     if (!this.companyForm.valid) {
       this.companyForm.markAllAsTouched();
-      this.error = 'Пожалуйста, заполните все обязательные поля формы компании';
+
+      const invalidFields = Object.keys(this.companyForm.controls)
+        .filter(key => {
+          const control = this.companyForm.get(key);
+          if (control instanceof FormGroup) {
+            return Object.keys(control.controls).some(subKey =>
+              control.get(subKey)?.invalid && control.get(subKey)?.touched
+            );
+          }
+          return control?.invalid && control?.touched;
+        })
+        .map(key => {
+          const labels: { [key: string]: string } = {
+            fullName: 'Наименование',
+            shortName: 'Краткое наименование',
+            inn: 'ИНН',
+            ogrn: 'ОГРН',
+            kpp: 'КПП',
+            partnerTypeId: 'Тип организации',
+            workDirection: 'Вид деятельности',
+            registrationDate: 'Дата регистрации'
+          };
+          return labels[key] || key;
+        });
+
+      this.error = `Заполните обязательные поля: ${invalidFields.join(', ')}`;
+
       return false;
     }
-
     return true;
   }
 
@@ -893,7 +806,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         return this.partnerService.getPartnerById(this.companyId!);
       }),
       catchError(error => {
-        console.error('Error loading data:', error);
         this.error = 'Ошибка при загрузке данных';
         return of(null);
       })
@@ -912,7 +824,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isLoadingPartner = false;
-        console.error('Error loading partner:', error);
         this.error = 'Ошибка при загрузке данных компании';
       }
     });
@@ -1067,7 +978,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
 
 
   fillFormWithContractorData(contractor: ContractorDetails): void {
-    console.log('Filling form with contractor data:', contractor);
 
     // Устанавливаем тип партнера на основе ОГРН или если есть partnerType
     let partnerTypeId = '';
@@ -1192,7 +1102,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
   private loadUserData(): void {
     this.userApiService.getData().pipe(
       catchError(error => {
-        console.error('Error loading user data:', error);
         return of(null);
       })
     ).subscribe({
@@ -1234,7 +1143,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error loading user data:', error);
         this.isLoading = false;
       }
     });
@@ -1454,7 +1362,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
         this.uploadedDocuments.some(doc => doc.type === requiredDoc.id)
       );
     } else if (this.uploadMethod === 'cloud') {
-      return !!this.cloudLink && this.cloudLink.startsWith('http');
+      return !!this.cloudLink;
     } else if (this.uploadMethod === 'archive') {
       return !!this.archiveFile;
     }
@@ -1804,6 +1712,18 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     ).length;
   }
 
+  onCloudLinkChange(value: string): void {
+    console.log('cloudLink изменился:', value);
+    console.log('validateDocumentsStep изменился:', this.validateDocumentsStep());
+    // Например, валидация при каждом изменении
+    if (value && !value.startsWith('https')) {
+      this.validateCloudLink()
+    } else {
+      this.error = null;
+      this.isSubmitting = false
+    }
+  }
+
   validateCloudLink(): void {
     if (!this.cloudLink) {
       this.error = 'Введите ссылку на облачное хранилище';
@@ -1998,12 +1918,22 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.partnerService.setPartnerUser(newPartner).pipe(
       switchMap((partnerResponse) => {
         const partnerInstance = partnerResponse.data;
-        return this.wholesaleOrderService.createOrder({
+
+        let dataRequest: CreateWholesaleOrderDto = {
           beginDateTime: null,
           endDateTime: null,
           partnerInstanceId: partnerInstance.id,
-          userInstanceId: userInstanceId
-        }).pipe(map((orderResponse) => ({
+          userInstanceId: userInstanceId,
+          wholesalePartnerType: 1,
+          productPlaceCode: this.pkt_c1
+        };
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
+
+        if (this.cloudLink) {
+          dataRequest.documentArchiveLink = this.cloudLink
+        }
+
+        return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({
           partnerInstance,
           orderId: orderResponse.data.id
         })));
@@ -2038,7 +1968,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Произошла ошибка при регистрации';
-        console.error('Error during registration:', error);
       }
     });
   }
@@ -2054,12 +1983,24 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
     this.userApiService.getData().pipe(
       switchMap((userResponse) => {
         const user = userResponse.data;
-        return this.wholesaleOrderService.createOrder({
+
+        let dataRequest: CreateWholesaleOrderDto = {
           beginDateTime: null,
           endDateTime: null,
           partnerInstanceId: this.companyId,
-          userInstanceId: user.id
-        }).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
+          userInstanceId: user.id,
+          wholesalePartnerType: 1,
+          productPlaceCode: this.pkt_c1,
+        };
+
+        if (this.cloudLink) {
+          dataRequest.documentArchiveLink = this.cloudLink
+        }
+
+        if (this.pkt_c1) dataRequest.productPlaceCode = this.pkt_c1;
+
+
+        return this.wholesaleOrderService.createOrder(dataRequest).pipe(map((orderResponse) => ({ user, orderId: orderResponse.data.id })));
       }),
       switchMap(({ user, orderId }) => {
         if (this.accountData.documents?.length > 0) {
@@ -2070,7 +2011,7 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
             documentTypes = this.accountData.documents.filter((doc: any) => doc.file).map((doc: any) => doc.type);
           } else if (this.uploadMethod === 'archive' && this.archiveFile) {
             files = [this.archiveFile];
-            documentTypes = [99];
+            documentTypes = [11];
           }
           if (files.length > 0) {
             return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes).pipe(map(() => orderId));
@@ -2087,7 +2028,6 @@ export class BusinessAccountRegistrationComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isSubmitting = false;
         this.error = error.message || 'Ошибка при загрузке документов';
-        console.error('Error uploading documents:', error);
       }
     });
   }

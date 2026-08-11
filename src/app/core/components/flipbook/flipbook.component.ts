@@ -284,7 +284,10 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
         next: () => {
           this.updateProductQuantity(pageIndex, product.id!, 1);
           this.activeBasketProducts.set(product.id!, 1);
-          this.userApiService.getOperativeInfo();
+          if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
+            this.userApiService.getOperativeInfo();
+          }
+
           this.showNotification('Товар добавлен в корзину', 'success');
           this.cdr.detectChanges();
         },
@@ -1058,7 +1061,6 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
-    console.log(`[${type}] ${message}`);
 
     requestAnimationFrame(() => {
       const notification = document.createElement('div');

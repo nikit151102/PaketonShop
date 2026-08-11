@@ -58,4 +58,18 @@ export class PartnerService {
   return this.http.get<any>(`${environment.production}/GetByInn/${inn}`);
 }
 
+  /**
+   * Проверка ИП/самозанятого
+   * @param inn - ИНН ИП/самозанятого
+   * @param type - тип налогоплатильщика  ИП - 0 /самозанятого - 1
+   * @returns Observable
+   */
+  selfEmployedInnChecker(inn: string, type: number = 0): Observable<any> {
+    return this.http.post<any>(`${environment.production}/api/Services/InnChecker/check`, 
+       {
+          inn: inn,
+          type: type
+        }
+    );
+  }
 }

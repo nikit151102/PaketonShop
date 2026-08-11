@@ -62,11 +62,7 @@ export interface ProductPlace {
 
 // Для фильтрации и пагинации
 export interface QueryDto {
-  filters: Array<{
-    propertyName: string;
-    value: any;
-    comparison: 'Equals' | 'Contains' | 'GreaterThan' | 'LessThan' | 'StartsWith' | 'EndsWith';
-  }>;
+  filters: Array<any>;
   sorts: Array<{
     propertyName: string;
     direction: 'Ascending' | 'Descending';

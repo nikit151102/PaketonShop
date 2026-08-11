@@ -69,7 +69,7 @@ interface Order {
   orderCost: number;
   consultation: boolean;
   paymentStatusType: number;
-
+  orderNumber?: string;
   address?: Address;
   deliveryType?: DeliveryType;
   partnerInstance?: PartnerInstance;
@@ -171,7 +171,6 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке заказов';
-          console.error('Ошибка загрузки заказов:', err);
           this.hasMore = false;
         }
       });
@@ -203,6 +202,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         orderCost: item.orderCost,
         consultation: item.consultation,
         paymentStatusType: item.paymentStatusType,
+        orderNumber: item.orderNumber,
 
         address: item.address,
         deliveryType: item.deliveryType,
@@ -251,16 +251,15 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
           this.orders.unshift(response.data);
         }
       },
-      error: (error) => {
-        console.error('Ошибка при повторении заказа:', error);
-      }
+      error: (error) => {}
     });
   }
 
   cancelOrder(order: Order): void {
     if (confirm(`Вы уверены, что хотите отменить заказ #${this.formatOrderId(order.id)}?`)) {
-      console.log('Отменить заказ:', order.id);
-      // Здесь будет логика отмены заказа
+      this.deliveryOrderService.cancelOrder(order.id).subscribe((value: any) => {
+        this.loadOrders(true);
+      })
     }
   }
 

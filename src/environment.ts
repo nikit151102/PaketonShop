@@ -1,6 +1,6 @@
 export const environment = {
-  // production: 'https://localhost:5001',
-  production: 'https://xn--80ajjteep7bg.xn--80akonecy.xn--p1ai/api',
+  production: 'https://xn--80akonecy.xn--p1ai/api',
+  // production: 'https://xn--80ajjteep7bg.xn--80akonecy.xn--p1ai/api',
   dev: '',
   encryptionKey: '',
   localStorageKeys: {
@@ -17,6 +17,14 @@ export const localStorageEnvironment = {
   },
   user: {
     key: 'pkt_user',
+    ttl: 14 * 60 * 60,
+  },
+  currentCity: {
+    key: 'pktn_userCity',
+    ttl: 14 * 60 * 60,
+  },
+  pktSource: {
+    key: 'pkt_source',
     ttl: 14 * 60 * 60,
   },
 };

@@ -1,0 +1,91 @@
+<section class="order-history">
+    <app-title [title]="'Активные покупки'"
+        [description]="''">
+    </app-title>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading && orders.length === 0">
+        <div class="loading-spinner"></div>
+        <p>Загрузка заказов...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="!loading && error && orders.length === 0">
+        <!-- <div class="error-icon">⚠️</div> -->
+        <h3>Ошибка загрузки</h3>
+        <p>{{ error }}</p>
+        <button class="retry-btn" (click)="loadOrders(true)">Повторить</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && orders.length === 0">
+        <!-- <div class="empty-icon">📦</div> -->
+        <h3>У вас пока нет заказов</h3>
+        <p>Перейдите в каталог и сделайте свой первый заказ</p>
+        <button class="empty-btn" (click)="goToCatalog()">Перейти в каталог</button>
+    </div>
+
+    <!-- Orders List - Compact Horizontal Cards -->
+    <div class="orders-container" *ngIf="orders.length > 0">
+        <div class="orders-grid">
+            <div [routerLink]="['/order', order.id] "class="order-card-compact" *ngFor="let order of orders" > 
+
+                <!-- Блок 1: Изображения + Статус -->
+                <div class="card-block-visual">
+                    <!-- Status Badge (справа сверху) -->
+                    <span class="order-status-badge" [class]="'status-' + getStatusClass(order.orderStatus)">
+                        {{ getStatusText(order.orderStatus) }}
+                    </span>
+                    <!-- Stacked Product Images -->
+                    <div class="card-images">
+                        <div class="image-stack">
+                            <ng-container *ngFor="let position of order.productPositions | slice:0:5; let i = index">
+                                <div class="stacked-image" [style.z-index]="5 - i" [style.margin-left.px]="i * 10"
+                                    [style.margin-top.px]="i * 8">
+                                    <img *ngIf="position.product && position.product?.productImageLinks?.[0]"
+                                        [src]="position.product.productImageLinks[0]"
+                                        [alt]="position.product?.shortName || 'Товар'">
+                                    <div class="image-placeholder" *ngIf="!position.product?.productImageLinks?.[0]">
+                                        {{ position.product?.shortName?.charAt(0) || '?' }}
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок 2: Информация + Цена -->
+                <div class="card-block-info">
+                    <div class="info-grid">
+                        <div class="info-row">
+                            <span class="label">Заказ №</span>
+                            <span class="value order-number">{{ order.orderNumber || formatOrderId(order.id) }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Дата</span>
+                            <span class="value">{{ formatDate(order.orderDateTime) }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Позиций</span>
+                            <span class="value">{{ order.positionCount }} {{ getProductWord(order.positionCount)
+                                }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Итоговая цена внизу -->
+                    <div class="card-footer">
+                        <span class="total-label">Итого:</span>
+                        <span class="total-price">{{ formatCurrency(order.totalCost) }}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Infinite Scroll Loader -->
+        <div class="scroll-loader" *ngIf="loadingMore">
+            <div class="loading-spinner-small"></div>
+            <span>Загрузка...</span>
+        </div>
+    </div>
+</section>

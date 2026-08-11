@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { StorageUtils } from '../../../../utils/storage.utils';
+import { environment } from '../../../../environment';
 
 export interface City {
   coords: { lat: string; lon: string };
@@ -165,7 +166,6 @@ export class LocationService {
       // Проверяем сессию
       this.currentSession$.next(StorageUtils.getSessionStorage(this.STORAGE_KEYS.CITY));
     } catch (e) {
-      console.error('Error loading saved data', e);
     }
   }
 
@@ -470,7 +470,7 @@ export class LocationService {
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         // (pos) => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
-        () => console.warn('Не удалось получить геолокацию'),
+        () =>{},
       );
     }
   }
@@ -484,6 +484,22 @@ export class LocationService {
     }
     return false;
   }
+
+
+    /**
+     * Сохранение города на сервер
+     */
+    saveUserCity(city: string): Observable<any> {
+  
+      return this.http.post(
+        `${environment.production}/auth/UpdateUserCity`,
+        {
+          city: city
+        }
+      );
+    }
+
+  
 
   // // Получение города по координатам
   // private async getCityFromCoords(lat: number, lon: number) {
@@ -518,7 +534,6 @@ export class LocationService {
   //       }
   //     }
   //   } catch (err) {
-  //     console.error('Error detecting city:', err);
   //     this.showCityModal$.next(true);
   //   }
   // }

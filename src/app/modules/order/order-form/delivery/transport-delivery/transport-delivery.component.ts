@@ -34,6 +34,7 @@ interface MapPoint {
 })
 export class TransportDeliveryComponent implements OnInit {
   @ViewChild('mapContainer') mapContainer!: ElementRef;
+  @Input() orderData: any;
   @Output() addressSelected = new EventEmitter<any>();
   @Output() dataChange = new EventEmitter<any>();
 
@@ -98,16 +99,13 @@ export class TransportDeliveryComponent implements OnInit {
     try {
       await this.loadYmaps();
       this.ymapsLoaded = true;
-    } catch (error) {
-      console.error('Ошибка загрузки Яндекс.Карт:', error);
-    }
+    } catch (error) { }
   }
 
   private async loadCitiesFromJson(): Promise<void> {
     try {
       this.citiesFromJson = await this.http.get<any[]>('/russian-cities.json').toPromise() || [];
     } catch (error) {
-      console.error('Ошибка при загрузке городов из JSON:', error);
       this.citiesFromJson = [];
     }
   }
@@ -129,7 +127,6 @@ export class TransportDeliveryComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error('Ошибка загрузки адресов:', err);
         this.error = 'Не удалось загрузить пункты выдачи. Попробуйте позже.';
         this.loading = false;
       }
@@ -215,7 +212,6 @@ export class TransportDeliveryComponent implements OnInit {
       }
 
     } catch (error) {
-      console.error('Ошибка инициализации карты:', error);
       this.errorMessage = 'Не удалось загрузить карту';
     }
   }
@@ -250,6 +246,25 @@ export class TransportDeliveryComponent implements OnInit {
     this.placemarks = [];
     this.mapInitialized = false;
   }
+
+  /**
+   * Можно ли изменять способ доставки?
+   * Только если статус заказа = 0 (черновик) или orderData не передан
+   */
+  get canChangeTransportDelivery(): boolean {
+    return !this.orderData || this.orderData.orderStatus === 0;
+  }
+
+  /**
+   * Получить текст статуса доставки для отображения
+   */
+  getTransportStatusText(): string {
+    if (!this.selectedAddress) return 'Не выбрано';
+
+    const company = this.getTransportCompanyName(this.selectedAddress.transportCompanyType || 1);
+    return `${company}: ${this.getFullAddress(this.selectedAddress)}`;
+  }
+
 
   // Поиск города
   onCitySearch(): void {
@@ -329,7 +344,6 @@ export class TransportDeliveryComponent implements OnInit {
         this.pickupPoints = [];
       }
     } catch (error) {
-      console.error('Ошибка при загрузке ПВЗ:', error);
       this.errorMessage = 'Не удалось загрузить пункты выдачи';
       this.pickupPoints = [];
     } finally {
@@ -375,7 +389,6 @@ export class TransportDeliveryComponent implements OnInit {
         });
       });
     } catch (error) {
-      console.error('Ошибка получения координат:', error);
       return null;
     }
   }
@@ -451,7 +464,6 @@ export class TransportDeliveryComponent implements OnInit {
         this.pickupPoints = [];
       }
     } catch (error) {
-      console.error('Ошибка при загрузке точек СДЭК:', error);
       this.pickupPoints = [];
     }
   }
@@ -477,7 +489,6 @@ export class TransportDeliveryComponent implements OnInit {
         this.pickupPoints = [];
       }
     } catch (error) {
-      console.error('Ошибка при загрузке терминалов Деловых линий:', error);
       this.pickupPoints = [];
     }
   }
@@ -591,7 +602,6 @@ export class TransportDeliveryComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Ошибка сохранения адреса:', err);
           this.showMessage(err.error?.message || 'Не удалось сохранить пункт выдачи', 'error');
         }
       });
@@ -624,7 +634,6 @@ export class TransportDeliveryComponent implements OnInit {
         this.showMessage('Пункт выдачи удален', 'success');
       },
       error: (err) => {
-        console.error('Ошибка удаления:', err);
         this.showMessage('Не удалось удалить пункт выдачи', 'error');
       }
     });

@@ -19,30 +19,38 @@ import {
 })
 export class ProductPlaceService {
   private apiUrl = `${environment.production}/api/Entities/ProductPlace`;
-  
+
   // BehaviorSubjects для хранения данных
   private productPlacesSubject = new BehaviorSubject<ProductPlace[]>([]);
   public selectedStoreSubject = new BehaviorSubject<ProductPlace | null>(null);
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  
+
   // Observable для подписок
   productPlaces$ = this.productPlacesSubject.asObservable();
   selectedStore$ = this.selectedStoreSubject.asObservable();
   loading$ = this.loadingSubject.asObservable();
-  
+
   // Кэш
   private storesCache = new Map<string, ProductPlace>();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Получить все точки реализации
    */
   getAllProductPlaces(pageSize: number = 100): Observable<ProductPlace[]> {
     this.loadingSubject.next(true);
-    
+
     const query: QueryDto = {
-      filters: [],
+      filters: [
+        {
+          field: "productPlaceType",
+          values: [
+            0
+          ],
+          "type": 2
+        }
+      ],
       sorts: [],
       page: 0,
       pageSize: pageSize
@@ -56,7 +64,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error('Error fetching product places:', error);
         this.loadingSubject.next(false);
         return of([]);
       })
@@ -66,15 +73,15 @@ export class ProductPlaceService {
   /**
    * Получить точки реализации с фильтрацией
    */
- getFilteredProductPlaces(params: ProductPlaceFilterParams): Observable<ProductPlace[]> {
+  getFilteredProductPlaces(params: ProductPlaceFilterParams): Observable<ProductPlace[]> {
     this.loadingSubject.next(true);
-    
+
     const filters: Array<{
       propertyName: string;
       value: any;
       comparison: 'Equals' | 'Contains' | 'GreaterThan' | 'LessThan' | 'StartsWith' | 'EndsWith';
     }> = [];
-    
+
     if (params.city) {
       filters.push({
         propertyName: 'address.city',
@@ -82,7 +89,7 @@ export class ProductPlaceService {
         comparison: 'Equals' as const
       });
     }
-    
+
     if (params.region) {
       filters.push({
         propertyName: 'address.region',
@@ -90,7 +97,7 @@ export class ProductPlaceService {
         comparison: 'Equals' as const
       });
     }
-    
+
     if (params.searchText) {
       filters.push({
         propertyName: 'fullName',
@@ -114,7 +121,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error('Error fetching filtered product places:', error);
         this.loadingSubject.next(false);
         return of([]);
       })
@@ -133,7 +139,7 @@ export class ProductPlaceService {
     }
 
     this.loadingSubject.next(true);
-    
+
     return this.http.get<ProductPlaceDetailResponse>(`${this.apiUrl}/${id}`).pipe(
       map(response => response.data),
       tap(store => {
@@ -142,7 +148,6 @@ export class ProductPlaceService {
       }),
       tap(() => this.loadingSubject.next(false)),
       catchError(error => {
-        console.error(`Error fetching product place with id ${id}:`, error);
         this.loadingSubject.next(false);
         return of(null);
       })
@@ -201,7 +206,7 @@ export class ProductPlaceService {
               store.address?.latitude || 0,
               store.address?.longitude || 0
             );
-            
+
             return {
               ...store,
               distance: Math.round(distance * 1000) // в метрах
@@ -219,9 +224,9 @@ export class ProductPlaceService {
   getStoreHoursInfo(store: ProductPlace): StoreHoursInfo[] {
     const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
     const today = new Date().getDay(); // 0 - Sunday, 1 - Monday, etc.
-    
+
     const workingHours = store.storeSchedule?.workingHours || [];
-    
+
     return workingHours.map(hours => ({
       dayOfWeek: hours.dayOfWeek,
       dayName: daysOfWeek[hours.dayOfWeek] || `День ${hours.dayOfWeek}`,
@@ -239,13 +244,13 @@ export class ProductPlaceService {
     const today = new Date();
     const todayDayOfWeek = today.getDay();
     const todayDateStr = today.toISOString().split('T')[0];
-    
+
     // Проверяем исключительные дни
     const exceptionDays = store.storeSchedule?.exceptionDays || [];
     const exceptionDay = exceptionDays.find(
       exception => exception.date === todayDateStr
     );
-    
+
     if (exceptionDay) {
       return {
         isOpen: !exceptionDay.isClosed && exceptionDay.openTime !== null,
@@ -254,21 +259,21 @@ export class ProductPlaceService {
         exception: exceptionDay
       };
     }
-    
+
     // Проверяем обычное расписание
     const workingHours = store.storeSchedule?.workingHours || [];
     const todayHours = workingHours.find(
       hours => hours.dayOfWeek === todayDayOfWeek
     );
-    
+
     if (!todayHours || todayHours.openTime === '00:00:00') {
       return { isOpen: false };
     }
-    
+
     // Проверяем текущее время
     const currentTime = today.toTimeString().split(' ')[0]; // "HH:mm:ss"
     const isOpen = currentTime >= todayHours.openTime && currentTime <= todayHours.closeTime;
-    
+
     return {
       isOpen,
       openTime: this.formatTime(todayHours.openTime),
@@ -282,15 +287,15 @@ export class ProductPlaceService {
   getFullAddress(store: ProductPlace): string {
     const addr = store.address;
     if (!addr) return '';
-    
+
     let address = '';
-    
+
     if (addr.city) address += `г.${addr.city}`;
     if (addr.street) address += `, ул.${addr.street}`;
     if (addr.house) address += `, ${addr.house}`;
     if (addr.housing) address += `, корп.${addr.housing}`;
     if (addr.office) address += `, оф.${addr.office}`;
-    
+
     return address || store.fullName || '';
   }
 
@@ -319,9 +324,9 @@ export class ProductPlaceService {
     const R = 6371; // Радиус Земли в км
     const dLat = this.toRad(lat2 - lat1);
     const dLon = this.toRad(lon2 - lon1);
-    const a = 
+    const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) * 
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;

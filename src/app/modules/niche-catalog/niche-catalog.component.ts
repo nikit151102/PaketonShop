@@ -32,8 +32,7 @@ export interface Category {
 @Component({
   selector: 'app-niche-catalog',
   standalone: true,
-  imports: [CommonModule,
-    TitleComponent],
+  imports: [CommonModule, TitleComponent],
   templateUrl: './niche-catalog.component.html',
   styleUrl: './niche-catalog.component.scss',
   animations: [
@@ -49,6 +48,8 @@ export class NicheCatalogComponent implements OnInit {
   showAll = true;
   maxPerRow = 5;
   pageSize = 20;
+  viewMode: 'grid' | 'list' = 'grid';
+  visibleCategoriesCount: number = 8;
 
   categories: Category[] = [];
   isLoading = false;
@@ -81,12 +82,11 @@ export class NicheCatalogComponent implements OnInit {
     this.nicheProductsService.getNewsBannersByFilter(filterDto).subscribe({
       next: (response: any) => {
         if (response && response.data) {
-          // Преобразуем данные из API в формат для отображения
-          this.categories = response.data.map((item: any) => ({
+          this.categories = response.data.map((item: any, index: number) => ({
             id: item.id,
             name: item.name,
             description: item.description,
-            image: item.imageInstanceLinks[0] || this.getDefaultImage(item.name),
+            image: item.imageInstanceLinks?.[0] || this.getDefaultImage(item.name),
             productCount: item.productCount || 0,
             subcategories: (item.subCategories || []).map((sub: any) => ({
               id: sub.id,
@@ -94,24 +94,22 @@ export class NicheCatalogComponent implements OnInit {
               slug: sub.slug,
               productCount: sub.productCount
             })),
-            isFeatured: item.isFeatured || false,
-            isNew: item.isNew || false,
-            isPopular: item.isPopular || false,
-            views: item.views || Math.floor(Math.random() * 1000) + 100,
+            isFeatured: index === 0,
+            isNew: Math.random() > 0.7,
+            isPopular: Math.random() > 0.6,
+            views: Math.floor(Math.random() * 1000) + 100,
             widthClass: this.getRandomWidthClass()
           }));
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Ошибка загрузки ниш:', error);
         this.error = 'Не удалось загрузить категории';
         this.isLoading = false;
       }
     });
   }
 
-  // Получаем изображение по умолчанию на основе названия категории
   private getDefaultImage(categoryName: string): string {
     const defaultImages = [
       'https://images.unsplash.com/photo-1556740764-4b6f3f17a353?auto=format&fit=crop&w=400&q=80',
@@ -120,7 +118,6 @@ export class NicheCatalogComponent implements OnInit {
       'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=400&q=80'
     ];
 
-    // Используем хеш названия для выбора изображения
     const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return defaultImages[hash % defaultImages.length];
   }
@@ -152,10 +149,6 @@ export class NicheCatalogComponent implements OnInit {
     }
     return `${category.productCount} товаров`;
   }
-  // Добавьте эти методы в компонент
-
-  viewMode: 'grid' | 'list' = 'grid';
-  visibleCategoriesCount: number = 8; // Количество видимых категорий
 
   setViewMode(mode: 'grid' | 'list'): void {
     this.viewMode = mode;
@@ -171,16 +164,9 @@ export class NicheCatalogComponent implements OnInit {
 
   onSubcategoryClick(event: MouseEvent, subcategory: any): void {
     event.stopPropagation();
-    // Логика перехода к подкатегории
-    // this.router.navigate(['/category', subcategory.slug]);
   }
 
   viewAllCategories(): void {
     this.router.navigate(['/all-solutions']);
   }
-
-
-
 }
-
-

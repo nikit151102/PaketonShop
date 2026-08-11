@@ -1842,3 +1842,17 @@ $shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 .address-suggestions {
   animation: scaleIn 0.2s ease;
 }
+
+.btn_skip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 24px;
+  background: #ffffff;
+  cursor: pointer;
+  color: #7e7e7f;
+  margin: 20px;
+  justify-content: center;
+}

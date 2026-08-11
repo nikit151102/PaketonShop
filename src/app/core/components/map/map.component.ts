@@ -39,7 +39,6 @@ export class MapComponent implements OnChanges, AfterViewInit {
 
   private initMap() {
     if (typeof ymaps === 'undefined') {
-      console.error('Ошибка: Yandex Maps API не загружен.');
       return;
     }
 

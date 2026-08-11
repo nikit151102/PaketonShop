@@ -218,7 +218,6 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке партнеров';
-          console.error('Ошибка загрузки партнеров:', err);
         }
       });
   }
@@ -267,11 +266,9 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.activePartner = response.data;
-          console.log('response.data', response.data);
         },
         error: (err) => {
           this.error = err.error?.message || 'Ошибка при загрузке деталей партнера';
-          console.error('Ошибка загрузки деталей партнера:', err);
         }
       });
   }
@@ -337,7 +334,6 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.error = err.error?.message || 'Ошибка при удалении партнера';
-            console.error('Ошибка удаления партнера:', err);
           }
         });
     }

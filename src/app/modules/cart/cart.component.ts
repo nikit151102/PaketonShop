@@ -98,7 +98,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Количество обновлено', 'success');
         },
         error: (err) => {
-          console.error('Ошибка при обновлении количества:', err);
           this.showNotification('Не удалось обновить количество', 'error');
           this.loadActiveBasket(true); // Перезагружаем для синхронизации
         }
@@ -180,7 +179,6 @@ export class CartComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Ошибка загрузки корзин', err);
           this.error = 'Не удалось загрузить корзины. Пожалуйста, попробуйте позже.';
         },
       });
@@ -217,7 +215,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.calculateTotals();
         },
         error: (err) => {
-          console.error('Ошибка загрузки корзины', err);
           this.error = 'Не удалось загрузить содержимое корзины.';
         }
       });
@@ -292,7 +289,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Корзина успешно создана', 'success');
         },
         error: (err) => {
-          console.error('Ошибка создания корзины', err);
           this.showNotification('Не удалось создать корзину', 'error');
         },
       });
@@ -349,7 +345,6 @@ export class CartComponent implements OnInit, OnDestroy {
             this.showNotification('Корзина удалена', 'success');
           },
           error: (err) => {
-            console.error('Ошибка удаления корзины', err);
             this.showNotification('Не удалось удалить корзину', 'error');
           }
         });
@@ -383,7 +378,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Корзина продублирована', 'success');
         },
         error: (err) => {
-          console.error('Ошибка дублирования корзины', err);
           this.showNotification('Не удалось продублировать корзину', 'error');
         }
       });
@@ -442,7 +436,6 @@ export class CartComponent implements OnInit, OnDestroy {
             processNext(index + 1);
           },
           error: (err) => {
-            console.error(`Ошибка удаления товара ${productIds[index]}:`, err);
             this.showNotification(
               `Удалено ${completed} из ${productIds.length} товаров. Ошибка при удалении остальных.`,
               'error'
@@ -457,7 +450,7 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  onQuantityChange(event: { id: string; quantity: number }): void {
+  onQuantityChange(event: { id: string; barcodeId: string; quantity: number }): void {
     if (!this.activeBasket?.products || !this.activeBasket.id) return;
 
     const product = this.activeBasket.products.find((p: any) => p.id === event.id);
@@ -467,7 +460,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
       // Отправляем с дебаунсом для API
       this.quantityUpdate$.next({
-        productId: product.product?.id,
+        productId: event.barcodeId,
         basketId: this.activeBasket.id,
         quantity: event.quantity
       });
@@ -489,7 +482,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Товар удален из корзины', 'success');
         },
         error: (err) => {
-          console.error('Ошибка удаления товара', err);
           this.showNotification('Не удалось удалить товар', 'error');
         }
       });
@@ -520,7 +512,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Товар добавлен в корзину', 'success');
         },
         error: (err) => {
-          console.error('Ошибка добавления связанного товара', err);
           this.showNotification('Не удалось добавить товар', 'error');
         }
       });
@@ -564,6 +555,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
       const originalPrice = product.product?.retailPrice || 0;
       const discountPercent = product.product?.discountPercentage || 0;
+      this.total += product.totalCost
       const finalPrice = discountPercent > 0 ? originalPrice * (1 - discountPercent / 100) : originalPrice;
 
       subtotal += originalPrice * count;
@@ -573,7 +565,6 @@ export class CartComponent implements OnInit, OnDestroy {
     this.totalItems = items;
     this.subtotal = subtotal;
     this.totalDiscount = discount;
-    this.total = subtotal - discount + this.deliveryCost;
   }
 
   // Промокод
@@ -625,7 +616,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification('Товар добавлен в корзину', 'success');
         },
         error: (err) => {
-          console.error('Ошибка добавления товара', err);
           this.showNotification('Не удалось добавить товар', 'error');
         }
       });
