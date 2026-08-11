@@ -62,7 +62,6 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid $border-color;
   border-radius: $radius-md;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
   color: $text-primary;
   background: $bg-white;
   transition: $transition-base;
@@ -88,7 +87,6 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 // Основные стили
 .shop-profile-wrapper {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: $bg-lighter;
   min-height: 100vh;
 }
@@ -497,7 +495,6 @@ $transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   transition: $transition-base;
   border: none;
-  font-family: 'Inter', sans-serif;
   display: inline-flex;
   align-items: center;
   justify-content: center;

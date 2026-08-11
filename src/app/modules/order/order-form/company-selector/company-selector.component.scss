@@ -42,7 +42,6 @@ $success: #10b981;
 }
 
 .company-selector-compact {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     animation: fadeIn 0.3s ease;
 
     .selector-header {
@@ -365,7 +364,6 @@ $success: #10b981;
             border: 1.5px solid $border-color;
             border-radius: 10px;
             font-size: 14px;
-            font-family: inherit;
             transition: all 0.2s;
 
             &.phone-input {

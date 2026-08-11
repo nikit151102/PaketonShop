@@ -1,6 +1,5 @@
 :host {
   display: block;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 $primary: #3c8a27;
@@ -559,7 +558,6 @@ $gradient: linear-gradient(135deg, $primary, $primary-dark);
           border: 1px solid $gray-200;
           border-radius: $radius;
           font-size: 13px;
-          font-family: inherit;
           color: $dark;
           background: white;
           resize: vertical;

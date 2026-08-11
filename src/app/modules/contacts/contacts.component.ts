@@ -27,7 +27,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly email = 'paketon@bk.ru';
   readonly vk = 'https://vk.com';
   readonly telegram = 'https://t.me';
-  readonly address = 'г. Барнаул, Попова, 165Б';
+  readonly address = 'г. Барнаул, Северный Власихинский, 39 (офис)';
 
   // ==================== ОПЕРАТОРЫ ====================
   readonly operators = [
@@ -202,7 +202,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return `
-      <div style="font-family:Inter,sans-serif;min-width:200px;">
+      <div style="min-width:200px;">
         <h3 style="margin:0 0 8px;font-size:16px;color:#111827;">${store.shortName}</h3>
         <p style="margin:4px 0;font-size:13px;"><strong>Адрес:</strong> ${address}</p>
         ${phone ? `<p style="margin:4px 0;font-size:13px;"><strong>Телефон:</strong> ${phone}</p>` : ''}
