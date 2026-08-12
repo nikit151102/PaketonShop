@@ -23,23 +23,23 @@ interface Slide {
   styleUrl: './carousel-banner.component.scss',
 })
 export class CarouselBannerComponent implements OnInit, OnDestroy {
-  @Input() autoRotateInterval: number = 3000; 
-  @Input() primaryColor: string = '#2a5e1c'; 
+  @Input() autoRotateInterval: number = 3000;
+  @Input() primaryColor: string = '#2a5e1c';
 
   slides: Slide[] = [];
   slidesWithDuplicates: Slide[] = [];
 
   activeIndex = 1;
-  displayIndex = 0; 
+  displayIndex = 0;
   progress = 0;
   autoRotate = true;
-  
+
   private intervalId?: any;
   private progressIntervalId?: any;
   private startTime = 0;
   private isTransitioning = false;
   private transitionDuration = 300;
-  
+
   isLoading = true;
   error: string | null = null;
   imagesLoaded = 0;
@@ -47,7 +47,7 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private newsBannerService: NewsBannerService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadBanners();
@@ -68,12 +68,12 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
           values: [1],
           type: 1
         },
-               {
+        {
           field: 'isDeleted',
           values: [1],
           type: 1
         }
-        
+
       ],
       sorts: [
         {
@@ -112,7 +112,7 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
       date: banner.createdAt ? new Date(banner.createdAt) : new Date(),
       buttonText: 'Подробнее',
       note: 'Акция действует ограниченное время',
-      link: `/news/${banner.id}`
+      link: banner.link
     }));
   }
 
@@ -276,12 +276,18 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Обработка клика по кнопке
   handleButtonClick(slide: Slide): void {
-    if (slide.link) {
-      this.router.navigate([slide.link]);
-    } else if (slide.id) {
-      this.router.navigate(['/news', slide.id]);
+    const link = slide.link?.trim();
+
+    if (!link) return;
+
+    const isExternal = link.startsWith('http://') || link.startsWith('https://');
+
+    if (isExternal) {
+      window.open(link, '_blank', 'noopener,noreferrer');
+    } else {
+      const path = link.startsWith('/') ? link : `/${link}`;
+      this.router.navigate([path]);
     }
   }
 

@@ -13,9 +13,10 @@
           [src]="slide.image" 
           [alt]="slide.title || 'Banner image'"
           (load)="onImageLoad()"
+          (click)="handleButtonClick(slide)"
           (error)="onImageError($event, i)"
         />
-        <div class="image__overlay"></div>
+        <!-- <div class="image__overlay"></div> -->
       </div>
       
     </div>
