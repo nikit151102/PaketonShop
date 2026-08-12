@@ -527,7 +527,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         city: ['', Validators.required],
         street: ['', Validators.required],
         house: ['', Validators.required],
-        postIndex: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
+        postIndex: ['', [Validators.pattern(/^\d{6}$/)]]
       })
     });
   }
@@ -636,7 +636,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
         break;
       case 4:
         ['address.country', 'address.region', 'address.city',
-          'address.street', 'address.house', 'address.postIndex'].forEach(controlName => {
+          'address.street', 'address.house'].forEach(controlName => {
             this.partnerForm.get(controlName)?.markAsTouched();
           });
         break;
