@@ -2,7 +2,6 @@ import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, comput
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, Observable, Subscription, take } from 'rxjs';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
-
 import { HeaderComponent } from './core/components/header/header.component';
 import { FooterComponent } from './core/components/footer/footer.component';
 import { AuthComponent } from './modules/auth/auth.component';
@@ -18,6 +17,8 @@ import { FloatingContactButtonsComponent } from './core/components/floating-cont
 import { UserApiService } from './core/api/user.service';
 import { AuthService } from './core/services/auth.service';
 import { CookieConsentComponent } from './core/components/cookie-consent/cookie-consent.component';
+import { FingerprintService } from './core/services/fingerprint.service';
+import { AuthResponse, guestRegisterRequest } from './core/interfaces/auth.interface';
 
 declare let ym: any;
 
@@ -55,7 +56,8 @@ export class AppComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) platformId: Object,
     public locationService: LocationService,
     private userApiService: UserApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private fingerprintService: FingerprintService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
@@ -63,17 +65,29 @@ export class AppComponent implements OnInit, OnDestroy {
       next: (isValid: boolean) => {
         if (!isValid) {
           this.authService.logout();
+          this.handleValidUser();
+
+          return;
         }
+        this.handleValidUser();
       },
       error: () => {
         this.authService.logout();
       }
     });
-
   }
 
-  ngOnInit(): void {
+  private async handleValidUser() {
+    try {
+      const visitorId = await this.fingerprintService.getVisitorId();
+      this.authService.guestRegister({ fingerprint: visitorId, existingGuestToken: '' }).subscribe((response: AuthResponse) => {
+      })
 
+    } catch (error) { }
+  }
+
+
+  async ngOnInit() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {

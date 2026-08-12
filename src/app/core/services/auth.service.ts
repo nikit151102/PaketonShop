@@ -4,26 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { environment, localStorageEnvironment } from '../../../environment';
 import { StorageUtils } from '../../../utils/storage.utils';
-import { UserService } from './user.service';
+import { User, UserService } from './user.service';
+import { AuthResponse, guestRegisterRequest } from '../interfaces/auth.interface';
 
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  patronymic?: string | null;
-  userName: string;
-  token: string;
-  createDateTime: string;
-  changeDateTime: string;
-  hoursOffset: number;
-}
-
-export interface AuthResponse {
-  message: string;
-  status: number;
-  data: User;
-  breadCrumbs: any;
-}
 
 @Injectable({
   providedIn: 'root',
@@ -209,7 +192,7 @@ export class AuthService {
         code: data.code || undefined,
         step: data.step || (data.code ? 3 : 2),
         expiresAt: data.expiresAt,
-        codeSentAt: data.codeSentAt || null 
+        codeSentAt: data.codeSentAt || null
       };
     } catch {
       return null;
@@ -229,4 +212,32 @@ export class AuthService {
   hasActiveRestore(): boolean {
     return !!this.getRestoreData();
   }
+
+  /**
+   * Регистрация как гость
+   */
+  guestRegister(body: guestRegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${environment.production}/auth/guest-register`,
+      body
+    ).pipe(
+      tap((response) => {
+        if (response.data) {
+          StorageUtils.setLocalStorageCache(
+            this.TOKEN_KEY,
+            response.data.token,
+            3600,
+          );
+          StorageUtils.setLocalStorageCache(
+            this.USER_KEY,
+            response.data,
+            3600,
+          );
+
+          this.authTokenSubject.next(response.data.token);
+        }
+      }),
+    );
+  }
+
 }
