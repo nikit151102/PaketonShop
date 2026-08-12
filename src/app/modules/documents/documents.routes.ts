@@ -15,6 +15,13 @@ export const documentsRoutes: Routes = [
       ),
   },
   {
+    path: 'loyalty_offer',
+    loadComponent: () =>
+      import('./tabs/loyalty-offer/loyalty-offer.component').then(
+        (m) => m.LoyaltyOfferComponent,
+      ),
+  },
+  {
     path: 'partnership',
     loadComponent: () =>
       import('./tabs/partnership-agreement/partnership-agreement.component').then(
@@ -28,14 +35,14 @@ export const documentsRoutes: Routes = [
         (m) => m.NewsletterConsentComponent,
       ),
   },
-    {
+  {
     path: 'privacy-policy',
     loadComponent: () =>
       import('./tabs/privacy-policy/privacy-policy.component').then(
         (m) => m.PrivacyPolicyComponent,
       ),
   },
-      {
+  {
     path: 'cookie-policy',
     loadComponent: () =>
       import('./tabs/cookie-policy/cookie-policy.component').then(

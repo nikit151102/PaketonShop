@@ -12,7 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 })
 export class DocumentsComponent implements OnInit {
   currentDate: Date = new Date();
-  
+
   documents = [
     {
       id: 'offer',
@@ -23,6 +23,17 @@ export class DocumentsComponent implements OnInit {
       lastUpdated: '01.01.2026',
       version: 'редакция от 01.01.2026',
       route: '/documents/offer',
+      category: 'legal'
+    },
+    {
+      id: 'loyalty_offer',
+      title: 'Публичная оферта программы лояльности',
+      type: 'offer',
+      icon: 'document',
+      description: 'Условия программы лояльности',
+      lastUpdated: '01.01.2026',
+      version: 'редакция от 01.01.2026',
+      route: '/documents/loyalty_offer',
       category: 'legal'
     },
     {
@@ -58,9 +69,9 @@ export class DocumentsComponent implements OnInit {
     { id: 'personal', name: 'Персональные данные', icon: 'personal' }
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   filterByCategory(categoryId: string) {
     this.selectedCategory = categoryId;
@@ -68,19 +79,19 @@ export class DocumentsComponent implements OnInit {
 
   get filteredDocuments() {
     let filtered = this.documents;
-    
+
     if (this.selectedCategory !== 'all') {
       filtered = filtered.filter(doc => doc.category === this.selectedCategory);
     }
-    
+
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(doc => 
-        doc.title.toLowerCase().includes(query) || 
+      filtered = filtered.filter(doc =>
+        doc.title.toLowerCase().includes(query) ||
         doc.description.toLowerCase().includes(query)
       );
     }
-    
+
     return filtered;
   }
 
