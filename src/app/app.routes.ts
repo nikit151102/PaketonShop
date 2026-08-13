@@ -149,6 +149,15 @@ export const routes: Routes = [
     }
   },
   {
+    path: 'edit-order/:id',
+    loadComponent: () =>
+      import('./modules/edit-order/edit-order.component').then(m => m.EditOrderComponent),
+    data: {
+      title: 'Заказ №{{orderId}} — редактирование | Пакетон.рф',
+      description: 'Редактирование заказа №{{orderId}}. Изменение состава, количества товаров.',
+    }
+  },
+  {
     path: 'compare',
     loadComponent: () => import('./modules/compare-products/compare-products.component').then((m) => m.CompareProductsComponent),
     data: {
