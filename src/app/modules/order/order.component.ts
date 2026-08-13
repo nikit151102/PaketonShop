@@ -32,6 +32,7 @@ import { UserApiService } from '../../core/api/user.service';
   styleUrls: ['./order.component.scss']
 })
 export class OrderComponent implements OnInit, OnDestroy {
+
   activeBasketId: string | null = null;
   basketProducts: any[] = [];
   createdOrderId: string | null = null;
@@ -929,4 +930,11 @@ export class OrderComponent implements OnInit, OnDestroy {
       // Отправка через Контур
     }
   }
+
+  onEditComposition(): void {
+  // 🔹 Вариант 1: Переход на страницу редактирования
+  if (this.orderData.id) {
+    this.router.navigate(['/edit-order', this.orderData.id]);
+  }
+}
 }

@@ -139,12 +139,13 @@ export const routes: Routes = [
       description: 'Статус заказа №{{orderId}}. История, трекинг, доставка упаковки.',
     }
   },
-    {
+  {
     path: 'edit-order/:id',
-    loadComponent: () => import('./modules/edit-order/edit-order.component').then((m) => m.EditOrderComponent),
+    loadComponent: () =>
+      import('./modules/edit-order/edit-order.component').then(m => m.EditOrderComponent),
     data: {
-      title: 'Заказ №{{orderId}} — статус | Пакетон.рф',
-      description: 'Статус заказа №{{orderId}}. История, трекинг, доставка упаковки.',
+      title: 'Заказ №{{orderId}} — редактирование | Пакетон.рф',
+      description: 'Редактирование заказа №{{orderId}}. Изменение состава, количества товаров.',
     }
   },
   {

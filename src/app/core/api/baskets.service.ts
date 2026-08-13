@@ -122,14 +122,29 @@ export class BasketsService {
   /**
  * Изменить количество товара в корзине
  */
-  changeProductFromBasket(basketId: string, productId: string, count: Number): Observable<any> {
-    return this.http.post(`${this.baseUrl}/ChangeProductCount`,
-      {
-        "isDeleted": true,
-        "productId": productId,
-        "basketId": basketId,
-        "count": count,
-      });
+  changeProductFromBasket(basketId: string | null | undefined, productId: string, count: Number): Observable<any> {
+    const body: any = {
+      "isDeleted": true,
+      "productId": productId,
+      "count": count
+    };
+
+    if (basketId) {
+      body.basketId = basketId;
+    }
+
+    return this.http.post(`${this.baseUrl}/ChangeProductCount`, body);
   }
 
+    /**
+ * Изменить количество товара в самом объекте заказа
+ */
+  changeProductPositionFromBasket( productId: string, count: Number): Observable<any> {
+    const body: any = {
+      "Id": productId,
+      "count": count
+    };
+
+    return this.http.put(`${environment.production}/api/Entities/UserBasketProductPosition/${productId}`, body);
+  }
 }
