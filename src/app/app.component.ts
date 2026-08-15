@@ -61,26 +61,16 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
-    this.userApiService.validateToken().subscribe({
-      next: (isValid: boolean) => {
-        if (!isValid) {
-          this.authService.logout();
-          this.handleValidUser();
-
-          return;
-        }
-        this.handleValidUser();
-      },
-      error: () => {
-        this.authService.logout();
-      }
-    });
+   
   }
 
   private async handleValidUser() {
     try {
       const visitorId = await this.fingerprintService.getVisitorId();
       this.authService.guestRegister({ fingerprint: visitorId, existingGuestToken: '' }).subscribe((response: AuthResponse) => {
+        if (localStorage.getItem(localStorageEnvironment.auth.key)) {
+          this.loadBaskets();
+        }
       })
 
     } catch (error) { }
@@ -113,7 +103,20 @@ export class AppComponent implements OnInit, OnDestroy {
     if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
       this.loadBaskets();
     }
+ this.userApiService.validateToken().subscribe({
+      next: (isValid: boolean) => {
+        if (!isValid) {
+          this.authService.logout();
+          this.handleValidUser();
 
+          return;
+        }
+        this.handleValidUser();
+      },
+      error: () => {
+        this.authService.logout();
+      }
+    });
     if (this.authService.hasActiveRestore()) {
       this.authService.changeVisible(true);
     }
