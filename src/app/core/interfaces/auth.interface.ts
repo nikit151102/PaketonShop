@@ -1,26 +1,15 @@
-export interface User {
+export interface AuthResponseData {
   id: string;
-  firstName: string;
-  lastName: string;
-  patronymic?: string | null;
-  userName: string;
   token: string;
-  createDateTime: string;
-  changeDateTime: string;
+  refreshToken: string;
   hoursOffset: number;
+  isDeleted: boolean;
 }
 
 export interface AuthResponse {
   message: string;
   status: number;
-  data: User;
-  breadCrumbs: any;
-}
-
-export interface AuthResponse {
-  message: string;
-  status: number;
-  data: User;
+  data: AuthResponseData;
   breadCrumbs: any;
 }
 
@@ -28,4 +17,3 @@ export interface guestRegisterRequest {
   fingerprint: string;
   existingGuestToken: string;
 }
-

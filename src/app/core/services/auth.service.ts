@@ -240,4 +240,18 @@ export class AuthService {
     );
   }
 
+  public handleLoginSuccess(response: any): void {
+    StorageUtils.setLocalStorageCache(
+      localStorageEnvironment.auth.key,
+      response.data.token,
+      localStorageEnvironment.auth.ttl,
+    );
+
+    StorageUtils.setLocalStorageCache(
+      localStorageEnvironment.refreshToken.key,
+      response.data.refreshToken,
+      localStorageEnvironment.refreshToken.ttl,
+    );
+  }
+
 }

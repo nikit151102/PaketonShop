@@ -13,7 +13,15 @@ export const environment = {
 export const localStorageEnvironment = {
   auth: {
     key: 'pkt_',
-    ttl: 14 * 60 * 60,
+    ttl: 30 * 24 * 60 * 60,
+  },
+  refreshToken: {
+    key: 'pkt_rt',
+    ttl: 30 * 24 * 60 * 60,
+  },
+  isGuestToken: {
+    key: 'pkt_igt',
+    ttl: 30 * 24 * 60 * 60,
   },
   user: {
     key: 'pkt_user',

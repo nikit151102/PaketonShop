@@ -1,6 +1,6 @@
 import { Component, HostListener, OnDestroy, OnInit, Inject, PLATFORM_ID, computed, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { filter, map, Observable, Subscription, take } from 'rxjs';
+import { filter, Subscription, take } from 'rxjs';
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { HeaderComponent } from './core/components/header/header.component';
 import { FooterComponent } from './core/components/footer/footer.component';
@@ -9,7 +9,7 @@ import { LocationComponent } from './core/components/location/location.component
 import { MobileBottomNavComponent } from './core/components/mobile-bottom-nav/mobile-bottom-nav.component';
 import { BasketsService } from './core/api/baskets.service';
 import { BasketsStateService } from './core/services/baskets-state.service';
-import { User, UserService } from './core/services/user.service';
+import { UserService } from './core/services/user.service';
 import { LocationService } from './core/components/location/location.service';
 import { StorageUtils } from '../utils/storage.utils';
 import { localStorageEnvironment } from '../environment';
@@ -48,6 +48,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private protectedImages = new Set<HTMLImageElement>();
   private previousUrl = '';
   private userService = inject(UserService);
+  private isAuthInitialized = false;
 
   constructor(
     private basketsService: BasketsService,
@@ -60,66 +61,198 @@ export class AppComponent implements OnInit, OnDestroy {
     private fingerprintService: FingerprintService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
-
-   
   }
-
-  private async handleValidUser() {
-    try {
-      const visitorId = await this.fingerprintService.getVisitorId();
-      this.authService.guestRegister({ fingerprint: visitorId, existingGuestToken: '' }).subscribe((response: AuthResponse) => {
-        if (localStorage.getItem(localStorageEnvironment.auth.key)) {
-          this.loadBaskets();
-        }
-      })
-
-    } catch (error) { }
-  }
-
 
   async ngOnInit() {
+    if (!this.isBrowser) return;
+
+    // Инициализация Yandex Metrika
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Сообщаем Яндексу о новом "виртуальном" просмотре страницы
-      ym(110808930, 'hit', event.urlAfterRedirects);
+      if (typeof ym !== 'undefined') {
+        ym(110808930, 'hit', event.urlAfterRedirects);
+      }
     });
 
+    // Проверка города
     const currentCity = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.currentCity.key
     );
 
     if (currentCity == null) {
-      this.locationService.showCityModal$.next(true)
+      this.locationService.showCityModal$.next(true);
     }
 
-    if (!this.isBrowser) return;
-
+    // Инициализация защитных механизмов
     this.initMobileDetection();
     this.initRouterEvents();
     this.initImageProtection();
     this.injectProtectionStyles();
 
-    if (StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
-      this.loadBaskets();
-    }
- this.userApiService.validateToken().subscribe({
-      next: (isValid: boolean) => {
-        if (!isValid) {
-          this.authService.logout();
-          this.handleValidUser();
+    // Инициализация авторизации
+    await this.initializeAuth();
 
-          return;
-        }
-        this.handleValidUser();
-      },
-      error: () => {
-        this.authService.logout();
-      }
-    });
+    // Проверка активного восстановления пароля
     if (this.authService.hasActiveRestore()) {
       this.authService.changeVisible(true);
     }
+  }
+
+  /**
+   * Основная логика инициализации авторизации
+   * 1. Проверяем наличие токена
+   * 2. Если токен есть - валидируем
+   * 3. Если токен не валиден - пробуем обновить через refreshToken
+   * 4. Если refreshToken не работает или нет токена - регистрируем гостя
+   */
+  private async initializeAuth(): Promise<void> {
+    if (this.isAuthInitialized) return;
+    this.isAuthInitialized = true;
+
+    const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key) as string | null;
+    const refreshToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.refreshToken.key) as string | null;
+
+    // Если есть токен - проверяем его
+    if (token) {
+      try {
+        const isValid = await this.validateTokenWithRefresh(token, refreshToken);
+        if (isValid) {
+          // Токен валиден, загружаем корзины
+          this.loadBaskets();
+          this.userService.updateIsAuthUser(true);
+          return;
+        }
+      } catch (error) {
+        console.error('Token validation error:', error);
+      }
+    }
+
+    // Если нет токена или он невалидный - регистрируем гостя
+    await this.registerGuestUser();
+  }
+
+  /**
+   * Валидация токена с автоматическим обновлением при необходимости
+   */
+  private validateTokenWithRefresh(token: string, refreshToken: string | null): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.userApiService.validateToken().subscribe({
+        next: (isValid: boolean) => {
+          if (isValid) {
+            resolve(true);
+          } else if (refreshToken) {
+            // Токен не валиден, пробуем обновить
+            this.userApiService.refreshToken().subscribe({
+              next: (response: any) => {
+                if (response?.token) {
+                  // Обновление успешно, сохраняем новые токены
+                  this.authService.handleLoginSuccess(response);
+                  resolve(true);
+                } else {
+                  // Обновление не удалось
+                  this.clearAuthData();
+                  resolve(false);
+                }
+              },
+              error: () => {
+                this.clearAuthData();
+                resolve(false);
+              }
+            });
+          } else {
+            // Нет refresh токена
+            this.clearAuthData();
+            resolve(false);
+          }
+        },
+        error: () => {
+          // Ошибка валидации, пробуем обновить если есть refreshToken
+          if (refreshToken) {
+            this.userApiService.refreshToken().subscribe({
+              next: (response: any) => {
+                if (response?.token) {
+                  this.authService.handleLoginSuccess(response);
+                  resolve(true);
+                } else {
+                  this.clearAuthData();
+                  resolve(false);
+                }
+              },
+              error: () => {
+                this.clearAuthData();
+                resolve(false);
+              }
+            });
+          } else {
+            this.clearAuthData();
+            resolve(false);
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Регистрация гостевого пользователя
+   */
+  private async registerGuestUser(): Promise<void> {
+    try {
+      const visitorId = await this.fingerprintService.getVisitorId();
+
+      // Проверяем, может уже есть гостевой токен
+      const guestToken = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key) as string | null;
+
+      const guestData: guestRegisterRequest = {
+        fingerprint: visitorId,
+        existingGuestToken: guestToken || ''
+      };
+
+      this.authService.guestRegister(guestData).subscribe({
+        next: (response: AuthResponse) => {
+          if (response?.data?.token) {
+            // Сохраняем гостевой токен
+            StorageUtils.setLocalStorageCache(
+              localStorageEnvironment.auth.key,
+              response.data.token,
+              localStorageEnvironment.auth.ttl
+            );
+
+            StorageUtils.setLocalStorageCache(
+              localStorageEnvironment.isGuestToken.key,
+              true,
+              localStorageEnvironment.isGuestToken.ttl
+            );
+
+            if (response.data.refreshToken) {
+              StorageUtils.setLocalStorageCache(
+                localStorageEnvironment.refreshToken.key,
+                response.data.refreshToken,
+                localStorageEnvironment.refreshToken.ttl
+              );
+            }
+
+            // Загружаем корзины если они есть
+            this.loadBaskets();
+            this.userService.updateIsAuthUser(false);
+          }
+        },
+        error: (error) => {
+          console.error('Guest registration failed:', error);
+        }
+      });
+    } catch (error) {
+      console.error('Fingerprint generation failed:', error);
+    }
+  }
+
+  /**
+   * Очистка данных авторизации
+   */
+  private clearAuthData(): void {
+    StorageUtils.removeLocalStorageCache(localStorageEnvironment.auth.key);
+    StorageUtils.removeLocalStorageCache(localStorageEnvironment.refreshToken.key);
+    this.authService.logout();
   }
 
   ngOnDestroy(): void {
@@ -130,7 +263,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   @HostListener('window:resize')
   onResize(): void {
-    if (this.isBrowser) this.isMobile = window.innerWidth <= 950;
+    if (this.isBrowser) {
+      this.isMobile = window.innerWidth <= 950;
+    }
   }
 
   @HostListener('document:dragstart', ['$event'])
@@ -159,7 +294,11 @@ export class AppComponent implements OnInit, OnDestroy {
       const combos: Record<string, () => void> = {
         's': () => this.showToast('Сохранение страницы запрещено', 'warning'),
         'p': () => this.showToast('Печать страницы запрещена', 'warning'),
-        'c': () => (event.target as HTMLElement)?.tagName === 'IMG' && this.showToast('Копирование изображений запрещено', 'warning'),
+        'c': () => {
+          if ((event.target as HTMLElement)?.tagName === 'IMG') {
+            this.showToast('Копирование изображений запрещено', 'warning');
+          }
+        },
         'u': () => this.showToast('Инструменты разработчика временно ограничены', 'info')
       };
 
@@ -182,18 +321,25 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe({
         next: (res) => {
-          this.basketsStateService.updateBaskets(res.data);
-          this.userService.updateIsAuthUser(true);
+          if (res && res.data) {
+            this.basketsStateService.updateBaskets(res.data);
+          }
         },
-        error: (err) => { }
+        error: (err) => {
+          console.error('Failed to load baskets:', err);
+        }
       });
   }
 
   private initMobileDetection(): void {
-    this.isMobile = window.innerWidth <= 950;
+    if (this.isBrowser) {
+      this.isMobile = window.innerWidth <= 950;
+    }
   }
 
   private initRouterEvents(): void {
+    if (!this.isBrowser) return;
+
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -225,6 +371,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private initImageProtection(): void {
+    if (!this.isBrowser) return;
+
     this.imageObserver = new IntersectionObserver(
       (entries) => entries.forEach(e => e.isIntersecting && this.protectImage(e.target as HTMLImageElement)),
       { threshold: 0.1 }
@@ -234,13 +382,15 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private protectNewImages(): void {
+    if (!this.isBrowser) return;
+
     document.querySelectorAll('img').forEach(img => {
       if (!this.protectedImages.has(img)) this.protectImage(img);
     });
   }
 
   private protectImage(img: HTMLImageElement): void {
-    if (this.protectedImages.has(img)) return;
+    if (this.protectedImages.has(img) || !this.isBrowser) return;
 
     img.classList.add('protected-image');
     img.setAttribute('draggable', 'false');
@@ -263,6 +413,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private injectProtectionStyles(): void {
+    if (!this.isBrowser) return;
+
     const style = document.createElement('style');
     style.textContent = `
       .protected-image{pointer-events:auto;user-select:none;-webkit-user-select:none}
@@ -275,6 +427,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private showToast(message: string, type: 'info' | 'warning' | 'error' = 'info'): void {
+    if (!this.isBrowser) return;
+
     const existing = document.querySelector('.toast-message');
     existing?.remove();
 
@@ -301,5 +455,4 @@ export class AppComponent implements OnInit, OnDestroy {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 2000);
   }
-
 }
