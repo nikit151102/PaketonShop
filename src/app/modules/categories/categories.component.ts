@@ -43,13 +43,15 @@ export class CategoriesComponent implements OnInit {
 
   appliedFilters: any[] = [];
 
+  private loadedCategoryIds: Set<string> = new Set();
+
   constructor(
     private route: ActivatedRoute,
     private categoryService: CategoryService,
     private productsService: ProductsService,
   ) { }
 
-    ngOnInit(): void {
+  ngOnInit(): void {
     combineLatest([
       this.route.paramMap,
       this.route.queryParamMap
@@ -67,8 +69,6 @@ export class CategoriesComponent implements OnInit {
         this.resetState();
 
         if (this.categoryId !== 'search') {
-          // ВАЖНО: loadProducts() теперь вызывается внутри loadCategoryData() 
-          // после успешного получения хлебных крошек
           this.loadCategoryData();
         } else {
           this.loadProducts();
@@ -78,7 +78,6 @@ export class CategoriesComponent implements OnInit {
       }
     });
   }
-
 
   resetState(): void {
     this.categoryData = null;
@@ -92,6 +91,7 @@ export class CategoriesComponent implements OnInit {
     this.breadCrumbs = [];
     this.currentBreadCrumbIndex = -1;
     this.isBreadCrumbsLoading = false;
+    this.loadedCategoryIds.clear();
   }
 
   loadCategoryData(): void {
@@ -106,23 +106,23 @@ export class CategoriesComponent implements OnInit {
           this.subCategories = data.data?.subCategories || [];
 
           this.breadCrumbs = data.breadCrumbs || [];
-          
-          // Задаем стартовый индекс (предпоследний элемент, так как последний — это текущая категория)
-          // Если крошек нет или только 1 элемент, индекс будет -1
+
           this.currentBreadCrumbIndex = this.breadCrumbs.length > 0 ? this.breadCrumbs.length - 2 : -1;
-          
-          // Запускаем загрузку товаров ТОЛЬКО после того, как узнали структуру хлебных крошек
+
+          this.loadedCategoryIds.add(this.categoryId);
+
+          // Запускаем загрузку товаров
           this.loadProducts();
         },
-        error: (err) => { 
+        error: (err) => {
           this.error = 'Ошибка загрузки категории';
-          this.loadProducts(); // Всё равно пытаемся загрузить товары
+          this.loadProducts();
         }
       });
   }
 
   private breadCrumbs: Array<{ id: string; name: string }> = [];
-  private currentBreadCrumbIndex: number = -1; // -1 = текущая категория, 0+ = родительские
+  private currentBreadCrumbIndex: number = -1;
   private isBreadCrumbsLoading: boolean = false;
 
   loadProducts(): void {
@@ -130,30 +130,28 @@ export class CategoriesComponent implements OnInit {
 
     this.loadingMore = true;
 
-    // 🔹 Определяем, из какой категории грузим
     const currentCategoryId = this.getEffectiveCategoryId();
 
-    const baseFilters = currentCategoryId
+    const baseFilters: Array<{ field: string; values: string[]; type: number }> = currentCategoryId
       ? [
-        {
-          field: "Text",
-          values: [],
-          type: 0
-        },
-        {
-          field: 'ProductCategories.Id',
-          values: [currentCategoryId],
-          type: 11,
-        },
+        { field: "Text", values: [], type: 0 },
+        { field: 'ProductCategories.Id', values: [currentCategoryId], type: 11 },
       ]
       : [];
 
+    if (this.loadedCategoryIds.size > 0 && currentCategoryId) {
+      const excludedIds = Array.from(this.loadedCategoryIds).filter(id => id !== currentCategoryId);
+      if (excludedIds.length > 0) {
+        baseFilters.push({
+          field: 'ExcludedProductCategories.Id',
+          values: excludedIds,
+          type: 11
+        });
+      }
+    }
+
     const allFilters = (this.categoryId === 'search') ?
-      [...this.appliedFilters, {
-        field: "searchQuery",
-        values: [this.searchQuery],
-        type: 0
-      }] :
+      [...this.appliedFilters, { field: "searchQuery", values: [this.searchQuery], type: 0 }] :
       [...baseFilters, ...this.appliedFilters];
 
     this.productsService
@@ -162,27 +160,20 @@ export class CategoriesComponent implements OnInit {
         next: (res) => {
           const loadedProducts = res.data || [];
 
-
-          // 🔹 Добавляем товары в общий список
           this.products = [...this.products, ...loadedProducts];
 
-          // 🔹 Обновляем метаданные только для текущей категории
           this.totalItems = res.totalCount;
           this.totalPages = Math.ceil(this.totalItems / this.pageSize);
 
           this.loading = false;
           this.loadingMore = false;
 
-          console.log(`🔹 Категория ID: ${currentCategoryId || 'null'}`);
-          console.log(`🔹 Страница: ${this.currentPage} из ${res.pageCount} (totalCount: ${this.totalItems})`);
-          console.groupEnd();
-          // 🔹 Проверяем, закончилась ли текущая категория:
-          // 1. Получили меньше товаров, чем pageSize — значит, это последняя страница
-          // 2. Или получили 0 товаров — категория пуста
           const isCurrentCategoryExhausted = loadedProducts.length === 0 || loadedProducts.length < this.pageSize;
 
           if (isCurrentCategoryExhausted) {
-            // 🔹 Категория закончилась — пробуем переключиться на родительскую
+            if (currentCategoryId) {
+              this.loadedCategoryIds.add(currentCategoryId);
+            }
             this.trySwitchToNextBreadCrumb();
           }
         },
@@ -194,93 +185,59 @@ export class CategoriesComponent implements OnInit {
       });
   }
 
-
+  /**
+   * Переключается на следующую родительскую категорию из хлебных крошек
+   * Движемся СНИЗУ ВВЕРХ: от более специфичных к более общим
+   */
   private trySwitchToNextBreadCrumb(): void {
-    console.groupCollapsed(`🔁 Проверка родительских категорий`);
-    console.log(`🔹 breadCrumbs:`, this.breadCrumbs.map(bc => ({ id: bc.id, name: bc.name })));
-    console.log(`🔹 currentBreadCrumbIndex: ${this.currentBreadCrumbIndex}`);
-    console.groupEnd();
-
-    // Если мы только что закончили основную категорию и еще не начинали обход крошек
     if (!this.isBreadCrumbsLoading) {
       if (this.breadCrumbs.length === 0 || this.currentBreadCrumbIndex < 0) {
         this.totalItems = Infinity;
         return;
       }
-      // Индекс уже был установлен в loadCategoryData (length - 2). 
-      // Просто активируем флаг, что мы начали обход родительских категорий.
       this.isBreadCrumbsLoading = true;
     } else {
-      // Если мы уже в процессе обхода крошек, переходим на следующий элемент СНЗУ ВВЕРХ (уменьшаем индекс)
       this.currentBreadCrumbIndex--;
     }
 
-    // Проверяем, не вышли ли за границы массива (все родительские категории загружены)
     if (this.currentBreadCrumbIndex < 0) {
       this.totalItems = Infinity;
       this.isBreadCrumbsLoading = false;
-      console.log(`✅ Все родительские категории загружены. Итоговое количество товаров: ${this.products.length}`);
       return;
     }
 
     const nextCategory = this.breadCrumbs[this.currentBreadCrumbIndex];
 
     if (!nextCategory?.id) {
-      console.warn(`⚠️ Неверный индекс хлебной крошки: ${this.currentBreadCrumbIndex}`);
-      this.trySwitchToNextBreadCrumb(); // Рекурсивно пробуем следующий
+      this.trySwitchToNextBreadCrumb();
       return;
     }
 
-    console.log(`🔄 Переключаемся на родительскую категорию: "${nextCategory.name}" (ID: ${nextCategory.id})`);
-
-    this.currentPage = 1; // Сбрасываем страницу для новой категории
+    this.currentPage = 1; 
     this.loadProducts();
   }
 
+  /**
+   *Возвращает актуальный ID категории для загрузки
+   */
   private getEffectiveCategoryId(): string | null {
     if (this.categoryId === 'search') return null;
 
-    // Если идет загрузка из родительских категорий
     if (this.isBreadCrumbsLoading && this.currentBreadCrumbIndex >= 0 && this.currentBreadCrumbIndex < this.breadCrumbs.length) {
       return this.breadCrumbs[this.currentBreadCrumbIndex].id;
     }
 
-    // Иначе грузим из текущей категории
     return this.categoryId;
-  }
-
-
-  /**
-   * 🔹 Проверяет, закончились ли товары в текущей категории,
-   * и если да — переключается на следующую родительскую категорию
-   */
-  private checkAndLoadNextBreadCrumb(): void {
-    // Если ещё есть страницы в текущей категории — ничего не делаем
-    if (this.products.length < this.totalItems) return;
-
-    // Если нет хлебных крошек или уже все прошли — заканчиваем
-    if (this.breadCrumbs.length === 0 || this.currentBreadCrumbIndex < 0) return;
-
-    // 🔹 Переключаемся на следующую родительскую категорию
-    this.currentBreadCrumbIndex--;
-
-    if (this.currentBreadCrumbIndex >= 0) {
-      // Есть ещё родительская категория для загрузки
-      this.isBreadCrumbsLoading = true;
-      this.currentPage = 0; // 🔹 Обнуляем страницу для новой категории
-      this.loadProducts(); // Рекурсивно загружаем товары из родительской категории
-    }
-    // Если currentBreadCrumbIndex < 0 — все категории загружены, останавливаемся
   }
 
   onFiltersChange(filters: any[]): void {
     this.appliedFilters = filters;
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
   }
 
   applyFilters(): void {
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
   }
 
@@ -291,10 +248,9 @@ export class CategoriesComponent implements OnInit {
 
   retry(): void {
     this.error = '';
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
   }
-
 
   goToPage(page: number): void {
     this.currentPage = page;
@@ -320,23 +276,37 @@ export class CategoriesComponent implements OnInit {
     return pages;
   }
 
-    @HostListener('window:scroll')
+  @HostListener('window:scroll')
   onScroll(): void {
-    // Если totalItems === Infinity, значит все родительские категории уже пройдены
-    if (this.loading || this.loadingMore || this.totalItems === Infinity) return;
-
-    const scrollPosition = window.scrollY + window.innerHeight;
-    const pageHeight = document.documentElement.scrollHeight;
-    const triggerPosition = pageHeight - 500;
-
-    if (scrollPosition >= triggerPosition) {
-      this.currentPage++;
-      this.loadProducts();
+    if (this.loading || this.loadingMore) {
+      return;
     }
+
+    if (this.totalItems === Infinity) {
+      return;
+    }
+
+    if (this.currentPage < this.totalPages) {
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const pageHeight = document.documentElement.scrollHeight;
+      const triggerPosition = pageHeight - 500;
+
+      if (scrollPosition >= triggerPosition) {
+        this.currentPage++;
+        this.loadProducts();
+      }
+      return;
+    }
+
+    if (this.currentBreadCrumbIndex >= 0) {
+      this.trySwitchToNextBreadCrumb();
+      return;
+    }
+
+    this.totalItems = Infinity;
   }
 
   nextPage(): void {
-    // Проверяем по номеру страницы, а не по количеству товаров
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
       this.loadProducts();
@@ -351,7 +321,4 @@ export class CategoriesComponent implements OnInit {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-
-
-
 }
