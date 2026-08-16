@@ -133,13 +133,13 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
       this.open();
     }
 
-    this.partnerForm.get('bankSearch')?.valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(search => this.searchBanks(search));
+    // this.partnerForm.get('bankSearch')?.valueChanges
+    //   .pipe(
+    //     debounceTime(300),
+    //     distinctUntilChanged(),
+    //     takeUntil(this.destroy$)
+    //   )
+    //   .subscribe(search => this.searchBanks(search));
 
     this.partnerForm.get('partnerTypeId')?.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -382,7 +382,7 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
 
   private loadInitialData(): void {
     this.loadPartnerTypes();
-    this.loadBanks();
+    // this.loadBanks();
   }
 
   private loadPartnerTypes(): void {
@@ -441,7 +441,8 @@ export class PartnerFormComponent implements OnInit, OnDestroy {
     });
   }
 
-private searchBanks(search: string): void {
+  private searchBanks(search: string): void {
+
     if (!search) {
       this.filteredBanks = [];
       return;
@@ -454,8 +455,8 @@ private searchBanks(search: string): void {
       const bik = bank?.bik?.toLowerCase() ?? '';
 
       return shortName.includes(searchLower) ||
-             fullName.includes(searchLower) ||
-             bik.includes(searchLower);
+        fullName.includes(searchLower) ||
+        bik.includes(searchLower);
     });
   }
 
@@ -516,15 +517,17 @@ private searchBanks(search: string): void {
       kpp: ['', this.kppValidator],
       korAccount: [''],
       bankAccount: [''],
-      bankId: ['', Validators.required],
-      bankSearch: [''],
+      bankId: [''],
+      // bankSearch: [''],
+      bankBik: [''],
+      bankName: [''],
       address: this.fb.group({
         country: ['Россия', Validators.required],
         region: ['', Validators.required],
         city: ['', Validators.required],
         street: ['', Validators.required],
         house: ['', Validators.required],
-        postIndex: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
+        postIndex: ['', [Validators.pattern(/^\d{6}$/)]]
       })
     });
   }
@@ -543,6 +546,8 @@ private searchBanks(search: string): void {
       inn: this.partner.inn || '',
       ogrn: this.partner.ogrn || '',
       kpp: this.partner.kpp || '',
+      bankBik: this.partner.bankBik || '',
+      bankName: this.partner.bankName || '',
       korAccount: this.partner.korAccount || '',
       bankAccount: this.partner.bankAccount || '',
       bankId: this.partner.bankId || '',
@@ -570,22 +575,22 @@ private searchBanks(search: string): void {
     }
   }
 
-  onBankSelect(bank: PartnerBank): void {
-    this.selectedBank = bank;
-    this.partnerForm.patchValue({
-      bankId: bank.id,
-      bankSearch: bank.partner.shortName
-    });
-    this.filteredBanks = [];
-  }
+  // onBankSelect(bank: PartnerBank): void {
+  //   this.selectedBank = bank;
+  //   this.partnerForm.patchValue({
+  //     bankId: bank.id,
+  //     bankSearch: bank.partner.shortName
+  //   });
+  //   this.filteredBanks = [];
+  // }
 
-  clearBankSelection(): void {
-    this.selectedBank = null;
-    this.partnerForm.patchValue({
-      bankId: '',
-      bankSearch: ''
-    });
-  }
+  // clearBankSelection(): void {
+  //   this.selectedBank = null;
+  //   this.partnerForm.patchValue({
+  //     bankId: '',
+  //     bankSearch: ''
+  //   });
+  // }
 
   nextStep(): void {
     if (!this.validateCurrentStep()) {
@@ -622,7 +627,7 @@ private searchBanks(search: string): void {
         }
         break;
       case 3:
-        ['inn', 'ogrn', 'bankId'].forEach(controlName => {
+        ['inn', 'ogrn'].forEach(controlName => {
           this.partnerForm.get(controlName)?.markAsTouched();
         });
         if (this.selectedPartnerType?.code === 1) {
@@ -631,7 +636,7 @@ private searchBanks(search: string): void {
         break;
       case 4:
         ['address.country', 'address.region', 'address.city',
-          'address.street', 'address.house', 'address.postIndex'].forEach(controlName => {
+          'address.street', 'address.house'].forEach(controlName => {
             this.partnerForm.get(controlName)?.markAsTouched();
           });
         break;
@@ -675,7 +680,7 @@ private searchBanks(search: string): void {
   }
 
   private validateStep3(): boolean {
-    const requiredControls = ['inn', 'ogrn', 'bankId'];
+    const requiredControls = ['inn', 'ogrn'];
     const allRequiredValid = requiredControls.every(controlName => {
       const control = this.partnerForm.get(controlName);
       return control?.valid || false;
@@ -690,7 +695,7 @@ private searchBanks(search: string): void {
   }
 
   private validateStep4(): boolean {
-    const addressControls = ['country', 'region', 'city', 'street', 'house', 'postIndex'];
+    const addressControls = ['country', 'region', 'city', 'street', 'house'];
     return addressControls.every(controlName => {
       const control = this.partnerForm.get(`address.${controlName}`);
       return control?.valid || false;
@@ -819,10 +824,12 @@ private searchBanks(search: string): void {
       phoneNumber: formValue.phoneNumber,
       bankAccount: formValue.bankAccount,
       partnerTypeId: formValue.partnerTypeId,
+      bankBik: formValue.bankBik,
+      bankName: formValue.bankName,
     };
 
     const data: any = {
-      bankId: formValue.bankId,
+      // bankId: formValue.bankId,
       partnerCreateDTO: partnerCreateDTO
     };
 

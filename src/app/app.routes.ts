@@ -74,6 +74,15 @@ export const routes: Routes = [
     }
   },
   {
+    path: 'loyalty-system',
+    loadComponent: () => import('./modules/loyalty-system/loyalty-system.component').then((m) => m.LoyaltySystemComponent),
+    data: {
+      title: 'Франшиза Пакетон.рф — Открой свой бизнес по продаже упаковки',
+      description: 'Откройте прибыльный бизнес с франшизой Пакетон.рф! Готовая бизнес-модель магазина упаковки, полная поддержка партнеров, широкий ассортимент и узнаваемый бренд. Узнайте условия открытия.',
+      keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
+    }
+  },
+  {
     path: 'news/:id',
     loadComponent: () => import('./modules/news-detail/news-detail.component').then((m) => m.NewsDetailComponent),
     data: {
@@ -141,10 +150,11 @@ export const routes: Routes = [
   },
   {
     path: 'edit-order/:id',
-    loadComponent: () => import('./modules/edit-order/edit-order.component').then((m) => m.EditOrderComponent),
+    loadComponent: () =>
+      import('./modules/edit-order/edit-order.component').then(m => m.EditOrderComponent),
     data: {
-      title: 'Заказ №{{orderId}} — статус | Пакетон.рф',
-      description: 'Статус заказа №{{orderId}}. История, трекинг, доставка упаковки.',
+      title: 'Заказ №{{orderId}} — редактирование | Пакетон.рф',
+      description: 'Редактирование заказа №{{orderId}}. Изменение состава, количества товаров.',
     }
   },
   {

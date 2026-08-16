@@ -87,7 +87,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCompanies();
     this.loadPartnerTypes();
-    this.loadBanks();
+    // this.loadBanks();
     this.subscribeToUserData();
 
     // Подписка на поиск банков
@@ -101,11 +101,11 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       .subscribe(value => this.onPartnerTypeChange(value));
 
     // Подписка на изменение bankId
-    this.partnerForm.get('bankId')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(bankId => {
-        this.selectedBank = bankId ? this.banks.find(b => b.id === bankId) || null : null;
-      });
+    // this.partnerForm.get('bankId')?.valueChanges
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe(bankId => {
+    //     this.selectedBank = bankId ? this.banks.find(b => b.id === bankId) || null : null;
+    //   });
   }
 
   ngOnDestroy(): void {
@@ -132,11 +132,15 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           if (response.data) {
-            this.companies = response.data;
+            this.companies = response.data.filter(
+              (c: any) => !c.isDeleted && !c.partner?.isDeleted
+            );
+            console.log('this.companies', this.companies.length)
             if (this.selectedCompanyId) {
               const selected = this.companies.find(c => c.id === this.selectedCompanyId);
               if (selected) this.previewedCompany = selected;
             }
+
           }
           this.loading = false;
         },
@@ -155,7 +159,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
           this.filteredPartnerTypes = [...this.partnerTypes];
         }
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -167,7 +171,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
           this.filteredBanks = [...this.banks];
         }
       },
-      error: (err) =>  {}
+      error: (err) => { }
     });
   }
 
@@ -209,8 +213,10 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       kpp: ['', this.kppValidator],
       korAccount: [''],
       bankAccount: [''],
-      bankId: ['', Validators.required],
-      bankSearch: [''],
+      bankId: [''],
+      // bankSearch: [''],
+      bankBik: [''],
+      bankName: [''],
       address: this.fb.group({
         country: ['Россия', Validators.required],
         region: ['', Validators.required],
@@ -272,19 +278,19 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     );
   }
 
-  onBankSelect(bank: PartnerBank): void {
-    this.selectedBank = bank;
-    this.partnerForm.patchValue({
-      bankId: bank.id,
-      bankSearch: bank.partner.shortName
-    });
-    this.filteredBanks = [];
-  }
+  // onBankSelect(bank: PartnerBank): void {
+  //   this.selectedBank = bank;
+  //   this.partnerForm.patchValue({
+  //     bankId: bank.id,
+  //     bankSearch: bank.partner.shortName
+  //   });
+  //   this.filteredBanks = [];
+  // }
 
-  clearBankSelection(): void {
-    this.selectedBank = null;
-    this.partnerForm.patchValue({ bankId: '', bankSearch: '' });
-  }
+  // clearBankSelection(): void {
+  //   this.selectedBank = null;
+  //   this.partnerForm.patchValue({ bankId: '', bankSearch: '' });
+  // }
 
   // ==================== Управление формой ====================
   openForm(mode: 'add' | 'edit', company?: any): void {
@@ -375,7 +381,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       kpp: company.kpp || company.partner?.kpp || '',
       korAccount: company.korAccount || company.partner?.korAccount || '',
       bankAccount: company.bankAccount || company.partner?.bankAccount || '',
-      bankId: company.bankId || company.partner?.bankId || '',
+      // bankId: company.bankId || company.partner?.bankId || '',
     });
 
     if (company.address || company.partner?.address) {
@@ -400,14 +406,14 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (company.bankId || company.partner?.bankId) {
-      const bankId = company.bankId || company.partner?.bankId;
-      const bank = this.banks.find(b => b.id === bankId);
-      if (bank) {
-        this.selectedBank = bank;
-        this.partnerForm.patchValue({ bankSearch: bank.partner.shortName });
-      }
-    }
+    // if (company.bankId || company.partner?.bankId) {
+    //   const bankId = company.bankId || company.partner?.bankId;
+    //   const bank = this.banks.find(b => b.id === bankId);
+    //   if (bank) {
+    //     this.selectedBank = bank;
+    //     this.partnerForm.patchValue({ bankSearch: bank.partner.shortName });
+    //   }
+    // }
   }
 
   // ==================== Валидация шагов ====================
@@ -437,10 +443,10 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
   private validateStep3(): boolean {
     const inn = this.partnerForm.get('inn')?.value;
     const ogrn = this.partnerForm.get('ogrn')?.value;
-    const bankId = this.partnerForm.get('bankId')?.value;
+    // const bankId = this.partnerForm.get('bankId')?.value;
     const kpp = this.partnerForm.get('kpp')?.value;
 
-    const requiredValid = !!(inn && ogrn && bankId);
+    const requiredValid = !!(inn && ogrn);
     const kppValid = this.selectedPartnerType?.code === 1
       ? !!(kpp && this.partnerForm.get('kpp')?.valid)
       : true;
@@ -472,7 +478,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     const fields: Record<number, string[]> = {
       1: ['partnerTypeId', 'fullName', 'shortName'],
       2: ['lastName', 'firstName', 'phoneNumber'],
-      3: ['inn', 'ogrn', 'bankId'],
+      3: ['inn', 'ogrn'],
       4: ['address.country', 'address.region', 'address.city', 'address.street', 'address.house']
     };
 
@@ -579,7 +585,7 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
       address: formValue.address
     };
 
-    const data = { bankId: formValue.bankId, partnerCreateDTO };
+    const data = { partnerCreateDTO };
 
     const request$ = this.formMode === 'edit' && this.editingCompany
       ? this.partnerService.updatePartnerUser(data)
@@ -670,16 +676,47 @@ export class CompanySelectorComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     if (!confirm('Вы уверены, что хотите удалить эту компанию?')) return;
 
-    this.partnerService.deletePartnersUser(companyId).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.companies = this.companies.filter(c => c.id !== companyId);
-          if (this.selectedCompanyId === companyId) this.clearSelection();
-          this.companyDeleted.emit(companyId);
+    this.partnerService.deletePartnersUser(companyId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const isSuccess =
+            response?.success === true ||
+            response?.status === 200 ||
+            response?.status === 'success' ||
+            (response && typeof response === 'object' && !response.error);
+
+          if (isSuccess) {
+
+            this.companies = this.companies.filter(c => {
+              const topLevelId = c.id;
+              const partnerId = c.partner?.id;
+
+              return topLevelId !== companyId && partnerId !== companyId;
+            });
+
+            if (this.selectedCompanyId === companyId) {
+              this.clearSelection();
+            }
+
+            this.companyDeleted.emit(companyId);
+          } else {
+            this.companies = this.companies.filter(c =>
+              c.id !== companyId && c.partner?.id !== companyId
+            );
+
+            if (this.selectedCompanyId === companyId) {
+              this.clearSelection();
+            }
+
+            this.companyDeleted.emit(companyId);
+          }
+        },
+        error: (err) => {
+          const errorMessage = err.error?.message || err.message || 'Неизвестная ошибка';
+          alert(`Ошибка при удалении компании: ${errorMessage}`);
         }
-      },
-      error: (err) =>  {}
-    });
+      });
   }
 
   // ==================== Вспомогательные методы ====================

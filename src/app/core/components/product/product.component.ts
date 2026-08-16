@@ -26,7 +26,7 @@ import { BasketsStateService } from '../../services/baskets-state.service';
 export class ProductComponent implements OnInit, OnDestroy {
   @Input() view: 'compact' | 'wide' = 'compact';
   @Input() showCompare: boolean = true;
-  @Input() product!: any;
+  @Input() product: any;
 
   @Output() onFavoriteRemoved = new EventEmitter<{ productId: string, product: any, undo: () => void }>();
 
@@ -147,6 +147,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   isInActiveBasket(): boolean {
+    if (!this.product?.userBaskets) return false;
+
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return false;
 
@@ -156,6 +158,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   getActiveBasketCount(): number {
+    if (!this.product?.userBaskets) return 0;
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return 0;
 
@@ -167,6 +170,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   getActiveBasketTotal(): string {
+    if (!this.product?.userBaskets) return '0';
+    
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return '0';
 
@@ -178,7 +183,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   hasProductInBaskets(): boolean {
-    return this.product.userBaskets && this.product.userBaskets.length > 0;
+    return !!this.product?.userBaskets?.length;
   }
 
   getTotalProductCount(): number {
@@ -187,7 +192,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   getProductBaskets(): any[] {
-    if (!this.product.userBaskets) return [];
+    if (!this.product?.userBaskets) return [];
     return this.product.userBaskets;
   }
 
