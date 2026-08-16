@@ -20,8 +20,8 @@
     <!-- Основной контент -->
     <div class="main-content">
         <!-- Сайдбар с фильтрами -->
-        <aside class="filters-sidebar" *ngIf="categoryId != 'search'">
-            <app-filters [filters]="filters" [productsCount]="products.length" [categoryId]="categoryData.id"
+        <aside class="filters-sidebar" *ngIf="categoryId != 'search' && categoryData?.id">
+            <app-filters [filters]="filters" [productsCount]="products.length" [categoryId]="categoryData?.id"
                 (filtersChange)="onFiltersChange($event)" (filtersApplied)="applyFilters()">
             </app-filters>
         </aside>

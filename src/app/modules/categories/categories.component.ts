@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, NgZone } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CategoryService } from '../../core/services/category.service';
 import { CategorySectionComponent } from '../../core/components/category-section/category-section.component';
@@ -43,10 +43,15 @@ export class CategoriesComponent implements OnInit {
 
   appliedFilters: any[] = [];
 
+  private loadedCategoryIds: Set<string> = new Set();
+  
+  private isCurrentCategoryComplete: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private categoryService: CategoryService,
     private productsService: ProductsService,
+    private zone: NgZone,
   ) { }
 
   ngOnInit(): void {
@@ -68,10 +73,12 @@ export class CategoriesComponent implements OnInit {
 
         if (this.categoryId !== 'search') {
           this.loadCategoryData();
+        } else {
+          this.loadProducts();
         }
+      } else {
+        this.loadProducts();
       }
-
-      this.loadProducts();
     });
   }
 
@@ -84,6 +91,13 @@ export class CategoriesComponent implements OnInit {
     this.totalPages = 0;
     this.error = '';
     this.appliedFilters = [];
+    this.breadCrumbs = [];
+    this.currentBreadCrumbIndex = -1;
+    this.isBreadCrumbsLoading = false;
+    this.loadedCategoryIds.clear();
+    this.isCurrentCategoryComplete = false;
+    this.loading = false;
+    this.loadingMore = false;
   }
 
   loadCategoryData(): void {
@@ -94,56 +108,80 @@ export class CategoriesComponent implements OnInit {
       .subscribe({
         next: (data: any) => {
           this.categoryData = data.data;
-          // ✅ Устанавливаем фильтры только один раз при загрузке категории
           this.filters = this.categoryData.properties || [];
           this.subCategories = data.data?.subCategories || [];
+
+          this.breadCrumbs = data.breadCrumbs || [];
+          this.currentBreadCrumbIndex = this.breadCrumbs.length > 0 ? this.breadCrumbs.length - 2 : -1;
+          
+          this.loadedCategoryIds.add(this.categoryId);
+          this.loadProducts();
         },
-        error: (err) =>  {}
+        error: (err) => { 
+          this.error = 'Ошибка загрузки категории';
+          this.loadProducts();
+        }
       });
   }
+
+  private breadCrumbs: Array<{ id: string; name: string }> = [];
+  private currentBreadCrumbIndex: number = -1;
+  private isBreadCrumbsLoading: boolean = false;
 
   loadProducts(): void {
     if (this.loading || this.loadingMore) return;
 
     this.loadingMore = true;
+    this.isCurrentCategoryComplete = false;
 
-    const baseFilters = this.categoryId
+    const currentCategoryId = this.getEffectiveCategoryId();
+
+    const baseFilters: Array<{ field: string; values: string[]; type: number }> = currentCategoryId
       ? [
-        {
-          field: "Text",
-          values: [],
-          type: 0
-        },
-        {
-          field: 'ProductCategories.Id',
-          values: [this.categoryId],
-          type: 11,
-        },
-      ]
+          { field: "Text", values: [], type: 0 },
+          { field: 'ProductCategories.Id', values: [currentCategoryId], type: 11 },
+        ]
       : [];
 
+    if (this.loadedCategoryIds.size > 0 && currentCategoryId) {
+      const excludedIds = Array.from(this.loadedCategoryIds).filter(id => id !== currentCategoryId);
+      if (excludedIds.length > 0) {
+        baseFilters.push({
+          field: 'ExcludedProductCategories.Id',
+          values: excludedIds,
+          type: 11
+        });
+      }
+    }
+
     const allFilters = (this.categoryId === 'search') ?
-      [...this.appliedFilters, {
-        field: "searchQuery",
-        values: [this.searchQuery],
-        type: 0
-      }] :
-      [...baseFilters, ...this.appliedFilters]
+      [...this.appliedFilters, { field: "searchQuery", values: [this.searchQuery], type: 0 }] :
+      [...baseFilters, ...this.appliedFilters];
 
     this.productsService
       .getAllSearch(allFilters, null, this.currentPage, this.pageSize)
       .subscribe({
         next: (res) => {
-          if (this.currentPage === 0) {
-            this.products = res.data;
-          } else {
-            this.products = [...this.products, ...res.data];
-          }
+          const loadedProducts = res.data || [];
+          const pageCount = res.pageCount || Math.ceil(res.totalCount / this.pageSize);
 
+          this.products = [...this.products, ...loadedProducts];
           this.totalItems = res.totalCount;
-          this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+          this.totalPages = pageCount;
+
           this.loading = false;
           this.loadingMore = false;
+
+          const isLastPage = this.currentPage >= pageCount;
+          const isExhausted = loadedProducts.length === 0 || loadedProducts.length < this.pageSize;
+          
+          if (isLastPage && isExhausted) {
+            this.isCurrentCategoryComplete = true;
+            if (currentCategoryId) {
+              this.loadedCategoryIds.add(currentCategoryId);
+            }
+            console.log(`🏁 Категория "${currentCategoryId}" завершена`);
+          }
         },
         error: (err) => {
           this.error = 'Произошла ошибка при загрузке товаров';
@@ -153,14 +191,56 @@ export class CategoriesComponent implements OnInit {
       });
   }
 
+  private trySwitchToNextBreadCrumb(): void {
+    
+    this.currentBreadCrumbIndex--;
+    
+    if (this.currentBreadCrumbIndex < 0) {
+      this.totalItems = Infinity;
+      this.isBreadCrumbsLoading = false;
+      return;
+    }
+    
+    const nextCategory = this.breadCrumbs[this.currentBreadCrumbIndex];
+    
+    if (!nextCategory?.id) {
+      console.warn(`⚠️ Неверный индекс: ${this.currentBreadCrumbIndex}`);
+      this.trySwitchToNextBreadCrumb();
+      return;
+    }
+    
+    this.isBreadCrumbsLoading = true;
+    this.currentPage = 1;
+    this.totalItems = 0;
+    this.totalPages = 0;
+    this.isCurrentCategoryComplete = false;
+  
+    this.loading = false;
+    this.loadingMore = false;
+    
+    this.zone.run(() => {
+      this.loadProducts();
+    });
+  }
+
+  private getEffectiveCategoryId(): string | null {
+    if (this.categoryId === 'search') return null;
+    
+    if (this.isBreadCrumbsLoading && this.currentBreadCrumbIndex >= 0 && this.currentBreadCrumbIndex < this.breadCrumbs.length) {
+      return this.breadCrumbs[this.currentBreadCrumbIndex].id;
+    }
+    
+    return this.categoryId;
+  }
+
   onFiltersChange(filters: any[]): void {
     this.appliedFilters = filters;
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
   }
 
   applyFilters(): void {
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
   }
 
@@ -171,24 +251,8 @@ export class CategoriesComponent implements OnInit {
 
   retry(): void {
     this.error = '';
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.loadProducts();
-  }
-
-  prevPage(): void {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-      this.loadProducts();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  nextPage(): void {
-    if (this.products.length < this.totalItems) {
-      this.currentPage++;
-      this.loadProducts();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   }
 
   goToPage(page: number): void {
@@ -217,15 +281,42 @@ export class CategoriesComponent implements OnInit {
 
   @HostListener('window:scroll')
   onScroll(): void {
-    if (this.loading || this.loadingMore || this.products.length >= this.totalItems) return;
-
+    if (this.loading || this.loadingMore) return;
+    if (this.totalItems === Infinity) return;
+    
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
     const triggerPosition = pageHeight - 500;
-
-    if (scrollPosition >= triggerPosition) {
+    
+    if (scrollPosition < triggerPosition) return;
+    
+    if (this.currentPage < this.totalPages) {
       this.currentPage++;
       this.loadProducts();
+      return;
+    }
+    
+    if (this.isCurrentCategoryComplete && this.currentBreadCrumbIndex >= 0) {
+      this.trySwitchToNextBreadCrumb();
+      return;
+    }
+    
+    this.totalItems = Infinity;
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 }
