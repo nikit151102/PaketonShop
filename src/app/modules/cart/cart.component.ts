@@ -8,9 +8,10 @@ import { UserBasket, CreateBasketDto, BasketProductDto } from '../../../models/b
 import { DeliveryOrderService } from '../../core/api/delivery-order.service';
 import { Subject, debounceTime, takeUntil, switchMap, finalize } from 'rxjs';
 import { StorageUtils } from '../../../utils/storage.utils';
-import { memoryCacheEnvironment } from '../../../environment';
+import { localStorageEnvironment, memoryCacheEnvironment } from '../../../environment';
 import { ProductsService } from '../../core/services/products.service';
 import { EmptyStateComponent } from '../../core/components/empty-state/empty-state.component';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-cart',
@@ -71,6 +72,7 @@ export class CartComponent implements OnInit, OnDestroy {
     private productsService: ProductsService,
     private deliveryOrderService: DeliveryOrderService,
     public router: Router,
+    private authService: AuthService,
   ) {
     // Дебаунс для обновления количества
     this.quantityUpdate$
@@ -626,6 +628,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   proceedToCheckout(): void {
+
+    if (StorageUtils.getLocalStorageCache(localStorageEnvironment.isGuestToken.key) == true) {
+      this.authService.setRedirectingToProfile(false);
+      this.authService.changeVisible(true);
+    }
+
+
     if (!this.canProceedToCheckout()) {
       this.showNotification('Добавьте товары в корзину', 'warning');
       return;

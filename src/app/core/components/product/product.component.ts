@@ -407,7 +407,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
     );
-
+    
     if (!authToken) {
       this.authService.setRedirectingToProfile(false);
       this.authService.changeVisible(true);
