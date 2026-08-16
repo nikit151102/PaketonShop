@@ -80,19 +80,6 @@
                 <p>Загружаем товары...</p>
             </div>
 
-            <!-- Сообщение если товаров нет -->
-            <div *ngIf="products.length === 0 && !loading && !loadingMore && !error" class="empty-state">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M22 9h-4.79l-4.39-6.57a1 1 0 0 0-1.66 0L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-                </svg>
-                <h3>Товары не найдены</h3>
-                <p>В данной категории пока нет товаров</p>
-                <button class="back-btn" routerLink="/">
-                    Вернуться в каталог
-                </button>
-            </div>
-
             <!-- Сетка товаров -->
             <div *ngIf="products.length > 0" class="products-grid">
                 <app-product *ngFor="let product of products" [product]="product" class="product-card">
@@ -109,8 +96,22 @@
                 <p>Загружаем ещё...</p>
             </div>
 
+            <!-- Сообщение если товаров нет (только после завершения загрузки) -->
+            <div *ngIf="products.length === 0 && !loading && !loadingMore && !error && totalPages > 0"
+                class="empty-state">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M22 9h-4.79l-4.39-6.57a1 1 0 0 0-1.66 0L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </svg>
+                <h3>Товары не найдены</h3>
+                <p>В данной категории пока нет товаров</p>
+                <button class="back-btn" routerLink="/">
+                    Вернуться в каталог
+                </button>
+            </div>
+
             <!-- Кнопка загрузки еще -->
-            <div *ngIf="products.length < totalItems && !loading && !loadingMore" class="load-more">
+            <div *ngIf="products.length < totalItems && !loading && !loadingMore && !isFullyLoaded" class="load-more">
                 <button class="load-more-btn" (click)="loadMore()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -120,7 +121,7 @@
             </div>
 
             <!-- Сообщение о конце списка -->
-            <div *ngIf="products.length === totalItems && products.length > 0 " class="end-of-list">
+            <div *ngIf="products.length === totalItems && products.length > 0 && isFullyLoaded" class="end-of-list">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                 </svg>

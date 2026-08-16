@@ -44,7 +44,7 @@ export class CategoriesComponent implements OnInit {
   appliedFilters: any[] = [];
 
   private loadedCategoryIds: Set<string> = new Set();
-  
+
   private isCurrentCategoryComplete: boolean = false;
 
   constructor(
@@ -113,11 +113,11 @@ export class CategoriesComponent implements OnInit {
 
           this.breadCrumbs = data.breadCrumbs || [];
           this.currentBreadCrumbIndex = this.breadCrumbs.length > 0 ? this.breadCrumbs.length - 2 : -1;
-          
+
           this.loadedCategoryIds.add(this.categoryId);
           this.loadProducts();
         },
-        error: (err) => { 
+        error: (err) => {
           this.error = 'Ошибка загрузки категории';
           this.loadProducts();
         }
@@ -138,9 +138,9 @@ export class CategoriesComponent implements OnInit {
 
     const baseFilters: Array<{ field: string; values: string[]; type: number }> = currentCategoryId
       ? [
-          { field: "Text", values: [], type: 0 },
-          { field: 'ProductCategories.Id', values: [currentCategoryId], type: 11 },
-        ]
+        { field: "Text", values: [], type: 0 },
+        { field: 'ProductCategories.Id', values: [currentCategoryId], type: 11 },
+      ]
       : [];
 
     if (this.loadedCategoryIds.size > 0 && currentCategoryId) {
@@ -174,7 +174,7 @@ export class CategoriesComponent implements OnInit {
 
           const isLastPage = this.currentPage >= pageCount;
           const isExhausted = loadedProducts.length === 0 || loadedProducts.length < this.pageSize;
-          
+
           if (isLastPage && isExhausted) {
             this.isCurrentCategoryComplete = true;
             if (currentCategoryId) {
@@ -191,31 +191,31 @@ export class CategoriesComponent implements OnInit {
   }
 
   private trySwitchToNextBreadCrumb(): void {
-    
+
     this.currentBreadCrumbIndex--;
-    
+
     if (this.currentBreadCrumbIndex < 0) {
       this.totalItems = Infinity;
       this.isBreadCrumbsLoading = false;
       return;
     }
-    
+
     const nextCategory = this.breadCrumbs[this.currentBreadCrumbIndex];
-    
+
     if (!nextCategory?.id) {
       this.trySwitchToNextBreadCrumb();
       return;
     }
-    
+
     this.isBreadCrumbsLoading = true;
     this.currentPage = 1;
     this.totalItems = 0;
     this.totalPages = 0;
     this.isCurrentCategoryComplete = false;
-  
+
     this.loading = false;
     this.loadingMore = false;
-    
+
     this.zone.run(() => {
       this.loadProducts();
     });
@@ -223,11 +223,11 @@ export class CategoriesComponent implements OnInit {
 
   private getEffectiveCategoryId(): string | null {
     if (this.categoryId === 'search') return null;
-    
+
     if (this.isBreadCrumbsLoading && this.currentBreadCrumbIndex >= 0 && this.currentBreadCrumbIndex < this.breadCrumbs.length) {
       return this.breadCrumbs[this.currentBreadCrumbIndex].id;
     }
-    
+
     return this.categoryId;
   }
 
@@ -281,27 +281,27 @@ export class CategoriesComponent implements OnInit {
   onScroll(): void {
     if (this.loading || this.loadingMore) return;
     if (this.totalItems === Infinity) return;
-    
+
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
     const triggerPosition = pageHeight - 500;
-    
+
     if (scrollPosition < triggerPosition) return;
-    
+
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
       this.loadProducts();
       return;
     }
-    
+
     if (this.isCurrentCategoryComplete && this.currentBreadCrumbIndex >= 0) {
       this.trySwitchToNextBreadCrumb();
       return;
     }
-    
+
     this.totalItems = Infinity;
   }
-  
+
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
@@ -316,5 +316,9 @@ export class CategoriesComponent implements OnInit {
       this.loadProducts();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+  
+  get isFullyLoaded(): boolean {
+    return this.totalItems === Infinity || (this.isCurrentCategoryComplete && this.currentBreadCrumbIndex < 0);
   }
 }
