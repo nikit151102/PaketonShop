@@ -692,7 +692,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   }
 
   private handleLoginSuccess(response: any): void {
-
+    localStorage.removeItem(localStorageEnvironment.isGuestToken.key)
     this.authService.handleLoginSuccess(response);
     this.userApiService.getData().subscribe((data) => {
       this.userService.setUser(data.data, 'session', true);
