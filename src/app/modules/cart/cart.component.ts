@@ -632,6 +632,7 @@ export class CartComponent implements OnInit, OnDestroy {
     if (StorageUtils.getLocalStorageCache(localStorageEnvironment.isGuestToken.key) == true) {
       this.authService.setRedirectingToProfile(false);
       this.authService.changeVisible(true);
+      return;
     }
 
 
