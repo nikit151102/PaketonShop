@@ -33,10 +33,10 @@ export class UserService {
     this.authUser.set(value);
   }
 
-   updateBaskets(baskets: any[] | null): void {
+  updateBaskets(baskets: any[] | null): void {
     this.basketsSignal.set(baskets);
   }
-  
+
   loadBaskets(): void {
     const baskets = StorageUtils.getMemoryCache(memoryCacheEnvironment.baskets.key);
     this.updateBaskets(Array.isArray(baskets) ? baskets : null);
@@ -107,7 +107,7 @@ export class UserService {
     this.setUser(null, storageType);
   }
 
-  
+
   /**
    * Очистить данные пользователя
    * @param storageType - 'local' | 'session', по умолчанию localStorage

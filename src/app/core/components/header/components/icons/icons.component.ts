@@ -1,6 +1,5 @@
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { AuthService } from '../../../../services/auth.service';
-import { NotificationsComponent } from './notifications/notifications.component';
 import { CommonModule } from '@angular/common';
 import { User, UserService } from '../../../../services/user.service';
 import { Router } from '@angular/router';
@@ -19,7 +18,6 @@ import {
   styleUrl: './icons.component.scss',
 })
 export class IconsComponent implements OnInit {
-
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private userApiService = inject(UserApiService);
@@ -29,10 +27,12 @@ export class IconsComponent implements OnInit {
     map((user: User | null) => user?.id ?? null),
   );
 
-  operativeInfo = computed(() => this.userService.operativeInfo())
+  operativeInfo = computed(() => this.userService.operativeInfo());
+
+  private readonly guestAllowedPages = ['/cart', '/profile/favorites'];
 
   ngOnInit(): void {
-    if (this.isObjectEmpty(this.operativeInfo()) && StorageUtils.getLocalStorageCache('localStorageEnvironment.auth.key')) {
+    if (this.isObjectEmpty(this.operativeInfo()) && StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key)) {
       this.userApiService.getOperativeInfo();
     }
   }
@@ -42,46 +42,48 @@ export class IconsComponent implements OnInit {
   }
 
   goToPage(page: string) {
-
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
-    );
+    ) as string | null;
+    
+    const isGuestToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.isGuestToken.key,
+    ) as boolean | null;
 
+    const isProfilePage = page === '/profile';
+    const isGuestAllowed = this.guestAllowedPages.includes(page);
+
+    // 1. Нет токена - пользователь не авторизован
     if (!authToken) {
-      this.authService.setRedirectingToProfile(true);
+      if (isProfilePage) {
+        this.authService.setRedirectingToProfile(true);
+      }
       this.authService.changeVisible(true);
       return;
     }
 
-    this.userId$.pipe(take(1)).subscribe((userId) => {
-      if (userId) {
+    // 2. Есть токен - проверяем, гость это или полноценный пользователь
+    // Смотрим ТОЛЬКО на флаг isGuestToken
+    const isGuest = isGuestToken === true;
+
+    // 3. Если это гость
+    if (isGuest) {
+      // Проверяем, разрешен ли доступ к этой странице для гостя
+      if (isGuestAllowed) {
+        // Гостю разрешен доступ к корзине и избранному
         this.router.navigate([page]);
         return;
-      }
-
-      const userData = StorageUtils.getSessionStorage<User>(
-        sessionStorageEnvironment.user.key,
-      );
-      if (userData && userData.id) {
-        this.router.navigate([page]);
+      } else if (isProfilePage) {
+        // Запрещаем доступ к профилю для гостях
+        this.authService.changeVisible(true);
+        return;
+      } else {
+        // Запрещаем доступ к другим страницам для гостя
+        this.authService.changeVisible(true);
         return;
       }
-
-      this.userApiService
-        .getData()
-        .pipe(take(1))
-        .subscribe((data: any) => {
-          if (data?.data?.id) {
-            StorageUtils.setSessionStorage(
-              sessionStorageEnvironment.user.key,
-              data.data,
-            );
-            this.router.navigate([page]);
-          } else {
-            this.authService.changeVisible(true);
-          }
-        });
-    });
-
+    }
+    // Полный пользователь имеет доступ ко всем страницам
+    this.router.navigate([page]);
   }
 }

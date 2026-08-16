@@ -5,6 +5,7 @@ import { tap } from 'rxjs/operators';
 import { environment, localStorageEnvironment } from '../../../environment';
 import { StorageUtils } from '../../../utils/storage.utils';
 import { UserService } from './user.service';
+import { guestRegisterRequest } from '../interfaces/auth.interface';
 
 export interface User {
   id: string;
@@ -229,4 +230,46 @@ export class AuthService {
   hasActiveRestore(): boolean {
     return !!this.getRestoreData();
   }
+
+  /**
+   * Регистрация как гость
+   */
+  guestRegister(body: guestRegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${environment.production}/auth/guest-register`,
+      body
+    ).pipe(
+      tap((response) => {
+        if (response.data) {
+          StorageUtils.setLocalStorageCache(
+            this.TOKEN_KEY,
+            response.data.token,
+            3600,
+          );
+          StorageUtils.setLocalStorageCache(
+            this.USER_KEY,
+            response.data,
+            3600,
+          );
+
+          this.authTokenSubject.next(response.data.token);
+        }
+      }),
+    );
+  }
+
+  public handleLoginSuccess(response: any): void {
+    StorageUtils.setLocalStorageCache(
+      localStorageEnvironment.auth.key,
+      response.data.token,
+      localStorageEnvironment.auth.ttl,
+    );
+
+    StorageUtils.setLocalStorageCache(
+      localStorageEnvironment.refreshToken.key,
+      response.data.refreshToken,
+      localStorageEnvironment.refreshToken.ttl,
+    );
+  }
+
 }

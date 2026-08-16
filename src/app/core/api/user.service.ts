@@ -40,14 +40,23 @@ export class UserApiService {
       })
     );
   }
-  
-  getOperativeInfo(){
-    this.operativeInfo().subscribe((value:any)=>{
+
+  getOperativeInfo() {
+    this.operativeInfo().subscribe((value: any) => {
       this.userService.updateIsAuthUser(true);
     })
   }
 
-    validateToken(): Observable<any> {
+  validateToken(): Observable<any> {
     return this.http.post(`${environment.production}/auth/validateToken`, {});
   }
+
+  refreshToken(): Observable<any> {
+    return this.http.post(`${environment.production}/auth/refresh`, {
+      refreshToken: StorageUtils.getLocalStorageCache(
+        localStorageEnvironment.refreshToken.key,
+      )
+    });
+  }
+
 }

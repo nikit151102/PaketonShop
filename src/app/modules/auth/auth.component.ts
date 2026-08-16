@@ -191,57 +191,57 @@ export class AuthComponent implements OnInit, OnDestroy {
   /**
    * Обновление валидаторов для текущего шага восстановления
    */
-private updateValidatorsForCurrentStep(): void {
-  const emailControl = this.authForm.get('email');
-  const passwordControl = this.authForm.get('password');
-  const confirmPasswordControl = this.authForm.get('confirmPassword');
-  const confirmNewPasswordControl = this.authForm.get('confirmNewPassword');
-  const restoreCodeControl = this.authForm.get('restoreCode');
-  const newPasswordControl = this.authForm.get('newPassword');
+  private updateValidatorsForCurrentStep(): void {
+    const emailControl = this.authForm.get('email');
+    const passwordControl = this.authForm.get('password');
+    const confirmPasswordControl = this.authForm.get('confirmPassword');
+    const confirmNewPasswordControl = this.authForm.get('confirmNewPassword');
+    const restoreCodeControl = this.authForm.get('restoreCode');
+    const newPasswordControl = this.authForm.get('newPassword');
 
-  // ✅ Сбрасываем ВСЕ валидаторы
-  emailControl?.clearValidators();
-  passwordControl?.clearValidators();
-  confirmPasswordControl?.clearValidators();
-  confirmNewPasswordControl?.clearValidators();
-  restoreCodeControl?.clearValidators();
-  newPasswordControl?.clearValidators();
+    // ✅ Сбрасываем ВСЕ валидаторы
+    emailControl?.clearValidators();
+    passwordControl?.clearValidators();
+    confirmPasswordControl?.clearValidators();
+    confirmNewPasswordControl?.clearValidators();
+    restoreCodeControl?.clearValidators();
+    newPasswordControl?.clearValidators();
 
-  // ✅ Устанавливаем только нужные для текущего шага
-  if (this.restoreStep === 1) {
-    emailControl?.setValidators([Validators.required, Validators.email]);
+    // ✅ Устанавливаем только нужные для текущего шага
+    if (this.restoreStep === 1) {
+      emailControl?.setValidators([Validators.required, Validators.email]);
+    }
+    else if (this.restoreStep === 2) {
+      restoreCodeControl?.setValidators([
+        Validators.required,
+        Validators.pattern(/^\d{5}$/)
+      ]);
+    }
+    else if (this.restoreStep === 3) {
+      newPasswordControl?.setValidators([
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
+      ]);
+      confirmNewPasswordControl?.setValidators([Validators.required]);
+    }
+
+    // ✅ Обновляем все контролы
+    emailControl?.updateValueAndValidity();
+    passwordControl?.updateValueAndValidity();
+    confirmPasswordControl?.updateValueAndValidity();
+    confirmNewPasswordControl?.updateValueAndValidity();
+    restoreCodeControl?.updateValueAndValidity();
+    newPasswordControl?.updateValueAndValidity();
+
+    this.authForm.updateValueAndValidity();
   }
-  else if (this.restoreStep === 2) {
-    restoreCodeControl?.setValidators([
-      Validators.required,
-      Validators.pattern(/^\d{5}$/)
-    ]);
+
+  goToRestoreStep(step: 1 | 2 | 3): void {
+    this.restoreStep = step;
+    this.formErrors = {};
+    this.updateValidatorsForCurrentStep();
   }
-  else if (this.restoreStep === 3) {
-    newPasswordControl?.setValidators([
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).+$/)
-    ]);
-    confirmNewPasswordControl?.setValidators([Validators.required]);
-  }
-
-  // ✅ Обновляем все контролы
-  emailControl?.updateValueAndValidity();
-  passwordControl?.updateValueAndValidity();
-  confirmPasswordControl?.updateValueAndValidity();
-  confirmNewPasswordControl?.updateValueAndValidity();
-  restoreCodeControl?.updateValueAndValidity();
-  newPasswordControl?.updateValueAndValidity();
-
-  this.authForm.updateValueAndValidity();
-}
-
-goToRestoreStep(step: 1 | 2 | 3): void {
-  this.restoreStep = step;
-  this.formErrors = {};
-  this.updateValidatorsForCurrentStep();
-}
 
   /**
    * Проверка, есть ли активный процесс восстановления
@@ -692,12 +692,8 @@ goToRestoreStep(step: 1 | 2 | 3): void {
   }
 
   private handleLoginSuccess(response: any): void {
-    StorageUtils.setLocalStorageCache(
-      localStorageEnvironment.auth.key,
-      response.data.token,
-      localStorageEnvironment.auth.ttl,
-    );
 
+    this.authService.handleLoginSuccess(response);
     this.userApiService.getData().subscribe((data) => {
       this.userService.setUser(data.data, 'session', true);
       this.closePopUp();
