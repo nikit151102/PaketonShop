@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@types/qrcode": "^1.5.6",
     "chart.js": "^4.5.1",
     "crypto-js": "^4.2.0",
