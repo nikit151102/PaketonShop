@@ -180,7 +180,6 @@ export class CategoriesComponent implements OnInit {
             if (currentCategoryId) {
               this.loadedCategoryIds.add(currentCategoryId);
             }
-            console.log(`🏁 Категория "${currentCategoryId}" завершена`);
           }
         },
         error: (err) => {
@@ -204,7 +203,6 @@ export class CategoriesComponent implements OnInit {
     const nextCategory = this.breadCrumbs[this.currentBreadCrumbIndex];
     
     if (!nextCategory?.id) {
-      console.warn(`⚠️ Неверный индекс: ${this.currentBreadCrumbIndex}`);
       this.trySwitchToNextBreadCrumb();
       return;
     }

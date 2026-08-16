@@ -9,7 +9,6 @@
   margin: 0 auto;
   padding: 0 20px 40px;
 
-  // Заголовок категории
   .category-header {
     display: flex;
     align-items: center;
@@ -78,7 +77,6 @@
     }
   }
 
-  // Секция подкатегорий
   .subcategories-section {
     margin-bottom: 60px;
 
@@ -108,8 +106,6 @@
         background: rgba(102, 126, 234, 0.1);
         transition: all 0.3s ease;
 
-
-
         svg {
           width: 16px;
           height: 16px;
@@ -118,7 +114,6 @@
     }
   }
 
-  // Основной контент
   .main-content {
     display: flex;
     gap: 32px;
@@ -156,7 +151,6 @@
         justify-content: space-between;
         align-items: center;
         padding-bottom: 20px;
-        // border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 
         .section-title {
           margin: 0;
@@ -215,7 +209,6 @@
               justify-content: center;
               transition: all 0.3s ease;
 
-
               &.active {
                 background: white;
                 color: #2a5e1c;
@@ -267,13 +260,11 @@
           cursor: pointer;
           transition: all 0.3s ease;
           box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-
         }
 
         .back-btn {
           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-
         }
       }
 
@@ -292,7 +283,6 @@
 
         .product-card {
           transition: transform 0.3s ease;
-
         }
       }
 
@@ -348,7 +338,6 @@
           transition: all 0.3s ease;
           box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
 
-
           svg {
             width: 20px;
             height: 20px;
@@ -378,7 +367,6 @@
     }
   }
 
-  // Пагинация для десктопа
   .desktop-pagination {
     display: flex;
     justify-content: center;
@@ -401,7 +389,6 @@
       font-size: 0.95rem;
       cursor: pointer;
       transition: all 0.3s ease;
-
 
       &:disabled {
         opacity: 0.5;
@@ -447,21 +434,11 @@
   }
 }
 
-// Анимации
 @keyframes bounce {
-
-  0%,
-  80%,
-  100% {
-    transform: scale(0);
-  }
-
-  40% {
-    transform: scale(1);
-  }
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
 }
 
-// Адаптивность
 @media (max-width: 1200px) {
   .categories-page {
     .category-header {
@@ -560,7 +537,7 @@
     .main-content {
       .products-section {
         .products-grid {
-          // grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         }
 
         .sort-controls {

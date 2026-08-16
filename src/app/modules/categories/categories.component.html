@@ -58,7 +58,7 @@
             </div>
 
             <!-- Сообщение об ошибке -->
-            <div *ngIf="error && !loading" class="error-state">
+            <div *ngIf="error && !loading && !loadingMore" class="error-state">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
                     <path
                         d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
@@ -70,8 +70,18 @@
                 </button>
             </div>
 
+            <!-- Индикатор загрузки -->
+            <div *ngIf="loading && products.length === 0" class="loading-indicator">
+                <div class="loading-spinner">
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                    <div class="spinner-circle"></div>
+                </div>
+                <p>Загружаем товары...</p>
+            </div>
+
             <!-- Сообщение если товаров нет -->
-            <div *ngIf="products.length === 0 && !loading && !error" class="empty-state">
+            <div *ngIf="products.length === 0 && !loading && !loadingMore && !error" class="empty-state">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
                     <path
                         d="M22 9h-4.79l-4.39-6.57a1 1 0 0 0-1.66 0L6.79 9H2c-.55 0-1 .45-1 1 0 .09.01.18.04.27l2.54 9.27c.23.84 1 1.46 1.92 1.46h13c.92 0 1.69-.62 1.93-1.46l2.54-9.27L23 10c0-.55-.45-1-1-1zM12 4.8L14.8 9H9.2L12 4.8zM18.5 19l-12.99.01L3.31 11H20.7l-2.2 8zM12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
@@ -89,18 +99,18 @@
                 </app-product>
             </div>
 
-            <!-- Индикатор загрузки -->
-            <div *ngIf="loading" class="loading-indicator">
+            <!-- Индикатор загрузки ещё -->
+            <div *ngIf="loadingMore" class="loading-indicator">
                 <div class="loading-spinner">
                     <div class="spinner-circle"></div>
                     <div class="spinner-circle"></div>
                     <div class="spinner-circle"></div>
                 </div>
-                <p>Загружаем товары...</p>
+                <p>Загружаем ещё...</p>
             </div>
 
             <!-- Кнопка загрузки еще -->
-            <div *ngIf="products.length < totalItems && !loading" class="load-more">
+            <div *ngIf="products.length < totalItems && !loading && !loadingMore" class="load-more">
                 <button class="load-more-btn" (click)="loadMore()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -110,7 +120,7 @@
             </div>
 
             <!-- Сообщение о конце списка -->
-            <div *ngIf="products.length === totalItems && products.length > 0" class="end-of-list">
+            <div *ngIf="products.length === totalItems && products.length > 0 " class="end-of-list">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                 </svg>
