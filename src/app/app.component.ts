@@ -19,6 +19,7 @@ import { UserApiService } from './core/api/user.service';
 import { AuthService } from './core/services/auth.service';
 import { CookieConsentComponent } from './core/components/cookie-consent/cookie-consent.component';
 import { guestRegisterRequest } from './core/interfaces/auth.interface';
+import { FingerprintService } from './core/services/fingerprint.service';
 
 declare let ym: any;
 
@@ -57,7 +58,8 @@ export class AppComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) platformId: Object,
     public locationService: LocationService,
     private userApiService: UserApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private fingerprintService: FingerprintService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
