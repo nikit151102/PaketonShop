@@ -82,7 +82,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsStateService.baskets$
       .pipe(takeUntil(this.destroy$))
       .subscribe(baskets => {
-        console.log('baskets',baskets)
+        console.log('baskets', baskets)
         this.basketsData = baskets || [];
         this.updateProductState();
         // Принудительно обновляем UI
@@ -172,7 +172,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   getActiveBasketTotal(): string {
     if (!this.product?.userBaskets) return '0';
-    
+
     const activeBasketId = this.activeBasketId;
     if (!activeBasketId || !this.product.userBaskets) return '0';
 
@@ -407,21 +407,30 @@ export class ProductComponent implements OnInit, OnDestroy {
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
     );
-    
+
     if (!authToken) {
       this.authService.setRedirectingToProfile(false);
       this.authService.changeVisible(true);
       return;
     }
-
-    if (this.isUserBasket == false) {
+    const baskets = this.basketsStateService.getCurrentBaskets();
+    let isUserBasket = baskets && baskets.length > 0;
+    if (isUserBasket == false) {
       this.authService.changeVisible(true);
       return;
     }
 
-    const basketId = this.activeBasketId;
-    if (!basketId) return;
+    let basketId = this.activeBasketId;
+    if (!basketId) {
+      if (baskets) {
+        const activeBasket = baskets.find(basket => basket.isActiveBasket === true);
+        basketId = activeBasket?.id;
+      }
+      else {
+        return;
+      }
 
+    }
     this.basketsService
       .addProduct({ productId: this.product.productBarCode.id, basketId, count: 1 })
       .pipe(take(1))
