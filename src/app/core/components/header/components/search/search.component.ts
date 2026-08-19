@@ -8,6 +8,7 @@ import { Router, NavigationEnd } from '@angular/router';
 interface AutocompleteProduct {
   id: string;
   barcode?: any
+  barcodeData?: any
   name: string;
   sku: string;
   image: string;
@@ -158,7 +159,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.totalAutocompleteResults = response.total || response.data.length;
         this.autocompleteResults = this.mapAutocompleteResults(response.data);
         this.hasMoreAutocomplete = response.data.length === this.pageSize;
-
         this.cdr.detectChanges();
 
         setTimeout(() => this.setupScrollListener(), 100);
@@ -252,18 +252,29 @@ export class SearchComponent implements OnInit, OnDestroy {
     return filters;
   }
 
-  private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
-    return products.map(product => ({
+private mapAutocompleteResults(products: any[]): AutocompleteProduct[] {
+  return products.map(product => {
+    // 🔹 Безопасное извлечение barcodeData
+    const barcodeData = product.productBarCode;
+    
+    return {
       id: product.id,
-      barcode: product.productBarCode?.id,
+      barcode: barcodeData?.id,
+      // 🔹 Извлекаем representationFrom1C
+      barcodeData: barcodeData ? {
+        id: barcodeData.id,
+        representationFrom1C: barcodeData.representationFrom1C,
+        code: barcodeData.code
+      } : undefined,
       name: product.fullName || product.name,
       sku: product.article || product.sku,
       image: this.getProductImage(product),
       price: product.viewPrice || 0,
       inStock: product.inStock || false,
       category: product.category?.name
-    }));
-  }
+    };
+  });
+}
 
   private getProductImage(product: any): string {
     if (product.productImageLinks?.length > 0) {
@@ -340,7 +351,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.autocompleteResults = [...this.autocompleteResults, ...newResults];
         this.hasMoreAutocomplete = response.data.length === this.pageSize;
         this.autocompletePage = nextPage;
-
+        console.log('this.autocompleteResults',this.autocompleteResults)
         // Обновляем total, если пришло с сервера
         if (response.total) {
           this.totalAutocompleteResults = response.total;

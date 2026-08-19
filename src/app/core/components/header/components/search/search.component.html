@@ -53,7 +53,8 @@
   <!-- search.component.html (только часть с автокомплитом) -->
 
   <!-- Выпадающий список автокомплита -->
-  <div class="autocomplete-dropdown" *ngIf="autocompleteResults.length && isInputFocused" #autocompleteDropdown (mousedown)="$event.preventDefault()">
+  <div class="autocomplete-dropdown" *ngIf="autocompleteResults.length && isInputFocused" #autocompleteDropdown
+    (mousedown)="$event.preventDefault()">
 
     <div class="autocomplete-header">
       <span class="autocomplete-title">
@@ -63,7 +64,8 @@
     </div>
 
     <div class="autocomplete-list" #autocompleteList>
-      <div class="autocomplete-item" *ngFor="let item of autocompleteResults; let i = index" (mousedown)="selectItem($event, item)">
+      <div class="autocomplete-item" *ngFor="let item of autocompleteResults; let i = index"
+        (mousedown)="selectItem($event, item)">
 
         <!-- Изображение товара -->
         <div class="item-image">
@@ -81,16 +83,21 @@
           </div>
 
           <div class="item-details">
+            <!-- 🔹 Показываем representationFrom1C если есть, иначе fallback на sku -->
             <div class="item-sku">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 4L20 4M4 12L20 12M4 20L20 20M8 8L8 16M16 8L16 16" />
               </svg>
-              Арт: {{ item.sku }}
+              <span *ngIf="item.barcodeData?.representationFrom1C; else showSku">
+                {{ item.barcodeData.representationFrom1C }}
+              </span>
+              <ng-template #showSku>
+                Арт: {{ item.sku }}
+              </ng-template>
             </div>
 
             <div class="item-price">
               <span class="price-value">{{ item.price }} ₽</span>
-              <span class="price-unit" *ngIf="item.price > 0">/шт</span>
             </div>
           </div>
 
