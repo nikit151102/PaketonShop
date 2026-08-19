@@ -19,7 +19,9 @@ export class ProductPackingSelectorComponent {
       this.sortedProductPacking = [];
       return;
     }
-    this.sortedProductPacking = [...value].sort((a, b) => {
+    this.sortedProductPacking = [...value]
+    .filter(item => !item.isDeleted)
+    .sort((a, b) => {
       const coefA = a.coefficient ?? 0;
       const coefB = b.coefficient ?? 0;
       return coefA - coefB;
