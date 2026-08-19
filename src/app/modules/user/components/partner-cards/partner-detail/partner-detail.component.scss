@@ -1,10 +1,20 @@
-// Переменные
+// ===== ПЕРЕМЕННЫЕ =====
 $primary: #3c8a27;
 $primary-light: rgba(60, 138, 39, 0.1);
 $primary-hover: #2d6c1d;
+$primary-glow: rgba(60, 138, 39, 0.2);
+$blue: #3b82f6;
+$blue-light: rgba(59, 130, 246, 0.1);
+$purple: #8b5cf6;
+$pink: #ec4899;
+$amber: #f59e0b;
+$gray: #64748b;
 $success: #10b981;
+$success-light: rgba(16, 185, 129, 0.1);
 $error: #ef4444;
+$error-light: rgba(239, 68, 68, 0.1);
 $warning: #f59e0b;
+$warning-light: rgba(245, 158, 11, 0.1);
 $text: #1e293b;
 $text-secondary: #475569;
 $text-muted: #64748b;
@@ -14,38 +24,25 @@ $border-light: #f1f5f9;
 $bg: #ffffff;
 $bg-light: #f8fafc;
 $bg-hover: #f1f5f9;
+$overlay: rgba(0, 0, 0, 0.5);
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 $radius: 20px;
+$radius-lg: 16px;
 $radius-md: 12px;
 $radius-sm: 8px;
+$radius-xs: 4px;
 $radius-full: 999px;
+$transition: all 0.2s ease;
+$transition-sm: all 0.15s ease;
 
-// Миксины
-@mixin glass-effect {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-@mixin gradient-border {
-  position: relative;
-  border: double 1px transparent;
-  background-image: linear-gradient(white, white), 
-                    linear-gradient(135deg, $primary, $primary-light);
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-}
-
-// Основные стили
-.partner-detail {
+// ===== ОСНОВНЫЕ СТИЛИ =====
+.partner-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: $overlay;
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -53,9 +50,9 @@ $radius-full: 999px;
   justify-content: center;
   padding: 20px;
 
-  &__modal {
-    max-width: 800px;
+  &__content {
     width: 100%;
+    max-width: 720px;
     max-height: 90vh;
     background: $bg;
     border-radius: $radius;
@@ -66,152 +63,217 @@ $radius-full: 999px;
   }
 }
 
-// Шапка
+// ===== ШАПКА =====
 .modal-header {
   position: relative;
-  padding: 24px 24px 16px;
-  
-  .header-gradient {
+  padding: 24px;
+  background: linear-gradient(135deg, $bg-light 0%, $bg 100%);
+  border-bottom: 1px solid $border-light;
+
+  .header-bg {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     pointer-events: none;
+    border-radius: $radius $radius 0 0;
   }
-  
-  .header-content {
+
+  .header-top {
     position: relative;
     z-index: 1;
-  }
-  
-  .company-badge {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    
-    .badge-type {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
   }
-  
-  .company-main {
+
+  .company-identity {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 16px;
-    
-    .company-logo {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: 600;
-      font-size: 24px;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-      
-      .logo-glow {
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-        opacity: 0;
-        transition: opacity 0.3s;
-      }
-      
-      &:hover .logo-glow {
-        opacity: 1;
-      }
+    flex: 1;
+    min-width: 0;
+  }
+
+  .company-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .avatar-glow {
+      position: absolute;
+      inset: -4px;
+      border-radius: $radius-md;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    
-    .company-info {
-      flex: 1;
-      
-      h1 {
-        margin: 0 0 8px;
-        font-size: 22px;
-        font-weight: 700;
-        color: $text;
-        line-height: 1.3;
-      }
-      
-      .company-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        
-        .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 12px;
-          color: $text-secondary;
-          
-          svg {
-            fill: $text-muted;
-          }
-        }
-      }
+
+    &:hover .avatar-glow {
+      opacity: 1;
     }
   }
-  
+
+  .company-info {
+    flex: 1;
+    min-width: 0;
+
+    .company-name {
+      margin: 0 0 6px;
+      font-size: 20px;
+      font-weight: 700;
+      color: $text;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .company-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: $radius-full;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    &-type {
+      background: $blue-light;
+      color: $blue;
+    }
+
+    &-name {
+      background: $bg-light;
+      color: $text-muted;
+    }
+
+    &-inn {
+      background: $primary-light;
+      color: $primary;
+    }
+  }
+
   .header-actions {
-    position: absolute;
-    top: 24px;
-    right: 24px;
     display: flex;
     gap: 8px;
-    
-    .action-btn {
-      width: 36px;
-      height: 36px;
-      border: 1px solid $border;
-      border-radius: 10px;
-      background: white;
-      color: $text-secondary;
+    flex-shrink: 0;
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    background: $bg;
+    color: $text-secondary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-sm;
+
+    svg {
+      stroke: currentColor;
+    }
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+    }
+
+    &--close:hover {
+      border-color: $error;
+      color: $error;
+    }
+  }
+
+  .contract-status-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    background: $bg-light;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+
+    &.status-signed {
+      background: $success-light;
+      border-color: rgba($success, 0.3);
+    }
+
+    &.status-pending {
+      background: $blue-light;
+      border-color: rgba($blue, 0.3);
+    }
+
+    &.status-draft {
+      background: $warning-light;
+      border-color: rgba($amber, 0.3);
+    }
+
+    .status-icon {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .status-info {
+      flex: 1;
+
+      strong {
+        display: block;
+        font-size: 13px;
+        color: $text;
+        margin-bottom: 2px;
+      }
+
+      .status-text {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    .status-action {
+      padding: 8px 16px;
+      background: $primary;
+      color: white;
+      border: none;
+      border-radius: $radius-sm;
+      font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      
-      svg {
-        fill: currentColor;
-      }
-      
-      &:hover {
-        border-color: $primary;
-        color: $primary;
+      transition: $transition;
+
+      &:hover:not(:disabled) {
+        background: $primary-hover;
         transform: translateY(-2px);
-        box-shadow: $shadow;
+        box-shadow: 0 4px 12px $primary-glow;
       }
-      
-      &.close:hover {
-        border-color: $error;
-        color: $error;
+
+      &:disabled {
+        opacity: 0.7;
+        cursor: wait;
       }
     }
   }
-  
+
   .header-stats {
     position: relative;
     z-index: 1;
@@ -219,24 +281,26 @@ $radius-full: 999px;
     align-items: center;
     gap: 16px;
     padding-top: 16px;
-    margin-top: 8px;
+    margin-top: 12px;
     border-top: 1px solid $border-light;
-    
-    .stat-item {
+
+    .stat {
       .stat-label {
         display: block;
         font-size: 11px;
         color: $text-muted;
         margin-bottom: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
-      
+
       .stat-value {
         font-size: 13px;
         font-weight: 500;
         color: $text;
       }
     }
-    
+
     .stat-divider {
       width: 1px;
       height: 24px;
@@ -245,176 +309,205 @@ $radius-full: 999px;
   }
 }
 
-// Табы
-.modal-tabs {
+// ===== НАВИГАЦИЯ =====
+.modal-nav {
   display: flex;
-  gap: 4px;
-  padding: 0 24px;
+  gap: 2px;
+  padding: 8px 16px;
+  background: $bg-light;
   border-bottom: 1px solid $border-light;
-  
-  .tab {
+
+  .nav-tab {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px 8px;
     background: transparent;
     border: none;
-    border-radius: $radius-sm $radius-sm 0 0;
+    border-radius: $radius-sm;
     font-size: 13px;
     font-weight: 500;
-    color: $text-secondary;
+    color: $text-muted;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s;
-    
+    transition: $transition-sm;
+
     svg {
-      fill: currentColor;
+      stroke: currentColor;
     }
-    
+
     &:hover {
       color: $primary;
-      background: $primary-light;
+      background: rgba($primary, 0.05);
     }
-    
+
     &.active {
       color: $primary;
-      background: white;
-      
+      background: $bg;
+      font-weight: 600;
+      box-shadow: $shadow-sm;
+
       &::after {
         content: '';
         position: absolute;
-        bottom: -1px;
-        left: 0;
-        right: 0;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
         height: 2px;
         background: $primary;
-        border-radius: 2px 2px 0 0;
+        border-radius: $radius-full;
       }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .nav-badge {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: $error;
+    color: white;
+    border-radius: $radius-full;
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--locked {
+      background: $gray;
     }
   }
 }
 
-// Контент
-.modal-content {
+// ===== КОНТЕНТ =====
+.modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
-  
+  padding: 20px 24px;
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: $border;
-    border-radius: 6px;
-    
+    border-radius: $radius-full;
+
     &:hover {
       background: $text-light;
     }
   }
 }
 
-// Карточки контента
-.content-card {
-  background: white;
+.tab-content {
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ===== КАРТОЧКИ ИНФО =====
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background: $bg;
   border: 1px solid $border;
   border-radius: $radius-md;
   padding: 20px;
-  margin-bottom: 16px;
-  transition: all 0.2s;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-  
+  transition: $transition;
+
+  &:hover,
   &.hovered {
     border-color: $primary;
-    box-shadow: 0 4px 12px rgba($primary, 0.1);
+    box-shadow: 0 4px 12px rgba($primary, 0.08);
     transform: translateY(-2px);
   }
-  
+
   .card-header {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 16px;
-    position: relative;
-    
-    .header-icon {
+
+    .card-icon {
       width: 32px;
       height: 32px;
       background: $primary-light;
-      border-radius: 8px;
+      border-radius: $radius-sm;
       display: flex;
       align-items: center;
       justify-content: center;
-      
+
       svg {
-        fill: $primary;
+        stroke: $primary;
       }
     }
-    
+
     h3 {
       margin: 0;
       font-size: 15px;
       font-weight: 600;
       color: $text;
-      flex: 1;
-    }
-    
-    .copy-all-btn {
-      width: 28px;
-      height: 28px;
-      border: 1px solid $border;
-      border-radius: 6px;
-      background: white;
-      color: $text-muted;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      &:hover {
-        border-color: $primary;
-        color: $primary;
-      }
     }
   }
 }
 
-// Контактное лицо
-.contact-person {
+.contact-block {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
-  
+
   .contact-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: $radius-sm;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 15px;
+    flex-shrink: 0;
   }
-  
+
   .contact-details {
     .contact-name {
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
       color: $text;
       margin-bottom: 2px;
     }
-    
+
     .contact-role {
       font-size: 12px;
       color: $text-muted;
@@ -424,9 +517,9 @@ $radius-full: 999px;
 
 .contact-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 8px;
-  
+
   .contact-link {
     display: flex;
     align-items: center;
@@ -437,13 +530,13 @@ $radius-full: 999px;
     color: $text-secondary;
     text-decoration: none;
     font-size: 13px;
-    transition: all 0.2s;
-    
+    transition: $transition-sm;
+
     svg {
-      fill: $primary;
+      stroke: $primary;
       flex-shrink: 0;
     }
-    
+
     &:hover {
       background: $primary-light;
       color: $primary;
@@ -452,191 +545,212 @@ $radius-full: 999px;
   }
 }
 
-// Адрес
 .address-block {
-  margin-bottom: 16px;
-  
-  .address-main {
+  .address-full {
     font-size: 14px;
     line-height: 1.6;
     color: $text;
-    margin-bottom: 8px;
-  }
-  
-  .address-map {
-    .map-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: $primary;
-      text-decoration: none;
-      
-      &:hover {
-        text-decoration: underline;
-      }
-    }
+    margin-bottom: 10px;
   }
 }
 
-.address-parts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed $border;
-  
-  .address-part {
-    .part-label {
-      display: block;
-      font-size: 11px;
-      color: $text-muted;
-      margin-bottom: 2px;
-    }
-    
-    .part-value {
-      font-size: 13px;
-      font-weight: 500;
-      color: $text;
-    }
-  }
+.work-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  background: $primary-light;
+  border-radius: $radius-full;
+  color: $primary;
+  font-weight: 500;
+  font-size: 13px;
 }
 
-// Сфера деятельности
-.work-direction {
-  .direction-badge {
-    display: inline-block;
-    padding: 8px 16px;
-    background: $primary-light;
-    border-radius: 30px;
-    color: $primary;
-    font-weight: 500;
-    font-size: 13px;
-  }
-}
-
-// Быстрые действия
 .quick-actions {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
   margin-top: 16px;
-  
-  .quick-action-btn {
-    flex: 1;
+
+  .action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 12px;
+    padding: 12px 16px;
     border: 1px solid $border;
     border-radius: $radius-sm;
-    background: white;
+    background: $bg;
     color: $text-secondary;
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    
+    transition: $transition;
+
     svg {
-      fill: currentColor;
+      stroke: currentColor;
     }
-    
+
     &:hover {
       border-color: $primary;
       color: $primary;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
     }
-    
+
     &.primary {
       background: $primary;
       color: white;
       border: none;
-      
+
       &:hover {
         background: $primary-hover;
         transform: translateY(-2px);
-        box-shadow: $shadow;
+        box-shadow: 0 4px 12px $primary-glow;
       }
     }
   }
 }
 
-// Реквизиты сетка
-.requisites-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
+// ===== РЕКВИЗИТЫ =====
+.requisites-card {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 20px;
+  margin-bottom: 16px;
 
-.requisite-item {
-  .requisite-label {
-    font-size: 11px;
-    color: $text-muted;
-    margin-bottom: 4px;
-  }
-  
-  .requisite-value-group {
+  .card-header-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    
-    .requisite-value {
-      font-size: 14px;
-      font-weight: 500;
-      color: $text;
-    }
-    
-    .copy-btn {
-      width: 24px;
-      height: 24px;
-      border: 1px solid $border;
-      border-radius: 4px;
-      background: white;
-      color: $text-muted;
-      cursor: pointer;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    .card-header-icon {
+      width: 32px;
+      height: 32px;
+      background: $primary-light;
+      border-radius: $radius-sm;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      transition: all 0.2s;
-      
+
+      svg {
+        stroke: $primary;
+      }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+      flex: 1;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: $bg-light;
+      border: 1px solid $border;
+      border-radius: $radius-sm;
+      color: $text-muted;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition-sm;
+
       &:hover {
         border-color: $primary;
         color: $primary;
       }
     }
   }
-  
-  &:hover .copy-btn {
+}
+
+.requisites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.requisite-item {
+  label {
+    display: block;
+    font-size: 11px;
+    color: $text-muted;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .requisite-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    span {
+      font-size: 14px;
+      font-weight: 500;
+      color: $text;
+      word-break: break-all;
+    }
+
+    .copy-mini {
+      width: 24px;
+      height: 24px;
+      border: 1px solid $border;
+      border-radius: $radius-xs;
+      background: $bg;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: $transition-sm;
+      flex-shrink: 0;
+
+      &:hover {
+        border-color: $primary;
+        color: $primary;
+      }
+    }
+  }
+
+  &:hover .copy-mini {
     opacity: 1;
   }
 }
 
-// Полное название
-.full-name-block {
+.full-name {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
-  
-  span {
+
+  p {
     flex: 1;
     font-size: 14px;
     color: $text-secondary;
     line-height: 1.6;
+    margin: 0;
   }
-  
-  .copy-btn.large {
+
+  .copy-btn {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 12px;
+    padding: 8px 14px;
     border: 1px solid $border;
     border-radius: $radius-sm;
-    background: white;
-    color: $text-secondary;
+    background: $bg-light;
+    color: $text-muted;
     font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
-    
+    transition: $transition-sm;
+
     &:hover {
       border-color: $primary;
       color: $primary;
@@ -644,34 +758,24 @@ $radius-full: 999px;
   }
 }
 
-// Банковские детали
-.bank-details {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  
-  .bank-logo {
-    width: 48px;
-    height: 48px;
-    background: $primary-light;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $primary;
-    font-weight: 700;
-    font-size: 20px;
-  }
-  
-  .bank-info {
+// ===== БАНК =====
+.bank-card {
+  @extend .requisites-card;
+
+  .bank-info-block {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: $bg-light;
+    border-radius: $radius-sm;
+    border-left: 3px solid $primary;
+
     .bank-name {
       font-weight: 600;
       font-size: 16px;
       color: $text;
       margin-bottom: 2px;
     }
-    
+
     .bank-fullname {
       font-size: 12px;
       color: $text-muted;
@@ -679,159 +783,441 @@ $radius-full: 999px;
   }
 }
 
-// Документы
-.documents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.document-card {
-  background: white;
-  border: 1px solid $border;
-  border-radius: $radius-md;
-  padding: 20px;
-  transition: all 0.2s;
-  
-  &:hover {
-    border-color: $primary;
-    box-shadow: $shadow;
-    transform: translateY(-2px);
-  }
-  
-  .document-icon {
-    width: 48px;
-    height: 48px;
-    background: $primary-light;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    
-    svg {
-      fill: $primary;
-    }
-  }
-  
-  .document-info {
-    margin-bottom: 16px;
-    
-    h4 {
-      margin: 0 0 4px;
-      font-size: 15px;
-      font-weight: 600;
-      color: $text;
-    }
-    
-    p {
-      margin: 0;
-      font-size: 12px;
-      color: $text-muted;
-      line-height: 1.5;
-    }
-  }
-  
-  .document-action {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px;
-    background: $bg-light;
-    border: 1px solid $border;
-    border-radius: $radius-sm;
-    color: $text-secondary;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    
-    &:hover {
-      background: $primary;
-      border-color: $primary;
-      color: white;
-    }
-  }
-}
-
-// Информационное сообщение
-.info-message {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: #fff8e7;
-  border-radius: $radius-md;
-  
-  svg {
-    fill: $warning;
-    flex-shrink: 0;
-  }
-  
-  .message-content {
-    strong {
-      display: block;
-      font-size: 13px;
-      color: $text;
-      margin-bottom: 2px;
-    }
-    
-    p {
-      margin: 0;
-      font-size: 12px;
-      color: $text-secondary;
-      line-height: 1.5;
-    }
-  }
-}
-
-// Пустое состояние
+// ===== ПУСТОЕ СОСТОЯНИЕ =====
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
-  
-  svg {
-    fill: $text-light;
-    opacity: 0.3;
-    margin-bottom: 16px;
+  padding: 40px 24px;
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+
+    svg {
+      stroke: $text-light;
+      opacity: 0.4;
+    }
   }
-  
+
   h4 {
     margin: 0 0 8px;
     font-size: 16px;
     font-weight: 600;
     color: $text;
   }
-  
+
   p {
-    margin: 0 0 20px;
+    margin: 0 0 24px;
     font-size: 13px;
     color: $text-muted;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
   }
-  
-  .action-button {
+
+  .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: $primary;
     color: white;
     border: none;
     border-radius: $radius-sm;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    
+    transition: $transition;
+
     &:hover {
       background: $primary-hover;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px $primary-glow;
     }
   }
 }
 
-// Футер
+// ===== БЛОКИРОВКА ДОКУМЕНТОВ =====
+.lock-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+  background: $warning-light;
+  border: 1px dashed rgba($amber, 0.4);
+  border-radius: $radius-md;
+  margin-bottom: 24px;
+
+  svg {
+    stroke: $amber;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: $amber;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover:not(:disabled) {
+      background: darken($amber, 10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($amber, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+  }
+}
+
+// ===== ДОКУМЕНТЫ =====
+.info-banner {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: $blue-light;
+  border: 1px solid rgba($blue, 0.2);
+  border-radius: $radius-md;
+  margin-bottom: 24px;
+
+  svg {
+    stroke: $blue;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text;
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+}
+
+.documents-section {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+
+    h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: $text;
+    }
+  }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: $radius-full;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    &-required {
+      background: $error-light;
+      color: $error;
+    }
+
+    &-optional {
+      background: $gray;
+      color: white;
+    }
+  }
+}
+
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition: $transition;
+
+  &:hover {
+    border-color: $primary;
+    box-shadow: $shadow-sm;
+  }
+
+  &.status-uploaded {
+    border-color: $success;
+    background: $success-light;
+  }
+
+  &.status-pending {
+    border-color: $amber;
+    background: $warning-light;
+  }
+
+  .doc-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .doc-status {
+    .status-dot {
+      display: block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: $border;
+      margin-top: 3px;
+      transition: $transition-sm;
+
+      &.done {
+        background: $success;
+      }
+
+      &.pending {
+        background: $amber;
+        animation: pulse 1.5s infinite;
+      }
+    }
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.7;
+      transform: scale(1.1);
+    }
+  }
+
+  .doc-info {
+    flex: 1;
+    min-width: 0;
+
+    h5 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text;
+      line-height: 1.4;
+    }
+
+    .doc-hint {
+      margin: 0;
+      font-size: 12px;
+      color: $text-muted;
+      line-height: 1.4;
+    }
+  }
+
+  .doc-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .doc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    background: $bg-light;
+    color: $text-muted;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: $transition-sm;
+
+    svg {
+      stroke: currentColor;
+    }
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+    }
+
+    &.view:hover {
+      border-color: $blue;
+      color: $blue;
+    }
+
+    &.download:hover {
+      border-color: $success;
+      color: $success;
+    }
+
+    &.upload {
+      position: relative;
+      overflow: hidden;
+
+      input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .doc-file {
+    font-size: 11px;
+    color: $text-muted;
+    white-space: nowrap;
+
+    .doc-size {
+      color: $text-light;
+    }
+  }
+}
+
+// ===== ПАНЕЛЬ СОХРАНЕНИЯ =====
+.save-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  // background: linear-gradient(135deg, $amber-light 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 1px solid rgba($amber, 0.3);
+  border-radius: $radius-md;
+  margin-bottom: 16px;
+
+  .save-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: $text;
+
+    svg {
+      stroke: $amber;
+      flex-shrink: 0;
+    }
+  }
+
+  .btn-save {
+    padding: 10px 20px;
+    background: $amber;
+    color: white;
+    border: none;
+    border-radius: $radius-sm;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transition;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background: darken($amber, 10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($amber, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+  }
+}
+
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: $success-light;
+  border: 1px solid rgba($success, 0.3);
+  border-radius: $radius-md;
+  color: $success;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+
+  svg {
+    stroke: currentColor;
+  }
+}
+
+.help-tip {
+  display: flex;
+  gap: 10px;
+  padding: 14px 18px;
+  background: $bg-light;
+  border: 1px dashed $border;
+  border-radius: $radius-md;
+  font-size: 12px;
+  color: $text-muted;
+
+  svg {
+    stroke: $text-light;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ===== ФУТЕР =====
 .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid $border-light;
@@ -839,39 +1225,71 @@ $radius-full: 999px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  
+
   .footer-btn {
-    padding: 10px 20px;
+    padding: 10px 24px;
     border-radius: $radius-sm;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    
+    transition: $transition;
+
     &.secondary {
-      background: white;
+      background: $bg;
       border: 1px solid $border;
       color: $text-secondary;
-      
+
       &:hover {
         background: $bg-hover;
+        border-color: $text-light;
       }
     }
-    
+
     &.primary {
       background: $primary;
       border: none;
       color: white;
-      
+
       &:hover {
         background: $primary-hover;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px $primary-glow;
       }
     }
   }
 }
 
-// Тосты
-.copy-toast {
+// ===== TOOLTIP =====
+[data-tooltip] {
+  position: relative;
+
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    padding: 6px 10px;
+    background: $text;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: $radius-xs;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: $transition-sm;
+    z-index: 100;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+// ===== TOAST =====
+.toast {
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -881,85 +1299,670 @@ $radius-full: 999px;
   padding: 12px 20px;
   background: $success;
   color: white;
-  border-radius: 12px;
+  border-radius: $radius-md;
   box-shadow: $shadow-lg;
   z-index: 1100;
-  
+  font-size: 13px;
+  font-weight: 500;
+
   svg {
-    fill: currentColor;
-  }
-  
-  span {
-    font-size: 13px;
-    font-weight: 500;
+    stroke: currentColor;
+    stroke-width: 3;
   }
 }
 
-// Адаптивность
-@media (max-width: 768px) {
-  .partner-detail {
+// ===== АДАПТИВ =====
+@media (max-width: 640px) {
+  .partner-modal {
     padding: 0;
-    
-    &__modal {
-      max-width: 100%;
-      max-height: 100vh;
-      border-radius: 0;
-    }
   }
-  
+
+  .partner-modal__content {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
   .modal-header {
-    padding: 20px 16px;
-    
-    .company-main {
-      .company-logo {
-        width: 48px;
-        height: 48px;
-        font-size: 20px;
-      }
-      
-      .company-info h1 {
-        font-size: 18px;
-      }
+    padding: 16px;
+
+    .company-avatar {
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
     }
-    
-    .header-actions {
-      top: 20px;
-      right: 16px;
+
+    .company-info .company-name {
+      font-size: 18px;
+    }
+
+    .header-actions .icon-btn {
+      width: 32px;
+      height: 32px;
+    }
+
+    .header-stats {
+      gap: 12px;
+
+      .stat {
+        .stat-label {
+          font-size: 10px;
+        }
+
+        .stat-value {
+          font-size: 12px;
+        }
+      }
     }
   }
-  
-  .modal-tabs {
-    padding: 0 16px;
-    
-    .tab {
+
+  .modal-nav {
+    padding: 4px 8px;
+
+    .nav-tab {
       font-size: 12px;
-      
+      padding: 8px 4px;
+
       svg {
         width: 14px;
         height: 14px;
       }
     }
   }
-  
-  .modal-content {
+
+  .modal-body {
     padding: 16px;
   }
-  
-  .quick-actions {
-    flex-wrap: wrap;
-    
-    .quick-action-btn {
-      flex: 1 1 calc(50% - 4px);
-    }
+
+  .info-card,
+  .requisites-card {
+    padding: 16px;
   }
-  
-  .documents-grid {
+
+  .contact-links {
     grid-template-columns: 1fr;
   }
-  
-  .copy-toast {
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .requisites-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-name {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .document-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    .doc-right {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  .save-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    .btn-save {
+      width: 100%;
+    }
+  }
+
+  .lock-banner {
+    flex-direction: column;
+    text-align: center;
+
+    .btn-primary {
+      width: 100%;
+    }
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    padding: 12px 16px;
+
+    .footer-btn {
+      width: 100%;
+    }
+  }
+
+  .toast {
     left: 16px;
     right: 16px;
     bottom: 16px;
   }
+}
+
+
+
+// ===== МОДАЛЬНОЕ ОКНО СОЗДАНИЯ ДОГОВОРА =====
+.contract-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.contract-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  background: $bg;
+  border-radius: $radius-lg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: $shadow-xl;
+  animation: slideUp 0.3s ease-out;
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-light;
+    background: linear-gradient(135deg, $primary-light 0%, transparent 100%);
+
+    .contract-icon {
+      width: 40px;
+      height: 40px;
+      background: $primary;
+      border-radius: $radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      svg { stroke: currentColor; }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: $text;
+      flex: 1;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-sm;
+      transition: $transition-sm;
+
+      &:hover {
+        background: $bg-hover;
+        color: $error;
+      }
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+
+    .modal-description {
+      font-size: 14px;
+      color: $text-secondary;
+      line-height: 1.6;
+      margin-bottom: 20px;
+
+      strong { color: $text; font-weight: 600; }
+    }
+  }
+
+  &__footer {
+    padding: 16px 24px;
+    border-top: 1px solid $border-light;
+    background: $bg-light;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}
+
+// ===== СООБЩЕНИЕ ОБ УСПЕХЕ =====
+.success-message {
+  text-align: center;
+  padding: 20px 0;
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: $success-light;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $success;
+    svg { stroke: currentColor; stroke-width: 2; }
+  }
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: $text-secondary;
+  }
+
+  .redirect-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: $primary-light;
+    border-radius: $radius-full;
+    color: $primary;
+    font-size: 13px;
+    font-weight: 500;
+
+    svg { stroke: currentColor; }
+  }
+}
+
+// ===== СЕТКА ПРЕИМУЩЕСТВ =====
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: $bg-light;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition: $transition-sm;
+
+  &:hover {
+    border-color: $primary;
+    box-shadow: $shadow-sm;
+  }
+
+  .benefit-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .benefit-text {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text;
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+}
+
+// ===== ПРЕДУПРЕЖДЕНИЕ =====
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: $warning-light;
+  border: 1px solid rgba($amber, 0.3);
+  border-radius: $radius-md;
+  margin-bottom: 20px;
+
+  svg {
+    stroke: $amber;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  span {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+}
+
+// ===== ЧЕКБОКС СОГЛАСИЯ =====
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: $text-secondary;
+  cursor: default;
+
+  input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: $primary;
+    cursor: default;
+  }
+
+  a {
+    color: $primary;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ===== АДАПТИВ =====
+@media (max-width: 640px) {
+  .contract-modal-overlay { padding: 0; }
+  .contract-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+.contract-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1200; /* 🔹 Выше основного модала */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.contract-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  background: $bg;
+  border-radius: $radius-lg;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: $shadow-xl;
+  animation: slideUp 0.3s ease-out;
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-light;
+    background: linear-gradient(135deg, $primary-light 0%, transparent 100%);
+
+    .contract-icon {
+      width: 40px;
+      height: 40px;
+      background: $primary;
+      border-radius: $radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      svg { stroke: currentColor; }
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: $text;
+      flex: 1;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-sm;
+      transition: $transition-sm;
+
+      &:hover {
+        background: $bg-hover;
+        color: $error;
+      }
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+
+    .modal-description {
+      font-size: 14px;
+      color: $text-secondary;
+      line-height: 1.6;
+      margin-bottom: 20px;
+
+      strong { color: $text; font-weight: 600; }
+    }
+  }
+
+  &__footer {
+    padding: 16px 24px;
+    border-top: 1px solid $border-light;
+    background: $bg-light;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}
+
+/* Сообщение об успехе */
+.success-message {
+  text-align: center;
+  padding: 20px 0;
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: $success-light;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $success;
+    svg { stroke: currentColor; stroke-width: 2; }
+  }
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: $text-secondary;
+  }
+
+  .redirect-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: $primary-light;
+    border-radius: $radius-full;
+    color: $primary;
+    font-size: 13px;
+    font-weight: 500;
+
+    svg { stroke: currentColor; }
+  }
+}
+
+/* Сетка преимуществ */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: $bg-light;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  transition: $transition-sm;
+
+  &:hover {
+    border-color: $primary;
+    box-shadow: $shadow-sm;
+  }
+
+  .benefit-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .benefit-text {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: $text;
+      margin-bottom: 2px;
+    }
+
+    span {
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+}
+
+/* Предупреждение */
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: $warning-light;
+  border: 1px solid rgba($amber, 0.3);
+  border-radius: $radius-md;
+  margin-bottom: 20px;
+
+  svg {
+    stroke: $amber;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  span {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+}
+
+/* Чекбокс согласия */
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: $text-secondary;
+  cursor: default;
+
+  input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: $primary;
+    cursor: default;
+  }
+
+  a {
+    color: $primary;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+/* Адаптив */
+@media (max-width: 640px) {
+  .contract-modal-overlay { padding: 0; }
+  .contract-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.save-panel .hint {
+  display: block;
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: 2px;
+  font-weight: normal;
 }

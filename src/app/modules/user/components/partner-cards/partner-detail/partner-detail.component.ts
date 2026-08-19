@@ -1,7 +1,12 @@
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { trigger, transition, style, animate, state } from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { AuthRoutingModule } from "../../../../auth/auth-routing.module";
+import { HttpClient } from '@angular/common/http';
+import { PartnerService } from '../../../../../core/api/partner.service';
+import { CreateWholesaleOrderDto, WholesaleOrderService } from '../../../../../core/api/wholesale-order.service';
+import { switchMap, of, catchError, finalize, Observable, throwError, map, tap } from 'rxjs';
+import { UserService } from '../../../../../core/services/user.service';
 
 interface Partner {
   id: string;
@@ -32,6 +37,24 @@ interface Partner {
   website?: string;
   createdAt?: string;
   updatedAt?: string;
+  registerDateTime?: string;
+  wholesaleOrders?: Array<{
+    id: string;
+    wholesaleOrderStatus: number;
+    orderDocuments?: Array<{
+      id: string;
+      orderDocumentType: number;
+      fileInfo: {
+        id: string;
+        fileName: string;
+        size: number;
+        extansion: string;
+        url: string;
+        isDeleted: boolean;
+      };
+      isDeleted: boolean;
+    }>;
+  }>;
   partner?: {
     id: string;
     shortName: string;
@@ -40,6 +63,13 @@ interface Partner {
     ogrn: string;
     kpp?: string;
     partnerTypeId?: string | number;
+    registerDateTime?: string;
+    partnerType?: {
+      id: string;
+      code: number;
+      fullName: string;
+      shortName: string;
+    };
   };
   bank?: {
     id: string;
@@ -51,6 +81,7 @@ interface Partner {
     };
   };
   userInstances?: Array<{
+    id: string;
     firstName: string;
     lastName: string;
     middleName: string;
@@ -67,16 +98,14 @@ interface Partner {
   animations: [
     trigger('modalAnimation', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'scale(0.95) translateY(20px)' }),
-        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', 
-          style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
+        style({ opacity: 0, transform: 'scale(0.98) translateY(10px)' }),
+        animate('250ms ease-out', style({ opacity: 1, transform: 'scale(1) translateY(0)' }))
       ]),
       transition(':leave', [
-        animate('200ms cubic-bezier(0.4, 0, 0.2, 1)', 
-          style({ opacity: 0, transform: 'scale(0.95) translateY(20px)' }))
+        animate('200ms ease-in', style({ opacity: 0, transform: 'scale(0.98) translateY(10px)' }))
       ])
     ]),
-    trigger('fadeAnimation', [
+    trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0 }),
         animate('200ms ease-out', style({ opacity: 1 }))
@@ -85,11 +114,16 @@ interface Partner {
         animate('150ms ease-in', style({ opacity: 0 }))
       ])
     ]),
-    trigger('slideAnimation', [
-      transition('* => *', [
-        style({ opacity: 0, transform: 'translateX(20px)' }),
-        animate('250ms ease-out', 
-          style({ opacity: 1, transform: 'translateX(0)' }))
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(8px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('pulse', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.95)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' }))
       ])
     ])
   ]
@@ -104,14 +138,44 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   activeTab: 'overview' | 'details' | 'bank' | 'documents' = 'overview';
   isClosing = false;
   showCopyNotification = false;
-  showFullId = false;
   copyTimer: any;
-  
-  // Для анимации карточек
   hoveredBlock: string | null = null;
+
+  documentTypes: any[] = [
+    { id: 1, name: 'Решение о создании ООО', requiredFor: [1], optionalFor: [], hint: 'Документ о регистрации юридического лица' },
+    { id: 2, name: 'Устав', requiredFor: [1], optionalFor: [], hint: 'Учредительный документ (листы 1, 2, последний, полномочия директора)' },
+    { id: 3, name: 'Решение о назначении директора', requiredFor: [1], optionalFor: [], hint: 'Документ, подтверждающий полномочия руководителя' },
+    { id: 5, name: 'Карточка предприятия', requiredFor: [1, 16], optionalFor: [], hint: 'Реквизиты компании для договоров и счетов' },
+    { id: 6, name: 'Свидетельство ОГРН', requiredFor: [], optionalFor: [1], condition: 'before2017', hint: 'Для компаний, зарегистрированных до 2017 года' },
+    { id: 7, name: 'Свидетельство ИНН/КПП', requiredFor: [], optionalFor: [1], condition: 'before2017', hint: 'Для компаний, зарегистрированных до 2017 года' },
+    { id: 8, name: 'Свидетельство ОГРНИП', requiredFor: [], optionalFor: [16], condition: 'before2017', hint: 'Для ИП, зарегистрированных до 2017 года' },
+    { id: 9, name: 'Паспорт', requiredFor: [1, 16], optionalFor: [], hint: 'Разворот с фото и пропиской представителя компании' }
+  ];
+
+  pendingDocumentChanges = new Set<number>();
+  isSavingDocuments = false;
+  saveSuccess = false;
+  isSubmittingApplication = false;
+  applicationSubmitted = false;
+  currentUserData: any;
+
+  showContractModal = false;
+  isCreatingContract = false;
+  contractCreated = false;
+
+  private pendingFiles = new Map<number, File>();
+
+  constructor(
+    private http: HttpClient,
+    private wholesaleOrderService: WholesaleOrderService,
+    private partnerService: PartnerService,
+    private userService: UserService,
+    private cdr: ChangeDetectorRef,
+  ) { }
 
   ngOnInit() {
     document.body.style.overflow = 'hidden';
+    this.userService.user$.subscribe((user: any) => { this.currentUserData = user; });
   }
 
   ngOnDestroy() {
@@ -124,7 +188,6 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     this.closeModal();
   }
 
-  // Основные методы получения данных
   getCompanyName(): string {
     return this.partner?.fullName || this.partner?.partner?.fullName || 'Без названия';
   }
@@ -136,24 +199,18 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   getCompanyInitials(): string {
     const name = this.getCompanyName();
     const words = name.split(' ');
-    if (words.length >= 2) {
-      return (words[0][0] + words[1][0]).toUpperCase();
-    }
+    if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
     return name.substring(0, 2).toUpperCase() || '??';
   }
 
   getCompanyLogoColor(): string {
-    const colors = [
-      '#3c8a27', '#2d6a1f', '#4CAF50', '#388E3C', '#2E7D32',
-      '#1B5E20', '#00695C', '#00796B', '#00897B', '#009688'
-    ];
+    const colors = ['#3c8a27', '#2d6a1f', '#4CAF50', '#388E3C', '#2E7D32', '#1B5E20', '#00695C', '#00796B', '#00897B', '#009688'];
     const hash = this.getCompanyName().split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   }
 
   getPartnerType(): string {
     const typeId: any = this.partner?.partnerTypeId || this.partner?.partner?.partnerTypeId;
-    
     const types: Record<string | number, string> = {
       1: 'Юридическое лицо',
       2: 'Индивидуальный предприниматель',
@@ -172,27 +229,24 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
       15: 'Государственная корпорация',
       16: 'Муниципальное образование'
     };
-    
     return types[typeId] || types[Number(typeId)] || 'Компания';
   }
 
   getPartnerTypeBadge(): { text: string; color: string } {
     const type = this.getPartnerType();
-    
-    if (type.includes('Юридическое')) {
-      return { text: 'ЮЛ', color: '#3b82f6' };
-    } else if (type.includes('Индивидуальный')) {
-      return { text: 'ИП', color: '#8b5cf6' };
-    } else if (type.includes('Физическое')) {
-      return { text: 'ФЛ', color: '#ec4899' };
-    } else if (type.includes('Некоммерческая')) {
-      return { text: 'НКО', color: '#f59e0b' };
-    } else {
-      return { text: 'Компания', color: '#64748b' };
-    }
+    if (type.includes('Юридическое')) return { text: 'ЮЛ', color: '#3b82f6' };
+    if (type.includes('Индивидуальный')) return { text: 'ИП', color: '#8b5cf6' };
+    if (type.includes('Физическое')) return { text: 'ФЛ', color: '#ec4899' };
+    if (type.includes('Некоммерческая')) return { text: 'НКО', color: '#f59e0b' };
+    return { text: 'Компания', color: '#64748b' };
   }
 
-  // Реквизиты
+  getPartnerTypeCode(): number {
+    if (this.partner?.partner?.partnerType?.code) return this.partner.partner.partnerType.code;
+    const typeId = this.partner?.partnerTypeId || this.partner?.partner?.partnerTypeId;
+    return Number(typeId) || 0;
+  }
+
   getINN(): string {
     return this.partner?.inn || this.partner?.partner?.inn || '—';
   }
@@ -213,27 +267,17 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     return this.partner?.workDirection || 'Не указана';
   }
 
-  // Контакты
   getContactPerson(): { fullName: string; initials: string; role: string } {
-    // Сначала проверяем userInstances
-    if (this.partner?.userInstances && this.partner.userInstances.length > 0) {
+    if (this.partner?.userInstances?.length) {
       const user = this.partner.userInstances[0];
-      const fullName = [user.lastName, user.firstName, user.middleName]
-        .filter(Boolean)
-        .join(' ');
-      
+      const fullName = [user.lastName, user.firstName, user.middleName].filter(Boolean).join(' ');
       return {
         fullName: fullName || 'Контакт не указан',
         initials: this.getInitialsFromName(fullName),
         role: 'Представитель компании'
       };
     }
-    
-    // Затем проверяем отдельные поля
-    const fullName = [this.partner?.lastName, this.partner?.firstName, this.partner?.middleName]
-      .filter(Boolean)
-      .join(' ');
-    
+    const fullName = [this.partner?.lastName, this.partner?.firstName, this.partner?.middleName].filter(Boolean).join(' ');
     return {
       fullName: fullName || 'Контакт не указан',
       initials: this.getInitialsFromName(fullName),
@@ -244,9 +288,7 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   private getInitialsFromName(name: string): string {
     if (!name || name === 'Контакт не указан') return '??';
     const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.substring(0, 2).toUpperCase();
   }
 
@@ -274,20 +316,9 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     return !!this.getWebsite();
   }
 
-  // Адрес
-  getAddress(): {
-    full: string;
-    short: string;
-    parts: Record<string, string>;
-  } {
+  getAddress(): { full: string; short: string; parts: Record<string, string> } {
     const addr = this.partner?.address;
-    if (!addr) {
-      return {
-        full: 'Адрес не указан',
-        short: 'Адрес не указан',
-        parts: {}
-      };
-    }
+    if (!addr) return { full: 'Адрес не указан', short: 'Адрес не указан', parts: {} };
 
     const parts = {
       country: addr.country || '',
@@ -328,14 +359,7 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     return Object.values(addr).some(val => val && val.trim());
   }
 
-  // Банковские реквизиты
-  getBankDetails(): {
-    name: string;
-    bik: string;
-    account: string;
-    korAccount: string;
-    fullName: string;
-  } {
+  getBankDetails(): { name: string; bik: string; account: string; korAccount: string; fullName: string } {
     return {
       name: this.partner?.bank?.partner?.shortName || 'Не указан',
       fullName: this.partner?.bank?.partner?.fullName || '',
@@ -350,74 +374,337 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     return !!(bank.name !== 'Не указан' || bank.bik !== '—' || bank.account !== '—');
   }
 
-  // Даты
   getCreatedDate(): string {
     if (!this.partner?.createdAt) return '—';
-    return new Date(this.partner.createdAt).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return new Date(this.partner.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   getUpdatedDate(): string {
     if (!this.partner?.updatedAt) return '—';
-    return new Date(this.partner.updatedAt).toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+    return new Date(this.partner.updatedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
-  // Форматирование
   formatPhone(phone: string): string {
     if (!phone) return '—';
-    
     const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 11) {
-      return `+7 (${cleaned.substring(1, 4)}) ${cleaned.substring(4, 7)}-${cleaned.substring(7, 9)}-${cleaned.substring(9)}`;
-    } else if (cleaned.length === 10) {
-      return `+7 (${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6, 8)}-${cleaned.substring(8)}`;
-    }
+    if (cleaned.length === 11) return `+7 (${cleaned.substring(1, 4)}) ${cleaned.substring(4, 7)}-${cleaned.substring(7, 9)}-${cleaned.substring(9)}`;
+    if (cleaned.length === 10) return `+7 (${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6, 8)}-${cleaned.substring(8)}`;
     return phone;
   }
 
   formatINN(inn: string): string {
     if (!inn || inn === '—') return inn;
-    if (inn.length === 10) {
-      return `${inn.substring(0, 2)} ${inn.substring(2, 5)} ${inn.substring(5, 8)} ${inn.substring(8)}`;
-    } else if (inn.length === 12) {
-      return `${inn.substring(0, 4)} ${inn.substring(4, 8)} ${inn.substring(8)}`;
-    }
+    if (inn.length === 10) return `${inn.substring(0, 2)} ${inn.substring(2, 5)} ${inn.substring(5, 8)} ${inn.substring(8)}`;
+    if (inn.length === 12) return `${inn.substring(0, 4)} ${inn.substring(4, 8)} ${inn.substring(8)}`;
     return inn;
   }
 
   formatOGRN(ogrn: string): string {
     if (!ogrn || ogrn === '—') return ogrn;
-    if (ogrn.length === 13) {
-      return `${ogrn.substring(0, 3)} ${ogrn.substring(3, 7)} ${ogrn.substring(7, 11)} ${ogrn.substring(11)}`;
-    }
+    if (ogrn.length === 13) return `${ogrn.substring(0, 3)} ${ogrn.substring(3, 7)} ${ogrn.substring(7, 11)} ${ogrn.substring(11)}`;
     return ogrn;
   }
 
   formatAccount(account: string): string {
     if (!account || account === '—') return account;
-    // Форматируем по группам: 5-3-5-2-5
-    if (account.length === 20) {
-      return `${account.substring(0, 5)} ${account.substring(5, 8)} ${account.substring(8, 13)} ${account.substring(13, 15)} ${account.substring(15)}`;
-    }
+    if (account.length === 20) return `${account.substring(0, 5)} ${account.substring(5, 8)} ${account.substring(8, 13)} ${account.substring(13, 15)} ${account.substring(15)}`;
     return account;
   }
 
-  // Действия
-  copyToClipboard(text: string, message: string = 'Скопировано в буфер обмена'): void {
+  formatFileSize(bytes: number): string {
+    if (!bytes) return '—';
+    if (bytes < 1024) return bytes + ' Б';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+  }
+
+  getActiveWholesaleOrder(): any {
+    const orders = this.partner?.wholesaleOrders;
+    if (!orders || orders.length === 0) return null;
+
+    return orders.find((order: any) => {
+      const status = Number(order.wholesaleOrderStatus);
+      return status !== 10 && status !== 11;
+    }) || null;
+  }
+
+  getContractStatus(): 'not_started' | 'draft' | 'pending' | 'signed' | 'rejected' | 'inactive' {
+    const order = this.getActiveWholesaleOrder();
+    if (!order) return 'not_started';
+
+    const status = Number(order.wholesaleOrderStatus);
+
+    switch (status) {
+      case 0:
+      case 1:
+        return 'pending';
+      case 2:
+      case 3:
+        return 'pending';
+      case 4:
+        return 'signed';
+      case 10:
+        return 'rejected';
+      case 11:
+        return 'inactive';
+      default:
+        return 'not_started';
+    }
+  }
+
+  getContractStatusBadge(): { text: string; color: string; icon: string } {
+    const status = this.getContractStatus();
+    switch (status) {
+      case 'not_started':
+        return { text: 'Заявка не подана', color: '#64748b', icon: '○' };
+      case 'draft':
+        return { text: 'Черновик', color: '#f59e0b', icon: '◐' };
+      case 'pending':
+        return { text: 'На проверке', color: '#3b82f6', icon: '◑' };
+      case 'signed':
+        return { text: 'Подписан', color: '#10b981', icon: '✓' };
+      case 'rejected':
+        return { text: 'Отклонён', color: '#ef4444', icon: '✕' };
+      case 'inactive':
+        return { text: 'Неактивен', color: '#94a3b8', icon: '⊘' };
+      default:
+        return { text: 'Неизвестно', color: '#64748b', icon: '?' };
+    }
+  }
+
+  getOrderDocuments(): Array<{ id: string; type: number; fileName: string; fileSize: number; fileUrl: string; extension: string }> {
+    const docs: any[] = [];
+    const order = this.getActiveWholesaleOrder();
+    if (order?.orderDocuments) {
+      order.orderDocuments.forEach((doc: any) => {
+        if (doc?.fileInfo) {
+          docs.push({
+            id: doc.id,
+            type: doc.orderDocumentType,
+            fileName: doc.fileInfo.fileName,
+            fileSize: doc.fileInfo.size,
+            fileUrl: doc.fileInfo.url,
+            extension: doc.fileInfo.extansion
+          });
+        }
+      });
+    }
+    return docs;
+  }
+
+  getDocumentByType(typeId: number): any {
+    return this.getOrderDocuments().find(doc => doc.type === typeId);
+  }
+
+  isDocumentUploaded(typeId: number): boolean {
+    return !!this.getDocumentByType(typeId);
+  }
+
+  getRequiredDocuments(): any[] {
+    const partnerTypeCode = this.getPartnerTypeCode();
+    if (partnerTypeCode !== 1 && partnerTypeCode !== 16) return [];
+
+    return this.documentTypes.filter((doc: any) => {
+      const isRequired = doc.requiredFor.includes(partnerTypeCode);
+      if (!isRequired) return false;
+
+      if (doc.condition) {
+        const registerDateTime = this.partner?.partner?.registerDateTime || this.partner?.registerDateTime;
+        if (!registerDateTime) return false;
+        const regYear = new Date(registerDateTime).getFullYear();
+        if (doc.condition === 'before2017' && regYear >= 2017) return false;
+        if (doc.condition === 'after2017' && regYear < 2017) return false;
+      }
+
+      return true;
+    });
+  }
+
+  getOptionalDocuments(): any[] {
+    const partnerTypeCode = this.getPartnerTypeCode();
+    if (partnerTypeCode !== 1 && partnerTypeCode !== 16) return this.documentTypes.filter((doc: any) => doc.id !== 5);
+
+    return this.documentTypes.filter((doc: any) => {
+      const isOptional = doc.optionalFor.includes(partnerTypeCode);
+      if (!isOptional) return false;
+
+      if (doc.condition) {
+        const registerDateTime = this.partner?.partner?.registerDateTime || this.partner?.registerDateTime;
+        if (!registerDateTime) return false;
+        const regYear = new Date(registerDateTime).getFullYear();
+        if (doc.condition === 'before2017' && regYear >= 2017) return false;
+        if (doc.condition === 'after2017' && regYear < 2017) return false;
+      }
+
+      return true;
+    });
+  }
+
+  getDocumentIcon(extension: string): string {
+    const ext = extension?.toLowerCase();
+    if (ext === 'pdf') return '📄';
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return '🖼️';
+    if (['doc', 'docx'].includes(ext)) return '📝';
+    if (['xls', 'xlsx'].includes(ext)) return '📊';
+    return '📎';
+  }
+
+  getDocumentStatus(typeId: number): 'uploaded' | 'pending' | 'missing' {
+    if (this.pendingDocumentChanges.has(typeId)) return 'pending';
+    if (this.isDocumentUploaded(typeId)) return 'uploaded';
+    return 'missing';
+  }
+
+  get hasPendingChanges(): boolean {
+    return this.pendingDocumentChanges.size > 0;
+  }
+
+  getMissingRequiredDocumentsCount(): number {
+    return this.getRequiredDocuments().filter((doc: any) => !this.isDocumentUploaded(doc.id)).length;
+  }
+
+  hasMissingRequiredDocuments(): boolean {
+    return this.getMissingRequiredDocumentsCount() > 0;
+  }
+
+  submitApplication(): void {
+    if (!this.partner?.id || !this.currentUserData?.id) return;
+
+    this.isSubmittingApplication = true;
+
+    const orderDto: CreateWholesaleOrderDto = {
+      partnerInstanceId: this.partner.id,
+      userInstanceId: this.currentUserData.id,
+      wholesalePartnerType: 1,
+      beginDateTime: null,
+      endDateTime: null,
+      productPlaceCode: null,
+    };
+
+    this.wholesaleOrderService.createOrder(orderDto).pipe(
+      catchError((error) => {
+        return throwError(() => new Error('Не удалось подать заявку'));
+      }),
+      finalize(() => {
+        this.isSubmittingApplication = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        this.applicationSubmitted = true;
+      },
+      error: (err) => {
+      }
+    });
+  }
+
+  saveDocuments(): void {
+    if (!this.hasPendingChanges || !this.partner?.id) return;
+
+    this.isSavingDocuments = true;
+
+    const existingOrder = this.getActiveWholesaleOrder();
+
+    const orderObservable = existingOrder
+      ? of(existingOrder.id)
+      : this.createWholesaleOrder();
+
+    orderObservable.pipe(
+      switchMap((orderId: string) => {
+        const files: File[] = [];
+        const documentTypes: number[] = [];
+
+        this.pendingDocumentChanges.forEach((docTypeId: number) => {
+          const file = this.pendingFiles.get(docTypeId);
+          if (file) {
+            files.push(file);
+            documentTypes.push(docTypeId);
+          }
+        });
+
+        if (files.length > 0) {
+          return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes);
+        }
+
+        return of(orderId);
+      }),
+      catchError((error) => {
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSavingDocuments = false;
+      })
+    ).subscribe({
+      next: (result) => {
+        if (result) {
+          this.pendingDocumentChanges.clear();
+          this.pendingFiles.clear();
+          this.saveSuccess = true;
+
+          setTimeout(() => {
+            this.saveSuccess = false;
+          }, 3000);
+        }
+      },
+      error: (err) => {
+      }
+    });
+  }
+
+  private createWholesaleOrder(): Observable<string> {
+    const userId = this.currentUserData?.data?.id || this.currentUserData?.id;
+    if (!userId) {
+      return throwError(() => new Error('Не найден ID пользователя'));
+    }
+
+    const orderDto: CreateWholesaleOrderDto = {
+      partnerInstanceId: this.partner!.id,
+      userInstanceId: userId,
+      wholesalePartnerType: 1,
+      beginDateTime: null,
+      endDateTime: null,
+      productPlaceCode: null,
+    };
+
+    return this.wholesaleOrderService.createOrder(orderDto).pipe(
+      tap(response => {
+        if (this.partner) {
+          if (!this.partner.wholesaleOrders) {
+            this.partner.wholesaleOrders = [];
+          }
+          this.partner.wholesaleOrders = [
+            ...this.partner.wholesaleOrders,
+            {
+              id: response.data.id,
+              wholesaleOrderStatus: 1
+            }
+          ];
+        }
+      }),
+      map((response) => response.data.id)
+    );
+  }
+
+  openDocument(url: string): void {
+    window.open(url, '_blank');
+  }
+
+  downloadDocument(url: string, fileName: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  copyToClipboard(text: string, message: string = 'Скопировано'): void {
     navigator.clipboard.writeText(text).then(() => {
       this.showCopyNotification = true;
       if (this.copyTimer) clearTimeout(this.copyTimer);
       this.copyTimer = setTimeout(() => {
         this.showCopyNotification = false;
       }, 2000);
-    }).catch(err => {});
+    }).catch(() => { });
   }
 
   copyAllRequisites(): void {
@@ -426,35 +713,25 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   }
 
   getAllRequisitesText(): string {
-    const lines = [
-      this.getCompanyName(),
-      this.getCompanyShortName(),
-      '='.repeat(30),
-      `ИНН: ${this.getINN()}`,
-      `ОГРН: ${this.getOGRN()}`,
-    ];
+    const lines = [this.getCompanyName(), this.getCompanyShortName(), '='.repeat(30), `ИНН: ${this.getINN()}`, `ОГРН: ${this.getOGRN()}`];
 
-    if (this.hasKPP()) {
-      lines.push(`КПП: ${this.getKPP()}`);
-    }
+    if (this.hasKPP()) lines.push(`КПП: ${this.getKPP()}`);
 
-    lines.push('');
-    lines.push('КОНТАКТЫ:');
+    lines.push('', 'КОНТАКТЫ:');
     const contact = this.getContactPerson();
     lines.push(`Контактное лицо: ${contact.fullName}`);
+
     if (this.hasPhone()) lines.push(`Телефон: ${this.formatPhone(this.getPhone())}`);
     if (this.hasEmail()) lines.push(`Email: ${this.getEmail()}`);
 
     if (this.hasAddress()) {
-      lines.push('');
-      lines.push('АДРЕС:');
+      lines.push('', 'АДРЕС:');
       lines.push(this.getAddress().full);
     }
 
     if (this.hasBankDetails()) {
       const bank = this.getBankDetails();
-      lines.push('');
-      lines.push('БАНКОВСКИЕ РЕКВИЗИТЫ:');
+      lines.push('', 'БАНКОВСКИЕ РЕКВИЗИТЫ:');
       if (bank.name !== 'Не указан') lines.push(`Банк: ${bank.name}`);
       if (bank.bik !== '—') lines.push(`БИК: ${bank.bik}`);
       if (bank.account !== '—') lines.push(`Расчетный счет: ${bank.account}`);
@@ -469,7 +746,6 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    
     a.href = url;
     a.download = `${this.getCompanyShortName().replace(/\s+/g, '_')}_реквизиты.txt`;
     document.body.appendChild(a);
@@ -478,7 +754,6 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  // Навигация
   setActiveTab(tab: 'overview' | 'details' | 'bank' | 'documents'): void {
     this.activeTab = tab;
   }
@@ -502,12 +777,187 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  // Вспомогательные методы
   trackByIndex(index: number): number {
     return index;
   }
 
   onBlockHover(block: string | null): void {
     this.hoveredBlock = block;
+  }
+
+  showCreateContractModal(): void {
+    this.showContractModal = true;
+    this.contractCreated = false;
+  }
+
+  closeContractModal(): void {
+    this.showContractModal = false;
+    this.isCreatingContract = false;
+  }
+
+  onFileSelected(event: Event, documentTypeId: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const file = input.files[0];
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Разрешены только файлы PDF, JPEG, PNG и Word');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Файл слишком большой. Максимальный размер 10 МБ');
+      return;
+    }
+
+    this.pendingFiles.set(documentTypeId, file);
+    this.pendingDocumentChanges.add(documentTypeId);
+    this.saveSuccess = false;
+
+    input.value = '';
+  }
+
+  removeDocument(documentTypeId: number): void {
+    this.pendingFiles.delete(documentTypeId);
+    this.pendingDocumentChanges.add(documentTypeId);
+    this.saveSuccess = false;
+  }
+
+  private getFileForDocumentType(typeId: number): File | null {
+    return this.pendingFiles.get(typeId) || null;
+  }
+
+  submitApplicationWithDocuments(): void {
+    if (!this.partner?.id) {
+      alert('Ошибка: не найден ID партнёра');
+      return;
+    }
+
+    const userId = this.currentUserData?.data?.id || this.currentUserData?.id;
+    if (!userId) {
+      alert('Ошибка: не найден ID пользователя. Пожалуйста, войдите в систему.');
+      return;
+    }
+
+    this.isSubmittingApplication = true;
+
+    const orderDto: CreateWholesaleOrderDto = {
+      partnerInstanceId: this.partner.id,
+      userInstanceId: userId,
+      wholesalePartnerType: 1,
+      beginDateTime: null,
+      endDateTime: null,
+      productPlaceCode: null,
+    };
+
+    this.wholesaleOrderService.createOrder(orderDto).pipe(
+      switchMap((orderResponse) => {
+        const orderId = orderResponse?.data?.id;
+
+        if (!orderId) {
+          throw new Error('Не получен ID заказа от сервера');
+        }
+
+        const files: File[] = [];
+        const documentTypes: number[] = [];
+
+        this.pendingDocumentChanges.forEach((docTypeId: number) => {
+          const file = this.pendingFiles.get(docTypeId);
+          if (file) {
+            files.push(file);
+            documentTypes.push(docTypeId);
+          }
+        });
+
+        if (files.length > 0) {
+          return this.wholesaleOrderService.addDocuments(orderId, files, documentTypes).pipe(
+            map(() => ({ success: true, orderId }))
+          );
+        }
+
+        return of({ success: true, orderId });
+      }),
+      catchError((error) => {
+        const message = error?.message || error?.error?.message || 'Не удалось создать заявку';
+        alert(message);
+        return of({ success: false });
+      }),
+      finalize(() => {
+        this.isSubmittingApplication = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (result) => {
+        if (result?.success) {
+          this.pendingDocumentChanges.clear();
+          this.pendingFiles.clear();
+          this.applicationSubmitted = true;
+          this.contractCreated = true;
+
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            this.activeTab = 'documents';
+            this.closeContractModal();
+            this.cdr.detectChanges();
+          }, 800);
+        } else {
+          alert('Не удалось создать заявку. Пожалуйста, попробуйте ещё раз.');
+        }
+      },
+      error: (err) => {
+        alert('Произошла ошибка. Пожалуйста, попробуйте ещё раз.');
+        this.cdr.detectChanges();
+      },
+      complete: () => {
+      }
+    });
+  }
+
+  confirmCreateContract(): void {
+    if (!this.partner?.id || !this.currentUserData?.id) return;
+
+    this.isCreatingContract = true;
+
+    const orderDto: CreateWholesaleOrderDto = {
+      partnerInstanceId: this.partner.id,
+      userInstanceId: this.currentUserData.id,
+      wholesalePartnerType: 1,
+      beginDateTime: null,
+      endDateTime: null,
+      productPlaceCode: null,
+    };
+
+    this.wholesaleOrderService.createOrder(orderDto).pipe(
+      catchError((error) => {
+        return throwError(() => new Error('Не удалось создать договор'));
+      }),
+      finalize(() => {
+        this.isCreatingContract = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        this.contractCreated = true;
+
+        setTimeout(() => {
+          this.activeTab = 'documents';
+          this.closeContractModal();
+        }, 1500);
+      },
+      error: (err) => {
+      }
+    });
+  }
+
+  canUploadDocuments(): boolean {
+    const status = this.getContractStatus();
+    return status === 'draft' || status === 'pending' || status === 'signed' || this.contractCreated;
+  }
+
+  proceedToDocumentsTab(): void {
+    this.closeContractModal();
+    this.setActiveTab('documents');
   }
 }

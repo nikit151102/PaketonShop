@@ -28,14 +28,39 @@ interface Partner {
   website?: string;
   createdAt?: string;
   updatedAt?: string;
+  registerDateTime: string;
+  wholesaleOrders?: Array<{
+    id: string;
+    wholesaleOrderStatus: number;
+    orderDocuments?: Array<{
+      id: string;
+      orderDocumentType: number;
+      fileInfo: {
+        id: string;
+        fileName: string;
+        size: number;
+        extansion: string;
+        url: string;
+        isDeleted: boolean;
+      };
+      isDeleted: boolean;
+    }>;
+  }>;
   partner?: {
     id: string;
     shortName: string;
     fullName: string;
     inn: string;
     ogrn: string;
+    kpp?: string;
     partnerTypeId?: string | number;
-    partnerType: PartnerType;
+    registerDateTime: string;
+    partnerType?: {
+      id: string;
+      code: number;
+      fullName: string;
+      shortName: string;
+    };
   };
   actualWholesaleOrdersAny?: boolean;
 }
@@ -245,7 +270,6 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
   }
 
   getPartnerTypeText(company: Partner): string {
-    console.log('company', company)
     if (company.partner?.partnerType?.fullName) {
       return company.partner.partnerType.fullName;
     } else {
@@ -437,4 +461,124 @@ export class PartnerCardsComponent implements OnInit, OnDestroy {
       this.scrollRight();
     }
   }
+
+  // Определение статуса договора
+  getContractStatus(company: Partner): 'not_started' | 'draft' | 'pending' | 'signed' | 'rejected' {
+    const orders = company.wholesaleOrders;
+    if (!orders || orders.length === 0) return 'not_started';
+
+    // Ищем активный заказ (не отклонённый и не неактивный)
+    const activeOrder = orders.find((order: any) => {
+      const status = Number(order.wholesaleOrderStatus);
+      return status !== 10 && status !== 11;
+    });
+
+    if (!activeOrder) return 'not_started';
+
+    const status = Number(activeOrder.wholesaleOrderStatus);
+
+    switch (status) {
+      case 0: // undefined
+      case 1: // created
+        return 'pending';
+      case 2: // processing
+      case 3: // docProcessing
+        return 'pending';
+      case 4: // accepted
+        return 'signed';
+      case 10: // rejected
+        return 'rejected';
+      default:
+        return 'not_started';
+    }
+  }
+
+  // Текст для отображения статуса
+  getContractStatusText(company: Partner): string {
+    const status = this.getContractStatus(company);
+    const texts: Record<string, string> = {
+      'not_started': 'Не создан',
+      'draft': 'Черновик',
+      'pending': 'На проверке',
+      'signed': 'Подписан',
+      'rejected': 'Отклонён'
+    };
+    return texts[status] || '—';
+  }
+
+  // Прогресс заполнения документов (визуальный индикатор)
+  getDocumentsProgress(company: Partner): number {
+    const status = this.getContractStatus(company);
+    if (status === 'not_started') return 0;
+    if (status === 'draft') return 25;
+    if (status === 'pending') return 60;
+    if (status === 'signed') return 100;
+    if (status === 'rejected') return 40;
+    return 0;
+  }
+
+  // Проверка верификации (можно доработать под вашу логику)
+  isVerified(company: Partner): boolean {
+    const status = this.getContractStatus(company);
+
+    const orders = company.wholesaleOrders;
+    const hasOrders = Array.isArray(orders) && orders.length > 0;
+
+    if (!hasOrders) return false;
+
+    const hasDocuments = orders.some((order: any) => {
+      const docs = order?.orderDocuments;
+      return Array.isArray(docs) && docs.length > 0;
+    });
+
+    return status === 'signed' && hasDocuments;
+  }
+
+  // Проверка активности компании
+  isCompanyActive(company: Partner): boolean {
+    return !company.isDeleted && this.getContractStatus(company) === 'signed';
+  }
+
+  // Цвет логотипа на основе названия
+  getCompanyLogoColor(company: Partner): string {
+    const name = this.getCompanyShortName(company);
+    const colors = ['#3c8a27', '#2d6a1f', '#4CAF50', '#388E3C', '#2E7D32', '#1B5E20', '#00695C', '#00796B', '#00897B', '#009688'];
+
+    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  // Форматирование ИНН с пробелами
+  formatINN(inn: string): string {
+    if (!inn || inn === 'Не указан') return inn;
+    const cleaned = inn.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `${cleaned.substring(0, 2)} ${cleaned.substring(2, 5)} ${cleaned.substring(5, 8)} ${cleaned.substring(8)}`;
+    }
+    if (cleaned.length === 12) {
+      return `${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8)}`;
+    }
+    return inn;
+  }
+
+  // Форматирование ОГРН с пробелами
+  formatOGRN(ogrn: string): string {
+    if (!ogrn || ogrn === 'Не указан') return ogrn;
+    const cleaned = ogrn.replace(/\D/g, '');
+    if (cleaned.length === 13) {
+      return `${cleaned.substring(0, 3)} ${cleaned.substring(3, 7)} ${cleaned.substring(7, 11)} ${cleaned.substring(11)}`;
+    }
+    return ogrn;
+  }
+
+  // Безопасное получение КПП
+  getCompanyKPP(company: Partner): string {
+    if (!company) return 'Не указан';
+    if (company.kpp) return company.kpp;
+    if (company.partner?.kpp) return company.partner.kpp;
+    return 'Не указан';
+  }
+
+
+  
 }

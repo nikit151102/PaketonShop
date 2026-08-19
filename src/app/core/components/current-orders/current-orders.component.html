@@ -1,6 +1,5 @@
 <section class="order-history">
-    <app-title [title]="'Активные покупки'"
-        [description]="''">
+    <app-title [title]="'Активные покупки'" [description]="''">
     </app-title>
 
     <!-- Loading State -->
@@ -19,23 +18,35 @@
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!loading && !error && orders.length === 0">
-        <!-- <div class="empty-icon">📦</div> -->
         <h3>У вас пока нет заказов</h3>
         <p>Перейдите в каталог и сделайте свой первый заказ</p>
         <button class="empty-btn" (click)="goToCatalog()">Перейти в каталог</button>
     </div>
 
-    <!-- Orders List - Compact Horizontal Cards -->
     <div class="orders-container" *ngIf="orders.length > 0">
         <div class="orders-grid">
-            <div [routerLink]="['/order', order.id] "class="order-card-compact" *ngFor="let order of orders" > 
+            <!--  Карточка заказа -->
+            <div [routerLink]="['/order', order.id]" class="order-card-compact" *ngFor="let order of orders"
+                [class.order-card--ready]="canShowQR(order)">
+                    <!--  QR Indicator (слева от изображений) -->
+                    <button type="button" class="qr-indicator" *ngIf="canShowQR(order)"
+                        (click)="openQRModal(order, $event)" title="Показать QR-код для получения">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <path d="M14 14h7v7h-7z" />
+                            <path d="M17 17h.01" />
+                        </svg>
+                    </button>
 
-                <!-- Блок 1: Изображения + Статус -->
                 <div class="card-block-visual">
-                    <!-- Status Badge (справа сверху) -->
                     <span class="order-status-badge" [class]="'status-' + getStatusClass(order.orderStatus)">
                         {{ getStatusText(order.orderStatus) }}
                     </span>
+
+
                     <!-- Stacked Product Images -->
                     <div class="card-images">
                         <div class="image-stack">
@@ -71,14 +82,90 @@
                                 }}</span>
                         </div>
                     </div>
-
-                    <!-- Итоговая цена внизу -->
                     <div class="card-footer">
                         <span class="total-label">Итого:</span>
                         <span class="total-price">{{ formatCurrency(order.totalCost) }}</span>
                     </div>
                 </div>
+            </div>
 
+            <!--  МОДАЛКА QR  -->
+            <div class="qr-modal-overlay" *ngIf="showQRModal" (click)="closeQRModal()">
+
+                <div class="qr-modal" (click)="$event.stopPropagation()">
+
+                    <!-- Шапка -->
+                    <div class="qr-modal__header">
+                        <h3>Ваш заказ готов!</h3>
+                        <button class="qr-modal__close" (click)="closeQRModal()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Контент -->
+                    <div class="qr-modal__body">
+
+                        <!-- QR-код с fallback -->
+                        <div class="qr-code-wrapper">
+                            <div class="qr-code" #qrContainer>
+                                <!--  Fallback: показываем заглушку пока генерируется QR -->
+                                <div class="qr-loading" *ngIf="qrLoading">
+                                    <div class="qr-loading-spinner"></div>
+                                    <span>Генерация QR...</span>
+                                </div>
+                                <!--  Fallback: если ошибка -->
+                                <div class="qr-error" *ngIf="qrError">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M12 8v4M12 16h.01" />
+                                    </svg>
+                                    <span>Не удалось загрузить QR</span>
+                                </div>
+                                <!--  QR будет вставлен сюда через JS -->
+                            </div>
+                            <div class="qr-code__label">
+                                <span>Номер получения:</span>
+                                <strong>{{ currentOrder?.realisationNumber }}</strong>
+                            </div>
+                        </div>
+
+                        <!-- Инструкция -->
+                        <div class="qr-instruction">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4M12 8h.01" />
+                            </svg>
+                            <p>Покажите этот QR-код сотруднику пункта выдачи для быстрого получения заказа</p>
+                        </div>
+
+                        <!-- Кнопки действий -->
+                        <div class="qr-actions">
+                            <button class="action-btn secondary" (click)="copyRealisationNumber()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                                </svg>
+                                Скопировать номер
+                            </button>
+                            <button class="action-btn primary" (click)="downloadQR()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                Сохранить QR
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
 

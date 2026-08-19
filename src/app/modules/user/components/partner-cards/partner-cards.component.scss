@@ -536,3 +536,478 @@ $radius-full: 999px;
     }
   }
 }
+
+
+
+
+// ===== ДОБАВЬТЕ В partner-cards.component.scss =====
+
+// 🔹 Блок статусов
+.company-card__statuses {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: $bg-light;
+  border-radius: $radius-sm;
+  margin-bottom: 12px;
+  border: 1px solid $border-light;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  
+  .status-label {
+    font-size: 11px;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+  }
+}
+
+// 🔹 Бейджи статусов
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: $radius-full;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  
+  &--pending {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  
+  &--signed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  
+  &--rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  &--draft {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  
+  &--verified {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+}
+
+// 🔹 Прогресс-бар документов
+.progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.progress-bar {
+  width: 80px;
+  height: 6px;
+  background: $border;
+  border-radius: $radius-full;
+  overflow: hidden;
+  
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, $primary, #4CAF50);
+    border-radius: $radius-full;
+    transition: width 0.3s ease;
+  }
+}
+
+.progress-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-secondary;
+  min-width: 32px;
+  text-align: right;
+}
+
+// 🔹 Индикатор активности
+.activity-indicator {
+  display: inline-flex;
+  align-items: center;
+  
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $text-light;
+    transition: background 0.2s ease;
+  }
+  
+  &--active .activity-dot {
+    background: $success;
+    box-shadow: 0 0 0 2px rgba($success, 0.2);
+    animation: pulse 2s infinite;
+  }
+  
+  &--inactive .activity-dot {
+    background: $text-muted;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+// 🔹 Цвет логотипа компании
+@function string-to-color($string) {
+  $hash: 0;
+  @for $i from 1 through str-length($string) {
+    $hash: $hash + str-slice($string, $i, $i) !global;
+  }
+  $colors: (#3c8a27, #2d6a1f, #4CAF50, #388E3C, #2E7D32, #1B5E20, #00695C, #00796B, #00897B, #009688);
+  @return nth($colors, ($hash % length($colors)) + 1);
+}
+
+.company-card__logo {
+  // ... существующие стили ...
+  background: $primary; // fallback
+  
+  // Если нужно динамическое окрашивание через JS, используйте [style.background] в HTML
+}
+
+// 🔹 Форматирование ИНН/ОГРН
+.company-detail__value {
+  // ... существующие стили ...
+  
+  // Моноширинный шрифт для цифр
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 12px;
+}
+
+// 🔹 Адаптив для статусов
+@media (max-width: 480px) {
+  .company-card__statuses {
+    padding: 10px;
+    gap: 6px;
+  }
+  
+  .progress-bar {
+    width: 60px;
+  }
+  
+  .status-badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+}
+
+
+
+// ===== QR КНОПКА В КАРТОЧКЕ =====
+.qr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: $primary-light;
+  border: 1px solid $primary;
+  border-radius: $radius-full;
+  color: $primary;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  svg {
+    fill: currentColor;
+  }
+  
+  &:hover {
+    background: $primary;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary, 0.2);
+  }
+  
+  &__label {
+    line-height: 1;
+  }
+}
+
+// ===== МОДАЛЬНОЕ ОКНО QR =====
+.qr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.qr-modal {
+  width: 100%;
+  max-width: 420px;
+  background: $bg;
+  border-radius: $radius;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease-out;
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 24px;
+    border-bottom: 1px solid $border-light;
+    background: linear-gradient(135deg, $primary-light 0%, transparent 100%);
+    
+    .qr-modal__icon {
+      width: 40px;
+      height: 40px;
+      background: $primary;
+      border-radius: $radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      svg { fill: currentColor; }
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: $text;
+      flex: 1;
+    }
+    
+    .qr-modal__close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-sm;
+      
+      &:hover {
+        background: $bg-hover;
+        color: $error;
+      }
+    }
+  }
+  
+  &__body {
+    padding: 24px;
+  }
+}
+
+// ===== СООБЩЕНИЕ =====
+.qr-message {
+  text-align: center;
+  padding: 16px;
+  border-radius: $radius-sm;
+  margin-bottom: 24px;
+  border: 1px solid rgba($success, 0.2);
+  
+  &__emoji {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+    animation: bounce 1s ease infinite;
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  }
+  
+  &__text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text;
+    line-height: 1.4;
+  }
+}
+
+// ===== QR КОД =====
+.qr-code-wrapper {
+  position: relative;
+  margin: 0 auto 24px;
+  max-width: 220px;
+  
+  .qr-code {
+    padding: 16px;
+    background: white;
+    border-radius: 10px;
+    border: 2px solid $border;
+    box-shadow: $shadow;
+    
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+  
+  .qr-code__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba($bg, 0.9);
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    
+    .qr-code__hint {
+      font-size: 12px;
+      font-weight: 500;
+      color: $primary;
+      background: $primary-light;
+      padding: 6px 12px;
+      border-radius: 10px;
+    }
+  }
+  
+  &:hover .qr-code__overlay {
+    opacity: 1;
+  }
+}
+
+// ===== ИНФОРМАЦИЯ =====
+.qr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: $bg-light;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  
+  &__label {
+    font-size: 12px;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+  }
+  
+  &__value {
+    font-size: 14px;
+    font-weight: 600;
+    color: $text;
+    
+    &--mono {
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      background: $bg;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid $border;
+    }
+  }
+}
+
+// ===== КНОПКИ ДЕЙСТВИЙ =====
+.qr-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.qr-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: $bg-light;
+  border: 1px solid $border;
+  border-radius: 10px;
+  color: $text-secondary;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  svg {
+    stroke: currentColor;
+  }
+  
+  &:hover {
+    background: $bg-hover;
+    border-color: $primary;
+    color: $primary;
+  }
+  
+  &--primary {
+    background: $primary;
+    border-color: $primary;
+    color: white;
+    
+    &:hover {
+      background: $primary-hover;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary, 0.2);
+    }
+  }
+}
+
+// ===== АДАПТИВ =====
+@media (max-width: 480px) {
+  .qr-modal {
+    max-width: 100%;
+    margin: 0 12px;
+  }
+  
+  .qr-actions {
+    grid-template-columns: 1fr;
+  }
+  
+  .qr-code-wrapper {
+    max-width: 180px;
+  }
+}

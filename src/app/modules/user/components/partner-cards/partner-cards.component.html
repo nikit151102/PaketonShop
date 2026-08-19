@@ -56,12 +56,15 @@
 
     <!-- Список компаний -->
     <div class="companies__grid" *ngIf="visibleCompanies.length > 0">
+      <!-- Обновите секцию карточки компании в companies__grid -->
+
       <div class="company-card" *ngFor="let company of visibleCompanies; let i = index"
         [class.company-card--deleted]="company.isDeleted" (click)="detailPartner(company)"
         [style.animation-delay]="i * 30 + 'ms'">
 
+        <!-- Шапка карточки -->
         <div class="company-card__header">
-          <div class="company-card__logo">
+          <div class="company-card__logo" [style.background]="getCompanyLogoColor(company)">
             {{ getCompanyLogoText(company) }}
           </div>
           <div class="company-card__info">
@@ -69,14 +72,14 @@
             <p class="company-card__type">{{ getPartnerTypeText(company) }}</p>
           </div>
           <div class="company-card__menu">
-            <button class="menu-btn" (click)="openEditPartnerForm(company, $event)">
+            <button class="menu-btn" (click)="openEditPartnerForm(company, $event)" title="Редактировать">
               <svg width="14" height="14" viewBox="0 0 24 24">
                 <path
                   d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
               </svg>
             </button>
             <button class="menu-btn" [class.menu-btn--danger]="!company.isDeleted"
-              (click)="deletePartner(company, $event)">
+              (click)="deletePartner(company, $event)" [title]="company.isDeleted ? 'Восстановить' : 'Удалить'">
               <svg width="14" height="14" viewBox="0 0 24 24">
                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
               </svg>
@@ -84,14 +87,57 @@
           </div>
         </div>
 
+        <!-- Блок статусов (новое) -->
+        <div class="company-card__statuses">
+
+          <!-- Статус договора -->
+          <div class="status-item">
+            <span class="status-label">Договор</span>
+            <span class="status-badge" [class.status-badge--pending]="getContractStatus(company) === 'pending'"
+              [class.status-badge--signed]="getContractStatus(company) === 'signed'"
+              [class.status-badge--rejected]="getContractStatus(company) === 'rejected'"
+              [class.status-badge--draft]="getContractStatus(company) === 'draft'">
+              {{ getContractStatusText(company) }}
+            </span>
+          </div>
+
+          <!-- Прогресс документов -->
+          <div class="status-item" *ngIf="getContractStatus(company) !== 'not_started'">
+            <span class="status-label">Документы</span>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="getDocumentsProgress(company)"></div>
+              </div>
+              <span class="progress-text">{{ getDocumentsProgress(company) }}%</span>
+            </div>
+          </div>
+
+          <!-- Статус верификации -->
+          <div class="status-item" *ngIf="getContractStatus(company) === 'signed'">
+            <span class="status-label">Верификация</span>
+            <span class="status-badge status-badge--verified" *ngIf="isVerified(company)">
+              ✓ Подтверждён
+            </span>
+            <span class="status-badge status-badge--pending" *ngIf="!isVerified(company)">
+              ◑ На проверке
+            </span>
+          </div>
+
+        </div>
+
+        <!-- Основная информация -->
         <div class="company-card__body">
           <div class="company-detail">
             <span class="company-detail__label">ИНН</span>
-            <span class="company-detail__value">{{ getCompanyINN(company) }}</span>
+            <span class="company-detail__value">{{ formatINN(getCompanyINN(company)) }}</span>
           </div>
           <div class="company-detail">
             <span class="company-detail__label">ОГРН</span>
-            <span class="company-detail__value">{{ getCompanyOGRN(company) }}</span>
+            <span class="company-detail__value">{{ formatOGRN(getCompanyOGRN(company)) }}</span>
+          </div>
+          <div class="company-detail" *ngIf="getCompanyKPP(company) !== 'Не указан'">
+            <span class="company-detail__label">КПП</span>
+            <span class="company-detail__value">{{ getCompanyKPP(company) }}</span>
           </div>
           <div class="company-detail" *ngIf="getCompanyPhone(company) !== 'Не указан'">
             <span class="company-detail__label">Тел.</span>
@@ -99,27 +145,33 @@
           </div>
         </div>
 
+        <!-- Футер карточки -->
         <div class="company-card__footer">
           <span class="company-card__date">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+            </svg>
             {{ getUpdatedDate(company) }}
           </span>
-          @if (company.actualWholesaleOrdersAny != null) {
-          <span *ngIf="company.actualWholesaleOrdersAny !== null" class="company-card__badge"
-            [class.company-card__badge--true]="company.actualWholesaleOrdersAny === true"
-            [class.company-card__badge--false]="company.actualWholesaleOrdersAny === false" title="Статус договора">
-            @if (company.actualWholesaleOrdersAny === true) {
-            Договор подписан
-            } @else {
-            Договор не подписан
-            }
+
+          <!-- Индикатор активности -->
+          <span class="activity-indicator" [class.activity-indicator--active]="isCompanyActive(company)"
+            [class.activity-indicator--inactive]="!isCompanyActive(company)"
+            title="{{ isCompanyActive(company) ? 'Активен' : 'Не активен' }}">
+            <span class="activity-dot"></span>
           </span>
-          }
         </div>
 
-        <!-- Бейдж удаленной компании -->
+        <!-- Бейдж удалённой компании -->
         <div class="company-card__badge" *ngIf="company.isDeleted">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
           <span>В архиве</span>
         </div>
+
       </div>
     </div>
   </div>
