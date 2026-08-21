@@ -89,12 +89,23 @@ export class AuthInterceptor implements HttpInterceptor {
  * Добавление заголовков к запросу
  */
 private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
-  // Если это FormData — добавляем ТОЛЬКО Authorization, не трогая Content-Type
+  const isBrowser = typeof window !== 'undefined';
+  
+  // 🔒 На сервере добавляем только базовые заголовки
+  if (!isBrowser) {
+    return req.clone({
+      setHeaders: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-App-Version': '1.0.0'
+      }
+    });
+  }
+
+  // Для FormData — только Authorization
   if (req.body instanceof FormData) {
     const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);
     
     if (token) {
-      // Используем append, чтобы не перезаписать существующие заголовки
       return req.clone({
         setHeaders: {
           'Authorization': `Bearer ${token}`,
@@ -104,11 +115,10 @@ private async addHeaders(req: HttpRequest<any>): Promise<HttpRequest<any>> {
       });
     }
     
-    // Если токена нет — возвращаем запрос как есть
     return req;
   }
 
-  // Для всех остальных запросов — полная логика
+  // Полная логика для браузера
   const headers: { [key: string]: string } = {};
 
   const token = StorageUtils.getLocalStorageCache(localStorageEnvironment.auth.key);

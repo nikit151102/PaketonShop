@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { productResolver } from './core/resolvers/product.resolver';
 
 export const routes: Routes = [
   {
@@ -23,10 +24,7 @@ export const routes: Routes = [
   {
     path: 'product/:id',
     loadComponent: () => import('./modules/card/card.component').then((m) => m.CardComponent),
-    data: {
-      title: '{{productName}} — купить в Пакетон.рф',
-      description: '{{productName}} — цена {{price}} ₽, характеристики, фото, отзывы. Доставка по России. Закажите сейчас!',
-    }
+    resolve: { productData: productResolver }
   },
   {
     path: 'contacts',
@@ -73,7 +71,7 @@ export const routes: Routes = [
       keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
     }
   },
-    {
+  {
     path: 'appeal',
     loadComponent: () => import('./modules/appeal/appeal.component').then((m) => m.AppealComponent),
     data: {

@@ -1,28 +1,49 @@
-# Используем Node.js в качестве базового образа
-FROM node:22
+# ============================================
+# Stage 1: Сборка приложения (builder)
+# ============================================
+FROM node:22-alpine AS builder
 
-# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Копируем файлы package.json и package-lock.json в рабочую директорию
+# Копируем только файлы зависимостей (для кэширования слоёв Docker)
 COPY package.json package-lock.json ./
 
-# Устанавливаем зависимости
-RUN npm install --legacy-peer-deps
+# Устанавливаем зависимости (включая devDependencies для сборки)
+RUN npm ci --legacy-peer-deps
 
-# Устанавливаем Angular CLI глобально
-RUN npm install -g @angular/cli
-
-# Копируем остальные файлы проекта в контейнер
+# Копируем исходный код
 COPY . .
 
-# Устанавливаем переменные окружения
+# Устанавливаем переменные окружения для сборки
 ARG VERSION_NUMBER_ARG=no-version
 ENV VERSION_NUMBER=$VERSION_NUMBER_ARG
 ENV TZ=Europe/Zurich
 
-# Открываем порт 8030 для доступа к приложению
-EXPOSE 8020
+# Собираем production-версию с SSR
+RUN npm run build
 
-# Команда для запуска Angular приложения с использованием ng serve
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "8020"]
+# ============================================
+# Stage 2: Production образ (минимальный)
+# ============================================
+FROM node:22-alpine AS production
+
+WORKDIR /app
+
+# Устанавливаем только production-зависимости
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
+
+# Копируем только собранные файлы из builder
+COPY --from=builder /app/dist ./dist
+
+# Переменные окружения для runtime
+ENV NODE_ENV=production
+ENV TZ=Europe/Zurich
+ARG VERSION_NUMBER_ARG=no-version
+ENV VERSION_NUMBER=$VERSION_NUMBER_ARG
+
+# Angular SSR по умолчанию слушает порт 4000
+EXPOSE 4000
+
+# Запускаем собранный SSR-сервер напрямую через Node.js
+CMD ["node", "dist/paketon-shop/server/server.mjs"]

@@ -1,6 +1,6 @@
-import { Component, OnInit, HostListener, computed, inject, ViewChild } from '@angular/core';
+import { Component, OnInit, HostListener, computed, inject, ViewChild, PLATFORM_ID } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserApiService } from '../../../../core/api/user.service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
@@ -82,7 +82,8 @@ export class ProfileComponent implements OnInit {
   private basketsStateService = inject(BasketsStateService);
   private paymentService = inject(PaymentService);
 
-
+  private platformId = inject(PLATFORM_ID);
+  
   ngOnInit(): void {
     this.checkScreenSize();
     this.loadUserData();
@@ -137,8 +138,10 @@ export class ProfileComponent implements OnInit {
     localStorage.removeItem(environment.localStorageKeys.auth);
     localStorage.removeItem(localStorageEnvironment.auth.key);
     localStorage.removeItem(localStorageEnvironment.user.key);
+    if (isPlatformBrowser(this.platformId)) {
     sessionStorage.removeItem(sessionStorageEnvironment.auth.key);
     sessionStorage.removeItem(sessionStorageEnvironment.user.key);
+    }
     this.basketsStateService.clearBaskets();
     this.userService.clearUserDataCache();
     this.router.navigate(['']);

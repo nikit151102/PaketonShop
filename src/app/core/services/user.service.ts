@@ -1,4 +1,4 @@
-import { Injectable, signal, Signal } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, signal, Signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   localStorageEnvironment,
@@ -7,6 +7,7 @@ import {
 } from '../../../environment';
 import { HttpClient } from '@angular/common/http';
 import { StorageUtils } from '../../../utils/storage.utils';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface User {
   id: string;
@@ -29,6 +30,8 @@ export class UserService {
   private basketsSignal = signal<any[] | null>(null);
   public baskets = this.basketsSignal.asReadonly();
 
+  private platformId = inject(PLATFORM_ID);
+  
   updateIsAuthUser(value: boolean): void {
     this.authUser.set(value);
   }
@@ -43,9 +46,13 @@ export class UserService {
   }
 
   constructor(private http: HttpClient) {
-    const savedUser =
-      sessionStorage.getItem(sessionStorageEnvironment.user.key) ||
-      localStorage.getItem(localStorageEnvironment.user.key);
+    let savedUser: string | null = null;
+
+    if (isPlatformBrowser(this.platformId)) {
+      savedUser =
+        sessionStorage.getItem(sessionStorageEnvironment.user.key) ||
+        localStorage.getItem(localStorageEnvironment.user.key);
+    }
 
     this.userSubject = new BehaviorSubject<User | null>(
       savedUser ? JSON.parse(savedUser) : null,

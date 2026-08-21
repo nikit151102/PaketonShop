@@ -8,6 +8,11 @@ interface CacheItem<T> {
 type CacheSubscriber<T> = (data: T | null, key: string) => void;
 
 /**
+ * Проверка, выполняется ли код в браузере
+ */
+const isBrowser = typeof window !== 'undefined';
+
+/**
  * Утилиты для кэширования данных
  */
 export class StorageUtils {
@@ -26,7 +31,7 @@ export class StorageUtils {
   private static memoryCache = new Map<string, CacheItem<any>>();
   private static subscribers = new Map<string, Set<CacheSubscriber<any>>>();
   private static globalSubscribers = new Set<(key: string, data: any | null) => void>();
-  private static cleanupInterval:  any = null;
+  private static cleanupInterval: any = null;
 
   /**
    * Инициализирует автоматическую очистку просроченного кэша
@@ -68,7 +73,6 @@ export class StorageUtils {
     
     this.subscribers.get(key)!.add(callback);
     
-    // Возвращаем функцию отписки
     return () => {
       const subs = this.subscribers.get(key);
       if (subs) {
@@ -98,13 +102,11 @@ export class StorageUtils {
    * @param data Новые данные или null при удалении
    */
   private static notifySubscribers<T>(key: string, data: T | null): void {
-    // Локальные подписчики
     const subs = this.subscribers.get(key);
     if (subs) {
       subs.forEach(callback => callback(data, key));
     }
     
-    // Глобальные подписчики
     this.globalSubscribers.forEach(callback => callback(key, data));
   }
 
@@ -133,7 +135,7 @@ export class StorageUtils {
       return item.data as T;
     }
 
-    this.memoryCache.delete(key); // Автоочистка
+    this.memoryCache.delete(key);
     this.notifySubscribers(key, null);
     return null;
   }
@@ -148,7 +150,6 @@ export class StorageUtils {
       this.notifySubscribers(key, null);
     } else {
       this.memoryCache.clear();
-      // Уведомляем всех подписчиков об очистке
       this.subscribers.forEach((_, k) => {
         this.notifySubscribers(k, null);
       });
@@ -176,6 +177,8 @@ export class StorageUtils {
    * @param ttl Время жизни в секундах
    */
   static setLocalStorageCache<T>(key: string, data: T, ttl: number): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       const expires = Date.now() + ttl * 1000;
       const item: CacheItem<T> = { data, expires };
@@ -189,29 +192,25 @@ export class StorageUtils {
    * @returns Данные или null, если кэш невалиден
    */
   static getLocalStorageCache<T>(key: string): T | null {
+    if (!isBrowser) return null; // 🔒 Защита SSR
+    
     try {
       const itemStr = localStorage.getItem(key);
       if (!itemStr) return null;
 
-      // Пытаемся распарсить как JSON
       try {
         const item = JSON.parse(itemStr) as CacheItem<T>;
-        // Если распарсилось успешно и это объект CacheItem
         if (item && typeof item === 'object' && 'data' in item && 'expires' in item) {
           if (this.isCacheValid(item.expires)) {
             return item.data;
           }
-          localStorage.removeItem(key); // Автоочистка
+          localStorage.removeItem(key);
           return null;
         }
       } catch (e) {
-        // Если не удалось распарсить как JSON, возможно это простая строка (например, токен)
-        // Проверяем, похоже ли это на JWT токен
         if (itemStr.length > 50 && itemStr.includes('.')) {
-          // Это может быть JWT токен, возвращаем как есть
           return itemStr as unknown as T;
         }
-        // Если это не JWT и не JSON, это может быть обычная строка
         return itemStr as unknown as T;
       }
 
@@ -226,6 +225,8 @@ export class StorageUtils {
    * @param key Ключ
    */
   static removeLocalStorageCache(key: string): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       localStorage.removeItem(key);
     } catch (e) {}
@@ -233,9 +234,10 @@ export class StorageUtils {
 
   /**
    * Полностью очищает localStorage
-   * Можно добавить фильтр по префиксу ключей TTL, если нужно
    */
   static clearLocalStorage(): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       localStorage.clear();
     } catch (e) {}
@@ -245,6 +247,8 @@ export class StorageUtils {
    * Очищает просроченные записи в localStorage
    */
   static cleanupExpiredLocalStorage(): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -256,9 +260,7 @@ export class StorageUtils {
               if (item && item.expires && !this.isCacheValid(item.expires)) {
                 localStorage.removeItem(key);
               }
-            } catch (e) {
-              // Не JSON формат, пропускаем
-            }
+            } catch (e) {}
           }
         }
       }
@@ -273,6 +275,8 @@ export class StorageUtils {
    * @param data Данные
    */
   static setSessionStorage<T>(key: string, data: T): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       sessionStorage.setItem(key, JSON.stringify(data));
     } catch (e) {}
@@ -283,6 +287,8 @@ export class StorageUtils {
    * @param key Ключ
    */
   static getSessionStorage<T>(key: string): T | null {
+    if (!isBrowser) return null; // 🔒 Защита SSR
+    
     try {
       const data = sessionStorage.getItem(key);
       return data ? JSON.parse(data) : null;
@@ -296,6 +302,8 @@ export class StorageUtils {
    * @param key Ключ
    */
   static removeSessionStorage(key: string): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       sessionStorage.removeItem(key);
     } catch (e) {}
@@ -305,6 +313,8 @@ export class StorageUtils {
    * Полностью очищает sessionStorage
    */
   static clearSessionStorage(): void {
+    if (!isBrowser) return; // 🔒 Защита SSR
+    
     try {
       sessionStorage.clear();
     } catch (e) {}
@@ -357,4 +367,3 @@ export class StorageUtils {
     }
   }
 }
-

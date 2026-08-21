@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { StorageUtils } from '../../../../utils/storage.utils';
@@ -56,6 +57,13 @@ export type StoreSelectionMode = 'all' | 'specific' | 'multiple';
 
 @Injectable({ providedIn: 'root' })
 export class LocationService {
+  // 🔒 Инжектим платформу для проверки SSR
+  private platformId = inject(PLATFORM_ID);
+
+  private get isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
   // Ключи для localStorage
   private readonly STORAGE_KEYS = {
     CITY: 'pktn_userCity',
@@ -69,8 +77,6 @@ export class LocationService {
   // BehaviorSubject для состояния
   city$ = new BehaviorSubject<City | null>(null);
   detectedCity$ = new BehaviorSubject<string | null>(null);
-
-  // Добавляем currentSession$ для header
   currentSession$ = new BehaviorSubject<string | null>(null);
 
   // Модалки
@@ -80,32 +86,23 @@ export class LocationService {
   showStoreSelectionModal$ = new BehaviorSubject<boolean>(false);
   showNoStoresModal$ = new BehaviorSubject<boolean>(false);
 
-  // Тип доставки
   deliveryType$ = new BehaviorSubject<DeliveryType>('pickup');
-
-  // Режим выбора магазина
   storeSelectionMode$ = new BehaviorSubject<StoreSelectionMode>('all');
-
-  // Массив выбранных магазинов
   selectedStores$ = new BehaviorSubject<SelectedStore[]>([]);
-
-  // Адрес доставки
   deliveryAddress$ = new BehaviorSubject<DeliveryAddress | null>(null);
-
-  // Флаг наличия магазинов в выбранном городе
   hasStoresInCity$ = new BehaviorSubject<boolean>(true);
-
-  // Список магазинов в выбранном городе
   storesInCity$ = new BehaviorSubject<Store[]>([]);
 
-  // Данные для UI
   cities: City[] = [];
   groupedDistricts: DistrictGroup[] = [];
   selectedDistrict: DistrictGroup | null = null;
   citySearch: string = '';
 
   constructor(private http: HttpClient) {
-    this.loadSavedData();
+    // 🔒 Загружаем данные только в браузере
+    if (this.isBrowser) {
+      this.loadSavedData();
+    }
   }
 
   async init() {
@@ -118,13 +115,18 @@ export class LocationService {
         id: `city_${index}`
       }));
       this.groupCities();
-      this.detectUserCity();
+      
+      // 🔒 detectUserCity только в браузере
+      if (this.isBrowser) {
+        this.detectUserCity();
+      }
     }
   }
 
   private loadSavedData() {
+    if (!this.isBrowser) return; // 🔒 Защита SSR
+
     try {
-      // Загружаем город
       const savedCity = localStorage.getItem(this.STORAGE_KEYS.CITY);
       if (savedCity) {
         setTimeout(() => {
@@ -135,19 +137,16 @@ export class LocationService {
         }, 100);
       }
 
-      // Загружаем тип доставки
       const savedType = localStorage.getItem(this.STORAGE_KEYS.DELIVERY_TYPE) as DeliveryType;
       if (savedType && ['pickup', 'delivery'].includes(savedType)) {
         this.deliveryType$.next(savedType);
       }
 
-      // Загружаем режим выбора магазина
       const savedMode = localStorage.getItem(this.STORAGE_KEYS.STORE_SELECTION_MODE) as StoreSelectionMode;
       if (savedMode && ['all', 'specific', 'multiple'].includes(savedMode)) {
         this.storeSelectionMode$.next(savedMode);
       }
 
-      // Загружаем массив выбранных магазинов
       const savedStores = localStorage.getItem(this.STORAGE_KEYS.SELECTED_STORES);
       if (savedStores) {
         const stores = JSON.parse(savedStores);
@@ -156,30 +155,30 @@ export class LocationService {
         }
       }
 
-      // Загружаем адрес
       const savedAddress = localStorage.getItem(this.STORAGE_KEYS.ADDRESS);
       if (savedAddress) {
         const address = JSON.parse(savedAddress);
         this.deliveryAddress$.next(address);
       }
 
-      // Проверяем сессию
       this.currentSession$.next(StorageUtils.getSessionStorage(this.STORAGE_KEYS.CITY));
     } catch (e) {
     }
   }
 
-  // Сохранение адреса доставки
   saveDeliveryAddress(address: DeliveryAddress) {
     this.deliveryAddress$.next(address);
-    localStorage.setItem(this.STORAGE_KEYS.ADDRESS, JSON.stringify(address));
+    if (this.isBrowser) {
+      localStorage.setItem(this.STORAGE_KEYS.ADDRESS, JSON.stringify(address));
+    }
     this.showAddressModal$.next(false);
   }
 
-  // Установка типа доставки
   setDeliveryType(type: DeliveryType) {
     this.deliveryType$.next(type);
-    localStorage.setItem(this.STORAGE_KEYS.DELIVERY_TYPE, type);
+    if (this.isBrowser) {
+      localStorage.setItem(this.STORAGE_KEYS.DELIVERY_TYPE, type);
+    }
     this.showDeliveryTypeModal$.next(false);
 
     if (type === 'pickup') {
@@ -189,28 +188,32 @@ export class LocationService {
     }
   }
 
-  // Установка режима выбора магазина
   setStoreSelectionMode(mode: StoreSelectionMode, stores?: Store[]) {
     this.storeSelectionMode$.next(mode);
-    localStorage.setItem(this.STORAGE_KEYS.STORE_SELECTION_MODE, mode);
+    if (this.isBrowser) {
+      localStorage.setItem(this.STORAGE_KEYS.STORE_SELECTION_MODE, mode);
+    }
 
     if (mode === 'all' && stores?.length == 0) {
       this.selectedStores$.next([]);
-      localStorage.removeItem(this.STORAGE_KEYS.SELECTED_STORES);
+      if (this.isBrowser) {
+        localStorage.removeItem(this.STORAGE_KEYS.SELECTED_STORES);
+      }
     } else if (stores && stores.length > 0) {
       const selectedStores: SelectedStore[] = stores.map(store => ({
         id: store.id,
         fullName: store.fullName
       }));
-      const selectedLocalStores: string[] = stores.map(store => (store.fullName));
+      const selectedLocalStores: string[] = stores.map(store => store.fullName);
       this.selectedStores$.next(selectedStores);
-      localStorage.setItem(this.STORAGE_KEYS.SELECTED_STORES, JSON.stringify(selectedLocalStores));
+      if (this.isBrowser) {
+        localStorage.setItem(this.STORAGE_KEYS.SELECTED_STORES, JSON.stringify(selectedLocalStores));
+      }
     }
 
     this.showStoreSelectionModal$.next(false);
   }
 
-  // Добавление магазина к выбранным
   addStoreToSelection(store: Store) {
     const currentStores = this.selectedStores$.getValue();
     const storeExists = currentStores.some(s => s.id === store.id);
@@ -222,14 +225,17 @@ export class LocationService {
       };
       const updatedStores = [...currentStores, newStore];
       this.selectedStores$.next(updatedStores);
-      localStorage.setItem(this.STORAGE_KEYS.SELECTED_STORES, JSON.stringify(updatedStores));
+      if (this.isBrowser) {
+        localStorage.setItem(this.STORAGE_KEYS.SELECTED_STORES, JSON.stringify(updatedStores));
+      }
     }
   }
 
-  // Удаление магазина из выбранных
   removeStoreFromSelection(storeId: string) {
     const updatedStores = this.selectedStores$.getValue().filter(s => s.id !== storeId);
     this.selectedStores$.next(updatedStores);
+
+    if (!this.isBrowser) return;
 
     if (updatedStores.length > 0) {
       localStorage.setItem(this.STORAGE_KEYS.SELECTED_STORES, JSON.stringify(updatedStores));
@@ -240,38 +246,36 @@ export class LocationService {
     }
   }
 
-  // Очистка выбора магазинов
   clearStoreSelection() {
     this.selectedStores$.next([]);
     this.storeSelectionMode$.next('all');
-    localStorage.removeItem(this.STORAGE_KEYS.SELECTED_STORES);
-    localStorage.setItem(this.STORAGE_KEYS.STORE_SELECTION_MODE, 'all');
+    if (this.isBrowser) {
+      localStorage.removeItem(this.STORAGE_KEYS.SELECTED_STORES);
+      localStorage.setItem(this.STORAGE_KEYS.STORE_SELECTION_MODE, 'all');
+    }
   }
 
-  // Получение полных данных о выбранных магазинах
   getFullSelectedStores(allStores: Store[]): Store[] {
     const selectedIds = this.selectedStores$.getValue().map(s => s.id);
     return allStores.filter(store => selectedIds.includes(store.id));
   }
 
-  // Проверка, выбран ли конкретный магазин
   isStoreSelected(storeId: string): boolean {
     return this.selectedStores$.getValue().some(s => s.id === storeId);
   }
 
-  // Установка списка магазинов в городе
   setStoresInCity(stores: Store[]) {
     this.storesInCity$.next(stores);
     this.hasStoresInCity$.next(stores.length > 0);
   }
 
-  // Очистка адреса доставки
   clearDeliveryAddress() {
     this.deliveryAddress$.next(null);
-    localStorage.removeItem(this.STORAGE_KEYS.ADDRESS);
+    if (this.isBrowser) {
+      localStorage.removeItem(this.STORAGE_KEYS.ADDRESS);
+    }
   }
 
-  // Полная очистка всех данных
   clearAllData() {
     this.city$.next(null);
     this.deliveryAddress$.next(null);
@@ -284,13 +288,16 @@ export class LocationService {
     this.citySearch = '';
     this.currentSession$.next(null);
 
-    Object.values(this.STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
+    if (this.isBrowser) {
+      Object.values(this.STORAGE_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+      });
+    }
   }
 
-  // Открыть модалку выбора города
   openCityModal() {
+    if (!this.isBrowser) return;
+
     const savedDistrict = localStorage.getItem(this.STORAGE_KEYS.LAST_DISTRICT);
     if (savedDistrict && this.city$.value) {
       const district = this.groupedDistricts.find(d => d.name === savedDistrict);
@@ -302,7 +309,6 @@ export class LocationService {
     this.showCityModal$.next(true);
   }
 
-  // Методы для открытия/закрытия модалок
   openDeliveryTypeModal() {
     this.showDeliveryTypeModal$.next(true);
   }
@@ -335,15 +341,16 @@ export class LocationService {
     this.showNoStoresModal$.next(false);
   }
 
-  // Установка города
   setCity(city: City) {
     this.city$.next(city);
-    localStorage.setItem(this.STORAGE_KEYS.CITY, city.name);
+    if (this.isBrowser) {
+      localStorage.setItem(this.STORAGE_KEYS.CITY, city.name);
+    }
 
     const district = this.groupedDistricts.find(d =>
       d.cities.some(c => c.name === city.name)
     );
-    if (district) {
+    if (district && this.isBrowser) {
       localStorage.setItem(this.STORAGE_KEYS.LAST_DISTRICT, district.name);
     }
 
@@ -353,7 +360,6 @@ export class LocationService {
     this.currentSession$.next('true');
   }
 
-  // Подтверждение города (метод для header)
   confirmCity() {
     const detectedCityName = this.detectedCity$.value;
     if (detectedCityName) {
@@ -370,42 +376,34 @@ export class LocationService {
     this.currentSession$.next('true');
   }
 
-  // Получение доступных городов
   getAvailableCities(): City[] {
     return this.cities;
   }
 
-  // Получение текущего города
   getCurrentCity(): City | null {
     return this.city$.value;
   }
 
-  // Получение текущего адреса
   getCurrentAddress(): DeliveryAddress | null {
     return this.deliveryAddress$.value;
   }
 
-  // Получение текущего типа доставки
   getCurrentDeliveryType(): DeliveryType {
     return this.deliveryType$.value;
   }
 
-  // Получение текущего режима выбора магазинов
   getCurrentStoreSelectionMode(): StoreSelectionMode {
     return this.storeSelectionMode$.value;
   }
 
-  // Получение выбранных магазинов
   getCurrentSelectedStores(): SelectedStore[] {
     return this.selectedStores$.value;
   }
 
-  // Проверка наличия сохраненных данных
   hasSavedData(): boolean {
     return !!this.city$.value;
   }
 
-  // Группировка городов по субъектам
   private groupCities() {
     const grouped = this.cities.reduce(
       (acc, city) => {
@@ -425,7 +423,6 @@ export class LocationService {
       }));
   }
 
-  // Фильтрация областей по поиску
   filteredDistricts(): DistrictGroup[] {
     if (!this.citySearch) return this.groupedDistricts;
 
@@ -437,7 +434,6 @@ export class LocationService {
     );
   }
 
-  // Фильтрация городов по поиску
   filteredCities(): City[] {
     if (!this.selectedDistrict) return [];
     if (!this.citySearch) return this.selectedDistrict.cities;
@@ -448,15 +444,15 @@ export class LocationService {
     );
   }
 
-  // Обработка изменения поиска
   onSearchChange() {
     if (!this.citySearch) {
       this.selectedDistrict = null;
     }
   }
 
-  // Определение города пользователя
   private detectUserCity() {
+    if (!this.isBrowser) return; // 🔒 Защита SSR
+
     const userCityName = localStorage.getItem(this.STORAGE_KEYS.CITY);
     if (userCityName) {
       const foundCity = this.cities.find(city => city.name === userCityName);
@@ -469,13 +465,11 @@ export class LocationService {
       );
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        // (pos) => this.getCityFromCoords(pos.coords.latitude, pos.coords.longitude),
-        () =>{},
+        () => { },
       );
     }
   }
 
-  // Установка города по названию
   setCityByName(cityName: string): boolean {
     const foundCity = this.cities.find(city => city.name === cityName);
     if (foundCity) {
@@ -485,56 +479,10 @@ export class LocationService {
     return false;
   }
 
-
-    /**
-     * Сохранение города на сервер
-     */
-    saveUserCity(city: string): Observable<any> {
-  
-      return this.http.post(
-        `${environment.production}/auth/UpdateUserCity`,
-        {
-          city: city
-        }
-      );
-    }
-
-  
-
-  // // Получение города по координатам
-  // private async getCityFromCoords(lat: number, lon: number) {
-  //   try {
-  //     const res = await fetch(
-  //       'https://песочница.пакетон.рф/api/auth/authentication',
-  //       {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify({ email: 'Admin1', password: 'QweQwe', lat, lon }),
-  //       },
-  //     );
-
-  //     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-
-  //     const data = await res.json();
-  //     const cityName = data.address?.city || data.address?.town || data.address?.village;
-
-  //     if (cityName) {
-  //       this.detectedCity$.next(cityName);
-
-  //       const foundCity = this.cities.find(city =>
-  //         city.name.toLowerCase().includes(cityName.toLowerCase()) ||
-  //         cityName.toLowerCase().includes(city.name.toLowerCase())
-  //       );
-
-  //       if (foundCity) {
-  //         this.city$.next(foundCity);
-  //         localStorage.setItem(this.STORAGE_KEYS.CITY, foundCity.name);
-  //       } else {
-  //         this.showCityModal$.next(true);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     this.showCityModal$.next(true);
-  //   }
-  // }
+  saveUserCity(city: string): Observable<any> {
+    return this.http.post(
+      `${environment.production}/auth/UpdateUserCity`,
+      { city: city }
+    );
+  }
 }

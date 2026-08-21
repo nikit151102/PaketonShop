@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnChanges, SimpleChanges, inject, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { PageFlip } from 'page-flip';
+import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnChanges, SimpleChanges, inject, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, PLATFORM_ID } from '@angular/core';
+// import { PageFlip } from 'page-flip';
 import { ProductsService } from '../../services/products.service';
 import { Subject, take, takeUntil, debounceTime, distinctUntilChanged, throttleTime } from 'rxjs';
 import { localStorageEnvironment, memoryCacheEnvironment } from '../../../../environment';
@@ -10,6 +10,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserApiService } from '../../api/user.service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { afterNextRender } from '@angular/core';
 
 // Interfaces
 interface Product {
@@ -107,7 +109,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   private basketLoaded = false;
   private isUserBasket = false;
 
-  private pageFlip!: PageFlip;
+  private pageFlip: any = null;
   private isInitialized = false;
   private initInProgress = false;
   private updateScheduled = false;
@@ -129,6 +131,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private platformId = inject(PLATFORM_ID)
 
   get totalPages(): number {
     return this.pageFlip?.getPageCount() || this.pages.length;
@@ -144,9 +147,15 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
       : false;
   }
 
+  constructor() {
+    afterNextRender(() => {
+      this.initIntersectionObserver();
+    });
+  }
+
   ngOnInit(): void {
     this.initQueryParamsSubscription();
-    this.initIntersectionObserver();
+    // this.initIntersectionObserver();
     this.loadBasketsData();
   }
 
@@ -161,6 +170,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
 
   @HostListener('window:resize')
   onResize(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
     this.resizeTimeout = setTimeout(() => {
       if (this.pageFlip && this.hasValidData() && this.isVisible) {
@@ -177,10 +187,10 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
     });
 
     this.observer?.disconnect();
-
     this.cancelAllRequests();
 
-    if (this.pageFlip) {
+    // 🔒 Безопасное уничтожение PageFlip только в браузере
+    if (this.pageFlip && isPlatformBrowser(this.platformId)) {
       try {
         this.pageFlip.destroy();
       } catch (e) { }
@@ -373,8 +383,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   }
 
   private initIntersectionObserver(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (!('IntersectionObserver' in window)) return;
-
     this.observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         this.isVisible = entry.isIntersecting;
@@ -395,6 +405,10 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
     this.clearAllData();
     this.buildPagesStructure();
     this.loadBasketsData();
+
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
 
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -753,14 +767,16 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
     }, CONSTANTS.URL_UPDATE_DELAY);
   }
 
-  private initPageFlip(): void {
+  private async initPageFlip(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.initInProgress || !this.hasValidData() || !this.isVisible) return;
 
     this.initInProgress = true;
     const container = this.flipbookContainer.nativeElement;
 
-    requestAnimationFrame(() => {
-      setTimeout(() => {
+    // 🔒 requestAnimationFrame только в браузере
+    requestAnimationFrame(async () => {
+      setTimeout(async () => {
         const pages = container.querySelectorAll<HTMLElement>('.page');
 
         if (pages.length === 0) {
@@ -769,6 +785,9 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
         }
 
         try {
+          // ✅ Динамический импорт — библиотека загрузится ТОЛЬКО в браузере
+          const { PageFlip } = await import('page-flip');
+
           this.pageFlip = new PageFlip(container, {
             width: container.clientWidth,
             height: container.clientHeight,
@@ -791,8 +810,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
 
           this.setupFlipListeners();
           this.handleInitialPage();
-
         } catch (error) {
+          console.error('PageFlip init error:', error);
           this.initInProgress = false;
         }
       }, CONSTANTS.INIT_DELAY);
@@ -802,7 +821,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   private setupFlipListeners(): void {
     let flipHandlerTimeout: any = null;
 
-    this.pageFlip.on('flip', ({ data }) => {
+    this.pageFlip.on('flip', ({ data }: any) => {
       if (flipHandlerTimeout) clearTimeout(flipHandlerTimeout);
 
       flipHandlerTimeout = setTimeout(() => {
@@ -858,6 +877,8 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   }
 
   private recreatePageFlip(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
     try {
       this.pageFlip?.destroy();
     } catch (e) { }
@@ -865,6 +886,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
     this.isInitialized = false;
     setTimeout(() => this.initPageFlip(), CONSTANTS.FLIP_DEBOUNCE);
   }
+
 
   private updatePageFlipSize(): void {
     if (!this.pageFlip || !this.isVisible) return;
@@ -881,6 +903,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
 
   private schedulePageFlipUpdate(): void {
     if (this.updateScheduled || !this.isVisible) return;
+    if (!isPlatformBrowser(this.platformId)) return;
 
     this.updateScheduled = true;
 
@@ -1061,7 +1084,7 @@ export class FlipbookComponent implements AfterViewInit, OnInit, OnChanges, OnDe
   }
 
   private showNotification(message: string, type: 'success' | 'error' | 'info'): void {
-
+    if (!isPlatformBrowser(this.platformId)) return;
     requestAnimationFrame(() => {
       const notification = document.createElement('div');
       notification.className = `notification notification--${type}`;

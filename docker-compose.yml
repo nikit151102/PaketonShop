@@ -3,8 +3,17 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile-frontend
+      args:
+        VERSION_NUMBER_ARG: ${VERSION_NUMBER:-1.0.0}
     ports:
-      - 8020:8020
-    volumes:
-      - /app
-      - /app/node_modules
+      - "8020:4000"
+    environment:
+      - NODE_ENV=production
+      - TZ=Europe/Zurich
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
