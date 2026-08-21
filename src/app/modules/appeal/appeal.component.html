@@ -1,0 +1,223 @@
+<!-- appeal-form.component.html -->
+<div class="appeal-container" [@fadeIn]>
+
+    <!-- Заголовок -->
+    <header class="appeal-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01" />
+                </svg>
+            </div>
+            <div>
+                <h1>Обратная связь</h1>
+                <p>Расскажите нам о вашей проблеме или предложении — мы обязательно ответим</p>
+            </div>
+        </div>
+
+        <!-- Индикатор прогресса -->
+        <div class="progress-bar">
+            <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="progress"></div>
+            </div>
+            <div class="progress-steps">
+                <span class="step" [class.active]="currentStep >= 1">1. Кто вы?</span>
+                <span class="step" [class.active]="currentStep >= 2">2. Тип обращения</span>
+                <span class="step" [class.active]="currentStep >= 3">3. Сообщение</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="appeal-content">
+
+        <!-- Шаг 1: Выбор типа заявителя -->
+        <section class="step-content" *ngIf="currentStep === 1" @slideIn>
+            <h2>Выберите, кто вы</h2>
+            <p class="step-description">Это поможет нам направить ваше обращение нужному специалисту</p>
+
+            <div class="cards-grid" *ngIf="!loadingRequesters; else loading">
+                <button type="button" class="selection-card" *ngFor="let type of requesterTypes"
+                    [class.selected]="formData.requester_type_id === type.id" (click)="selectRequesterType(type)">
+                    <div class="card-content">
+                        <h3>{{ type.name }}</h3>
+                        <p *ngIf="type.description">{{ type.description }}</p>
+                    </div>
+                    <div class="card-check" *ngIf="formData.requester_type_id === type.id">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                </button>
+            </div>
+
+            <ng-template #loading>
+                <div class="loading-placeholder">
+                    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+                </div>
+            </ng-template>
+        </section>
+
+        <!-- Шаг 2: Выбор типа обращения -->
+        <section class="step-content" *ngIf="currentStep === 2" @slideIn>
+            <button class="btn-back" (click)="prevStep()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Назад
+            </button>
+
+            <h2>Выберите тип обращения</h2>
+            <p class="step-description">
+                Вы выбрали: <strong>{{ selectedRequester?.name }}</strong>
+            </p>
+
+            <div class="request-types-list" *ngIf="!loadingRequestTypes; else loading">
+                <label class="request-type-item" *ngFor="let type of requestTypes"
+                    [class.selected]="formData.request_type_id === type.id">
+                    <input type="radio" name="requestType" [value]="type.id" [(ngModel)]="formData.request_type_id"
+                        (change)="onRequestTypeChange(type)">
+                    <div class="type-content">
+                        <h4>{{ type.name }}</h4>
+                        <p *ngIf="type.description">{{ type.description }}</p>
+                        <span class="type-category" *ngIf="type.category">{{ type.category }}</span>
+                    </div>
+                </label>
+            </div>
+
+            <ng-template #loading>
+                <div class="loading-placeholder">
+                    <div class="skeleton-item" *ngFor="let i of [1,2,3]"></div>
+                </div>
+            </ng-template>
+        </section>
+
+        <!-- Шаг 3: Текст обращения -->
+        <section class="step-content" *ngIf="currentStep === 3" @slideIn>
+            <button class="btn-back" (click)="prevStep()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Назад
+            </button>
+
+            <h2>Опишите ваше обращение</h2>
+            <p class="step-description">
+                Расскажите подробнее: что произошло, когда, и какой результат вы ожидаете?
+            </p>
+
+            <form [formGroup]="appealForm" (ngSubmit)="submitAppeal()" class="appeal-form">
+
+                <!-- Текстовое поле -->
+                <div class="form-group">
+                    <label for="message">Ваше сообщение <span class="required">*</span></label>
+                    <textarea id="message" formControlName="message_content" rows="6"
+                        placeholder="Например: Вчера в 14:30 при получении заказа №12345 я столкнулся с..."
+                        [class.error]="messageControl?.invalid && messageControl?.touched"></textarea>
+                    <div class="char-counter">
+                        {{ messageControl?.value?.length || 0 }} / 2000
+                    </div>
+                    <div class="error-message" *ngIf="messageControl?.invalid && messageControl?.touched">
+                        <span *ngIf="messageControl?.errors?.['required']">Сообщение обязательно для заполнения</span>
+                        <span *ngIf="messageControl?.errors?.['minlength']">Минимум 20 символов</span>
+                    </div>
+                </div>
+
+                <!-- Прикрепление файлов (опционально) -->
+                <!-- <div class="form-group optional">
+                    <label>Прикрепить файлы (опционально)</label>
+                    <div class="file-upload" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+                        (drop)="onDrop($event)" [class.dragover]="isDragOver">
+                        <input type="file" #fileInput multiple accept="image/*,.pdf,.doc,.docx"
+                            (change)="onFilesSelected($event)" hidden>
+                        <div class="upload-content" (click)="fileInput.click()">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            <p>Перетащите файлы сюда или <span class="link">выберите на устройстве</span></p>
+                            <span class="upload-hint">PDF, DOC, JPG, PNG до 10 МБ</span>
+                        </div>
+                    </div>
+
+                    <div class="selected-files" *ngIf="selectedFiles.length">
+                        <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+                            <span class="file-name">{{ file.name }}</span>
+                            <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                            <button type="button" class="file-remove" (click)="removeFile(i)">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Чекбокс согласия -->
+                <label class="consent-checkbox">
+                    <input type="checkbox" formControlName="consent" required>
+                    <span class="checkbox-custom"></span>
+                    <span class="checkbox-text">
+                        Я согласен на обработку персональных данных в соответствии с
+                        <a href="/privacy" target="_blank">политикой конфиденциальности</a>
+                    </span>
+                </label>
+
+                <!-- Кнопки -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" (click)="prevStep()">
+                        Назад
+                    </button>
+                    <button type="submit" class="btn-primary" [disabled]="appealForm.invalid || isSubmitting">
+                        <span *ngIf="!isSubmitting">Отправить обращение</span>
+                        <span *ngIf="isSubmitting" class="btn-loading">
+                            <span class="spinner"></span>
+                            Отправка...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Успешная отправка -->
+        <section class="step-content success" *ngIf="currentStep === 4" @slideIn>
+            <div class="success-animation">
+                <div class="success-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+                <div class="success-burst" *ngFor="let i of [1,2,3,4,5]"></div>
+            </div>
+
+            <h2>Обращение отправлено!</h2>
+            <p class="success-message">
+                Спасибо за ваше обращение! Мы уже передали его специалисту.<br>
+            </p>
+
+            <div class="success-actions">
+                <button class="btn-primary" (click)="resetForm()">
+                    Создать новое обращение
+                </button>
+                <button class="btn-secondary" (click)="goToHome()">
+                    Вернуться на главную
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast уведомления -->
+    <div class="toast" *ngIf="toastMessage" [class.success]="toastType === 'success'"
+        [class.error]="toastType === 'error'" @toastAnimation>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" />
+            <path *ngIf="toastType === 'success'" d="M12 8v4M12 16h.01" />
+            <path *ngIf="toastType === 'error'" d="M15 9l-6 6M9 9l6 6" />
+        </svg>
+        {{ toastMessage }}
+    </div>
+
+</div>

@@ -1,5 +1,6 @@
 export const environment = {
   production: 'https://xn--80akonecy.xn--p1ai/api',
+  hotlone: 'https://xn--o1ab.xn--80akonecy.xn--p1ai/hotLine',
   // production: 'https://xn--80ajjteep7bg.xn--80akonecy.xn--p1ai/api',
   dev: '',
   encryptionKey: '',

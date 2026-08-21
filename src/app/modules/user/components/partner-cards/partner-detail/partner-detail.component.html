@@ -196,15 +196,6 @@
             </svg>
             <span>Создать договор</span>
           </button>
-
-          <!-- Кнопка "Отправить документы" — всегда видна -->
-          <!-- <button type="button" class="action-btn" (click)="sendDocumentsToPartner()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 2L11 13" />
-              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
-            </svg>
-            <span>Отправить документы</span>
-          </button> -->
         </div>
       </section>
 
@@ -373,167 +364,202 @@
         </ng-template>
       </section>
 
-      <!-- Документы -->
+      <!-- 🔹 Исправленный блок Документов -->
       <section class="tab-content" *ngIf="activeTab === 'documents'" @slideIn>
 
-        <ng-container>
-
-          <!-- Инфо-баннер если нет обязательных -->
-          <div class="info-banner" *ngIf="getRequiredDocuments().length === 0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
-            <div><strong>Для данного типа компании нет обязательных документов</strong>
-              <p>Вы можете загрузить максимальное количество дополнительных документов для ускорения верификации</p>
-            </div>
+        <!-- 1. ОБЯЗАТЕЛЬНЫЕ ДОКУМЕНТЫ (Использует getRequiredDocuments) -->
+        <div class="documents-section" *ngIf="getRequiredDocuments().length > 0">
+          <div class="section-header">
+            <h4>Обязательные документы</h4><span class="badge badge-required">обязательно</span>
           </div>
+          <div class="documents-list">
+            <div class="document-item" *ngFor="let doc of getRequiredDocuments(); trackBy: trackByIndex"
+              [class.status-uploaded]="getDocumentStatus(doc.id) === 'uploaded'"
+              [class.status-pending]="getDocumentStatus(doc.id) === 'pending'">
 
-          <!-- Обязательные документы -->
-          <div class="documents-section" *ngIf="getRequiredDocuments().length > 0">
-            <div class="section-header">
-              <h4>Обязательные документы</h4><span class="badge badge-required">обязательно</span>
-            </div>
-            <div class="documents-list">
-              <div class="document-item" *ngFor="let doc of getRequiredDocuments(); trackBy: trackByIndex"
-                [class.status-uploaded]="getDocumentStatus(doc.id) === 'uploaded'"
-                [class.status-pending]="getDocumentStatus(doc.id) === 'pending'">
-                <div class="doc-left">
-                  <div class="doc-status"><span class="status-dot"
-                      [class.done]="getDocumentStatus(doc.id) === 'uploaded'"
-                      [class.pending]="getDocumentStatus(doc.id) === 'pending'"></span></div>
-                  <div class="doc-info">
-                    <h5>{{ doc.name }}</h5>
-                    <p class="doc-hint" *ngIf="doc.hint">{{ doc.hint }}</p>
-                  </div>
+              <div class="doc-left">
+                <div class="doc-status">
+                  <span class="status-dot" [class.done]="getDocumentStatus(doc.id) === 'uploaded'"
+                    [class.pending]="getDocumentStatus(doc.id) === 'pending'"></span>
                 </div>
-                <div class="doc-right">
-                  <ng-container *ngIf="getDocumentStatus(doc.id) === 'uploaded'; else uploadState">
-                    <ng-container *ngIf="getDocumentByType(doc.id) as uploadedDoc">
-                      <button class="doc-btn view" (click)="openDocument(uploadedDoc.fileUrl)" title="Просмотреть"><svg
-                          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg></button>
-                      <button class="doc-btn download"
-                        (click)="downloadDocument(uploadedDoc.fileUrl, uploadedDoc.fileName)" title="Скачать"><svg
-                          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="doc-info">
+                  <h5>{{ doc.name }}</h5>
+                  <p class="doc-hint" *ngIf="doc.hint">{{ doc.hint }}</p>
+                </div>
+              </div>
+
+              <div class="doc-right">
+                <ng-container *ngIf="getDocumentStatus(doc.id) === 'uploaded'; else uploadStateReq">
+                  <ng-container *ngIf="getDocumentByType(doc.id) as uploadedDoc">
+                    <button class="doc-btn view" (click)="openDocument(uploadedDoc.fileUrl)" title="Просмотреть">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </button>
+                    <button class="doc-btn download" (click)="downloadDocument(uploadedDoc.fileUrl, uploadedDoc.fileName)" title="Скачать">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </button>
+                    <span class="doc-file">
+                      {{ getDocumentIcon(uploadedDoc.extension) }} {{ uploadedDoc.fileName }}
+                      <span class="doc-size">• {{ formatFileSize(uploadedDoc.fileSize) }}</span>
+                    </span>
+                    <span class="doc-badge view-only" *ngIf="doc.viewOnly" title="Только просмотр">👁️</span>
+                  </ng-container>
+                </ng-container>
+
+                <ng-template #uploadStateReq>
+                  <ng-container [ngSwitch]="true">
+                    <ng-container *ngSwitchCase="doc.viewOnly">
+                      <span class="doc-hint-placeholder">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 8v4M12 16h.01" />
+                        </svg>
+                        Формируется автоматически
+                      </span>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="doc.clientUpload">
+                      <label class="doc-btn upload client-upload" title="Загрузить подписанный договор">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg></button>
-                      <span class="doc-file">{{ getDocumentIcon(uploadedDoc.extension) }} {{ uploadedDoc.fileName }}
-                        <span class="doc-size">• {{ formatFileSize(uploadedDoc.fileSize) }}</span></span>
+                          <polyline points="17 8 12 3 7 8" />
+                          <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        <span>Загрузить</span>
+                        <input type="file" hidden accept=".pdf,.jpg,.jpeg,.png"
+                          (change)="onFileSelected($event, doc.id)">
+                      </label>
+                      <span class="doc-hint-client" *ngIf="doc.hint">{{ doc.hint }}</span>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                      <label class="doc-btn upload" title="Выбрать файл">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="17 8 12 3 7 8" />
+                          <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        <span>Загрузить</span>
+                        <input type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                          (change)="onFileSelected($event, doc.id)">
+                      </label>
                     </ng-container>
                   </ng-container>
-                  <ng-template #uploadState>
-                    <label class="doc-btn upload" title="Выбрать файл"><svg width="14" height="14" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                      </svg><span>Загрузить</span><input type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        (change)="onFileSelected($event, doc.id)"></label>
-                  </ng-template>
-                </div>
+                </ng-template>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Опциональные документы -->
-          <div class="documents-section" *ngIf="getOptionalDocuments().length > 0">
-            <div class="section-header">
-              <h4>Дополнительные документы</h4><span class="badge badge-optional">по желанию</span>
-            </div>
-            <div class="documents-list">
-              <div class="document-item" *ngFor="let doc of getOptionalDocuments(); trackBy: trackByIndex"
-                [class.status-uploaded]="getDocumentStatus(doc.id) === 'uploaded'"
-                [class.status-pending]="getDocumentStatus(doc.id) === 'pending'">
-                <div class="doc-left">
-                  <div class="doc-status"><span class="status-dot"
-                      [class.done]="getDocumentStatus(doc.id) === 'uploaded'"
-                      [class.pending]="getDocumentStatus(doc.id) === 'pending'"></span></div>
-                  <div class="doc-info">
-                    <h5>{{ doc.name }}</h5>
-                    <p class="doc-hint" *ngIf="doc.hint">{{ doc.hint }}</p>
-                  </div>
+        <!-- 2. ДОПОЛНИТЕЛЬНЫЕ ДОКУМЕНТЫ (Использует getOptionalDocuments) -->
+        <div class="documents-section" *ngIf="getOptionalDocuments().length > 0">
+          <div class="section-header">
+            <h4>Дополнительные документы</h4><span class="badge badge-optional">по желанию</span>
+          </div>
+          <div class="documents-list">
+            <div class="document-item" *ngFor="let doc of getOptionalDocuments(); trackBy: trackByIndex"
+              [class.status-uploaded]="getDocumentStatus(doc.id) === 'uploaded'"
+              [class.status-pending]="getDocumentStatus(doc.id) === 'pending'">
+
+              <div class="doc-left">
+                <div class="doc-status">
+                  <span class="status-dot" [class.done]="getDocumentStatus(doc.id) === 'uploaded'"
+                    [class.pending]="getDocumentStatus(doc.id) === 'pending'"></span>
                 </div>
-                <div class="doc-right">
-                  <ng-container *ngIf="getDocumentStatus(doc.id) === 'uploaded'; else uploadState">
-                    <ng-container *ngIf="getDocumentByType(doc.id) as uploadedDoc">
-                      <button class="doc-btn view" (click)="openDocument(uploadedDoc.fileUrl)" title="Просмотреть"><svg
-                          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                          <circle cx="12" cy="12" r="3" />
-                        </svg></button>
-                      <button class="doc-btn download"
-                        (click)="downloadDocument(uploadedDoc.fileUrl, uploadedDoc.fileName)" title="Скачать"><svg
-                          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg></button>
-                      <span class="doc-file">{{ getDocumentIcon(uploadedDoc.extension) }} {{ uploadedDoc.fileName }}
-                        <span class="doc-size">• {{ formatFileSize(uploadedDoc.fileSize) }}</span></span>
-                    </ng-container>
-                  </ng-container>
-                  <ng-template #uploadState>
-                    <label class="doc-btn upload" title="Выбрать файл"><svg width="14" height="14" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
+                <div class="doc-info">
+                  <h5>{{ doc.name }}</h5>
+                  <p class="doc-hint" *ngIf="doc.hint">{{ doc.hint }}</p>
+                </div>
+              </div>
+
+              <div class="doc-right">
+                <ng-container *ngIf="getDocumentStatus(doc.id) === 'uploaded'; else uploadStateOpt">
+                  <ng-container *ngIf="getDocumentByType(doc.id) as uploadedDoc">
+                    <button class="doc-btn view" (click)="openDocument(uploadedDoc.fileUrl)" title="Просмотреть">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </button>
+                    <button class="doc-btn download" (click)="downloadDocument(uploadedDoc.fileUrl, uploadedDoc.fileName)" title="Скачать">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                      </svg><span>Загрузить</span><input type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        (change)="onFileSelected($event, doc.id)"></label>
-                  </ng-template>
-                </div>
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </button>
+                    <span class="doc-file">
+                      {{ getDocumentIcon(uploadedDoc.extension) }} {{ uploadedDoc.fileName }}
+                      <span class="doc-size">• {{ formatFileSize(uploadedDoc.fileSize) }}</span>
+                    </span>
+                  </ng-container>
+                </ng-container>
+
+                <ng-template #uploadStateOpt>
+                   <label class="doc-btn upload" title="Выбрать файл">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span>Загрузить</span>
+                    <input type="file" hidden accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      (change)="onFileSelected($event, doc.id)">
+                  </label>
+                </ng-template>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Панель сохранения -->
-          <div class="save-panel" *ngIf="hasPendingChanges" @pulse>
-            <div class="save-info">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 12 8" />
-              </svg>
-              <span>
-                Изменения не сохранены: {{ pendingDocumentChanges.size }} документ{{
-                pendingDocumentChanges.size === 1 ? '' :
-                pendingDocumentChanges.size < 5 ? 'а' : 'ов' }} <span *ngIf="getContractStatus() === 'not_started'"
-                  class="hint">
-                  (заявка будет создана автоматически)
-              </span>
-              </span>
-            </div>
-            <button class="btn-save" (click)="saveDocuments()" [disabled]="isSavingDocuments">
-              <span *ngIf="!isSavingDocuments">
-                {{ getContractStatus() === 'not_started' ? 'Создать заявку и сохранить' : 'Сохранить изменения' }}
-              </span>
-              <span *ngIf="isSavingDocuments">Сохранение...</span>
-            </button>
-          </div>
-
-          <!-- Сообщение об успехе -->
-          <div class="success-banner" *ngIf="saveSuccess" @fadeIn><svg width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12" />
-            </svg><span>Документы успешно сохранены</span></div>
-
-          <!-- Подсказка -->
-          <div class="help-tip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
+        <!-- Панель сохранения (общая) -->
+        <div class="save-panel" *ngIf="hasPendingChanges" @pulse>
+          <div class="save-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <polyline points="17 21 17 13 7 13 7 21" />
+              <polyline points="7 3 7 8 12 8" />
             </svg>
-            <p>Загружайте документы в формате PDF, JPEG или PNG. Максимальный размер файла — 10 МБ. Убедитесь, что текст
-              на документах чёткий и читаемый.</p>
+            <span>
+              Изменения не сохранены: {{ pendingDocumentChanges.size }} документ{{
+              pendingDocumentChanges.size === 1 ? '' :
+              pendingDocumentChanges.size < 5 ? 'а' : 'ов' }}
+            </span>
           </div>
-        </ng-container>
+          <button class="btn-save" (click)="saveDocuments()" [disabled]="isSavingDocuments">
+            <span *ngIf="!isSavingDocuments">Сохранить изменения</span>
+            <span *ngIf="isSavingDocuments">Сохранение...</span>
+          </button>
+        </div>
+
+        <!-- Сообщение об успехе -->
+        <div class="success-banner" *ngIf="saveSuccess" @fadeIn><svg width="16" height="16" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg><span>Документы успешно сохранены</span></div>
+
+        <!-- Подсказка -->
+        <div class="help-tip"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          <p>Загружайте документы в формате PDF, JPEG или PNG. Максимальный размер файла — 10 МБ. Убедитесь, что текст
+            на документах чёткий и читаемый.</p>
+        </div>
       </section>
 
     </main>
@@ -552,9 +578,6 @@
     stroke="currentColor" stroke-width="3">
     <polyline points="20 6 9 17 4 12" />
   </svg><span>Скопировано в буфер обмена</span></div>
-
-
-
 
 <div class="contract-modal-overlay" *ngIf="showContractModal" @fadeIn (click)="closeContractModal()">
 
@@ -660,12 +683,10 @@
         Отмена
       </button>
 
-      <!-- Кнопка создания договора с загрузкой документов -->
-      <!-- Кнопка создания договора с загрузкой документов -->
       <button type="button" class="footer-btn primary" (click)="proceedToDocumentsTab()" *ngIf="!contractCreated">
         <span>Перейти к загрузке документов</span>
       </button>
-      <!-- Кнопка перехода к документам после успеха -->
+      
       <button type="button" class="footer-btn primary" (click)="closeContractModal()" *ngIf="contractCreated">
         Перейти к документам
       </button>

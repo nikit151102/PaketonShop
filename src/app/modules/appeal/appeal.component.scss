@@ -1,0 +1,721 @@
+// appeal-form.component.scss
+$primary: #3c8a27;
+$primary-dark: #2d6c1d;
+$primary-light: #e6f4ea;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+
+$text: #1e293b;
+$text-secondary: #475569;
+$text-muted: #64748b;
+$border: #e2e8f0;
+$bg: #ffffff;
+$bg-light: #f8fafc;
+
+$radius: 20px;
+$radius-sm: 12px;
+$shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+$shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+.appeal-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  background: $bg;
+  border-radius: $radius;
+  box-shadow: $shadow;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: $radius-sm;
+  }
+}
+
+// Заголовок
+.appeal-header {
+  text-align: center;
+  padding: 24px 0 32px;
+  border-bottom: 1px solid $border;
+  margin-bottom: 32px;
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    
+    .header-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, $primary-light, rgba($primary, 0.1));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $primary;
+      
+      svg {
+        stroke: currentColor;
+      }
+    }
+    
+    h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      font-weight: 700;
+      color: $text;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: $text-secondary;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Прогресс-бар
+.progress-bar {
+  .progress-track {
+    height: 4px;
+    background: $border;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $primary, $success);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: $text-muted;
+    
+    .step {
+      &.active {
+        color: $primary;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Контент шагов
+.step-content {
+  animation: slideIn 0.3s ease;
+  
+  h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: $text;
+  }
+  
+  .step-description {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: $text-secondary;
+    
+    strong {
+      color: $primary;
+    }
+  }
+}
+
+// Карточки выбора
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.selection-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: $bg-light;
+  border: 2px solid $border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  
+  &:hover {
+    border-color: $primary;
+    background: rgba($primary, 0.03);
+    transform: translateY(-2px);
+  }
+  
+  &.selected {
+    border-color: $primary;
+    background: $primary-light;
+    
+    .card-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .card-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  
+  .card-content {
+    flex: 1;
+    min-width: 0;
+    
+    h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 12px;
+      color: $text-muted;
+    }
+  }
+  
+  .card-check {
+    width: 24px;
+    height: 24px;
+    background: $primary;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.2s ease;
+    
+    svg {
+      stroke: currentColor;
+      stroke-width: 3;
+    }
+  }
+}
+
+// Список типов обращений
+.request-types-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.request-type-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: $bg-light;
+  border: 2px solid $border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    
+    &:checked + .type-content {
+      border-color: $primary;
+    }
+  }
+  
+  &:hover,
+  &.selected {
+    border-color: $primary;
+    background: rgba($primary, 0.03);
+  }
+  
+  .type-content {
+    flex: 1;
+    
+    h4 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+    }
+    
+    p {
+      margin: 0 0 4px;
+      font-size: 13px;
+      color: $text-muted;
+    }
+    
+    .type-category {
+      display: inline-block;
+      font-size: 11px;
+      color: $text-muted;
+      background: $bg;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid $border;
+    }
+  }
+}
+
+// Форма
+.appeal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text;
+    
+    .required {
+      color: $danger;
+      margin-left: 2px;
+    }
+  }
+  
+  textarea {
+    width: -webkit-fill-available;
+    padding: 14px 16px;
+    border: 2px solid $border;
+    border-radius: $radius-sm;
+    font-size: 15px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 140px;
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+    
+    &.error {
+      border-color: $danger;
+    }
+  }
+  
+  .char-counter {
+    text-align: right;
+    font-size: 12px;
+    color: $text-muted;
+    margin-top: 4px;
+  }
+  
+  .error-message {
+    margin-top: 6px;
+    font-size: 12px;
+    color: $danger;
+  }
+  
+  &.optional {
+    label {
+      color: $text-secondary;
+      font-weight: 400;
+    }
+  }
+}
+
+// Загрузка файлов
+.file-upload {
+  border: 2px dashed $border;
+  border-radius: $radius-sm;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.dragover {
+    border-color: $primary;
+    background: rgba($primary, 0.05);
+  }
+  
+  .upload-content {
+    .link {
+      color: $primary;
+      font-weight: 500;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    
+    .upload-hint {
+      display: block;
+      margin-top: 8px;
+      font-size: 11px;
+      color: $text-muted;
+    }
+  }
+}
+
+.selected-files {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: $bg-light;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  
+  .file-name {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .file-size {
+    color: $text-muted;
+    font-size: 11px;
+  }
+  
+  .file-remove {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    
+    &:hover {
+    //   background: $danger-light;
+      color: $danger;
+    }
+  }
+}
+
+// Чекбокс согласия
+.consent-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    
+    &:checked + .checkbox-custom {
+      background: $primary;
+      border-color: $primary;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 4px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    }
+  }
+  
+  .checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $border;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  
+  .checkbox-text {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.4;
+    
+    a {
+      color: $primary;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Кнопки
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid $border;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 24px;
+  border-radius: $radius-sm;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $primary, $primary-dark);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba($primary, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba($primary, 0.4);
+  }
+}
+
+.btn-secondary {
+  background: $bg-light;
+  color: $text-secondary;
+  border: 1px solid $border;
+  
+  &:hover:not(:disabled) {
+    background: $border;
+  }
+}
+
+.btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Кнопка "Назад"
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: $primary;
+  }
+  
+  svg {
+    stroke: currentColor;
+  }
+}
+
+// Успешная отправка
+.step-content.success {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .success-animation {
+    position: relative;
+    margin: 0 auto 32px;
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      background: rgba($success, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $success;
+      animation: popIn 0.4s ease;
+      
+      svg {
+        stroke: currentColor;
+        stroke-width: 2.5;
+      }
+    }
+    
+    .success-burst {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: $success;
+      border-radius: 50%;
+      animation: burst 0.6s ease-out forwards;
+      
+      @for $i from 1 through 5 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{$i * 0.1}s;
+          transform: translate(-50%, -50%) rotate(#{$i * 72}deg) translateX(40px);
+        }
+      }
+    }
+  }
+  
+  h2 {
+    margin: 0 0 12px;
+    color: $success;
+  }
+  
+  .success-message {
+    margin: 0 0 32px;
+    font-size: 15px;
+    color: $text-secondary;
+    line-height: 1.6;
+    
+    strong {
+      color: $primary;
+      font-weight: 700;
+    }
+  }
+  
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes burst {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+// Toast уведомления
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: $bg;
+  border-radius: $radius-sm;
+  box-shadow: $shadow-lg;
+  font-size: 14px;
+  color: $text;
+  z-index: 2000;
+  max-width: 400px;
+  
+  svg {
+    flex-shrink: 0;
+  }
+  
+  &.success {
+    border-left: 4px solid $success;
+    
+    svg { color: $success; }
+  }
+  
+  &.error {
+    border-left: 4px solid $danger;
+    
+    svg { color: $danger; }
+  }
+}
+
+// Заглушки загрузки
+.loading-placeholder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.skeleton-card,
+.skeleton-item {
+  height: 100px;
+  background: linear-gradient(90deg, $bg-light 25%, $border 50%, $bg-light 75%);
+  background-size: 200% 100%;
+  border-radius: $radius-sm;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+// Адаптив
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .toast {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+}

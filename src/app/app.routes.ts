@@ -73,6 +73,15 @@ export const routes: Routes = [
       keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
     }
   },
+    {
+    path: 'appeal',
+    loadComponent: () => import('./modules/appeal/appeal.component').then((m) => m.AppealComponent),
+    data: {
+      title: '',
+      description: '',
+      keywords: ''
+    }
+  },
   {
     path: 'loyalty-system',
     loadComponent: () => import('./modules/loyalty-system/loyalty-system.component').then((m) => m.LoyaltySystemComponent),

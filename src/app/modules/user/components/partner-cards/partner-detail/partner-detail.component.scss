@@ -1966,3 +1966,81 @@ $transition-sm: all 0.15s ease;
   margin-top: 2px;
   font-weight: normal;
 }
+
+
+// Бейдж "Только просмотр"
+.doc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: help;
+  margin-left: 8px;
+  
+  &.view-only {
+    background: $blue-light;
+    color: $blue;
+    border: 1px solid rgba($blue, 0.3);
+    
+    &:hover {
+      background: $blue;
+      color: white;
+    }
+  }
+}
+
+// Подсказка для view-only документов
+.doc-hint-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: $bg-light;
+  border: 1px dashed $border;
+  border-radius: $radius-sm;
+  color: $text-muted;
+  font-size: 12px;
+  
+  svg {
+    stroke: currentColor;
+    opacity: 0.7;
+  }
+}
+
+// Кнопка загрузки для клиента (тип 100)
+.doc-btn.client-upload {
+  background: linear-gradient(135deg, $primary-light, rgba($primary, 0.05));
+  border-color: $primary;
+  color: $primary;
+  
+  &:hover {
+    background: $primary;
+    color: white;
+    
+    svg {
+      stroke: white;
+    }
+  }
+}
+
+.doc-hint-client {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: $text-muted;
+  line-height: 1.4;
+  max-width: 200px;
+}
+
+// Визуальное выделение обязательных клиентских документов
+.document-item:has(.client-upload) {
+  border-left: 3px solid $primary;
+  
+  &.status-missing {
+    border-left-color: $amber;
+    background: rgba($amber, 0.03);
+  }
+}

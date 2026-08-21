@@ -149,7 +149,34 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
     { id: 6, name: 'Свидетельство ОГРН', requiredFor: [], optionalFor: [1], condition: 'before2017', hint: 'Для компаний, зарегистрированных до 2017 года' },
     { id: 7, name: 'Свидетельство ИНН/КПП', requiredFor: [], optionalFor: [1], condition: 'before2017', hint: 'Для компаний, зарегистрированных до 2017 года' },
     { id: 8, name: 'Свидетельство ОГРНИП', requiredFor: [], optionalFor: [16], condition: 'before2017', hint: 'Для ИП, зарегистрированных до 2017 года' },
-    { id: 9, name: 'Паспорт', requiredFor: [1, 16], optionalFor: [], hint: 'Разворот с фото и пропиской представителя компании' }
+    { id: 9, name: 'Паспорт', requiredFor: [1, 16], optionalFor: [], hint: 'Разворот с фото и пропиской представителя компании' },
+    {
+      id: 99,
+      name: 'Договор',
+      requiredFor: [1, 16],
+      optionalFor: [],
+      viewOnly: true,
+      alwaysShow: true,
+      hint: 'Договор формируется автоматически после подачи заявки. Доступен только для просмотра.'
+    },
+    {
+      id: 97,
+      name: 'Приложение к договору',
+      requiredFor: [1, 16],
+      optionalFor: [],
+      viewOnly: true,
+      alwaysShow: true,
+      hint: 'Приложение к договору формируется автоматически. Доступно только для просмотра.'
+    },
+    {
+      id: 100,
+      name: 'Договор (подписанный)',
+      requiredFor: [1, 16],
+      optionalFor: [],
+      clientUpload: true,
+      alwaysShow: true,
+      hint: 'Загрузите скан подписанного со своей стороны договора для завершения регистрации.'
+    }
   ];
 
   pendingDocumentChanges = new Set<number>();
@@ -501,43 +528,33 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   }
 
   getRequiredDocuments(): any[] {
-    const partnerTypeCode = this.getPartnerTypeCode();
-    if (partnerTypeCode !== 1 && partnerTypeCode !== 16) return [];
+    const code = this.getPartnerTypeCode();
+    if (!code) return [];
 
-    return this.documentTypes.filter((doc: any) => {
-      const isRequired = doc.requiredFor.includes(partnerTypeCode);
-      if (!isRequired) return false;
+    if (code === 1 || code === 16) {
+      return this.documentTypes.filter(doc => {
+        const isRequired = doc.requiredFor?.includes(code);
+        const isOptional = doc.optionalFor?.includes(code);
+        return isRequired && !isOptional;
+      });
+    }
 
-      if (doc.condition) {
-        const registerDateTime = this.partner?.partner?.registerDateTime || this.partner?.registerDateTime;
-        if (!registerDateTime) return false;
-        const regYear = new Date(registerDateTime).getFullYear();
-        if (doc.condition === 'before2017' && regYear >= 2017) return false;
-        if (doc.condition === 'after2017' && regYear < 2017) return false;
-      }
-
-      return true;
-    });
+    return this.documentTypes.filter(doc => doc.viewOnly || doc.alwaysShow);
   }
 
   getOptionalDocuments(): any[] {
-    const partnerTypeCode = this.getPartnerTypeCode();
-    if (partnerTypeCode !== 1 && partnerTypeCode !== 16) return this.documentTypes.filter((doc: any) => doc.id !== 5);
+    const code = this.getPartnerTypeCode();
+    if (!code) return [];
 
-    return this.documentTypes.filter((doc: any) => {
-      const isOptional = doc.optionalFor.includes(partnerTypeCode);
-      if (!isOptional) return false;
+    if (code === 1 || code === 16) {
+      return this.documentTypes.filter(doc => {
+        const isOptional = doc.optionalFor?.includes(code);
+        const isRequired = doc.requiredFor?.includes(code);
+        return isOptional && !isRequired;
+      });
+    }
 
-      if (doc.condition) {
-        const registerDateTime = this.partner?.partner?.registerDateTime || this.partner?.registerDateTime;
-        if (!registerDateTime) return false;
-        const regYear = new Date(registerDateTime).getFullYear();
-        if (doc.condition === 'before2017' && regYear >= 2017) return false;
-        if (doc.condition === 'after2017' && regYear < 2017) return false;
-      }
-
-      return true;
-    });
+    return this.documentTypes.filter(doc => !doc.viewOnly || doc.alwaysShow);
   }
 
   getDocumentIcon(extension: string): string {
@@ -550,6 +567,16 @@ export class PartnerDetailComponent implements OnInit, OnDestroy {
   }
 
   getDocumentStatus(typeId: number): 'uploaded' | 'pending' | 'missing' {
+    const doc = this.documentTypes.find(d => d.id === typeId);
+
+    if (doc?.viewOnly) {
+      return this.isDocumentUploaded(typeId) ? 'uploaded' : 'missing';
+    }
+
+    if (typeId === 100 && this.getContractStatus() === 'not_started') {
+      return 'missing';
+    }
+
     if (this.pendingDocumentChanges.has(typeId)) return 'pending';
     if (this.isDocumentUploaded(typeId)) return 'uploaded';
     return 'missing';
