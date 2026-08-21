@@ -106,6 +106,12 @@ export class LocationService {
   }
 
   async init() {
+    // 🔒 На сервере пропускаем загрузку
+    if (!isPlatformBrowser(this.platformId)) {
+      this.cities = [];
+      return;
+    }
+
     if (!this.cities.length) {
       const data = await firstValueFrom(
         this.http.get<City[]>('/russian-cities.json'),
@@ -115,11 +121,7 @@ export class LocationService {
         id: `city_${index}`
       }));
       this.groupCities();
-      
-      // 🔒 detectUserCity только в браузере
-      if (this.isBrowser) {
-        this.detectUserCity();
-      }
+      this.detectUserCity();
     }
   }
 
