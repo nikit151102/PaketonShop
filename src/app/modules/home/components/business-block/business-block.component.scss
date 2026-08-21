@@ -1,53 +1,62 @@
 :host {
   display: block;
   width: 100%;
+  
+  // 🔹 Цветовая палитра
   --primary: #327120;
+  --primary-dark: #255918;
   --primary-light: rgba(50, 113, 32, 0.08);
   --primary-gradient: linear-gradient(135deg, #327120 0%, #4a9e30 100%);
+  
   --se-primary: #2563eb;
+  --se-dark: #1d4ed8;
   --se-light: rgba(37, 99, 235, 0.08);
-  --se-gradient: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+  --se-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  
   --text: #111827;
   --text-secondary: #6b7280;
   --bg: #fafafa;
   --white: #ffffff;
   --border: #e5e7eb;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
-  --radius: 12px;
-  --radius-lg: 16px;
+  
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --radius: 14px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .business-section {
-  padding: 24px 20px;
+  padding: 16px 12px;
+  background: var(--bg);
 }
 
 .business-container {
   margin: 0 auto;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
-// === ВЕРХНИЙ РЯД: КОМПАКТНЫЕ ПИЛЛЫ ===
+// === 🔹 ВЕРХНИЙ РЯД: Компактные пиллы ===
 .advantages-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .adv-pill {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
+  gap: 10px;
+  padding: 10px 14px;
   background: var(--white);
-  border-radius: var(--radius);
+  border-radius: 10px;
   border: 1px solid var(--border);
   text-decoration: none;
   transition: var(--transition);
   cursor: pointer;
+  min-height: 52px;
 
   &:hover {
     transform: translateY(-2px);
@@ -58,28 +67,29 @@
   &.featured {
     background: var(--primary-gradient);
     border-color: transparent;
-
+    
     .pill-icon {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       color: white;
     }
-
+    
     .pill-text strong,
     .pill-text span {
       color: white;
     }
-
+    
     &:hover {
       border-color: transparent;
+      box-shadow: 0 8px 24px rgba(50, 113, 32, 0.3);
     }
   }
 }
 
 .pill-icon {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   background: var(--primary-light);
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,282 +100,329 @@
 
 .pill-text {
   min-width: 0;
-
+  
   strong {
     display: block;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--text);
-    line-height: 1.3;
+    line-height: 1.2;
   }
-
+  
   span {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
-    line-height: 1.3;
+    line-height: 1.2;
   }
 }
 
-// === НИЖНИЙ РЯД: ДВА БЛОКА ===
+// === 🔹 НИЖНИЙ РЯД: Горизонтальные компактные карточки ===
 .dual-blocks-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 14px;
   align-items: stretch;
 }
 
 .legal-card {
   position: relative;
   background: var(--white);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow);
   border: 1px solid var(--border);
   text-decoration: none;
   transition: var(--transition);
   display: flex;
+  min-height: 140px; // 🔹 Фиксированная компактная высота
 
   &:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
-    border-color: var(--primary);
-
+    border-color: transparent;
+    
     .card-cta svg {
       transform: translateX(4px);
     }
   }
+  
+  &.b2b-card:hover {
+    border-color: var(--primary);
+  }
+  
+  &.se-card:hover {
+    border-color: var(--se-primary);
+  }
 }
 
-.card-accent {
+// 🔹 Фоновый акцент с градиентом
+.card-bg-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 4px;
-  flex-shrink: 0;
-
-  &.b2b-accent {
+  height: 100%;
+  
+  .b2b-card & {
     background: var(--primary-gradient);
   }
-
-  &.se-accent {
-    background: var(--primary-gradient);
+  
+  .se-card & {
+    background: var(--se-gradient);
   }
 }
 
-.card-inner {
+// 🔹 Декоративный градиент в фоне карточки
+.legal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 100%;
+  opacity: 0.04;
+  pointer-events: none;
+  
+  .b2b-card & {
+    background: linear-gradient(90deg, transparent, rgba(50, 113, 32, 0.3));
+  }
+  
+  .se-card & {
+    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.3));
+  }
+}
+
+.card-content {
   flex: 1;
-  padding: 24px 28px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 20px 14px 24px;
 }
 
-.card-head {
-  margin-bottom: 16px;
-
+.card-left {
+  flex: 1;
+  min-width: 0;
+  
   .card-badge {
-    display: inline-block;
-    padding: 4px 12px;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
     border-radius: 100px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: white;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
     letter-spacing: 0.3px;
-
-    &.b2b-badge {
+    
+    &.b2b {
       background: var(--primary-gradient);
     }
-
-    &.se-badge {
-      background: var(--primary-gradient);
+    
+    &.se {
+      background: var(--se-gradient);
     }
   }
-
+  
   h3 {
     margin: 0 0 4px;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--text);
-    line-height: 1.2;
+    line-height: 1.3;
   }
-
-  .card-subtitle {
+  
+  .card-desc {
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-secondary);
     line-height: 1.4;
+    max-width: 280px;
   }
 }
 
-.perks-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px;
+.card-right {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  flex: 1;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
 
+// 🔹 Компактный список преимуществ (2 колонки)
+.perks-compact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  
   li {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    gap: 6px;
+    font-size: 11px;
     color: var(--text);
     line-height: 1.3;
-
-    svg {
-      flex-shrink: 0;
+    
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      background: var(--primary-light);
+      border-radius: 50%;
       color: var(--primary);
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      
+      .se-card & {
+        background: var(--se-light);
+        color: var(--se-primary);
+      }
     }
   }
 }
 
-// SE блок — зелёные галочки заменяем на синие
-.legal-card:nth-child(2) .perks-list li svg {
-  color: var(--primary-gradient);
-}
-
+// 🔹 Кнопка CTA
 .card-cta {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 14px;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 700;
   color: white;
-  margin-top: auto;
   transition: var(--transition);
-
+  
   svg {
-    transition: transform 0.25s ease;
+    transition: transform 0.2s ease;
   }
-
-  &.b2b-cta {
+  
+  &.b2b {
     background: var(--primary-gradient);
-    box-shadow: 0 4px 12px rgba(50, 113, 32, 0.2);
+    box-shadow: 0 3px 10px rgba(50, 113, 32, 0.2);
   }
-
-  &.se-cta {
-    background: var(--primary-gradient);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  
+  &.se {
+    background: var(--se-gradient);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.2);
   }
 }
 
-.legal-card:hover .b2b-cta {
-  box-shadow: 0 6px 16px rgba(50, 113, 32, 0.35);
-}
-
-.legal-card:hover .se-cta {
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-}
-
-// === АДАПТИВНОСТЬ ===
+// === 🔹 АДАПТИВНОСТЬ ===
 @media (max-width: 1024px) {
-  .advantages-row {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .dual-blocks-row {
     grid-template-columns: 1fr;
   }
-
-  .card-inner {
-    padding: 20px 24px;
+  
+  .card-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  
+  .card-right {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .perks-compact {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .business-section {
-    padding: 20px 16px;
+    padding: 14px 10px;
   }
-
-  .business-container {
-    gap: 16px;
-  }
-
+  
   .advantages-row {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
-
+  
   .adv-pill {
-    padding: 12px 16px;
+    padding: 9px 12px;
+    min-height: 48px;
   }
-
+  
   .pill-icon {
-    width: 36px;
-    height: 36px;
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-
-  .pill-text strong {
-    font-size: 13px;
-  }
-
-  .pill-text span {
-    font-size: 11px;
-  }
-
-  .card-head h3 {
-    font-size: 18px;
-  }
-
-  .card-inner {
-    padding: 18px 20px;
-  }
-
-  .perks-list {
-    gap: 6px;
-    margin-bottom: 16px;
-
-    li {
-      font-size: 12px;
-      gap: 8px;
-
-      svg {
-        width: 14px;
-        height: 14px;
-      }
-    }
-  }
-
-  .card-cta {
-    padding: 10px 16px;
-    font-size: 13px;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .business-section {
-    padding: 16px 12px;
-  }
-
-  .adv-pill {
-    padding: 10px 14px;
-    gap: 10px;
-  }
-
-  .pill-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-
+    width: 30px;
+    height: 30px;
+    
     svg {
       width: 16px;
       height: 16px;
     }
   }
-
-  .card-head h3 {
-    font-size: 16px;
-  }
-
-  .card-subtitle {
+  
+  .pill-text strong {
     font-size: 12px;
+  }
+  
+  .pill-text span {
+    font-size: 10px;
+  }
+  
+  .legal-card {
+    min-height: auto;
+  }
+  
+  .card-content {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  
+  .card-left h3 {
+    font-size: 15px;
+  }
+  
+  .card-desc {
+    font-size: 11px;
+  }
+  
+  .perks-compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 10px;
+    
+    li {
+      font-size: 10px;
+    }
+  }
+  
+  .card-cta {
+    padding: 7px 14px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .business-section {
+    padding: 12px 8px;
+  }
+  
+  .perks-compact {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .card-cta {
+    width: 100%;
+    justify-content: center;
   }
 }

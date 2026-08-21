@@ -1,11 +1,11 @@
 <div class="business-section">
   <div class="business-container">
 
-    <!-- ВЕРХНИЙ РЯД: Компактные преимущества -->
+    <!-- 🔹 ВЕРХНИЙ РЯД: Компактные пиллы (3 в ряд) -->
     <div class="advantages-row">
       <a class="adv-pill featured" [routerLink]="'catalog'">
         <div class="pill-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/>
             <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/>
           </svg>
@@ -18,7 +18,7 @@
 
       <a class="adv-pill" [routerLink]="'branding'">
         <div class="pill-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42z"/>
             <circle cx="6.5" cy="6.5" r="1.5"/>
           </svg>
@@ -31,7 +31,7 @@
 
       <a class="adv-pill" [routerLink]="'stores'">
         <div class="pill-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
           </svg>
         </div>
@@ -42,88 +42,60 @@
       </a>
     </div>
 
-    <!-- НИЖНИЙ РЯД: Два блока рядом -->
+    <!-- 🔹 НИЖНИЙ РЯД: Два компактных горизонтальных блока -->
     <div class="dual-blocks-row">
 
-      <!-- БЛОК 1: Договор + Оплата по счёту (ООО, ИП) -->
-      <a class="legal-card" [routerLink]="'register-business'">
-        <div class="card-accent b2b-accent"></div>
-        <div class="card-inner">
-          <div class="card-head">
-            <div class="card-badge b2b-badge">Договор и оплата по счёту</div>
-            <h3>Для ООО и ИП</h3>
-            <p class="card-subtitle">Подписание договора, работа с НДС, полный пакет закрывающих документов</p>
+      <!-- БЛОК 1: ООО/ИП с договором -->
+      <a class="legal-card b2b-card" [routerLink]="'register-business'">
+        <div class="card-bg-accent"></div>
+        <div class="card-content">
+          <div class="card-left">
+            <div class="card-badge b2b">Для ООО и ИП</div>
+            <h3>Договор и оплата по счёту</h3>
+            <p class="card-desc">Полный пакет документов, ЭДО, отсрочка платежа и персональный менеджер</p>
           </div>
-
-          <ul class="perks-list">
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Оплата по выставленному счёту</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Договор поставки и УПД через ЭДО</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Возврат НДС для плательщиков НДС</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Отсрочка платежа до 30 дней</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Персональный менеджер и оптовые скидки</span>
-            </li>
-          </ul>
-
-          <div class="card-cta b2b-cta">
-            <span>Заключить договор</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <div class="card-right">
+            <ul class="perks-compact">
+              <li><span>✓</span> Оплата по счёту</li>
+              <li><span>✓</span> УПД через ЭДО</li>
+              <li><span>✓</span> Возврат НДС</li>
+              <li><span>✓</span> Отсрочка до 30 дней</li>
+            </ul>
+            <div class="card-cta b2b">
+              <span>Заключить договор</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </div>
           </div>
         </div>
       </a>
 
       <!-- БЛОК 2: Физлица без договора -->
-      <!-- <a class="legal-card" [routerLink]="'register-self-employed'">
-        <div class="card-accent se-accent"></div>
-        <div class="card-inner">
-          <div class="card-head">
-            <div class="card-badge se-badge">Без договора</div>
-            <h3>Покупка как физическое лицо</h3>
-            <p class="card-subtitle">Для ИП и самозанятых, которые покупают без заключения договора и оплаты по счёту</p>
+      <a class="legal-card se-card" [routerLink]="'register-self-employed'">
+        <div class="card-bg-accent"></div>
+        <div class="card-content">
+          <div class="card-left">
+            <div class="card-badge se">Без договора для самозанятых и ИП</div>
+            <h3>Покупка как физлицо</h3>
+            <p class="card-desc">Быстрая регистрация, оплата картой, оптовые цены без заключения договора</p>
           </div>
-
-          <ul class="perks-list">
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Оплата картой или наличными</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Без подписания договора поставки</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Оптовые цены от объёма закупки</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Регистрация за 15 минут</span>
-            </li>
-            <li>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Чек по закону для отчётности</span>
-            </li>
-          </ul>
-
-          <div class="card-cta se-cta">
-            <span>Начать покупки</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <div class="card-right">
+            <ul class="perks-compact">
+              <li><span>✓</span> Оплата картой</li>
+              <li><span>✓</span> Без договора</li>
+              <li><span>✓</span> Оптовые цены</li>
+              <li><span>✓</span> Регистрация за 15 мин</li>
+            </ul>
+            <div class="card-cta se">
+              <span>Начать покупки</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </div>
           </div>
         </div>
-      </a> -->
+      </a>
 
     </div>
   </div>
