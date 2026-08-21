@@ -1,49 +1,33 @@
 # ============================================
 # Stage 1: Сборка приложения (builder)
 # ============================================
-FROM node:22-alpine AS builder
+# БЫЛО: FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Копируем только файлы зависимостей (для кэширования слоёв Docker)
 COPY package.json package-lock.json ./
-
-# Устанавливаем зависимости (включая devDependencies для сборки)
 RUN npm ci --legacy-peer-deps
-
-# Копируем исходный код
 COPY . .
-
-# Устанавливаем переменные окружения для сборки
 ARG VERSION_NUMBER_ARG=no-version
 ENV VERSION_NUMBER=$VERSION_NUMBER_ARG
 ENV TZ=Europe/Zurich
-
-# Собираем production-версию с SSR
 RUN npm run build
 
 # ============================================
 # Stage 2: Production образ (минимальный)
 # ============================================
-FROM node:22-alpine AS production
+# БЫЛО: FROM node:22-alpine AS production
+FROM node:20-alpine AS production
 
 WORKDIR /app
-
-# Устанавливаем только production-зависимости
 COPY package.json package-lock.json ./
 RUN npm ci --legacy-peer-deps --omit=dev && npm cache clean --force
-
-# Копируем только собранные файлы из builder
 COPY --from=builder /app/dist ./dist
 
-# Переменные окружения для runtime
 ENV NODE_ENV=production
 ENV TZ=Europe/Zurich
 ARG VERSION_NUMBER_ARG=no-version
 ENV VERSION_NUMBER=$VERSION_NUMBER_ARG
 
-# Angular SSR по умолчанию слушает порт 4000
 EXPOSE 4000
-
-# Запускаем собранный SSR-сервер напрямую через Node.js
 CMD ["node", "dist/paketon-shop/server/server.mjs"]
