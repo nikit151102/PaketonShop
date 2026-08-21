@@ -10,43 +10,37 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 const indexHtml = join(serverDistFolder, 'index.server.html');
 
 const app = express();
-// const commonEngine = new CommonEngine();
+
 const commonEngine = new CommonEngine({
   allowedHosts: [
     'localhost',
     '127.0.0.1',
     'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai',
     'xn--80akonecy.xn--p1ai',
-    'пакетон.рф'
+    'пакетон.рф',
+    'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai:4000',  // на случай прямого обращения
+    'xn--80akonecy.xn--p1ai:4000',
   ]
 });
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// ✅ Health check для Docker
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
-/**
- * Serve static files from /browser
- */
+// ✅ ИСПРАВЛЕНО: '*.*' вместо '**'
+// Теперь статика отдаётся ТОЛЬКО для файлов с расширением
+// (.js, .css, .png, .json, .txt, .ico и т.д.)
 app.get(
-  '**',
+  '*.*',
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: 'index.html'
+    index: false,  // ← ВАЖНО: не отдавать index.html для директорий
   }),
 );
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
+// ✅ Все остальные запросы (без точки) идут в Angular SSR
+// /product/123, /category/pakety, / и т.д.
 app.get('**', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
 
@@ -62,10 +56,6 @@ app.get('**', (req, res, next) => {
     .catch((err) => next(err));
 });
 
-/**
- * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
- */
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
   app.listen(port, () => {
