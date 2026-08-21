@@ -17,30 +17,40 @@ const commonEngine = new CommonEngine({
     '127.0.0.1',
     'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai',
     'xn--80akonecy.xn--p1ai',
-    'пакетон.рф',
-    'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai:4000',  // на случай прямого обращения
-    'xn--80akonecy.xn--p1ai:4000',
+    'пакетон.рф'
   ]
 });
 
-// ✅ Health check для Docker
+// Health check для Docker
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// ✅ ИСПРАВЛЕНО: '*.*' вместо '**'
-// Теперь статика отдаётся ТОЛЬКО для файлов с расширением
-// (.js, .css, .png, .json, .txt, .ico и т.д.)
+// 1. Раздача статики (CSS, JS, картинки, JSON)
 app.get(
   '*.*',
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: false,  // ← ВАЖНО: не отдавать index.html для директорий
+    index: false,
   }),
 );
 
-// ✅ Все остальные запросы (без точки) идут в Angular SSR
-// /product/123, /category/pakety, / и т.д.
+// ✅ 2. ЩИТ ОТ МУСОРНЫХ ЗАПРОСОВ (ИСПРАВЛЕНО)
+app.use((req, res, next) => {
+  if (
+    req.path.startsWith('/.') || 
+    req.path === '/robots.txt' || 
+    req.path === '/sitemap.xml' ||
+    req.path.includes('wp-admin') ||
+    req.path.includes('.php')
+  ) {
+    res.status(404).send('Not found');
+  } else {
+    next();
+  }
+});
+
+// 3. Все остальные запросы (HTML страницы) идут в Angular SSR
 app.get('**', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
 
