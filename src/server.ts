@@ -11,15 +11,7 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 
 const app = express();
 
-const commonEngine = new CommonEngine({
-  allowedHosts: [
-    'localhost',
-    '127.0.0.1',
-    'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai',
-    'xn--80akonecy.xn--p1ai',
-    'пакетон.рф'
-  ]
-});
+const commonEngine = new CommonEngine();
 
 // Health check для Docker
 app.get('/health', (req, res) => {

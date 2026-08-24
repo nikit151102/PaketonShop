@@ -104,7 +104,7 @@ export class TransportDeliveryComponent implements OnInit {
 
   private async loadCitiesFromJson(): Promise<void> {
     try {
-      this.citiesFromJson = await this.http.get<any[]>('/russian-cities.json').toPromise() || [];
+      this.citiesFromJson = require('./russian-cities.json');
     } catch (error) {
       this.citiesFromJson = [];
     }

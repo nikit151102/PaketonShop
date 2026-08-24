@@ -82,7 +82,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsStateService.baskets$
       .pipe(takeUntil(this.destroy$))
       .subscribe(baskets => {
-        console.log('baskets', baskets)
         this.basketsData = baskets || [];
         this.updateProductState();
         // Принудительно обновляем UI

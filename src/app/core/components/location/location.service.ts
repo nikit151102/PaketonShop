@@ -113,9 +113,7 @@ export class LocationService {
     }
 
     if (!this.cities.length) {
-      const data = await firstValueFrom(
-        this.http.get<City[]>('/russian-cities.json'),
-      );
+      const data: City[] = require('./russian-cities.json');
       this.cities = data.map((city, index) => ({
         ...city,
         id: `city_${index}`
