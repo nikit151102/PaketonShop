@@ -1,20 +1,63 @@
-<div class="products-wrapper">
-  <button class="scroll-left" (click)="scrollLeft()">‹</button>
+<!-- 🔹 Заголовок секции -->
+<div class="sales-header">
+  <h2>🔥 Акции и спецпредложения</h2>
+  <p class="subtitle">Успейте купить со скидкой — предложения ограничены по времени</p>
+</div>
 
-  <div class="products-container" #productsGrid>
-    <div class="products-grid">
-      <div class="product-card" *ngFor="let product of salesProducts">
-        <div class="badge">-{{ product.discount }}%</div>
-        <img [src]="product.image" alt="{{ product.title }}" />
-        <h4>{{ product.title }}</h4>
-        <div class="price">
-          <span class="old">{{ product.oldPrice | currency }}</span>
-          <span class="new">{{ product.price | currency }}</span>
-        </div>
-        <button>В корзину</button>
+<!-- 🔹 Загрузка -->
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <span>Загрузка акций...</span>
+</div>
+
+<!-- 🔹 Нет акций -->
+<div class="empty-state" *ngIf="!isLoading && promoGroups.length === 0">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <p>Сейчас нет активных акций</p>
+  <span class="hint">Подпишитесь на уведомления, чтобы не пропустить скидки</span>
+</div>
+
+<!-- 🔹 Ряды акций по группам -->
+<ng-container *ngIf="!isLoading && promoGroups.length > 0">
+  <div class="promo-group-row" *ngFor="let group of promoGroups;">
+    
+    <!-- Заголовок группы -->
+    <div class="group-header" [class.active]="isGroupActive(group)">
+      <div class="group-title">
+        <span class="group-name">{{ group.description || 'Акция' }}</span>
+        <span class="group-dates">
+          {{ formatGroupDate(group.beginDateTime) }} — {{ formatGroupDate(group.endDateTime) }}
+        </span>
       </div>
+      <span class="group-status" [class.active]="isGroupActive(group)">
+        {{ isGroupActive(group) ? '● Активна' : '○ Завершена' }}
+      </span>
+    </div>
+
+    <!-- Контейнер с карточками -->
+    <div class="products-wrapper">
+      <button class="scroll-btn scroll-left" (click)="scrollLeft()" aria-label="Прокрутить влево">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+
+      <div class="products-container" #productsGrid>
+        <div class="products-grid">
+          <app-product 
+            *ngFor="let order of group.promoOrders;"
+            [product]="order.product"
+          ></app-product>
+        </div>
+      </div>
+
+      <button class="scroll-btn scroll-right" (click)="scrollRight()" aria-label="Прокрутить вправо">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
     </div>
   </div>
-
-  <button class="scroll-right" (click)="scrollRight()">›</button>
-</div>
+</ng-container>
