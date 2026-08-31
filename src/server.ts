@@ -12,7 +12,11 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
 
 const commonEngine = new CommonEngine({
-  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', 'xn--80akonecy.xn--p1ai', 'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai', 'xn--o1ab.xn--80akonecy.xn--p1ai' ] 
+  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', 'xn--80akonecy.xn--p1ai', 'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai', 'xn--o1ab.xn--80akonecy.xn--p1ai',
+        'пакетон.рф',
+    'песочница.пакетон.рф',
+    'рп.пакетон.рф'
+   ] 
 });
 
 // Health check для Docker
