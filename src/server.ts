@@ -11,12 +11,25 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 
 const app = express();
 
+// ✅ 1. ВАЖНО: Сообщаем Express, что он работает за прокси (Nginx). 
+// Это гарантирует корректное определение req.protocol и req.headers.host
+app.set('trust proxy', 1);
+
 const commonEngine = new CommonEngine({
-  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', 'xn--80akonecy.xn--p1ai', 'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai', 'xn--o1ab.xn--80akonecy.xn--p1ai',
-        'пакетон.рф',
+  allowedHosts: [
+    'localhost', 
+    '127.0.0.1', 
+    '0.0.0.0', 
+    // Варианты в кодировке Punycode (ASCII)
+    'xn--80akonecy.xn--p1ai', 
+    'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai', 
+    'xn--o1ab.xn--80akonecy.xn--p1ai',
+    // ✅ 2. ДОБАВЬТЕ варианты в кириллице. 
+    // Прокси-серверы часто передают хост именно так, и это вызывает рассинхронизацию
+    'пакетон.рф',
     'песочница.пакетон.рф',
     'рп.пакетон.рф'
-   ] 
+  ] 
 });
 
 // Health check для Docker
@@ -24,7 +37,7 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-// 1. Раздача статики (CSS, JS, картинки, JSON)
+// 1. Раздача статики
 app.get(
   '*.*',
   express.static(browserDistFolder, {
@@ -33,7 +46,7 @@ app.get(
   }),
 );
 
-// ✅ 2. ЩИТ ОТ МУСОРНЫХ ЗАПРОСОВ
+// 2. Щит от мусорных запросов
 app.use((req, res, next) => {
   if (
     req.path.startsWith('/.') || 
@@ -48,8 +61,13 @@ app.use((req, res, next) => {
   }
 });
 
-// 3. Все остальные запросы (HTML страницы) идут в Angular SSR
+// 3. Все остальные запросы идут в Angular SSR
 app.get('**', (req, res, next) => {
+  // ✅ 3. ДОБАВЬТЕ ЭТОТ ЛОГ. При запросе к сайту посмотрите в консоль Node.js. 
+  // Вы точно увидите, какой хост на самом деле приходит в приложение.
+  console.log('🔍 Входящий Host:', req.headers.host);
+  console.log('🔍 Протокол:', req.protocol);
+
   const { protocol, originalUrl, baseUrl, headers } = req;
 
   commonEngine
@@ -61,7 +79,11 @@ app.get('**', (req, res, next) => {
       providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
     })
     .then((html) => res.send(html))
-    .catch((err) => next(err));
+    .catch((err) => {
+      // ✅ 4. Выводим ошибку SSR в консоль, чтобы не гадать
+      console.error('❌ Ошибка Angular SSR:', err.message);
+      next(err);
+    });
 });
 
 if (isMainModule(import.meta.url)) {
