@@ -11,9 +11,8 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 
 const app = express();
 
-// ✅ ИСПРАВЛЕНО: Добавляем allowedHosts в конструктор CommonEngine
 const commonEngine = new CommonEngine({
-  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0'] // Разрешаем локальные хосты
+  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', 'xn--80akonecy.xn--p1ai', 'xn--80ajjteep7bg.xn--80akonecy.xn--p1ai', 'xn--o1ab.xn--80akonecy.xn--p1ai' ] 
 });
 
 // Health check для Docker
