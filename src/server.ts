@@ -62,26 +62,32 @@ app.use((req, res, next) => {
 });
 
 // 3. Все остальные запросы идут в Angular SSR
+// 3. Все остальные запросы идут в Angular SSR
 app.get('**', (req, res, next) => {
-  // ✅ 3. ДОБАВЬТЕ ЭТОТ ЛОГ. При запросе к сайту посмотрите в консоль Node.js. 
-  // Вы точно увидите, какой хост на самом деле приходит в приложение.
   console.log('🔍 Входящий Host:', req.headers.host);
-  console.log('🔍 Протокол:', req.protocol);
+  console.log('🔍 Протокол (req.protocol):', req.protocol);
+  console.log('🔍 X-Forwarded-Proto:', req.get('x-forwarded-proto'));
 
-  const { protocol, originalUrl, baseUrl, headers } = req;
+  // ✅ КРИТИЧЕСКИ ВАЖНО: Если снаружи HTTPS, заставляем Angular использовать HTTPS.
+  // Это предотвращает блокировку ресурсов браузером (Mixed Content).
+  const finalProtocol = (req.get('x-forwarded-proto') === 'https' || req.protocol === 'https') 
+    ? 'https' 
+    : 'http';
+
+  const { originalUrl, baseUrl, headers } = req;
 
   commonEngine
     .render({
       bootstrap,
       documentFilePath: indexHtml,
-      url: `${protocol}://${headers.host}${originalUrl}`,
+      url: `${finalProtocol}://${headers.host}${originalUrl}`,
       publicPath: browserDistFolder,
       providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
     })
     .then((html) => res.send(html))
     .catch((err) => {
-      // ✅ 4. Выводим ошибку SSR в консоль, чтобы не гадать
-      console.error('❌ Ошибка Angular SSR:', err.message);
+      // Выводим полную ошибку, а не только сообщение, для надежной отладки
+      console.error('❌ Ошибка Angular SSR (полная):', err);
       next(err);
     });
 });
