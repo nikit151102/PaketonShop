@@ -11,7 +11,10 @@ const indexHtml = join(serverDistFolder, 'index.server.html');
 
 const app = express();
 
-const commonEngine = new CommonEngine();
+// ✅ ИСПРАВЛЕНО: Добавляем allowedHosts в конструктор CommonEngine
+const commonEngine = new CommonEngine({
+  allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0'] // Разрешаем локальные хосты
+});
 
 // Health check для Docker
 app.get('/health', (req, res) => {
@@ -27,7 +30,7 @@ app.get(
   }),
 );
 
-// ✅ 2. ЩИТ ОТ МУСОРНЫХ ЗАПРОСОВ (ИСПРАВЛЕНО)
+// ✅ 2. ЩИТ ОТ МУСОРНЫХ ЗАПРОСОВ
 app.use((req, res, next) => {
   if (
     req.path.startsWith('/.') || 
