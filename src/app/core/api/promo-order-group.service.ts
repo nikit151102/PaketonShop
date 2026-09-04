@@ -84,4 +84,20 @@ export class PromoOrderGroupService {
       }
     );
   }
+
+
+  getPromoOrderGroups(
+    page = 0,
+    pageSize = 10
+  ): Observable<FilterResponse<PromoOrderGroup>> {
+    return this.http.post<FilterResponse<PromoOrderGroup>>(
+      `${this.baseUrl}/PromoOrderGroup/Filter`,
+      {
+        filters: [],
+        sorts: [],
+        page,
+        pageSize
+      }
+    );
+  }
 }

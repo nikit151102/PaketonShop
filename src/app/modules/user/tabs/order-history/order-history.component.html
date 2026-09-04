@@ -115,24 +115,46 @@
             <h4 class="detail-title">Состав заказа</h4>
             <div class="products-list">
               <div class="product-card" *ngFor="let position of order.productPositions">
+
                 <div class="product-image">
-                  <img
-                    *ngIf="position.product && position.product.productImageLinks && position.product.productImageLinks[0]"
-                    [src]="position.product.productImageLinks[0]" [alt]="position.product.shortName || 'Товар'">
+                  <img *ngIf="position?.product?.productImageLinks?.[0]"
+                    [src]="position?.product?.productImageLinks?.[0]" [alt]="position.product?.shortName || 'Товар'">
                   <div class="product-fallback" *ngIf="!position.product?.productImageLinks?.[0]">
                     {{ position.product?.shortName?.charAt(0) || '📦' }}
                   </div>
+
+                  <!-- Бейдж скидки -->
+                  <span class="product-discount-badge" *ngIf="hasDiscount(position)">
+                    −{{ getDiscountPercent(position) }}%
+                  </span>
                 </div>
+
                 <div class="product-info">
-                  <div class="product-name">{{ position.product?.shortName || 'Товар' }}</div>
-                  <div class="product-meta" *ngIf="position.product?.article">Артикул: {{ position.product?.article }}
+                  <div class="product-name">{{ position?.product?.shortName || 'Товар' }}</div>
+                  <div class="product-meta" *ngIf="position?.product?.article">
+                    Артикул: {{ position?.product?.article }}
+                  </div>
+
+                  <!-- Цены: текущая и старая -->
+                  <div class="product-prices">
+                    <span class="product-price product-price--current">
+                      {{ getDisplayPrice(position) | number:'1.2-2' }} ₽
+                    </span>
+                    <span class="product-price product-price--old" *ngIf="hasDiscount(position)">
+                      {{ position.price | number:'1.2-2' }} ₽
+                    </span>
                   </div>
                 </div>
+
                 <div class="product-price-info">
-                  <div class="product-qty">{{ position.count }} {{ position.product?.measurementUnit?.shortName || 'шт'
-                    }}</div>
-                  <div class="product-price">{{ formatCurrency(position.totalCost) }}</div>
+                  <div class="product-qty">
+                    {{ position.count }} {{ position.product?.measurementUnit?.shortName || 'шт' }}
+                  </div>
+                  <div class="product-total" [class.product-total--discount]="hasDiscount(position)">
+                    {{ position.totalCost | number:'1.2-2' }} ₽
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -145,11 +167,19 @@
                 <span>Товары</span>
                 <span>{{ formatCurrency(order.orderCost) }}</span>
               </div>
+
+              <div class="financial-row financial-row--saving" *ngIf="getTotalSaving(order) > 0">
+                <span>Скидка</span>
+                <span class="saving-value">−{{ getTotalSaving(order) | number:'1.2-2' }} ₽</span>
+              </div>
+
               <div class="financial-row">
                 <span>Доставка</span>
                 <span>{{ formatCurrency(order.deliveryCost) }}</span>
               </div>
+
               <div class="financial-divider"></div>
+
               <div class="financial-row total">
                 <span>К оплате</span>
                 <span>{{ formatCurrency(order.totalCost) }}</span>
@@ -157,7 +187,6 @@
             </div>
           </div>
 
-          <!-- Consultation Note -->
           <div class="consultation-note" *ngIf="order.consultation">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path

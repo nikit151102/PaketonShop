@@ -790,4 +790,87 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketSearchTerm = '';
     document.body.style.overflow = 'auto';
   }
+
+  // Получаем первую активную акцию
+  getActivePromo(): any | null {
+    if (!this.product?.promoOrders || !Array.isArray(this.product.promoOrders)) {
+      return null;
+    }
+
+    return this.product.promoOrders.find((p: any) =>
+      !p.isDeleted && p.isUse !== false
+    ) || null;
+  }
+
+  // Есть ли скидка?
+  hasDiscount(): boolean {
+    const promo = this.getActivePromo();
+    if (!promo) return false;
+
+    // Скидка есть, если viewPriceSale меньше viewPrice и положителен
+    return this.product.viewPriceSale > 0 &&
+      this.product.viewPriceSale < this.product.viewPrice;
+  }
+
+  // Получаем цену для отображения (со скидкой или обычную)
+  getDisplayPrice(): number {
+    return this.hasDiscount()
+      ? this.product.viewPriceSale
+      : this.product.viewPrice;
+  }
+
+  // Расчет процента скидки для бейджа
+  getDiscountPercent(): number {
+    if (!this.hasDiscount()) return 0;
+    return Math.round((1 - this.product.viewPriceSale / this.product.viewPrice) * 100);
+  }
+
+  // Получаем цвет бейджа акции
+  getPromoBadgeColor(): string {
+    const promo = this.getActivePromo();
+    if (promo?.tagColor) {
+      // Проверяем, валидный ли hex-цвет
+      if (/^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
+        return promo.tagColor;
+      }
+    }
+    // Дефолтный красный градиент
+    return 'linear-gradient(135deg, #ef4444, #dc2626)';
+  }
+
+  // Текст бейджа акции
+  getPromoBadgeText(): string {
+    const promo = this.getActivePromo();
+    if (!promo) return '';
+
+    const percent = promo.salePercent
+      ? Math.round(promo.salePercent * 100)
+      : this.getDiscountPercent();
+
+    return promo.tagAbb
+      ? `${promo.tagAbb.toUpperCase()} −${percent}%`
+      : `−${percent}%`;
+  }
+
+  // Есть ли лимит по акции?
+  hasPromoLimit(): boolean {
+    const promo = this.getActivePromo();
+    return !!(promo?.productCountSailLimit && promo.productCountSailLimit > 0);
+  }
+
+  // Сколько осталось по акции?
+  getPromoRemaining(): number {
+    const promo = this.getActivePromo();
+    if (!promo) return 0;
+    const sold = promo.productCountAlreadySailed || 0;
+    return Math.max(0, promo.productCountSailLimit - sold);
+  }
+
+  // Процент заполнения лимита
+  getPromoLimitPercent(): number {
+    const promo = this.getActivePromo();
+    if (!promo?.productCountSailLimit) return 0;
+    const sold = promo.productCountAlreadySailed || 0;
+    return Math.min(100, (sold / promo.productCountSailLimit) * 100);
+  }
 }

@@ -32,6 +32,7 @@ export interface Product {
   productImageLinks?: any;
   productBarCode?: any;
   discountPercentage?: number;
+  promoOrders?: any;
 }
 
 export interface RelatedProduct {
@@ -122,19 +123,21 @@ export class ProductComponent implements OnChanges, OnInit {
   private updateCalculatedValues(): void {
     if (!this.product?.product) return;
 
-    this._hasDiscount = !!this.product.product.discountPercentage &&
-      this.product.product.discountPercentage > 0;
+    // 🔹 Проверка скидки
+    this._hasDiscount = this.hasActivePromo;
 
     if (this._hasDiscount) {
-      this._discountPrice = this.product.product.retailPrice *
-        (1 - this.product.product.discountPercentage! / 100);
-      this._savingAmount = this.product.product.retailPrice - this._discountPrice;
+      // 🔹 Цена со скидкой за единицу
+      this._discountPrice = this.unitPriceWithPromo;
+      this._savingAmount = (this.product.product.retailPrice || 0) - this._discountPrice;
     } else {
-      this._discountPrice = this.product.product.retailPrice;
+      this._discountPrice = this.product.product.retailPrice || 0;
       this._savingAmount = 0;
     }
 
-    this._totalPrice = this._discountPrice * (this.product.count || 1);
+    // 🔹 Итоговая цена с учётом количества
+    const count = this.product.count || 1;
+    this._totalPrice = this._discountPrice * count;
   }
 
   get isAvailable(): boolean {
@@ -292,4 +295,73 @@ export class ProductComponent implements OnChanges, OnInit {
   isRelatedAdded(id: string): boolean {
     return this.addedRelatedIds.has(id);
   }
+
+
+  get hasActivePromo(): boolean {
+    const product = this.product?.product;
+    if (!product) return false;
+
+    if (product.promoOrders?.length > 0) {
+      const activePromo = product.promoOrders.find((p: any) =>
+        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      );
+      return !!activePromo;
+    }
+
+    return false;
+  }
+
+  get promoPercent(): number {
+    const product = this.product?.product;
+    if (!product) return 0;
+
+    if (product.promoOrders?.length > 0) {
+      const promo = product.promoOrders.find((p: any) =>
+        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      );
+      if (promo?.salePercent) {
+        return Math.round(promo.salePercent * 100);
+      }
+    }
+    return 0;
+  }
+
+  get unitPriceWithPromo(): number {
+    const product = this.product?.product;
+    if (!product) return 0;
+
+    const basePrice = product.retailPrice || product.wholesalePrice || 0;
+    const discount = this.promoPercent / 100;
+
+    return basePrice * (1 - discount);
+  }
+
+  get packPriceWithPromo(): number {
+    const coefficient = this.product?.productBarCode?.coefficient || 1;
+    return this.unitPriceWithPromo * coefficient;
+  }
+
+
+  get originalPackPrice(): number {
+    const product = this.product?.product;
+    const coefficient = this.product?.productBarCode?.coefficient || 1;
+    return (product?.retailPrice || 0) * coefficient;
+  }
+
+  get totalSaving(): number {
+    const count = this.product?.count || 1;
+    return (this.originalPackPrice - this.packPriceWithPromo) * count;
+  }
+
+  get promoBadgeColor(): string {
+    const product = this.product?.product;
+    if (product?.promoOrders?.length > 0) {
+      const promo = product.promoOrders.find((p: any) => !p.isDeleted && p.isUse !== false);
+      if (promo?.tagColor && /^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
+        return promo.tagColor;
+      }
+    }
+    return '#ef4444';
+  }
+
 }

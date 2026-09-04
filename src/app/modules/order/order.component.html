@@ -43,21 +43,48 @@
             <!-- Список товаров -->
             <div class="summary-card__items">
               <div class="cart-item" *ngFor="let product of basketProducts; let i = index">
-                <div class="cart-item__number">{{ i + 1 }}</div>
-                <div class="cart-item__image">
-                  <!-- <span>{{ product.name.charAt(0).toUpperCase() }}</span> -->
-                  <img [src]="product.imageUrl" alt="" style="width: 50px; height: auto; border-radius: 5px;">
-                </div>
-                <div class="cart-item__info">
-                  <div class="cart-item__name">{{ product.name }}</div>
-                  <div class="cart-item__meta">
-                    <span class="cart-item__qty">{{ product.qty }} шт.</span>
-                    <span class="cart-item__price">{{ product.price | currency:'RUB':'symbol':'1.2-2' }}</span>
+
+                <div class="cart-item__index">{{ i + 1 }}</div>
+
+                <div class="cart-item__media">
+                  <div class="cart-item__image-wrapper">
+                    <img [src]="product.imageUrl" [alt]="product.name" class="cart-item__image">
                   </div>
                 </div>
-                <div class="cart-item__total">
-                  {{ (product.totalCost) | currency:'RUB':'symbol':'1.2-2' }}
+
+                <div class="cart-item__content">
+                  <div class="cart-item__header">
+                    <h4 class="cart-item__name">{{ product.name }}</h4>
+                    <span class="cart-item__promo-badge-inline" *ngIf="hasDiscount(product)"
+                      [style.background]="getPromoBadgeColor(product)">
+                      −{{ getDiscountPercent(product) }}%
+                    </span>
+                  </div>
+
+                  <div class="cart-item__prices">
+                    <span class="cart-item__price cart-item__price--current">
+                      {{ getDisplayPrice(product) | currency:'RUB':'symbol':'1.2-2' }}
+                    </span>
+                    <span class="cart-item__price cart-item__price--old" *ngIf="hasDiscount(product)">
+                      {{ getOriginalPrice(product) | currency:'RUB':'symbol':'1.2-2' }}
+                    </span>
+                  </div>
+
+                  <div class="cart-item__meta">
+                    <span class="cart-item__qty">{{ product.qty }} шт.</span>
+                    <span class="cart-item__saving" *ngIf="hasDiscount(product)">
+                      Экономия {{ getSavingAmount(product) | currency:'RUB':'symbol':'1.0-0' }}
+                    </span>
+                  </div>
                 </div>
+
+                <div class="cart-item__total" [class.cart-item__total--discount]="hasDiscount(product)">
+                  {{ (getDisplayPrice(product) * product.qty) | currency:'RUB':'symbol':'1.2-2' }}
+                </div>
+                    <span class="cart-item__promo-badge" *ngIf="hasDiscount(product)"
+                      [style.background]="getPromoBadgeColor(product)">
+                      −{{ getDiscountPercent(product) }}%
+                    </span>
               </div>
             </div>
           </div>

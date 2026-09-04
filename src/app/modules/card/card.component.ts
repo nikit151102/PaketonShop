@@ -7,6 +7,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { QuestionsComponent } from './questions/questions.component';
 import { ReviewsComponent } from './reviews/reviews.component';
 import { TitleComponent } from '../../core/components/title/title.component';
+import { SimilarProductsComponent } from '../../core/components/similar-products/similar-products.component';
 
 @Component({
   selector: 'app-card',
@@ -17,7 +18,8 @@ import { TitleComponent } from '../../core/components/title/title.component';
     QuestionsComponent,
     ReviewsComponent,
     RouterLink,
-    TitleComponent
+    TitleComponent,
+    SimilarProductsComponent
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],

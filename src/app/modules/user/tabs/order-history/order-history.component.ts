@@ -155,7 +155,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
         next: (response: any) => {
           if (response.data && Array.isArray(response.data)) {
             const transformedOrders = this.transformApiData(response.data);
-
+            console.log('transformedOrders', transformedOrders)
             if (reset) {
               this.orders = transformedOrders;
             } else {
@@ -251,7 +251,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
           this.orders.unshift(response.data);
         }
       },
-      error: (error) => {}
+      error: (error) => { }
     });
   }
 
@@ -331,4 +331,51 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return 'товара';
     return 'товаров';
   }
+
+
+  /**
+  * Проверка: есть ли скидка у позиции
+  */
+  hasDiscount(position: any): boolean {
+    return position.priceSale !== null &&
+      position.priceSale !== undefined &&
+      position.priceSale > 0 &&
+      position.priceSale < position.price;
+  }
+
+  /**
+   * Процент скидки
+   */
+  getDiscountPercent(position: any): number {
+    if (!this.hasDiscount(position)) return 0;
+    return Math.round((1 - position.priceSale / position.price) * 100);
+  }
+
+  /**
+   * Цена для отображения (со скидкой или обычная)
+   */
+  getDisplayPrice(position: any): number {
+    return this.hasDiscount(position) ? position.priceSale : position.price;
+  }
+
+  /**
+   * Экономия на позиции
+   */
+  getSavingAmount(position: any): number {
+    if (!this.hasDiscount(position)) return 0;
+    return (position.price - position.priceSale) * position.count;
+  }
+
+  getTotalSaving(order: Order): number {
+    if (!order.productPositions) return 0;
+
+    return order.productPositions.reduce((total, position) => {
+      if (this.hasDiscount(position)) {
+        return total + (position.price - position.priceSale) * position.count;
+      }
+      return total;
+    }, 0);
+  }
+
+
 }

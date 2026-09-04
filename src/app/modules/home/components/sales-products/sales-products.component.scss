@@ -35,7 +35,6 @@
   }
 }
 
-// 🔹 Загрузка
 .loading-state {
   display: flex;
   align-items: center;
@@ -55,10 +54,11 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-// 🔹 Пустое состояние
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -81,16 +81,21 @@
   }
 }
 
-// 🔹 Ряд группы акций
 .promo-group-row {
-  margin-bottom: 32px;
+  transition: opacity 0.2s ease;
 
   &:last-child {
     margin-bottom: 0;
   }
+
+  &:hover {
+    .scroll-btn {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 }
 
-// 🔹 Заголовок группы
 .group-header {
   display: flex;
   align-items: center;
@@ -100,10 +105,12 @@
   background: var(--bg-light);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  transition: all 0.2s ease;
 
   &.active {
     background: linear-gradient(135deg, var(--primary-light), rgba(50, 113, 32, 0.05));
     border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(50, 113, 32, 0.08);
   }
 
   .group-title {
@@ -132,21 +139,31 @@
   .group-status {
     font-size: 12px;
     font-weight: 600;
-    color: var(--text-muted);
     padding: 4px 10px;
     border-radius: 20px;
-    background: var(--bg);
     border: 1px solid var(--border);
+    transition: all 0.2s ease;
 
-    &.active {
+    &.status-active {
       color: var(--primary);
       background: var(--primary-light);
       border-color: var(--primary);
     }
+
+    &.status-upcoming {
+      color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    &.status-completed {
+      color: var(--text-muted);
+      background: var(--bg-light);
+      border-color: var(--border);
+    }
   }
 }
 
-// 🔹 Контейнер прокрутки
 .products-wrapper {
   position: relative;
   display: flex;
@@ -160,6 +177,7 @@
   overflow-y: hidden;
   scroll-behavior: smooth;
   padding: 4px 0;
+  scroll-snap-type: x mandatory;
 
   &::-webkit-scrollbar {
     height: 6px;
@@ -172,10 +190,15 @@
   &::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 3px;
+    transition: background 0.2s ease;
 
     &:hover {
       background: var(--text-muted);
     }
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: var(--primary);
   }
 }
 
@@ -186,11 +209,28 @@
   min-width: max-content;
 }
 
-// 🔹 Кнопки прокрутки
+// Индикатор загрузки ещё товаров
+.load-more-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 260px;
+  padding: 20px;
+
+  .mini-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+}
+
 .scroll-btn {
   width: 40px;
   height: 40px;
-  border: none;
+  border: 1px solid;
   border-radius: 50%;
   background: var(--bg);
   color: var(--text-secondary);
@@ -202,12 +242,14 @@
   transition: var(--transition);
   z-index: 2;
   flex-shrink: 0;
+  opacity: 0.85;
 
   &:hover {
     background: var(--primary);
     color: white;
     transform: scale(1.05);
     box-shadow: var(--shadow-hover);
+    opacity: 1;
   }
 
   &:active {
@@ -227,7 +269,18 @@
   }
 }
 
-// 🔹 Адаптив
+.group-footer {
+  text-align: center;
+  padding: 8px 0;
+
+  .hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+}
+
+// Адаптив
 @media (max-width: 768px) {
   :host {
     padding: 16px 0;
@@ -255,12 +308,32 @@
       .group-dates {
         font-size: 12px;
       }
+
+      .group-starts-soon {
+        display: block;
+        font-size: 11px;
+        color: var(--primary);
+        font-weight: 500;
+        margin-top: 2px;
+
+        &::before {
+          content: '';
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          background: var(--primary);
+          border-radius: 50%;
+          margin-right: 4px;
+          animation: pulse 2s infinite;
+        }
+      }
     }
   }
 
   .scroll-btn {
     width: 36px;
     height: 36px;
+    opacity: 1; // Всегда видимы на мобильных
 
     svg {
       width: 18px;
@@ -271,6 +344,10 @@
   .products-grid {
     gap: 12px;
     padding: 4px 4px;
+  }
+
+  .load-more-indicator {
+    width: 220px;
   }
 }
 
@@ -284,6 +361,29 @@
   }
 
   .scroll-btn {
-    display: none; // 🔹 Скрываем кнопки на очень маленьких экранах
+    display: none;
+  }
+
+  .products-container {
+    scroll-snap-type: x proximity;
+  }
+}
+
+// Плавное появление карточек
+app-product {
+  max-width: 220px;
+  scroll-snap-align: start;
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -200,6 +200,7 @@ $radius-xl: 20px;
     border-top: 1px solid $gray-200;
     background: $gray-50;
     animation: slideIn 0.3s ease;
+    position: relative;
 
     @media (max-width: 640px) {
       padding: 16px;
@@ -714,5 +715,106 @@ $gray-100: #f1f5f9;
     .payment-dot {
       background: #94a3b8;
     }
+  }
+}
+
+
+
+.product-discount-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px 8px;
+  background: #ef4444;
+  color: white;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  z-index: 2;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+.product-prices {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.product-price {
+  font-size: 13px;
+  font-weight: 500;
+
+  &--current {
+    color: $gray-800;
+    font-weight: 600;
+  }
+
+  &--old {
+    color: $gray-400;
+    text-decoration: line-through;
+    font-weight: 400;
+    font-size: 12px;
+  }
+}
+
+.product-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: $gray-800;
+  text-align: right;
+
+  &--discount {
+    color: $primary;
+  }
+}
+
+@keyframes badgePulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@media (max-width: 640px) {
+  .product-prices {
+    gap: 6px;
+  }
+
+  .product-price {
+    &--current {
+      font-size: 12px;
+    }
+
+    &--old {
+      font-size: 11px;
+    }
+  }
+
+  .product-total {
+    font-size: 14px;
+  }
+
+  .product-discount-badge {
+    top: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+}
+
+.financial-row--saving {
+  color: $success;
+  font-weight: 500;
+
+  .saving-value {
+    color: $success;
   }
 }

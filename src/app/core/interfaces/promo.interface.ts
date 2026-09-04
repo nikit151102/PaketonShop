@@ -43,3 +43,16 @@ export interface FilterResponse<T> {
   breadCrumbs?: any;
   result?: any;
 }
+
+export interface PromoOrderGroupWithState extends PromoOrderGroup {
+
+  productsPage: number;
+  productsPageSize: number;
+  hasMoreProducts: boolean;
+  isLoadingMore: boolean;
+  totalProducts: number;
+  products?: any;
+  
+  autoScrollEnabled: boolean;
+  lastUserScroll: number;
+}
