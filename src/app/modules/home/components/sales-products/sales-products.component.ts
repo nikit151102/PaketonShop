@@ -3,266 +3,389 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  inject,
   OnDestroy,
-  ViewChild,
+  OnInit,
+  QueryList,
+  ViewChildren,
 } from '@angular/core';
+import { ProductComponent } from '../../../../core/components/product/product.component';
+import { PromoOrderGroupService } from '../../../../core/api/promo-order-group.service';
+import { ProductsService } from '../../../../core/services/products.service';
+import { PromoOrderGroupWithState } from '../../../../core/interfaces/promo.interface';
+import { fromEvent, merge, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, throttleTime } from 'rxjs/operators';
+
+type PromoGroupStatus = 'active' | 'upcoming' | 'completed';
 
 @Component({
   selector: 'app-sales-products',
-  imports: [CommonModule],
+  imports: [CommonModule, ProductComponent],
   templateUrl: './sales-products.component.html',
   styleUrl: './sales-products.component.scss',
 })
-export class SalesProductsComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('productsGrid', { static: false }) productsGrid!: ElementRef;
+export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChildren('groupContainer') groupContainers!: QueryList<ElementRef>;
 
-  salesProducts: any[] = [
-    {
-      id: 1,
-      title: 'Картонная коробка 30x20x10 см',
-      image:
-        'https://images.unsplash.com/photo-1586864384500-d3821f41c0b7?auto=format&fit=crop&w=400&q=80',
-      price: 49,
-      oldPrice: 69,
-      discount: 29,
-    },
-    {
-      id: 2,
-      title: 'Почтовый пакет с воздушной прослойкой',
-      image:
-        'https://images.unsplash.com/photo-1618331835716-5f3eebaea0a5?auto=format&fit=crop&w=400&q=80',
-      price: 19,
-      oldPrice: 29,
-      discount: 34,
-    },
-    {
-      id: 3,
-      title: 'Бумажный крафт-пакет с ручками',
-      image:
-        'https://images.unsplash.com/photo-1612831455542-8e0c6dcb2a9f?auto=format&fit=crop&w=400&q=80',
-      price: 12,
-      oldPrice: 19,
-      discount: 37,
-    },
-    {
-      id: 4,
-      title: 'Прозрачная стрейч-пленка 500 мм',
-      image:
-        'https://images.unsplash.com/photo-1611080626919-7b237dd0fb6b?auto=format&fit=crop&w=400&q=80',
-      price: 89,
-      oldPrice: 129,
-      discount: 31,
-    },
-    {
-      id: 5,
-      title: 'Скотч упаковочный 48 мм x 66 м',
-      image:
-        'https://images.unsplash.com/photo-1609943249853-e7d93de37d9c?auto=format&fit=crop&w=400&q=80',
-      price: 39,
-      oldPrice: 49,
-      discount: 20,
-    },
-    {
-      id: 6,
-      title: 'Воздушно-пузырчатая пленка 1 м²',
-      image:
-        'https://images.unsplash.com/photo-1592229505721-0e3c949d3b1a?auto=format&fit=crop&w=400&q=80',
-      price: 25,
-      oldPrice: 35,
-      discount: 29,
-    },
-    {
-      id: 7,
-      title: 'Пластиковый контейнер 500 мл',
-      image:
-        'https://images.unsplash.com/photo-1627308595181-6f4b9c5e8c5a?auto=format&fit=crop&w=400&q=80',
-      price: 15,
-      oldPrice: 22,
-      discount: 32,
-    },
-    {
-      id: 8,
-      title: 'Упаковочная бумага крафт 1x1 м',
-      image:
-        'https://images.unsplash.com/photo-1603720619821-77b50d9d0839?auto=format&fit=crop&w=400&q=80',
-      price: 17,
-      oldPrice: 24,
-      discount: 29,
-    },
-    {
-      id: 9,
-      title: 'Почтовый конверт A5 с уплотнением',
-      image:
-        'https://images.unsplash.com/photo-1551524613-514b0845f239?auto=format&fit=crop&w=400&q=80',
-      price: 11,
-      oldPrice: 17,
-      discount: 35,
-    },
-    {
-      id: 10,
-      title: 'Картонная туба 50 см',
-      image:
-        'https://images.unsplash.com/photo-1614679113828-0e9fa79e1d13?auto=format&fit=crop&w=400&q=80',
-      price: 33,
-      oldPrice: 45,
-      discount: 27,
-    },
-    {
-      id: 11,
-      title: 'Бумажный мешок 10 л',
-      image:
-        'https://images.unsplash.com/photo-1604066867778-b61c2fd62b4e?auto=format&fit=crop&w=400&q=80',
-      price: 14,
-      oldPrice: 21,
-      discount: 33,
-    },
-    {
-      id: 12,
-      title: 'Контейнер пищевой 1 л',
-      image:
-        'https://images.unsplash.com/photo-1611748000855-224aa2a2e045?auto=format&fit=crop&w=400&q=80',
-      price: 20,
-      oldPrice: 28,
-      discount: 29,
-    },
-    {
-      id: 13,
-      title: 'Пластиковый пакет с зип-замком',
-      image:
-        'https://images.unsplash.com/photo-1616627987746-8df176e6c70a?auto=format&fit=crop&w=400&q=80',
-      price: 9,
-      oldPrice: 13,
-      discount: 31,
-    },
-    {
-      id: 14,
-      title: 'Термоупаковка для еды',
-      image:
-        'https://images.unsplash.com/photo-1620843202037-80ae281d0fa6?auto=format&fit=crop&w=400&q=80',
-      price: 22,
-      oldPrice: 30,
-      discount: 27,
-    },
-    {
-      id: 15,
-      title: 'Картонная коробка с окном',
-      image:
-        'https://images.unsplash.com/photo-1616394584904-497583182d4a?auto=format&fit=crop&w=400&q=80',
-      price: 31,
-      oldPrice: 45,
-      discount: 31,
-    },
-    {
-      id: 16,
-      title: 'Крафт-пакет с логотипом',
-      image:
-        'https://images.unsplash.com/photo-1612831205972-2ae4b9c19591?auto=format&fit=crop&w=400&q=80',
-      price: 18,
-      oldPrice: 25,
-      discount: 28,
-    },
-    {
-      id: 17,
-      title: 'Подарочная упаковка (набор)',
-      image:
-        'https://images.unsplash.com/photo-1607083202673-40516efcaee7?auto=format&fit=crop&w=400&q=80',
-      price: 55,
-      oldPrice: 75,
-      discount: 27,
-    },
-    {
-      id: 18,
-      title: 'Пакет майка 30х50 см',
-      image:
-        'https://images.unsplash.com/photo-1600180758890-6bca7b4148a7?auto=format&fit=crop&w=400&q=80',
-      price: 7,
-      oldPrice: 10,
-      discount: 30,
-    },
-    {
-      id: 19,
-      title: 'Картонный лоток для еды',
-      image:
-        'https://images.unsplash.com/photo-1606788075760-5d8db0bc2df3?auto=format&fit=crop&w=400&q=80',
-      price: 23,
-      oldPrice: 31,
-      discount: 26,
-    },
-    {
-      id: 20,
-      title: 'Пластиковый лоток 750 мл',
-      image:
-        'https://images.unsplash.com/photo-1620499887957-47fa6be1c406?auto=format&fit=crop&w=400&q=80',
-      price: 16,
-      oldPrice: 22,
-      discount: 27,
-    },
-  ];
+  promoGroups: PromoOrderGroupWithState[] = [];
+  isLoading = true;
 
-  private scrollInterval: any;
-  private currentIndex = 0;
-  private cardWidth = 0;
-  private userScrolled = false;
-  private scrollTimeout: any;
+  private autoScrollIntervals: Map<string, any> = new Map();
+  private scrollSubscriptions: Map<string, Subscription> = new Map();
+  private readonly CARD_WIDTH = 280; // 🔹 Приблизительная ширина карточки + отступ
+  private readonly AUTO_SCROLL_DELAY = 4000; // 🔹 Пауза между авто-скроллами (мс)
+  private readonly AUTO_SCROLL_AMOUNT = 280; // 🔹 На сколько пикселей скроллить (одна карточка)
+  private readonly SCROLL_THRESHOLD = 100; // 🔹 Сколько пикселей до конца для подгрузки
+
+  private promoOrderGroupService = inject(PromoOrderGroupService);
+  private productsService = inject(ProductsService);
+
+
+  ngOnInit(): void {
+    this.loadPromoGroups();
+  }
 
   ngAfterViewInit(): void {
-    const container = this.productsGrid.nativeElement as HTMLElement;
-    const card = container.querySelector('.product-card') as HTMLElement;
+    // 🔹 Инициализируем скролл-слушатели после отрисовки
+    setTimeout(() => this.initGroupScrolls(), 200);
+  }
 
-    if (container && card) {
-      this.cardWidth = card.offsetWidth + 24;
+  private loadPromoGroups(): void {
+    this.isLoading = true;
 
-      container.addEventListener('scroll', () => {
-        this.userScrolled = true;
+    this.promoOrderGroupService
+      .getPromoOrderGroups(0, 10)
+      .subscribe({
+        next: (response) => {
+          const groups = response.data
+            .filter((g: any) => !g.isDeleted)
+            .map((group: any) => ({
+              ...group,
+              // 🔹 Инициализация состояния пагинации
+              productsPage: 0,
+              productsPageSize: 10,
+              hasMoreProducts: true,
+              isLoadingMore: false,
+              totalProducts: 0,
+              // 🔹 Инициализация состояния авто-скролла
+              autoScrollEnabled: true,
+              lastUserScroll: Date.now(),
+              // 🔹 Массив товаров для отображения
+              products: [] as any[]
+            })) as PromoOrderGroupWithState[];
 
-        if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+          this.promoGroups = groups;
+          this.isLoading = false;
 
-        this.scrollTimeout = setTimeout(() => {
-          this.userScrolled = false;
-        }, 3000);
+          // 🔹 Загружаем первые 10 товаров для каждой группы
+          groups.forEach((group, index) => {
+            setTimeout(() => {
+              this.loadProductsForGroup(group.id, 0);
+            }, index * 150); // 🔹 Небольшая задержка между запросами
+          });
+        },
+        error: (err) => {
+          console.error('Ошибка загрузки групп акций:', err);
+          this.isLoading = false;
+        },
+      });
+  }
+
+  // 🔹 Загрузка товаров для конкретной группы
+  loadProductsForGroup(groupId: string, page: number): void {
+    const group: any = this.promoGroups.find(g => g.id === groupId);
+    if (!group || !group.hasMoreProducts || group.isLoadingMore) return;
+
+    group.isLoadingMore = true;
+
+    const filters = [
+      {
+        field: 'Text',
+        values: [],
+        type: 0,
+      },
+      {
+        field: 'PromoOrders.Id',
+        values: [groupId],
+        type: 11,
+      }
+    ];
+
+    this.productsService
+      .getAllSearch(filters, null, page, group.productsPageSize)
+      .subscribe({
+        next: (res) => {
+          const newProducts = res.data || [];
+
+          if (page === 0) {
+            // 🔹 Первая страница — заменяем массив
+            group.products = newProducts;
+          } else {
+            // 🔹 Последующие страницы — добавляем к существующим
+            group.products = [...group.products, ...newProducts];
+          }
+
+          group.totalProducts = res.totalCount || 0;
+          group.hasMoreProducts = newProducts.length === group.productsPageSize;
+          group.productsPage = page + 1;
+          group.isLoadingMore = false;
+
+          // 🔹 После загрузки пересчитываем ширину и запускаем авто-скролл
+          setTimeout(() => {
+            this.updateGroupScroll(groupId);
+            this.startAutoScroll(groupId);
+          }, 100);
+        },
+        error: (err) => {
+          console.error(`Ошибка загрузки товаров для группы ${groupId}:`, err);
+          group.isLoadingMore = false;
+          group.hasMoreProducts = false;
+        },
+      });
+  }
+
+  // 🔹 Инициализация скролл-слушателей для каждой группы
+  private initGroupScrolls(): void {
+    this.groupContainers.forEach((containerRef, index) => {
+      const groupId = this.promoGroups[index]?.id;
+      if (!groupId) return;
+
+      const container = containerRef.nativeElement as HTMLElement;
+
+      // 🔹 Отслеживаем скролл пользователя
+      const scroll$ = fromEvent(container, 'scroll').pipe(
+        debounceTime(150),
+        throttleTime(200)
+      );
+
+      const subscription = scroll$.subscribe(() => {
+        this.onGroupScroll(groupId, container);
       });
 
-      this.scrollInterval = setInterval(() => this.autoScroll(), 3000);
+      this.scrollSubscriptions.set(groupId, subscription);
+
+      // 🔹 Запускаем авто-скролл после инициализации
+      setTimeout(() => this.startAutoScroll(groupId), 1000);
+    });
+  }
+
+  // 🔹 Обработка скролла внутри группы
+  private onGroupScroll(groupId: string, container: HTMLElement): void {
+    const group = this.promoGroups.find(g => g.id === groupId);
+    if (!group) return;
+
+    // 🔹 Фиксируем время последнего скролла пользователя
+    group.lastUserScroll = Date.now();
+    group.autoScrollEnabled = false;
+
+    // 🔹 Проверяем, нужно ли подгрузить ещё товары
+    const scrollLeft = container.scrollLeft;
+    const scrollWidth = container.scrollWidth;
+    const clientWidth = container.clientWidth;
+    const remaining = scrollWidth - scrollLeft - clientWidth;
+
+    if (remaining <= this.SCROLL_THRESHOLD && group.hasMoreProducts && !group.isLoadingMore) {
+      this.loadProductsForGroup(groupId, group.productsPage);
+    }
+
+    // 🔹 Возвращаем авто-скролл через 5 секунд бездействия
+    setTimeout(() => {
+      if (Date.now() - group.lastUserScroll >= 5000) {
+        group.autoScrollEnabled = true;
+      }
+    }, 5000);
+  }
+
+  // 🔹 Запуск авто-скролла для группы
+  private startAutoScroll(groupId: string): void {
+    // 🔹 Останавливаем предыдущий интервал, если есть
+    this.stopAutoScroll(groupId);
+
+    const group = this.promoGroups.find(g => g.id === groupId);
+    if (!group) return;
+
+    const interval = setInterval(() => {
+      const containerEl = this.groupContainers?.toArray()[this.promoGroups.indexOf(group)]?.nativeElement;
+      if (!containerEl || !group.autoScrollEnabled) return;
+
+      const container = containerEl as HTMLElement;
+      const scrollWidth = container.scrollWidth;
+      const clientWidth = container.clientWidth;
+      const maxScroll = scrollWidth - clientWidth;
+
+      // 🔹 Если товаров мало или уже в конце — не скроллим
+      if (scrollWidth <= clientWidth + 10) return;
+
+      const currentScroll = container.scrollLeft;
+
+      // 🔹 Если дошли до конца — возвращаемся в начало
+      if (currentScroll >= maxScroll - 10) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        // 🔹 Скроллим на одну карточку вперёд
+        container.scrollBy({
+          left: this.AUTO_SCROLL_AMOUNT,
+          behavior: 'smooth'
+        });
+      }
+    }, this.AUTO_SCROLL_DELAY);
+
+    this.autoScrollIntervals.set(groupId, interval);
+  }
+
+  // 🔹 Остановка авто-скролла для группы
+  private stopAutoScroll(groupId: string): void {
+    const interval = this.autoScrollIntervals.get(groupId);
+    if (interval) {
+      clearInterval(interval);
+      this.autoScrollIntervals.delete(groupId);
     }
   }
 
-  autoScroll() {
-    if (this.userScrolled) return;
+  // 🔹 Обновление параметров скролла после загрузки товаров
+  private updateGroupScroll(groupId: string): void {
+    const index = this.promoGroups.findIndex(g => g.id === groupId);
+    const containerRef = this.groupContainers?.toArray()[index];
+    if (!containerRef) return;
 
-    const container = this.productsGrid.nativeElement as HTMLElement;
+    // 🔹 Можно добавить логику пересчёта, если нужно
+  }
 
-    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+  // 🔹 Ручная прокрутка влево
+  scrollGroupLeft(groupId: string): void {
+    const index = this.promoGroups.findIndex(g => g.id === groupId);
+    const container = this.groupContainers?.toArray()[index]?.nativeElement as HTMLElement;
 
-    if (container.scrollLeft + this.cardWidth >= maxScrollLeft) {
-      container.scrollTo({ left: 0, behavior: 'smooth' });
-    } else {
-      container.scrollBy({ left: this.cardWidth, behavior: 'smooth' });
+    if (container) {
+      container.scrollBy({ left: -this.CARD_WIDTH, behavior: 'smooth' });
+      this.pauseAutoScroll(groupId);
     }
   }
 
-  scrollLeft() {
-    const container = this.productsGrid.nativeElement as HTMLElement;
-    container.scrollBy({ left: -this.cardWidth, behavior: 'smooth' });
-    this.markUserScroll();
+  // 🔹 Ручная прокрутка вправо
+  scrollGroupRight(groupId: string): void {
+    const index = this.promoGroups.findIndex(g => g.id === groupId);
+    const container = this.groupContainers?.toArray()[index]?.nativeElement as HTMLElement;
+
+    if (container) {
+      container.scrollBy({ left: this.CARD_WIDTH, behavior: 'smooth' });
+      this.pauseAutoScroll(groupId);
+    }
   }
 
-  scrollRight() {
-    const container = this.productsGrid.nativeElement as HTMLElement;
-    container.scrollBy({ left: this.cardWidth, behavior: 'smooth' });
-    this.markUserScroll();
+  // 🔹 Пауза авто-скролла при взаимодействии
+  private pauseAutoScroll(groupId: string): void {
+    const group = this.promoGroups.find(g => g.id === groupId);
+    if (group) {
+      group.autoScrollEnabled = false;
+      group.lastUserScroll = Date.now();
+
+      // 🔹 Возвращаем авто-скролл через 5 секунд
+      setTimeout(() => {
+        if (group && Date.now() - group.lastUserScroll >= 5000) {
+          group.autoScrollEnabled = true;
+        }
+      }, 5000);
+    }
   }
 
-  private markUserScroll() {
-    this.userScrolled = true;
-    if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
-    this.scrollTimeout = setTimeout(() => {
-      this.userScrolled = false;
-    }, 3000);
+  // 🔹 Форматирование даты
+  formatGroupDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  // 🔹 Проверка активности группы
+  isGroupActive(group: PromoOrderGroupWithState): boolean {
+    const now = new Date();
+    const start = new Date(group.beginDateTime);
+    const end = new Date(group.endDateTime);
+    return now >= start && now <= end;
+  }
+
+  // 🔹 Отслеживание наведения на группу (для паузы авто-скролла)
+  onGroupMouseEnter(groupId: string): void {
+    this.pauseAutoScroll(groupId);
+  }
+
+  onGroupMouseLeave(groupId: string): void {
+    const group = this.promoGroups.find(g => g.id === groupId);
+    if (group && Date.now() - group.lastUserScroll >= 3000) {
+      group.autoScrollEnabled = true;
+    }
+  }
+
+
+  trackByGroup(index: number, group: PromoOrderGroupWithState): string {
+    return group.id;
+  }
+
+  trackByProduct(index: number, product: any): string {
+    return product?.id || index.toString();
+  }
+
+  getGroupStatus(group: PromoOrderGroupWithState): PromoGroupStatus {
+    const now = new Date();
+    const start = new Date(group.beginDateTime);
+    const end = new Date(group.endDateTime);
+
+    if (now < start) return 'upcoming';      // 🔹 Ещё не началась
+    if (now > end) return 'completed';       // 🔹 Уже закончилась
+    return 'active';                         // 🔹 Сейчас активна
+  }
+
+  getGroupStatusText(group: PromoOrderGroupWithState): string {
+    const status = this.getGroupStatus(group);
+    const statusMap: Record<PromoGroupStatus, string> = {
+      'active': '● Активна',
+      'upcoming': '○ Не началась',
+      'completed': '○ Завершена'
+    };
+    return statusMap[status];
+  }
+
+  getGroupStatusClass(group: PromoOrderGroupWithState): string {
+    const status = this.getGroupStatus(group);
+    return `status-${status}`;
+  }
+
+  canBuyFromGroup(group: PromoOrderGroupWithState): boolean {
+    const status = this.getGroupStatus(group);
+    return status === 'active' || status === 'upcoming';
+  }
+
+  formatGroupDateShort(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short'
+    });
+  }
+
+  getDaysUntilStart(group: PromoOrderGroupWithState): number | null {
+    if (this.getGroupStatus(group) !== 'upcoming') return null;
+
+    const now = new Date();
+    const start = new Date(group.beginDateTime);
+    const diffTime = start.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
   }
 
   ngOnDestroy(): void {
-    if (this.scrollInterval) {
-      clearInterval(this.scrollInterval);
-    }
+    // 🔹 Очищаем все интервалы авто-скролла
+    this.autoScrollIntervals.forEach((interval) => clearInterval(interval));
+    this.autoScrollIntervals.clear();
+
+    // 🔹 Отписываемся от всех скролл-событий
+    this.scrollSubscriptions.forEach((sub) => sub.unsubscribe());
+    this.scrollSubscriptions.clear();
   }
 }

@@ -88,14 +88,15 @@
 
       <!-- Название товара -->
       <h3 class="item-title" [title]="product.product.fullName">
-        {{ product.product.fullName || 'Без названия' }}  ( {{product.productBarCode.coefficient}} шт)
+        {{ product.product.fullName || 'Без названия' }} ( {{product.productBarCode.coefficient}} шт)
       </h3>
 
       <!-- Краткое описание -->
       <p class="item-desc" *ngIf="product.product.shortName">{{ product.product.shortName }}</p>
 
       <!-- Характеристики и рейтинг в одной строке -->
-      <div class="item-meta-row" *ngIf="product.product.measurementUnitId || product.product.rating || product.product.reviews">
+      <div class="item-meta-row"
+        *ngIf="product.product.measurementUnitId || product.product.rating || product.product.reviews">
         <!-- Характеристики -->
         <div class="item-specs" *ngIf="product.product.measurementUnitId">
           <span class="spec">шт</span>
@@ -119,45 +120,86 @@
       <div class="pricing-row">
         <!-- Левая часть: количество и цена за единицу -->
         <div class="pricing-left">
-          <!-- Контрол количества (если товар доступен) -->
+          <!-- Контрол количества -->
           <div class="quantity-wrapper" *ngIf="isAvailable; else unavailableQty">
-            <div class="quantity-control">
-              <button class="qty-btn" (click)="decreaseQty()" [disabled]="(product.count || 1) <= 1"
-                [class.pulse]="quantityChanging === 'decrease'" (animationend)="quantityChanging = null">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 13H5v-2h14v2z" />
-                </svg>
-              </button>
+            <div class="quantity-wrapper" *ngIf="isAvailable; else unavailableQty">
+              <div class="quantity-control">
+                <button class="qty-btn" (click)="decreaseQty()" [disabled]="(product.count || 1) <= 1"
+                  [class.pulse]="quantityChanging === 'decrease'" (animationend)="quantityChanging = null">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13H5v-2h14v2z" />
+                  </svg>
+                </button>
 
-              <div class="qty-value">
-                <input type="number" [value]="product.count || 1" (change)="onQuantityInput($event)"
-                  (keyup.enter)="validateQuantityInput($event)" (blur)="validateQuantityInput($event)" min="1"
-                  class="qty-input" [class.error]="quantityError" />
-                <span class="qty-unit"></span>
+                <div class="qty-value">
+                  <input type="number" [value]="product.count || 1" (change)="onQuantityInput($event)"
+                    (keyup.enter)="validateQuantityInput($event)" (blur)="validateQuantityInput($event)" min="1"
+                    class="qty-input" [class.error]="quantityError" />
+                  <span class="qty-unit"></span>
+                </div>
+
+                <button class="qty-btn" (click)="increaseQty()" [class.pulse]="quantityChanging === 'increase'"
+                  (animationend)="quantityChanging = null">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                  </svg>
+                </button>
               </div>
-
-              <button class="qty-btn" (click)="increaseQty()" [class.pulse]="quantityChanging === 'increase'"
-                (animationend)="quantityChanging = null">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
-              </button>
+              <span class="quantity-error" *ngIf="quantityError">{{ quantityError }}</span>
             </div>
-            <span class="quantity-error" *ngIf="quantityError">{{ quantityError }}</span>
           </div>
-
           <ng-template #unavailableQty>
             <div class="unavailable-qty">
               <span class="unavailable-text">Товар недоступен</span>
             </div>
           </ng-template>
 
-          <!-- Цена за единицу (десктоп) -->
-          <div class="unit-price-desktop" *ngIf="!isMobile">
-            <span class="price-per-unit">{{ discountPrice | number:'1.0-2':'ru' }} ₽/шт</span>
-            <span class="unit-old" *ngIf="hasDiscount">{{ product.totalCost | number:'1.0-2':'ru' }} ₽</span>
+          <!-- 🔹 Блок цены с поддержкой акции -->
+          <div class="unit-price-block">
+
+            <!-- 🔹 БЕЙДЖ СКИДКИ: рядом с ценой, а не на картинке -->
+            <span class="promo-badge-inline" *ngIf="hasActivePromo" [style.background]="promoBadgeColor">
+              −{{ promoPercent }}%
+            </span>
+
+            <!-- 🔹 Цена за единицу -->
+            <div class="price-per-unit">
+              <!-- Новая цена со скидкой -->
+              <span class="price-current" *ngIf="hasActivePromo">
+                {{ unitPriceWithPromo | number:'1.2-2':'ru' }} ₽
+              </span>
+              <!-- Обычная цена -->
+              <span class="price-current" *ngIf="!hasActivePromo">
+                {{ (product.product.retailPrice || 0) | number:'1.2-2':'ru' }} ₽
+              </span>
+
+              <span class="price-unit">/ шт</span>
+            </div>
+
+            <!-- 🔹 Старая цена (зачёркнутая) -->
+            <span class="price-old" *ngIf="hasActivePromo">
+              {{ (product.product.retailPrice || 0) | number:'1.2-2':'ru' }} ₽
+            </span>
+
+            <!-- 🔹 Цена за упаковку (если coefficient > 1) -->
+            <div class="price-per-pack" *ngIf="product.productBarCode?.coefficient > 1">
+              <span class="pack-label">Упаковка ({{ product.productBarCode.coefficient }} шт):</span>
+              <span class="pack-price" *ngIf="hasActivePromo">
+                {{ packPriceWithPromo | number:'1.2-2':'ru' }} ₽
+              </span>
+              <span class="pack-price" *ngIf="!hasActivePromo">
+                {{ originalPackPrice | number:'1.2-2':'ru' }} ₽
+              </span>
+            </div>
+
           </div>
         </div>
+
+
+
+
+
+
 
         <!-- Правая часть: итоговая стоимость и удаление -->
         <div class="pricing-right">
@@ -173,13 +215,23 @@
           </div>
 
           <!-- Итоговая стоимость -->
-          <div class="item-total" [class.has-discount]="hasDiscount">
+          <div class="item-total" [class.has-discount]="hasActivePromo">
             <span class="total-label">итого</span>
-            <span class="total-value">{{ product.totalCost | number:'1.0-2':'ru' }} ₽</span>
-            <span class="total-old" *ngIf="hasDiscount">
-              {{ (product.product.retailPrice * (product.count || 1)) | number:'1.0-2':'ru' }} ₽
+
+            <!-- 🔹 Итоговая цена со скидкой -->
+            <span class="total-value" *ngIf="hasActivePromo">
+              {{ (packPriceWithPromo * (product.count || 1)) | number:'1.2-2':'ru' }} ₽
+            </span>
+            <span class="total-value" *ngIf="!hasActivePromo">
+              {{ product.totalCost | number:'1.2-2':'ru' }} ₽
+            </span>
+
+            <!-- 🔹 Зачёркнутая старая итоговая цена -->
+            <span class="total-old" *ngIf="hasActivePromo">
+              {{ (originalPackPrice * (product.count || 1)) | number:'1.2-2':'ru' }} ₽
             </span>
           </div>
+
 
           <!-- Кнопка удалить (десктоп) -->
           <button class="remove-btn desktop-remove" (click)="removeProduct()" title="Удалить"
@@ -193,12 +245,12 @@
       </div>
 
       <!-- Информация об экономии (если есть скидка) -->
-      <div class="saving-info" *ngIf="hasDiscount && isAvailable">
+      <div class="saving-info" *ngIf="hasActivePromo && isAvailable">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
         </svg>
-        <span>Экономия {{ savingAmount * (product.count || 1) | number:'1.0-2':'ru' }} ₽</span>
+        <span>Экономия {{ totalSaving | number:'1.0-2':'ru' }} ₽</span>
       </div>
     </div>
   </div>

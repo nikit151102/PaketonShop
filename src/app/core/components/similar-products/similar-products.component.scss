@@ -1,0 +1,239 @@
+:host {
+    display: block;
+    padding: 24px 0;
+
+    --primary: #327120;
+    --primary-light: rgba(50, 113, 32, 0.1);
+    --text: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --bg: #ffffff;
+    --border: #e5e7eb;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --radius: 12px;
+    --transition: all 0.25s ease;
+}
+
+.similar-header {
+    margin-bottom: 16px;
+    padding: 0 12px;
+
+    h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text);
+    }
+}
+
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+    color: var(--text-secondary);
+
+    .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--text-muted);
+
+    svg {
+        margin-bottom: 12px;
+        opacity: 0.4;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+    }
+}
+
+.products-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.products-container {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    padding: 4px 0;
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+
+        &:hover {
+            background: var(--primary);
+        }
+    }
+}
+
+.products-grid {
+    display: flex;
+    gap: 16px;
+    padding: 4px 8px;
+    min-width: max-content;
+}
+
+.load-more-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 220px;
+    padding: 20px;
+
+    .mini-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+    }
+}
+
+.scroll-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    z-index: 2;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: scale(1.05);
+        box-shadow: var(--shadow-hover);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    svg {
+        stroke: currentColor;
+    }
+
+    &.scroll-left {
+        margin-left: 4px;
+    }
+
+    &.scroll-right {
+        margin-right: 4px;
+    }
+}
+
+.footer-hint {
+    text-align: center;
+    padding: 8px 0;
+
+    span {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+}
+
+app-product {
+    max-width: 220px;
+    scroll-snap-align: start;
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    :host {
+        padding: 16px 0;
+    }
+
+    .similar-header {
+        padding: 0 8px;
+
+        h3 {
+            font-size: 18px;
+        }
+    }
+
+    .scroll-btn {
+        width: 32px;
+        height: 32px;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    .products-grid {
+        gap: 12px;
+        padding: 4px 4px;
+    }
+
+    .load-more-indicator {
+        width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .scroll-btn {
+        display: none;
+    }
+
+    .products-container {
+        scroll-snap-type: x proximity;
+    }
+}

@@ -9,6 +9,7 @@ import { ReviewsComponent } from './reviews/reviews.component';
 import { TitleComponent } from '../../core/components/title/title.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { Subject, takeUntil } from 'rxjs';
+import { SimilarProductsComponent } from '../../core/components/similar-products/similar-products.component';
 
 @Component({
   selector: 'app-card',
@@ -19,7 +20,8 @@ import { Subject, takeUntil } from 'rxjs';
     QuestionsComponent,
     ReviewsComponent,
     RouterLink,
-    TitleComponent
+    TitleComponent,
+    SimilarProductsComponent
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],

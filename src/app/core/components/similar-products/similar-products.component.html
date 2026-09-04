@@ -1,0 +1,41 @@
+<div class="similar-header" *ngIf="title">
+    <h3>{{ title }}</h3>
+</div>
+
+<div class="loading-state" *ngIf="isLoading && products.length === 0">
+    <div class="spinner"></div>
+    <span>Загрузка товаров...</span>
+</div>
+
+<div class="empty-state" *ngIf="!isLoading && products.length === 0">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+    </svg>
+    <p>Похожие товары не найдены</p>
+</div>
+
+<div class="products-wrapper" *ngIf="products.length > 0">
+
+    <button class="scroll-btn scroll-left" (click)="scrollLeft()">
+        <svg>...</svg>
+    </button>
+
+    <div class="products-container" #productsContainer>
+        <div class="products-grid">
+            <app-product *ngFor="let product of products; trackBy: trackByProduct" [product]="product"
+                view="compact"></app-product>
+
+            <div class="load-more-indicator" *ngIf="isLoading && products.length > 0">
+                <div class="mini-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="scroll-btn scroll-right" (click)="scrollRight()">
+        <svg>...</svg>
+    </button>
+</div>
+
+<div class="footer-hint" *ngIf="hasMore && !isLoading && products.length > 0">
+    <span>← Прокрутите, чтобы увидеть ещё →</span>
+</div>

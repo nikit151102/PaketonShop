@@ -1,23 +1,19 @@
 <div class="gallery-container">
   <div class="gallery">
-    <button class="nav prev" (click)="prevImage()">❮</button>
-    <img
-      [src]="images[currentImageIndex]"
-      alt="product"
-      class="main-image"
-      [@fadeAnimation]
-    />
-    <button class="nav next" (click)="nextImage()">❯</button>
+    <div class="promo-tag-overlay" *ngIf="promoTag" [style.background]="getTagColor()">
+      <div class="promo-tag-main">
+        <span class="tag-abb">{{ promoTag.tagAbb || 'АКЦИЯ' }}</span>
+        <span class="tag-percent" *ngIf="promoTag.salePercent">
+          −{{ (promoTag.salePercent * 100) | number:'1.0-0' }}%
+        </span>
+      </div>
+    </div>
+    <button class="nav prev" (click)="prevImage()" aria-label="Предыдущее изображение">❮</button>
+    <img [src]="images[currentImageIndex]" alt="product" class="main-image" [@fadeAnimation]="currentImageIndex" />
+    <button class="nav next" (click)="nextImage()" aria-label="Следующее изображение">❯</button>
   </div>
-
-  <!-- Миниатюры -->
   <div class="thumbnails">
-    <img
-      *ngFor="let img of images; let i = index"
-      [src]="img"
-      alt="thumbnail"
-      [class.active]="i === currentImageIndex"
-      (click)="goToImage(i)"
-    />
+    <img *ngFor="let img of images; let i = index" [src]="img" alt="thumbnail {{i + 1}}"
+      [class.active]="i === currentImageIndex" (click)="goToImage(i)" />
   </div>
 </div>

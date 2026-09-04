@@ -126,4 +126,8 @@
       </div>
     </div>
   </div>
+
+  <app-similar-products *ngIf="productData && productData.mainProductCategoryId"
+  [categoryId]="productData.mainProductCategoryId" 
+  [title]="'Похожие товары'"  />
 </div>

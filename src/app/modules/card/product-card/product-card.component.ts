@@ -13,6 +13,7 @@ import { UserApiService } from '../../../core/api/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductsService } from '../../../core/services/products.service';
 import { ProductPackingSelectorComponent } from '../../../core/ui/product-packing-selector/product-packing-selector.component';
+
 interface BreadCrumb {
   id: string;
   name: string;
@@ -130,11 +131,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
     );
   }
 
-  // Расчет скидки (если есть)
-  calculateDiscount(): number {
-    if (!this.productData?.oldPrice) return 0;
-    return Math.round((1 - this.productData.viewPrice / this.productData.oldPrice) * 100);
-  }
 
   // Общая сумма всех корзин
   calculateTotalBasketsSum(): number {
@@ -368,10 +364,6 @@ export class ProductCardComponent implements OnInit, OnChanges {
     }
   }
 
-  getTotalPrice(): number {
-    return (this.productData?.viewPrice || 0) * this.selectedQuantity;
-  }
-
   getAvailableStoresCount(): number {
     if (!this.productData?.remains) return 0;
     return this.productData.remains.filter((store: any) => store.count > 0).length;
@@ -494,4 +486,75 @@ export class ProductCardComponent implements OnInit, OnChanges {
       setTimeout(() => notification.remove(), 300);
     }, 3000);
   }
+
+
+
+  // 🔹 В компоненте ProductCardComponent добавляем методы:
+
+// 🔹 Получаем активную акцию (первую не удалённую)
+getActivePromoOrder(): any | null {
+  if (!this.productData?.promoOrders || !Array.isArray(this.productData.promoOrders)) {
+    return null;
+  }
+  
+  // 🔹 Находим первую активную акцию
+  const activePromo = this.productData.promoOrders.find((promo: any) => 
+    !promo.isDeleted && promo.isUse !== false
+  );
+  
+  return activePromo || null;
+}
+
+// 🔹 Проверяем, есть ли скидка
+hasDiscount(): boolean {
+  const promo = this.getActivePromoOrder();
+  if (!promo) return false;
+  
+  // 🔹 Скидка есть, если viewPriceSale меньше viewPrice
+  return this.productData.viewPriceSale < this.productData.viewPrice;
+}
+
+// 🔹 Расчет процента скидки (для отображения)
+calculateDiscount(): number {
+  if (!this.hasDiscount()) return 0;
+  
+  const original = this.productData.viewPrice;
+  const sale = this.productData.viewPriceSale;
+  
+  return Math.round((1 - sale / original) * 100);
+}
+
+// 🔹 Получаем цвет тега акции
+getPromoTagColor(tagColor: string | null | undefined): string {
+  // 🔹 Дефолтные цвета для известных значений
+  const colorMap: Record<string, string> = {
+    'test': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',      // фиолетовый
+    'sale': 'linear-gradient(135deg, #ef4444, #dc2626)',      // красный
+    'new': 'linear-gradient(135deg, #10b981, #059669)',       // зелёный
+    'hit': 'linear-gradient(135deg, #f59e0b, #d97706)',       // оранжевый
+    'promo': 'linear-gradient(135deg, #3b82f6, #2563eb)',     // синий
+  };
+  
+  if (tagColor && colorMap[tagColor.toLowerCase()]) {
+    return colorMap[tagColor.toLowerCase()];
+  }
+  
+  // 🔹 Дефолтный градиент, если цвет не распознан
+  return 'linear-gradient(135deg, #ef4444, #f97316)';
+}
+
+// 🔹 Расчет процента заполнения лимита
+getPromoLimitPercent(promo: any): number {
+  if (!promo?.productCountSailLimit || promo.productCountSailLimit <= 0) return 0;
+  
+  const sold = promo.productCountAlreadySailed || 0;
+  const limit = promo.productCountSailLimit;
+  
+  return Math.min((sold / limit) * 100, 100);
+}
+
+// 🔹 Обновляем getTotalPrice() для использования viewPriceSale
+getTotalPrice(): number {
+  return (this.productData?.viewPriceSale || 0) * this.selectedQuantity;
+}
 }

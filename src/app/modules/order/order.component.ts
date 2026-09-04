@@ -190,7 +190,8 @@ export class OrderComponent implements OnInit, OnDestroy {
               imageUrl: p.product.productImageLinks?.[0] || null,
               remains: p.product.remains,
               positionId: p.id,
-              totalCost: p.totalCost
+              totalCost: p.totalCost,
+              promoOrders: p.product.promoOrders
             }));
 
             this.calculateDiscount();
@@ -932,9 +933,81 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   onEditComposition(): void {
-  // 🔹 Вариант 1: Переход на страницу редактирования
-  if (this.orderData.id) {
-    this.router.navigate(['/edit-order', this.orderData.id]);
+    if (this.orderData.id) {
+      this.router.navigate(['/edit-order', this.orderData.id]);
+    }
   }
-}
+
+
+  /**
+   * Проверка: есть ли активная скидка у товара
+   */
+  hasDiscount(product: any): boolean {
+    if (product.promoOrders?.length > 0) {
+      const activePromo = product.promoOrders.find((p: any) =>
+        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      );
+      return !!activePromo;
+    }
+
+    return false;
+  }
+
+  /**
+   * Процент скидки для отображения
+   */
+  getDiscountPercent(product: any): number {
+    if (product.promoOrders?.length > 0) {
+      const promo = product.promoOrders.find((p: any) =>
+        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      );
+      if (promo?.salePercent) {
+        return Math.round(promo.salePercent * 100);
+      }
+    }
+
+
+    return 0;
+  }
+
+  /**
+   * Цена для отображения (со скидкой или обычная)
+   */
+  getDisplayPrice(product: any): number {
+    // 🔹 Если есть валидная цена со скидкой — используем её
+    if (product.priceSale && product.priceSale > 0 && product.priceSale < product.price) {
+      return product.priceSale;
+    }
+    return product.price || 0;
+  }
+
+  /**
+   * Старая цена (для зачёркивания)
+   */
+  getOriginalPrice(product: any): number {
+    return product.price || 0;
+  }
+
+  /**
+   * Цвет бейджа скидки
+   */
+  getPromoBadgeColor(product: any): string {
+    if (product.promoOrders?.length > 0) {
+      const promo = product.promoOrders.find((p: any) => !p.isDeleted && p.isUse !== false);
+      if (promo?.tagColor && /^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
+        return promo.tagColor;
+      }
+    }
+    return '#ef4444';
+  }
+
+  /**
+   * Экономия на товаре
+   */
+  getSavingAmount(product: any): number {
+    const original = this.getOriginalPrice(product);
+    const current = this.getDisplayPrice(product);
+    return (original - current) * (product.qty || 1);
+  }
+
 }

@@ -1,20 +1,87 @@
-<div class="products-wrapper">
-  <button class="scroll-left" (click)="scrollLeft()">‹</button>
+<div class="loading-state" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <span>Загрузка акций...</span>
+</div>
 
-  <div class="products-container" #productsGrid>
-    <div class="products-grid">
-      <div class="product-card" *ngFor="let product of salesProducts">
-        <div class="badge">-{{ product.discount }}%</div>
-        <img [src]="product.image" alt="{{ product.title }}" />
-        <h4>{{ product.title }}</h4>
-        <div class="price">
-          <span class="old">{{ product.oldPrice | currency }}</span>
-          <span class="new">{{ product.price | currency }}</span>
-        </div>
-        <button>В корзину</button>
+<!-- Нет акций -->
+<div class="empty-state" *ngIf="!isLoading && promoGroups.length === 0">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+  <p>Сейчас нет активных акций</p>
+  <span class="hint">Подпишитесь на уведомления, чтобы не пропустить скидки</span>
+</div>
+
+<!-- Ряды акций по группам -->
+<ng-container *ngIf="!isLoading && promoGroups.length > 0">
+  <div class="promo-group-row" *ngFor="let group of promoGroups; trackBy: trackByGroup"
+    (mouseenter)="onGroupMouseEnter(group.id)" (mouseleave)="onGroupMouseLeave(group.id)">
+
+    <!-- Заголовок группы -->
+    <div class="group-header" [class.active]="getGroupStatus(group) === 'active'">
+      <div class="group-title">
+        <span class="group-name">{{ group.description || 'Акция' }}</span>
+        <span class="group-dates">
+          {{ formatGroupDate(group.beginDateTime) }} — {{ formatGroupDate(group.endDateTime) }}
+        </span>
+
+        <!-- 🔹 Подсказка для будущих акций -->
+        <span class="group-starts-soon" *ngIf="getGroupStatus(group) === 'upcoming'">
+          ⏳ Начнётся {{ formatGroupDateShort(group.beginDateTime) }}
+        </span>
       </div>
+
+      <!-- 🔹 Бейдж статуса с цветовой индикацией -->
+      <span class="group-status" [class]="getGroupStatusClass(group)">
+        {{ getGroupStatusText(group) }}
+      </span>
+    </div>
+
+    <!-- Контейнер с карточками -->
+    <div class="products-wrapper" [class.disabled]="getGroupStatus(group) === 'completed'">
+
+      <!-- 🔹 Overlay для завершённых акций (опционально) -->
+      <div class="group-overlay" *ngIf="getGroupStatus(group) === 'completed'">
+        <span class="overlay-text">Акция завершена</span>
+      </div>
+
+      <button class="scroll-btn scroll-left" (click)="scrollGroupLeft(group.id)" aria-label="Прокрутить влево"
+        [disabled]="getGroupStatus(group) === 'completed'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+
+      <div class="products-container" #groupContainer>
+        <div class="products-grid">
+          <app-product *ngFor="let product of group.products; trackBy: trackByProduct" [product]="product"
+            ></app-product>
+
+          <div class="load-more-indicator" *ngIf="group.isLoadingMore">
+            <div class="mini-spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="scroll-btn scroll-right" (click)="scrollGroupRight(group.id)" aria-label="Прокрутить вправо"
+        [disabled]="getGroupStatus(group) === 'completed'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Индикатор "Ещё есть товары" -->
+    <div class="group-footer">
+      <span class="hint" *ngIf="getGroupStatus(group) === 'active' && group.hasMoreProducts && !group.isLoadingMore">
+        ← Прокрутите, чтобы увидеть ещё →
+      </span>
+      <span class="hint hint-upcoming" *ngIf="getGroupStatus(group) === 'upcoming'">
+        🔔 Товары уже доступны — скидка активируется {{ formatGroupDateShort(group.beginDateTime) }}
+      </span>
+      <span class="hint hint-completed" *ngIf="getGroupStatus(group) === 'completed'">
+        Эта акция завершена. Смотрите другие предложения 👇
+      </span>
     </div>
   </div>
-
-  <button class="scroll-right" (click)="scrollRight()">›</button>
-</div>
+</ng-container>

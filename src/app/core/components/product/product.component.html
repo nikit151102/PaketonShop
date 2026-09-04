@@ -1,13 +1,25 @@
-<div class="product-card"  *ngIf="product" [ngClass]="view" (click)="onProductClick($event)">
+<div class="product-card" *ngIf="product" [ngClass]="view" (click)="onProductClick($event)">
   <div class="top-bar">
+
+    <!-- 🔹 БЕЙДЖ АКЦИИ: слева сверху -->
+    <div class="promo-badge-wrapper" *ngIf="getActivePromo()">
+      <div class="promo-badge" [style.background]="getPromoBadgeColor()">
+        <span class="promo-text">{{ getPromoBadgeText() }}</span>
+
+        <!-- 🔹 Мини-лимит, если есть -->
+        <div class="promo-limit-mini" *ngIf="hasPromoLimit()">
+          <span class="limit-remaining">{{ getPromoRemaining() }}</span>
+          <div class="limit-bar-tiny">
+            <div class="limit-fill-tiny" [style.width.%]="getPromoLimitPercent()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="actions">
       <span (click)="toggleFavorite($event, product.isFavorite)" [class.active]="product.isFavorite"
-        class="favorite-icon">
-        ❤
-      </span>
-      <span (click)="toggleCompare($event)" [class.active]="product.compare" class="compare-icon">
-        ⇄
-      </span>
+        class="favorite-icon">❤</span>
+      <span (click)="toggleCompare($event)" [class.active]="product.compare" class="compare-icon">⇄</span>
     </div>
   </div>
 
@@ -24,9 +36,31 @@
     <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
   </div>
 
-  <div class="content">
-    <span class="article">арт. {{ product.article }}</span>
-    <h4>{{ product.fullName }}</h4>
+<div class="content">
+  <span class="article">арт. {{ product.article }}</span>
+  <h4>{{ product.fullName }}</h4>
+
+  <!-- 🔹 Блок цены с поддержкой скидки -->
+  <div class="price-block">
+    
+    <!-- 🔹 Основная цена (со скидкой или обычная) -->
+    <div class="price-main">
+      <span class="current-price">
+        {{ getDisplayPrice() | number:'1.2-2' }} ₽
+      </span>
+      
+      <!-- 🔹 Старая цена (если есть скидка) -->
+      <span class="old-price" *ngIf="hasDiscount()">
+        {{ product.viewPrice | number:'1.2-2' }} ₽
+      </span>
+    </div>
+    
+    <!-- 🔹 Цена за единицу (если упаковка) -->
+    <!-- <div class="price-per-unit" *ngIf="product.packCount && product.packCount > 1">
+      за шт: {{ (getDisplayPrice() / product.packCount) | number:'1.2-2' }} ₽
+    </div> -->
+    
+  </div>
 
     <!-- Компактная информация о товаре -->
     <div class="product-meta" *ngIf="product.packCount || product.boxCount">

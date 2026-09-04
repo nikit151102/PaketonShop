@@ -14,6 +14,7 @@ import { ToastService } from '../../core/components/toast/toast.service';
 import { CurrentOrdersComponent } from '../../core/components/current-orders/current-orders.component';
 import { User, UserService } from '../../core/services/user.service';
 import { map, Observable } from 'rxjs';
+import { SalesProductsComponent } from './components/sales-products/sales-products.component';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +28,8 @@ import { map, Observable } from 'rxjs';
     CompareCommonBtnComponent,
     GroupsSectionComponent,
     TitleComponent,
-    CurrentOrdersComponent
+    CurrentOrdersComponent,
+    SalesProductsComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

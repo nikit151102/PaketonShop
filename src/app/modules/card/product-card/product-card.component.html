@@ -18,23 +18,21 @@
     <!-- Галерея с улучшенным дизайном -->
     <div class="gallery-wrapper">
       <div class="gallery-container">
-        <app-product-gallery
-          [images]="((productData && productData.productImageLinks.length > 0) ? productData.productImageLinks : ['no-image.png']) | cleanArrayLink"
-          class="product-gallery">
+        <app-product-gallery [images]="((productData && productData.productImageLinks?.length > 0) 
+    ? productData.productImageLinks 
+    : ['no-image.png']) | cleanArrayLink" [promoTag]="getActivePromoOrder()" class="product-gallery">
         </app-product-gallery>
       </div>
 
       <!-- Плавающие бейджи -->
       <div class="floating-badges">
+        <!-- 🔹 Бейдж избранного -->
         <span class="badge favorite-badge" *ngIf="productData.isFavorite">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
           В избранном
-        </span>
-        <span class="badge discount-badge" *ngIf="product.oldPrice">
-          -{{ calculateDiscount() }}%
         </span>
       </div>
     </div>
@@ -80,24 +78,52 @@
         </div>
 
         <div class="price-main">
-          <span class="current-price">{{ productData.viewPrice | number:'1.2-2' }} ₽</span>
+          <span class="current-price">{{ productData.viewPriceSale | number:'1.2-2' }} ₽</span>
+
+          <span class="old-price" *ngIf="hasDiscount()">
+            {{ productData.viewPrice | number:'1.2-2' }} ₽
+          </span>
+
           <span class="price-unit">/ {{ productData.measurementUnit?.shortName || 'шт' }}</span>
           <span class="pack-badge" *ngIf="productData.productBarCode && productData.productBarCode.coefficient">
             {{ productData.productBarCode.coefficient }} шт в упаковке
           </span>
         </div>
 
-        <!-- Калькулятор цен за единицу -->
         <div class="unit-prices" *ngIf="productData.productBarCode && productData.productBarCode.coefficient">
           <div class="unit-price-item">
             <span>За 1 шт:</span>
-            <strong>{{ (productData.viewPrice / productData.productBarCode.coefficient) | number:'1.2-2' }} ₽</strong>
+            <strong>{{ (productData.viewPriceSale / productData.productBarCode.coefficient) | number:'1.2-2' }}
+              ₽</strong>
           </div>
           <div class="unit-price-item" *ngIf="productData.boxCount">
             <span>Коробка ({{ productData.boxCount }} уп):</span>
-            <strong>{{ (productData.viewPrice * productData.boxCount) | number:'1.2-2' }} ₽</strong>
+            <strong>{{ (productData.viewPriceSale * productData.boxCount) | number:'1.2-2' }} ₽</strong>
           </div>
         </div>
+
+        <ng-container *ngIf="getActivePromoOrder() as promo">
+          <div class="promo-limit" *ngIf="promo.productCountSailLimit && promo.productCountSailLimit > 0">
+
+            <!-- 🔹 Обновлённый текст с пояснением -->
+            <div class="limit-text">
+              <span class="limit-available">
+                По акции доступно:
+                <strong>{{ promo.productCountSailLimit - (promo.productCountAlreadySailed || 0) }}</strong> из {{
+                promo.productCountSailLimit }} шт
+              </span>
+              <span class="limit-hint">
+                Остальное — по обычной цене
+              </span>
+            </div>
+
+            <div class="limit-bar">
+              <div class="limit-fill" [style.width.%]="getPromoLimitPercent(promo)"></div>
+            </div>
+
+          </div>
+        </ng-container>
+
       </div>
 
 
@@ -141,6 +167,7 @@
           </div>
         </div>
       </div>
+
 
       <!-- Блок действий (главный) -->
       <div class="action-card">
@@ -359,4 +386,7 @@
       </div>
     </div>
   </div>
+
+
+
 </div>

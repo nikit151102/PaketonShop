@@ -4,7 +4,7 @@
   @if (userId$ | async; as userId) {
   <app-current-orders></app-current-orders>
   }
-  
+
   <!-- Карусель -->
   <app-carousel-banner></app-carousel-banner>
 
@@ -23,10 +23,11 @@
   </section>
 
   <!-- Акции -->
-  <!-- <section id="section-sales" class="section">
-    <h2>Товары по акции</h2>
+  <section id="section-sales" class="section">
+    <app-title [title]="'Товары по акции'"
+      [description]="'Товары улетают за минуты. Торопитесь, пока есть в наличии!'"></app-title>
     <app-sales-products></app-sales-products>
-  </section> -->
+  </section>
   <!-- Индикация загрузки -->
 
   <!-- Популярные -->
