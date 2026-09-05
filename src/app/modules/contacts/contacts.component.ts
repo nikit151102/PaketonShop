@@ -25,7 +25,7 @@ export class ContactsComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
   readonly whatsapp = '+7 905 084-51-88';
   readonly email = 'paketon@bk.ru';
-  readonly vk = 'https://vk.com';
+  readonly vk = 'https://vk.ru/paketon_russia';
   readonly telegram = 'https://t.me';
   readonly address = 'г. Барнаул, Северный Власихинский, 39 (офис)';
 

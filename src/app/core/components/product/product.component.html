@@ -36,31 +36,26 @@
     <!-- <button class="quick-view" *ngIf="hovered" (click)="openQuickView()">👁 Быстрый просмотр</button> -->
   </div>
 
-<div class="content">
-  <span class="article">арт. {{ product.article }}</span>
-  <h4>{{ product.fullName }}</h4>
+  <div class="content">
+    <span class="article">арт. {{ product.article }}</span>
+    <h4>{{ product.fullName }}</h4>
 
-  <!-- 🔹 Блок цены с поддержкой скидки -->
-  <div class="price-block">
-    
-    <!-- 🔹 Основная цена (со скидкой или обычная) -->
-    <div class="price-main">
-      <span class="current-price">
-        {{ getDisplayPrice() | number:'1.2-2' }} ₽
-      </span>
-      
-      <!-- 🔹 Старая цена (если есть скидка) -->
-      <span class="old-price" *ngIf="hasDiscount()">
-        {{ product.viewPrice | number:'1.2-2' }} ₽
-      </span>
+    <!-- Блок цены с поддержкой скидки -->
+    <div class="price-block">
+
+      <!-- Основная цена (со скидкой или обычная) -->
+      <div class="price-main">
+        <span class="current-price">
+          {{ getDisplayPrice() | number:'1.2-2' }} ₽
+        </span>
+
+        <!-- Старая цена (если есть скидка) -->
+        <span class="old-price" *ngIf="hasDiscount()">
+          {{ getOldPrice() | number:'1.2-2' }} ₽
+        </span>
+      </div>
+
     </div>
-    
-    <!-- 🔹 Цена за единицу (если упаковка) -->
-    <!-- <div class="price-per-unit" *ngIf="product.packCount && product.packCount > 1">
-      за шт: {{ (getDisplayPrice() / product.packCount) | number:'1.2-2' }} ₽
-    </div> -->
-    
-  </div>
 
     <!-- Компактная информация о товаре -->
     <div class="product-meta" *ngIf="product.packCount || product.boxCount">

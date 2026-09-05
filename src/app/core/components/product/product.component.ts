@@ -791,33 +791,77 @@ export class ProductComponent implements OnInit, OnDestroy {
     document.body.style.overflow = 'auto';
   }
 
-  // Получаем первую активную акцию
+
+  private get isHomeCity(): boolean {
+    const userSelectedCity = StorageUtils.getLocalStorageCache('pktn_userCity');
+    return userSelectedCity === 'Барнаул';
+  }
+
+  // 2. Базовая цена (без скидок) для текущего контекста пользователя
+  private get basePrice(): number {
+    if (this.product.viewPrice === this.product.wholesalePrice ||
+      this.product.viewPrice === this.product.wholesalePriceDest) {
+      return this.isHomeCity
+        ? this.product.wholesalePrice        // Опт город
+        : this.product.wholesalePriceDest;   // Опт межгород
+    } else {
+      return this.isHomeCity
+        ? this.product.viewPrice             // Розница город
+        : (this.product.viewPriceDest || this.product.viewPrice); // Розница межгород
+    }
+  }
+
+  // 3. Акционная цена для текущего контекста (если акция активна и выгодна)
+  private get activeSalePrice(): number | null {
+    const promo = this.getActivePromo();
+    if (!promo) return null;
+
+    let salePrice = 0;
+
+    if (this.product.viewPrice === this.product.wholesalePrice ||
+      this.product.viewPrice === this.product.wholesalePriceDest) {
+      // Если для опта предусмотрены свои акционные цены
+      salePrice = this.isHomeCity
+        ? (this.product.wholesalePriceSale || 0)
+        : (this.product.wholesalePriceSaleDest || 0);
+    } else {
+      // Акция для розницы
+      salePrice = this.isHomeCity
+        ? (this.product.viewPriceSale || 0)
+        : (this.product.viewPriceSaleDest || this.product.viewPriceSale || 0);
+    }
+
+    // Скидка имеет смысл, только если акционная цена > 0 и строго меньше базовой
+    if (salePrice > 0 && salePrice < this.basePrice) {
+      return salePrice;
+    }
+
+    return null;
+  }
+
+  // 4. Есть ли скидка? (Для *ngIf в шаблоне)
+  hasDiscount(): boolean {
+    return this.activeSalePrice !== null;
+  }
+
+  // 5. Итоговая цена для отображения (со скидкой или базовая)
+  getDisplayPrice(): number {
+    return this.activeSalePrice ?? this.basePrice;
+  }
+
+  // 6. Старая цена для отображения (зачеркнутая)
+  getOldPrice(): number | null {
+    return this.hasDiscount() ? this.basePrice : null;
+  }
+
+  // Ваша логика получения акции (она написана хорошо, оставляем)
   getActivePromo(): any | null {
     if (!this.product?.promoOrders || !Array.isArray(this.product.promoOrders)) {
       return null;
     }
-
-    return this.product.promoOrders.find((p: any) =>
-      !p.isDeleted && p.isUse !== false
-    ) || null;
+    return this.product.promoOrders.find((p: any) => !p.isDeleted && p.isUse !== false) || null;
   }
 
-  // Есть ли скидка?
-  hasDiscount(): boolean {
-    const promo = this.getActivePromo();
-    if (!promo) return false;
-
-    // Скидка есть, если viewPriceSale меньше viewPrice и положителен
-    return this.product.viewPriceSale > 0 &&
-      this.product.viewPriceSale < this.product.viewPrice;
-  }
-
-  // Получаем цену для отображения (со скидкой или обычную)
-  getDisplayPrice(): number {
-    return this.hasDiscount()
-      ? this.product.viewPriceSale
-      : this.product.viewPrice;
-  }
 
   // Расчет процента скидки для бейджа
   getDiscountPercent(): number {
