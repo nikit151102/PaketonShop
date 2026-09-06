@@ -51,9 +51,18 @@
 
         <!-- Старая цена (если есть скидка) -->
         <span class="old-price" *ngIf="hasDiscount()">
-          {{ getOldPrice() | number:'1.2-2' }} ₽
+          {{ product.viewPrice | number:'1.2-2' }} ₽
+        </span>
+
+        <span class="old-price" *ngIf="hasWholesaleDiscount() && !hasDiscount()">
+          {{ getDisplayWholesalePrice() | number:'1.2-2' }} ₽
         </span>
       </div>
+
+      <!-- Цена за единицу (если упаковка) -->
+      <!-- <div class="price-per-unit" *ngIf="product.packCount && product.packCount > 1">
+      за шт: {{ (getDisplayPrice() / product.packCount) | number:'1.2-2' }} ₽
+    </div> -->
 
     </div>
 
