@@ -41,9 +41,9 @@
     <div class="products-wrapper" [class.disabled]="getGroupStatus(group) === 'completed'">
 
       <!-- 🔹 Overlay для завершённых акций (опционально) -->
-      <div class="group-overlay" *ngIf="getGroupStatus(group) === 'completed'">
+      <!-- <div class="group-overlay" *ngIf="getGroupStatus(group) === 'completed'">
         <span class="overlay-text">Акция завершена</span>
-      </div>
+      </div> -->
 
       <button class="scroll-btn scroll-left" (click)="scrollGroupLeft(group.id)" aria-label="Прокрутить влево"
         [disabled]="getGroupStatus(group) === 'completed'">
