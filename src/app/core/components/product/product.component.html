@@ -46,12 +46,12 @@
       <!-- Основная цена (со скидкой или обычная) -->
       <div class="price-main">
         <span class="current-price">
-          {{ getDisplayPrice() | number:'1.2-2' }} ₽
+          {{ getDisplayPrice | number:'1.2-2' }} ₽
         </span>
 
         <!-- Старая цена (если есть скидка) -->
         <span class="old-price" *ngIf="hasDiscount()">
-          {{ product.viewPrice | number:'1.2-2' }} ₽
+          {{ getDisplayOldPrice | number:'1.2-2' }} ₽
         </span>
 
         <span class="old-price" *ngIf="hasWholesaleDiscount() && !hasDiscount()">

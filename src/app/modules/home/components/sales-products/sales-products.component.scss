@@ -169,15 +169,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  pointer-events: auto !important;
+
+  &.disabled {
+    .scroll-btn {
+      pointer-events: auto !important;
+      opacity: 0.6;
+    }
+  }
 }
 
 .products-container {
   flex: 1;
-  overflow-x: auto;
+  overflow-x: auto !important;
   overflow-y: hidden;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 4px 0;
   scroll-snap-type: x mandatory;
+  outline: 1px dashed rgba(148, 163, 184, 0.3);
 
   &::-webkit-scrollbar {
     height: 6px;
@@ -209,7 +219,6 @@
   min-width: max-content;
 }
 
-// Индикатор загрузки ещё товаров
 .load-more-indicator {
   display: flex;
   align-items: center;
@@ -230,7 +239,7 @@
 .scroll-btn {
   width: 40px;
   height: 40px;
-  border: 1px solid;
+  border: 1px solid var(--border);
   border-radius: 50%;
   background: var(--bg);
   color: var(--text-secondary);
@@ -240,20 +249,36 @@
   justify-content: center;
   box-shadow: var(--shadow);
   transition: var(--transition);
-  z-index: 2;
+  z-index: 100 !important;
+  position: relative !important;
+  pointer-events: auto !important;
   flex-shrink: 0;
   opacity: 0.85;
 
-  &:hover {
+  &:hover:not(.disabled) {
     background: var(--primary);
     color: white;
     transform: scale(1.05);
     box-shadow: var(--shadow-hover);
     opacity: 1;
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px;
   }
 
-  &:active {
+  &:active:not(.disabled) {
     transform: scale(0.98);
+  }
+
+  &.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+      background: var(--bg);
+      color: var(--text-secondary);
+      outline: none !important;
+    }
   }
 
   svg {
@@ -280,7 +305,6 @@
   }
 }
 
-// Адаптив
 @media (max-width: 768px) {
   :host {
     padding: 16px 0;
@@ -333,7 +357,7 @@
   .scroll-btn {
     width: 36px;
     height: 36px;
-    opacity: 1; // Всегда видимы на мобильных
+    opacity: 1;
 
     svg {
       width: 18px;
@@ -369,7 +393,6 @@
   }
 }
 
-// Плавное появление карточек
 app-product {
   max-width: 220px;
   scroll-snap-align: start;
@@ -385,5 +408,17 @@ app-product {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
   }
 }

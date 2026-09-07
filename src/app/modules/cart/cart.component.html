@@ -210,17 +210,52 @@
           <div class="sidebar-sticky">
             <!-- Блок итогов -->
             <div class="summary-card">
-              <div class="summary-total">
-                <span>Итого</span>
-                <span class="total-amount">{{ total | number:'1.0-2':'ru' }} ₽</span>
+              <div class="summary-header">
+                <h3>Итого</h3>
+             
               </div>
 
-              <div class="promo-code" *ngIf="showPromo">
-                <input type="text" placeholder="Промокод" [(ngModel)]="promoCode" (keyup.enter)="applyPromo()"
-                  class="promo-input">
-                <button class="promo-btn" (click)="applyPromo()" [disabled]="!promoCode.trim()">
-                  Применить
-                </button>
+              <div class="summary-items">
+                <div class="summary-row">
+                  <span>Товары</span>
+                  <span>{{ subtotal | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+
+                <div class="summary-row" *ngIf="retailTotal > subtotal">
+                  <span class="retail-label">Розничная цена</span>
+                  <span class="retail-value">{{ retailTotal | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+
+                <div class="summary-row discount" *ngIf="totalSaving > 0">
+                  <span>Скидка</span>
+                  <span>−{{ totalSaving | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+
+                <div class="summary-row" *ngIf="deliveryCost > 0">
+                  <span>Доставка</span>
+                  <span>{{ deliveryCost | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+              </div>
+
+              <div class="summary-divider"></div>
+
+              <div class="summary-total">
+                <div class="total-row">
+                  <span>К оплате</span>
+                  <span class="total-amount">{{ total | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+
+                <div class="saving-row" *ngIf="totalSaving > 0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                  </svg>
+                  <span>Вы экономите {{ totalSaving | number:'1.2-2':'ru' }} ₽</span>
+                </div>
+
+                <div class="retail-crossed" *ngIf="retailTotal > subtotal">
+                  <span>~~{{ retailTotal | number:'1.2-2':'ru' }} ₽~~</span>
+                </div>
               </div>
 
               <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="!canProceedToCheckout()">

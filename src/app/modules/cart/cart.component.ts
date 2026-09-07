@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ProductComponent } from './product/product.component';
@@ -33,36 +33,29 @@ export class CartComponent implements OnInit, OnDestroy {
   popupInputValue = '';
   selectedProducts: Set<string> = new Set();
 
-  // Состояния
   isLoading = false;
   isPopupLoading = false;
   error: string | null = null;
   notification: { message: string; type: 'success' | 'error' | 'warning' } | null = null;
-  step = 1; // 1 - корзина, 2 - оформление, 3 - оплата
+  step = 1;
 
-  // Фильтры
   filter: 'all' | 'available' | 'discount' = 'all';
-
-  // Рекомендации
   recommendedProducts: any[] = [];
-
-  // Промокод
   promoCode = '';
   showPromo = false;
   appliedPromo: string | null = null;
-
-  // Доставка
   deliveryCost = 0;
   deliveryInfoOpen = false;
-
-  // Quick view
   quickViewProduct: any = null;
 
-  // Дополнительные состояния
   totalItems = 0;
   subtotal = 0;
   totalDiscount = 0;
   total = 0;
+  retailTotal = 0;
+  totalSaving = 0;
+  hasActivePromo = false;
+  promoPercent = 0;
 
   private destroy$ = new Subject<void>();
   private quantityUpdate$ = new Subject<{ productId: string; basketId: string; quantity: number }>();
@@ -73,8 +66,8 @@ export class CartComponent implements OnInit, OnDestroy {
     private deliveryOrderService: DeliveryOrderService,
     public router: Router,
     private authService: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {
-    // Дебаунс для обновления количества
     this.quantityUpdate$
       .pipe(
         debounceTime(500),
@@ -101,7 +94,7 @@ export class CartComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.showNotification('Не удалось обновить количество', 'error');
-          this.loadActiveBasket(true); // Перезагружаем для синхронизации
+          this.loadActiveBasket(true);
         }
       });
   }
@@ -116,29 +109,21 @@ export class CartComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Загружаем корзины из кэша
   private loadBasketsFromCache(): void {
     const cachedBaskets = StorageUtils.getMemoryCache(memoryCacheEnvironment.baskets.key);
 
     if (cachedBaskets && Array.isArray(cachedBaskets)) {
       this.baskets = cachedBaskets;
-
-      // Найти активную корзину
       this.activeBasket = this.baskets.find(
         (basket: any) => basket.isActiveBasket === true
       );
-
-      // Если активной корзины нет, взять первую
       if (!this.activeBasket && this.baskets.length > 0) {
         this.activeBasket = this.baskets[0];
       }
-
-      // Загрузить полную информацию об активной корзине
       if (this.activeBasket) {
         this.loadActiveBasket();
       }
     } else {
-      // Если нет в кэше, загружаем с сервера
       this.loadBaskets();
     }
   }
@@ -161,21 +146,13 @@ export class CartComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.baskets = res.data;
-
-          // Сохраняем в кэш
           StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
-
-          // Найти активную корзину
           this.activeBasket = this.baskets.find(
             (basket: any) => basket.isActiveBasket === true
           );
-
-          // Если активной корзины нет, взять первую
           if (!this.activeBasket && this.baskets.length > 0) {
             this.activeBasket = this.baskets[0];
           }
-
-          // Загрузить полную информацию об активной корзине
           if (this.activeBasket) {
             this.loadActiveBasket();
           }
@@ -188,7 +165,6 @@ export class CartComponent implements OnInit, OnDestroy {
 
   loadActiveBasket(updateCache: boolean = false): void {
     if (!this.activeBasket) return;
-
     this.isLoading = true;
 
     this.basketsService.getBasketById(this.activeBasket.id)
@@ -199,9 +175,7 @@ export class CartComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (value: any) => {
           this.activeBasket = value.data;
-
           if (updateCache) {
-            // Обновляем кэш
             const basketIndex = this.baskets.findIndex(b => b.id === this.activeBasket.id);
             if (basketIndex !== -1) {
               this.baskets[basketIndex] = {
@@ -212,7 +186,6 @@ export class CartComponent implements OnInit, OnDestroy {
               StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
             }
           }
-
           this.selectedProducts.clear();
           this.calculateTotals();
         },
@@ -224,11 +197,8 @@ export class CartComponent implements OnInit, OnDestroy {
 
   selectBasket(basket: UserBasket): void {
     if (this.activeBasket?.id === basket.id) return;
-
     this.activeBasket = basket;
     this.loadActiveBasket();
-
-    // Обновляем активную корзину в кэше
     this.baskets = this.baskets.map(b => ({
       ...b,
       isActiveBasket: b.id === basket.id
@@ -257,7 +227,6 @@ export class CartComponent implements OnInit, OnDestroy {
   confirmPopupAction(): void {
     const value = this.popupInputValue.trim();
     if (!value) return;
-
     if (this.popupMode === 'create') {
       this.createBasket(value);
     } else {
@@ -267,12 +236,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   private createBasket(name: string): void {
     this.isPopupLoading = true;
-
-    const dto: CreateBasketDto = {
-      name,
-      products: [],
-    };
-
+    const dto: CreateBasketDto = { name, products: [] };
     this.basketsService.createBasket(dto)
       .pipe(
         takeUntil(this.destroy$),
@@ -283,10 +247,7 @@ export class CartComponent implements OnInit, OnDestroy {
           const newBasket = res.data;
           this.baskets.push(newBasket);
           this.activeBasket = newBasket;
-
-          // Обновляем кэш
           StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
-
           this.closePopup();
           this.showNotification('Корзина успешно создана', 'success');
         },
@@ -299,9 +260,6 @@ export class CartComponent implements OnInit, OnDestroy {
   private updateBasketName(name: string): void {
     if (!this.activeBasket) return;
     this.isPopupLoading = true;
-
-    // TODO: Добавить API для обновления имени корзины
-    // Пока обновляем локально
     setTimeout(() => {
       this.activeBasket.name = name;
       const basketIndex = this.baskets.findIndex(b => b.id === this.activeBasket.id);
@@ -309,7 +267,6 @@ export class CartComponent implements OnInit, OnDestroy {
         this.baskets[basketIndex].name = name;
         StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
       }
-
       this.isPopupLoading = false;
       this.closePopup();
       this.showNotification('Название корзины обновлено', 'success');
@@ -318,15 +275,12 @@ export class CartComponent implements OnInit, OnDestroy {
 
   deleteBasket(basket: any, event: Event): void {
     event.stopPropagation();
-
     if (this.baskets.length <= 1) {
       this.showNotification('Нельзя удалить последнюю корзину', 'warning');
       return;
     }
-
     if (confirm(`Удалить корзину "${basket.name}"?`)) {
       this.isLoading = true;
-
       this.basketsService.deleteBasket(basket.id)
         .pipe(
           takeUntil(this.destroy$),
@@ -335,15 +289,11 @@ export class CartComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.baskets = this.baskets.filter(b => b.id !== basket.id);
-
             if (this.activeBasket?.id === basket.id) {
               this.activeBasket = this.baskets[0];
               this.loadActiveBasket();
             }
-
-            // Обновляем кэш
             StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
-
             this.showNotification('Корзина удалена', 'success');
           },
           error: (err) => {
@@ -356,7 +306,6 @@ export class CartComponent implements OnInit, OnDestroy {
   duplicateBasket(): void {
     if (!this.activeBasket) return;
     this.isLoading = true;
-
     const dto: CreateBasketDto = {
       name: `${this.activeBasket.name} (копия)`,
       products: this.activeBasket.products?.map((p: any) => ({
@@ -364,7 +313,6 @@ export class CartComponent implements OnInit, OnDestroy {
         count: p.count
       })) || [],
     };
-
     this.basketsService.createBasket(dto)
       .pipe(
         takeUntil(this.destroy$),
@@ -375,7 +323,6 @@ export class CartComponent implements OnInit, OnDestroy {
           const newBasket = res.data;
           this.baskets.push(newBasket);
           this.activeBasket = newBasket;
-
           StorageUtils.setMemoryCache(memoryCacheEnvironment.baskets.key, this.baskets);
           this.showNotification('Корзина продублирована', 'success');
         },
@@ -385,7 +332,6 @@ export class CartComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Работа с товарами
   isSelected(id: string): boolean {
     return this.selectedProducts.has(id);
   }
@@ -400,7 +346,6 @@ export class CartComponent implements OnInit, OnDestroy {
 
   selectAll(): void {
     if (!this.activeBasket?.products) return;
-
     this.activeBasket.products.forEach((p: any) => {
       this.selectedProducts.add(p.id);
     });
@@ -408,12 +353,9 @@ export class CartComponent implements OnInit, OnDestroy {
 
   removeSelectedProducts(): void {
     if (this.selectedProducts.size === 0) return;
-
     const productIds = Array.from(this.selectedProducts);
-
     if (confirm(`Удалить ${productIds.length} товар(ов) из корзины?`)) {
       this.isLoading = true;
-
       const requests = productIds.map(productId =>
         this.basketsService.changeProductFromBasket(
           this.activeBasket.id,
@@ -422,7 +364,6 @@ export class CartComponent implements OnInit, OnDestroy {
         )
       );
       let completed = 0;
-
       const processNext = (index: number) => {
         if (index >= requests.length) {
           this.isLoading = false;
@@ -431,7 +372,6 @@ export class CartComponent implements OnInit, OnDestroy {
           this.showNotification(`${productIds.length} товаров удалено из корзины`, 'success');
           return;
         }
-
         requests[index].pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             completed++;
@@ -447,20 +387,16 @@ export class CartComponent implements OnInit, OnDestroy {
           }
         });
       };
-
       processNext(0);
     }
   }
 
   onQuantityChange(event: { id: string; barcodeId: string; quantity: number }): void {
     if (!this.activeBasket?.products || !this.activeBasket.id) return;
-
     const product = this.activeBasket.products.find((p: any) => p.id === event.id);
     if (product) {
       product.count = event.quantity;
       this.calculateTotals();
-
-      // Отправляем с дебаунсом для API
       this.quantityUpdate$.next({
         productId: event.barcodeId,
         basketId: this.activeBasket.id,
@@ -470,7 +406,6 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   onProductRemove(data: any): void {
-
     this.isLoading = true;
     this.basketsService.changeProductFromBasket(this.activeBasket.id, data.productId, 0)
       .pipe(
@@ -479,7 +414,6 @@ export class CartComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: () => {
-          // this.selectedProducts.delete(id);
           this.loadActiveBasket(true);
           this.showNotification('Товар удален из корзины', 'success');
         },
@@ -499,13 +433,11 @@ export class CartComponent implements OnInit, OnDestroy {
 
   onAddRelated(item: any): void {
     if (!this.activeBasket?.id) return;
-
     const dto: BasketProductDto = {
       productId: item.id,
       basketId: this.activeBasket.id,
       count: 1
     };
-
     this.basketsService.addProduct(dto)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -519,14 +451,12 @@ export class CartComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Фильтрация
   setFilter(filter: 'all' | 'available' | 'discount'): void {
     this.filter = filter;
   }
 
   get filteredProducts(): any[] {
     if (!this.activeBasket?.products) return [];
-
     switch (this.filter) {
       case 'available':
         return this.activeBasket.products.filter((p: any) => p.product?.available !== false);
@@ -537,57 +467,89 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Расчеты
-  private calculateTotals(): void {
-    if (!this.activeBasket?.products) {
-      this.totalItems = 0;
-      this.subtotal = 0;
-      this.totalDiscount = 0;
-      this.total = 0;
-      return;
-    }
-
-    let items = 0;
-    let subtotal = 0;
-    let discount = 0;
-
-    this.activeBasket.products.forEach((product: any) => {
-      const count = product.count || 1;
-      items += count;
-
-      const originalPrice = product.product?.retailPrice || 0;
-      const discountPercent = product.product?.discountPercentage || 0;
-      this.total += product.totalCost
-      const finalPrice = discountPercent > 0 ? originalPrice * (1 - discountPercent / 100) : originalPrice;
-
-      subtotal += originalPrice * count;
-      discount += (originalPrice - finalPrice) * count;
-    });
-
-    this.totalItems = items;
-    this.subtotal = subtotal;
-    this.totalDiscount = discount;
+  private get isHomeCity(): boolean {
+    const userSelectedCity = StorageUtils.getLocalStorageCache('pktn_userCity');
+    return userSelectedCity === 'Барнаул';
   }
 
-  // Промокод
+private calculateTotals(): void {
+  if (!this.activeBasket?.products) {
+    this.totalItems = 0;
+    this.subtotal = 0;
+    this.totalDiscount = 0;
+    this.total = 0;
+    this.retailTotal = 0;
+    this.totalSaving = 0;
+    this.hasActivePromo = false;
+    this.promoPercent = 0;
+    return;
+  }
+
+  let items = 0;
+  let subtotal = 0;
+  let retailSubtotal = 0;
+  let hasPromo = false;
+  let maxPromoPercent = 0;
+
+  this.activeBasket.products.forEach((product: any) => {
+    const count = product.count || 1;
+    const coefficient = product.productBarCode?.coefficient || 1;
+    items += count;
+
+    // 🔹 Розничная цена за единицу (в зависимости от города)
+    const retailPricePerUnit = this.isHomeCity
+      ? (product.product?.retailPrice || 0)
+      : (product.product?.retailPriceDest || 0);
+    
+    // 🔹 Розничная цена за упаковку
+    const retailPackPrice = retailPricePerUnit * coefficient;
+
+    // 🔹 Фактическая цена за упаковку (priceSale если валидна)
+    let finalPackPrice = product.price || 0;
+    if (product.priceSale !== null && 
+        product.priceSale > 0 && 
+        product.priceSale < finalPackPrice) {
+      finalPackPrice = product.priceSale;
+    }
+
+    // 🔹 Проверяем акцию для бейджа
+    if (product.product?.promoOrders?.length > 0) {
+      const promo = product.product.promoOrders.find((p: any) =>
+        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      );
+      if (promo?.salePercent && promo.salePercent > 0) {
+        hasPromo = true;
+        const percent = Math.min(99, Math.round(Math.abs(promo.salePercent) * 100));
+        if (percent > maxPromoPercent) maxPromoPercent = percent;
+      }
+    }
+
+    // 🔹 Считаем итоги
+    retailSubtotal += retailPackPrice * count;
+    subtotal += finalPackPrice * count;
+  });
+
+  this.totalItems = items;
+  this.subtotal = subtotal;
+  this.total = subtotal + this.deliveryCost;
+  this.retailTotal = retailSubtotal;
+  this.totalSaving = Math.max(0, retailSubtotal - subtotal);
+  this.hasActivePromo = hasPromo;
+  this.promoPercent = maxPromoPercent;
+  this.cdr?.markForCheck();
+}
+
   applyPromo(): void {
     if (!this.promoCode.trim()) return;
-
-    // TODO: Проверка промокода через API
     this.appliedPromo = this.promoCode;
     this.promoCode = '';
     this.showPromo = false;
-
-    // Временно добавим тестовую скидку
     this.totalDiscount += 100;
     this.calculateTotals();
-
     this.showNotification('Промокод применен!', 'success');
   }
 
-  // Рекомендации
   private loadRecommendations(): void {
-    // TODO: Загружать реальные рекомендации
     this.recommendedProducts = [
       { id: '1', name: 'Товар 1', price: 1990, image: '' },
       { id: '2', name: 'Товар 2', price: 2990, image: '' },
@@ -597,19 +559,16 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   refreshRecommendations(): void {
-    // Анимация обновления
     this.loadRecommendations();
   }
 
   addRecommendedToCart(item: any): void {
     if (!this.activeBasket?.id) return;
-
     const dto: BasketProductDto = {
       productId: item.id,
       basketId: this.activeBasket.id,
       count: 1
     };
-
     this.basketsService.addProduct(dto)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -628,21 +587,16 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   proceedToCheckout(): void {
-
     if (StorageUtils.getLocalStorageCache(localStorageEnvironment.isGuestToken.key) == true) {
       this.authService.setRedirectingToProfile(false);
       this.authService.changeVisible(true);
       return;
     }
-
-
     if (!this.canProceedToCheckout()) {
       this.showNotification('Добавьте товары в корзину', 'warning');
       return;
     }
-
     const productPositionIds = this.activeBasket.products.map((product: any) => product.id);
-
     this.deliveryOrderService.createOrder({
       'userBasketId': this.activeBasket.id,
       'orderStatus': 0,
@@ -652,10 +606,8 @@ export class CartComponent implements OnInit, OnDestroy {
     });
   }
 
-
   private showNotification(message: string, type: 'success' | 'error' | 'warning'): void {
     this.notification = { message, type };
-
     setTimeout(() => {
       this.notification = null;
       this.cdr?.markForCheck();
@@ -668,11 +620,6 @@ export class CartComponent implements OnInit, OnDestroy {
 
   trackByBasketId(index: number, item: any): string {
     return item.id;
-  }
-
-  private cdr: any;
-  setChangeDetectorRef(cdr: any): void {
-    this.cdr = cdr;
   }
 
   goToCatalog(): void {

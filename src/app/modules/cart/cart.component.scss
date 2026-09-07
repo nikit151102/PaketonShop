@@ -5,22 +5,230 @@
 }
 
 // Цветовая схема
+// 🔹 Цветовая палитра
 $primary: #3C8A27;
 $primary-light: #4CAF50;
 $primary-dark: #2D6A1F;
 $primary-gradient: linear-gradient(135deg, $primary, $primary-dark);
+
 $success: #10b981;
+$success-light: #d1fae5;
+$success-dark: #065f46;
+
 $danger: #ef4444;
+$danger-light: #fee2e2;
+$danger-dark: #991b1b;
+
 $warning: #f59e0b;
+$warning-light: #fef3c7;
+$warning-dark: #92400e;
+
+$info: #3b82f6;
+$info-light: #dbeafe;
+$info-dark: #1e40af;
+
+// 🔹 Текст
 $text-primary: #1f2937;
 $text-secondary: #6b7280;
+$text-muted: #9ca3af;
+$text-white: #ffffff;
+
+// 🔹 Фон и границы
 $bg-light: #f9fafb;
+$bg-white: #ffffff;
 $border-light: #e5e7eb;
+$border-medium: #d1d5db;
+$border-dark: #9ca3af;
+
+// 🔹 Тени
 $shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
 $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
 $shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.16);
+
+// 🔹 Радиусы
+$border-radius-sm: 8px;
 $border-radius: 16px;
+$border-radius-lg: 24px;
+$border-radius-full: 9999px;
+
+// 🔹 Переходы
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: all 0.15s ease;
+$transition-slow: all 0.5s ease;
+
+// 🔹 Отступы
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// 🔹 Шрифты
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-xxl: 24px;
+$font-size-xxxl: 32px;
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// 🔹 Z-index слои
+$z-index-dropdown: 100;
+$z-index-sticky: 200;
+$z-index-modal-overlay: 1000;
+$z-index-modal: 1001;
+$z-index-toast: 1100;
+$z-index-tooltip: 1200;
+
+// 🔹 Брейкпоинты (для медиа-запросов)
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-xxl: 1536px;
+
+// 🔹 Миксины для удобства
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin card-shadow {
+  box-shadow: $shadow-sm;
+  transition: $transition;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: $transition;
+  border: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $primary-gradient;
+  color: $text-white;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: $bg-light;
+  color: $text-primary;
+  border: 1px solid $border-light;
+
+  &:hover:not(:disabled) {
+    background: darken($bg-light, 3%);
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  background: $danger;
+  color: $text-white;
+
+  &:hover:not(:disabled) {
+    background: $danger-dark;
+  }
+}
+
+@mixin saving-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, rgba($success, 0.15), rgba($success, 0.05));
+  border-radius: 20px;
+  color: $success;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+@mixin price-old {
+  color: $text-muted;
+  text-decoration: line-through;
+  font-weight: $font-weight-normal;
+}
+
+@mixin price-current {
+  color: $primary;
+  font-weight: $font-weight-bold;
+}
+
+@mixin responsive-padding {
+  padding: $spacing-lg;
+
+  @media (max-width: $breakpoint-md) {
+    padding: $spacing-md;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-sm;
+  }
+}
+
+// 🔹 Утилитарные классы (можно вынести в отдельный файл)
+
+.text-primary { color: $text-primary; }
+.text-secondary { color: $text-secondary; }
+.text-muted { color: $text-muted; }
+.text-success { color: $success; }
+.text-danger { color: $danger; }
+.text-warning { color: $warning; }
+.text-white { color: $text-white; }
+
+.bg-light { background: $bg-light; }
+.bg-white { background: $bg-white; }
+.bg-primary { background: $primary; }
+.bg-success { background: $success; }
+
+.border-light { border-color: $border-light; }
+.border-medium { border-color: $border-medium; }
+
+.shadow-sm { box-shadow: $shadow-sm; }
 
 // Основной контейнер
 .cart-container {
@@ -811,17 +1019,34 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
+
 .summary-card {
   background: white;
   border-radius: $border-radius;
   padding: 24px;
   box-shadow: $shadow-sm;
 
-  h3 {
-    margin: 0 0 20px;
-    font-size: 18px;
-    font-weight: 600;
-    color: $text-primary;
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .promo-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
   }
 
   .summary-items {
@@ -836,6 +1061,18 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       &.discount {
         color: $success;
+        font-weight: 500;
+      }
+
+      .retail-label {
+        color: $text-muted;
+        font-size: 13px;
+      }
+
+      .retail-value {
+        color: $text-muted;
+        font-size: 13px;
+        text-decoration: line-through;
       }
 
       span:last-child {
@@ -844,19 +1081,48 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
+  .summary-divider {
+    height: 1px;
+    background: $border-light;
+    margin: 20px 0;
+  }
+
   .summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    font-size: 18px;
-    font-weight: 600;
-    color: $text-primary;
     margin-bottom: 24px;
 
-    .total-amount {
-      font-size: 24px;
-      color: $primary;
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: $text-primary;
+      margin-bottom: 8px;
+
+      .total-amount {
+        font-size: 24px;
+        color: $primary;
+      }
+    }
+
+    .saving-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: $success;
+      margin-bottom: 4px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .retail-crossed {
+      font-size: 13px;
+      color: $text-muted;
+      text-decoration: line-through;
     }
   }
 
@@ -943,6 +1209,26 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 }
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@media (max-width: 768px) {
+  .summary-card {
+    padding: 16px;
+
+    .summary-total {
+      .total-row {
+        .total-amount {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
 
 .info-card {
   background: white;
@@ -1166,6 +1452,240 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         width: 100%;
         justify-content: center;
       }
+    }
+  }
+}
+
+
+
+
+.summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .promo-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+  }
+
+  .summary-items {
+    margin-bottom: 16px;
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #6b7280;
+
+      &.discount {
+        color: #10b981;
+        font-weight: 500;
+      }
+
+      .retail-label {
+        color: #9ca3af;
+        font-size: 12px;
+      }
+
+      .retail-value {
+        color: #9ca3af;
+        font-size: 12px;
+        text-decoration: line-through;
+      }
+    }
+  }
+
+  .summary-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
+  }
+
+  .summary-total {
+    margin-bottom: 20px;
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 6px;
+
+      .total-amount {
+        font-size: 22px;
+        color: #3c8a27;
+      }
+    }
+
+    .saving-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #10b981;
+      margin-bottom: 4px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .retail-crossed {
+      font-size: 12px;
+      color: #9ca3af;
+      text-decoration: line-through;
+    }
+  }
+
+  .checkout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background: linear-gradient(135deg, #3c8a27, #2d6c1d);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(60, 138, 39, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .secure-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #10b981;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@media (max-width: 480px) {
+  .summary-card {
+    padding: 16px;
+
+    .summary-total {
+      .total-row {
+        .total-amount {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
+
+// 🔹 Адаптив для мобильных
+@media (max-width: 480px) {
+  .summary-card {
+    padding: 20px 16px;
+
+    .summary-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+
+      .items-count {
+        font-size: 12px;
+        padding: 3px 8px;
+      }
+    }
+
+    .price-row {
+      &--main {
+        .price-current {
+          font-size: 22px;
+        }
+
+        .price-old {
+          font-size: 12px;
+        }
+      }
+
+      &--saving {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 12px;
+
+        .saving-value {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .summary-total {
+      .total-label {
+        font-size: 14px;
+      }
+
+      .total-amount {
+        font-size: 22px;
+      }
+    }
+
+    .benefits-block {
+      .benefit-item {
+        font-size: 12px;
+
+        .benefit-icon {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .checkout-btn {
+      padding: 14px;
+      font-size: 15px;
     }
   }
 }

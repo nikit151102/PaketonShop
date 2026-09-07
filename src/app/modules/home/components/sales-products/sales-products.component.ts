@@ -13,13 +13,14 @@ import { ProductComponent } from '../../../../core/components/product/product.co
 import { PromoOrderGroupService } from '../../../../core/api/promo-order-group.service';
 import { ProductsService } from '../../../../core/services/products.service';
 import { PromoOrderGroupWithState } from '../../../../core/interfaces/promo.interface';
-import { fromEvent, merge, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, throttleTime } from 'rxjs/operators';
+import { fromEvent, Subscription } from 'rxjs';
+import { debounceTime, throttleTime } from 'rxjs/operators';
 
 type PromoGroupStatus = 'active' | 'upcoming' | 'completed';
 
 @Component({
   selector: 'app-sales-products',
+  standalone: true,
   imports: [CommonModule, ProductComponent],
   templateUrl: './sales-products.component.html',
   styleUrl: './sales-products.component.scss',
@@ -32,22 +33,20 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
 
   private autoScrollIntervals: Map<string, any> = new Map();
   private scrollSubscriptions: Map<string, Subscription> = new Map();
-  private readonly CARD_WIDTH = 280; // 🔹 Приблизительная ширина карточки + отступ
-  private readonly AUTO_SCROLL_DELAY = 4000; // 🔹 Пауза между авто-скроллами (мс)
-  private readonly AUTO_SCROLL_AMOUNT = 280; // 🔹 На сколько пикселей скроллить (одна карточка)
-  private readonly SCROLL_THRESHOLD = 100; // 🔹 Сколько пикселей до конца для подгрузки
+  private readonly CARD_WIDTH = 280;
+  private readonly AUTO_SCROLL_DELAY = 4000;
+  private readonly AUTO_SCROLL_AMOUNT = 280;
+  private readonly SCROLL_THRESHOLD = 100;
 
   private promoOrderGroupService = inject(PromoOrderGroupService);
   private productsService = inject(ProductsService);
-
 
   ngOnInit(): void {
     this.loadPromoGroups();
   }
 
   ngAfterViewInit(): void {
-    // 🔹 Инициализируем скролл-слушатели после отрисовки
-    setTimeout(() => this.initGroupScrolls(), 200);
+    setTimeout(() => this.initGroupScrolls(), 300);
   }
 
   private loadPromoGroups(): void {
@@ -61,37 +60,31 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
             .filter((g: any) => !g.isDeleted)
             .map((group: any) => ({
               ...group,
-              // 🔹 Инициализация состояния пагинации
               productsPage: 0,
               productsPageSize: 10,
               hasMoreProducts: true,
               isLoadingMore: false,
               totalProducts: 0,
-              // 🔹 Инициализация состояния авто-скролла
               autoScrollEnabled: true,
               lastUserScroll: Date.now(),
-              // 🔹 Массив товаров для отображения
               products: [] as any[]
             })) as PromoOrderGroupWithState[];
 
           this.promoGroups = groups;
           this.isLoading = false;
 
-          // 🔹 Загружаем первые 10 товаров для каждой группы
           groups.forEach((group, index) => {
             setTimeout(() => {
               this.loadProductsForGroup(group.id, 0);
-            }, index * 150); // 🔹 Небольшая задержка между запросами
+            }, index * 150);
           });
         },
         error: (err) => {
-          console.error('Ошибка загрузки групп акций:', err);
           this.isLoading = false;
         },
       });
   }
 
-  // 🔹 Загрузка товаров для конкретной группы
   loadProductsForGroup(groupId: string, page: number): void {
     const group: any = this.promoGroups.find(g => g.id === groupId);
     if (!group || !group.hasMoreProducts || group.isLoadingMore) return;
@@ -99,16 +92,8 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     group.isLoadingMore = true;
 
     const filters = [
-      {
-        field: 'Text',
-        values: [],
-        type: 0,
-      },
-      {
-        field: 'PromoOrders.Id',
-        values: [groupId],
-        type: 11,
-      }
+      { field: 'Text', values: [], type: 0 },
+      { field: 'PromoOrders.Id', values: [groupId], type: 11 }
     ];
 
     this.productsService
@@ -118,10 +103,8 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
           const newProducts = res.data || [];
 
           if (page === 0) {
-            // 🔹 Первая страница — заменяем массив
             group.products = newProducts;
           } else {
-            // 🔹 Последующие страницы — добавляем к существующим
             group.products = [...group.products, ...newProducts];
           }
 
@@ -130,21 +113,18 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
           group.productsPage = page + 1;
           group.isLoadingMore = false;
 
-          // 🔹 После загрузки пересчитываем ширину и запускаем авто-скролл
           setTimeout(() => {
             this.updateGroupScroll(groupId);
             this.startAutoScroll(groupId);
           }, 100);
         },
         error: (err) => {
-          console.error(`Ошибка загрузки товаров для группы ${groupId}:`, err);
           group.isLoadingMore = false;
           group.hasMoreProducts = false;
         },
       });
   }
 
-  // 🔹 Инициализация скролл-слушателей для каждой группы
   private initGroupScrolls(): void {
     this.groupContainers.forEach((containerRef, index) => {
       const groupId = this.promoGroups[index]?.id;
@@ -152,7 +132,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
 
       const container = containerRef.nativeElement as HTMLElement;
 
-      // 🔹 Отслеживаем скролл пользователя
       const scroll$ = fromEvent(container, 'scroll').pipe(
         debounceTime(150),
         throttleTime(200)
@@ -163,22 +142,17 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
       });
 
       this.scrollSubscriptions.set(groupId, subscription);
-
-      // 🔹 Запускаем авто-скролл после инициализации
       setTimeout(() => this.startAutoScroll(groupId), 1000);
     });
   }
 
-  // 🔹 Обработка скролла внутри группы
   private onGroupScroll(groupId: string, container: HTMLElement): void {
     const group = this.promoGroups.find(g => g.id === groupId);
     if (!group) return;
 
-    // 🔹 Фиксируем время последнего скролла пользователя
     group.lastUserScroll = Date.now();
     group.autoScrollEnabled = false;
 
-    // 🔹 Проверяем, нужно ли подгрузить ещё товары
     const scrollLeft = container.scrollLeft;
     const scrollWidth = container.scrollWidth;
     const clientWidth = container.clientWidth;
@@ -188,7 +162,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
       this.loadProductsForGroup(groupId, group.productsPage);
     }
 
-    // 🔹 Возвращаем авто-скролл через 5 секунд бездействия
     setTimeout(() => {
       if (Date.now() - group.lastUserScroll >= 5000) {
         group.autoScrollEnabled = true;
@@ -196,9 +169,7 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     }, 5000);
   }
 
-  // 🔹 Запуск авто-скролла для группы
   private startAutoScroll(groupId: string): void {
-    // 🔹 Останавливаем предыдущий интервал, если есть
     this.stopAutoScroll(groupId);
 
     const group = this.promoGroups.find(g => g.id === groupId);
@@ -213,27 +184,20 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
       const clientWidth = container.clientWidth;
       const maxScroll = scrollWidth - clientWidth;
 
-      // 🔹 Если товаров мало или уже в конце — не скроллим
       if (scrollWidth <= clientWidth + 10) return;
 
       const currentScroll = container.scrollLeft;
 
-      // 🔹 Если дошли до конца — возвращаемся в начало
       if (currentScroll >= maxScroll - 10) {
         container.scrollTo({ left: 0, behavior: 'smooth' });
       } else {
-        // 🔹 Скроллим на одну карточку вперёд
-        container.scrollBy({
-          left: this.AUTO_SCROLL_AMOUNT,
-          behavior: 'smooth'
-        });
+        container.scrollBy({ left: this.AUTO_SCROLL_AMOUNT, behavior: 'smooth' });
       }
     }, this.AUTO_SCROLL_DELAY);
 
     this.autoScrollIntervals.set(groupId, interval);
   }
 
-  // 🔹 Остановка авто-скролла для группы
   private stopAutoScroll(groupId: string): void {
     const interval = this.autoScrollIntervals.get(groupId);
     if (interval) {
@@ -242,45 +206,41 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  // 🔹 Обновление параметров скролла после загрузки товаров
   private updateGroupScroll(groupId: string): void {
     const index = this.promoGroups.findIndex(g => g.id === groupId);
     const containerRef = this.groupContainers?.toArray()[index];
     if (!containerRef) return;
-
-    // 🔹 Можно добавить логику пересчёта, если нужно
   }
 
-  // 🔹 Ручная прокрутка влево
-  scrollGroupLeft(groupId: string): void {
-    const index = this.promoGroups.findIndex(g => g.id === groupId);
-    const container = this.groupContainers?.toArray()[index]?.nativeElement as HTMLElement;
-
+  // 🔹 ИСПРАВЛЕННЫЕ МЕТОДЫ СКРОЛЛА
+  scrollGroupLeft(groupId: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const container = document.querySelector(`.products-container[data-group-id="${groupId}"]`) as HTMLElement;
     if (container) {
-      container.scrollBy({ left: -this.CARD_WIDTH, behavior: 'smooth' });
+      container.scrollLeft = Math.max(0, container.scrollLeft - this.CARD_WIDTH);
       this.pauseAutoScroll(groupId);
     }
   }
 
-  // 🔹 Ручная прокрутка вправо
-  scrollGroupRight(groupId: string): void {
-    const index = this.promoGroups.findIndex(g => g.id === groupId);
-    const container = this.groupContainers?.toArray()[index]?.nativeElement as HTMLElement;
-
+  scrollGroupRight(groupId: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const container = document.querySelector(`.products-container[data-group-id="${groupId}"]`) as HTMLElement;
     if (container) {
-      container.scrollBy({ left: this.CARD_WIDTH, behavior: 'smooth' });
+      container.scrollLeft = container.scrollLeft + this.CARD_WIDTH;
       this.pauseAutoScroll(groupId);
     }
   }
 
-  // 🔹 Пауза авто-скролла при взаимодействии
   private pauseAutoScroll(groupId: string): void {
     const group = this.promoGroups.find(g => g.id === groupId);
     if (group) {
       group.autoScrollEnabled = false;
       group.lastUserScroll = Date.now();
 
-      // 🔹 Возвращаем авто-скролл через 5 секунд
       setTimeout(() => {
         if (group && Date.now() - group.lastUserScroll >= 5000) {
           group.autoScrollEnabled = true;
@@ -289,7 +249,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
 
-  // 🔹 Форматирование даты
   formatGroupDate(dateString: string): string {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -300,7 +259,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
-  // 🔹 Проверка активности группы
   isGroupActive(group: PromoOrderGroupWithState): boolean {
     const now = new Date();
     const start = new Date(group.beginDateTime);
@@ -308,7 +266,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     return now >= start && now <= end;
   }
 
-  // 🔹 Отслеживание наведения на группу (для паузы авто-скролла)
   onGroupMouseEnter(groupId: string): void {
     this.pauseAutoScroll(groupId);
   }
@@ -319,7 +276,6 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
       group.autoScrollEnabled = true;
     }
   }
-
 
   trackByGroup(index: number, group: PromoOrderGroupWithState): string {
     return group.id;
@@ -334,9 +290,9 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
     const start = new Date(group.beginDateTime);
     const end = new Date(group.endDateTime);
 
-    if (now < start) return 'upcoming';      // 🔹 Ещё не началась
-    if (now > end) return 'completed';       // 🔹 Уже закончилась
-    return 'active';                         // 🔹 Сейчас активна
+    if (now < start) return 'upcoming';
+    if (now > end) return 'completed';
+    return 'active';
   }
 
   getGroupStatusText(group: PromoOrderGroupWithState): string {
@@ -380,11 +336,8 @@ export class SalesProductsComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy(): void {
-    // 🔹 Очищаем все интервалы авто-скролла
     this.autoScrollIntervals.forEach((interval) => clearInterval(interval));
     this.autoScrollIntervals.clear();
-
-    // 🔹 Отписываемся от всех скролл-событий
     this.scrollSubscriptions.forEach((sub) => sub.unsubscribe());
     this.scrollSubscriptions.clear();
   }

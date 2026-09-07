@@ -61,7 +61,7 @@ export interface BasketProduct {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductComponent implements OnChanges, OnInit {
-  @Input() product!: BasketProduct;
+  @Input() product!: any;
   @Input() selected: boolean = false;
   @Output() selectionChange = new EventEmitter<{ id: string; selected: boolean }>();
   @Output() quantityChange = new EventEmitter<{ id: string; barcodeId: string; quantity: number }>();
@@ -86,7 +86,6 @@ export class ProductComponent implements OnChanges, OnInit {
   productImage: string = 'assets/images/product-placeholder.svg';
 
   constructor(private cdr: ChangeDetectorRef) { }
-
 
   ngOnInit(): void {
     this.updateProductImage();
@@ -123,19 +122,17 @@ export class ProductComponent implements OnChanges, OnInit {
   private updateCalculatedValues(): void {
     if (!this.product?.product) return;
 
-    // 🔹 Проверка скидки
     this._hasDiscount = this.hasActivePromo;
 
     if (this._hasDiscount) {
-      // 🔹 Цена со скидкой за единицу
       this._discountPrice = this.unitPriceWithPromo;
-      this._savingAmount = (this.product.product.retailPrice || 0) - this._discountPrice;
+      const basePrice = this.product.product.retailPrice || this.product.product.wholesalePrice || 0;
+      this._savingAmount = Math.max(0, basePrice - this._discountPrice);
     } else {
-      this._discountPrice = this.product.product.retailPrice || 0;
+      this._discountPrice = this.getDisplayPrice();
       this._savingAmount = 0;
     }
 
-    // 🔹 Итоговая цена с учётом количества
     const count = this.product.count || 1;
     this._totalPrice = this._discountPrice * count;
   }
@@ -202,8 +199,6 @@ export class ProductComponent implements OnChanges, OnInit {
     this.isWishlisted = !this.isWishlisted;
     this.wishlistAnimate = true;
     this.cdr.markForCheck();
-
-    // Здесь можно добавить логику сохранения в избранное
   }
 
   increaseQty(): void {
@@ -223,7 +218,6 @@ export class ProductComponent implements OnChanges, OnInit {
 
   onQuantityInput(event: Event): void {
     if (!this.product || !this.isAvailable) return;
-
     const input = event.target as HTMLInputElement;
     const value = parseInt(input.value, 10);
     this.validateAndUpdateQuantity(value);
@@ -244,17 +238,12 @@ export class ProductComponent implements OnChanges, OnInit {
       this.cdr.markForCheck();
       return;
     }
-
     if (newCount > 99) {
       this.quantityError = 'Максимальное количество: 99';
       this.cdr.markForCheck();
       return;
     }
-
-    if (newCount === (this.product.count || 1)) {
-      return;
-    }
-
+    if (newCount === (this.product.count || 1)) return;
     this.quantityError = null;
     this.updateQuantity(newCount);
   }
@@ -265,19 +254,16 @@ export class ProductComponent implements OnChanges, OnInit {
       barcodeId: this.product.productBarCode.id,
       quantity: newCount
     });
-
     this._totalPrice = this._discountPrice * newCount;
     this.cdr.markForCheck();
   }
 
   removeProduct(): void {
     if (this.product) {
-      this.remove.emit(
-        {
-          "productId": this.product.productBarCode.id,
-          "count": this.product.count
-        }
-      );
+      this.remove.emit({
+        "productId": this.product.productBarCode.id,
+        "count": this.product.count
+      });
     }
   }
 
@@ -285,7 +271,6 @@ export class ProductComponent implements OnChanges, OnInit {
     this.addRelated.emit(item);
     this.addedRelatedIds.add(item.id);
     this.cdr.markForCheck();
-
     setTimeout(() => {
       this.addedRelatedIds.delete(item.id);
       this.cdr.markForCheck();
@@ -296,61 +281,74 @@ export class ProductComponent implements OnChanges, OnInit {
     return this.addedRelatedIds.has(id);
   }
 
-
   get hasActivePromo(): boolean {
     const product = this.product?.product;
     if (!product) return false;
 
-    if (product.promoOrders?.length > 0) {
-      const activePromo = product.promoOrders.find((p: any) =>
-        !p.isDeleted && p.isUse !== false && p.salePercent > 0
-      );
-      return !!activePromo;
+    if (this.product?.priceSale !== null && this.product?.price !== null) {
+      if (this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
+        return true;
+      }
     }
 
+    if (product.promoOrders?.length > 0) {
+      const activePromo = product.promoOrders.find((p: any) => 
+        !p.isDeleted && p.isUse !== false && p.salePercent !== null && p.salePercent !== undefined
+      );
+      if (activePromo) {
+        const percent = Math.abs(activePromo.salePercent);
+        return percent > 0 && percent <= 100;
+      }
+    }
     return false;
   }
 
   get promoPercent(): number {
     const product = this.product?.product;
     if (!product) return 0;
-
     if (product.promoOrders?.length > 0) {
-      const promo = product.promoOrders.find((p: any) =>
-        !p.isDeleted && p.isUse !== false && p.salePercent > 0
+      const promo = product.promoOrders.find((p: any) => 
+        !p.isDeleted && p.isUse !== false && p.salePercent !== null
       );
-      if (promo?.salePercent) {
-        return Math.round(promo.salePercent * 100);
+      if (promo?.salePercent !== null && promo?.salePercent !== undefined) {
+        const percent = Math.abs(promo.salePercent);
+        return Math.min(99, Math.round(percent));
       }
     }
     return 0;
   }
 
   get unitPriceWithPromo(): number {
+    if (this.product?.priceSale && this.product?.price && 
+        this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
+      const coefficient = this.product?.productBarCode?.coefficient || 1;
+      return this.product.priceSale / coefficient;
+    }
     const product = this.product?.product;
     if (!product) return 0;
-
     const basePrice = product.retailPrice || product.wholesalePrice || 0;
     const discount = this.promoPercent / 100;
-
     return basePrice * (1 - discount);
   }
 
   get packPriceWithPromo(): number {
+    if (this.product?.priceSale && this.product?.price && 
+        this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
+      return this.product.priceSale;
+    }
     const coefficient = this.product?.productBarCode?.coefficient || 1;
     return this.unitPriceWithPromo * coefficient;
   }
 
-
   get originalPackPrice(): number {
-    const product = this.product?.product;
-    const coefficient = this.product?.productBarCode?.coefficient || 1;
-    return (product?.retailPrice || 0) * coefficient;
+    return this.product?.price || 0;
   }
 
   get totalSaving(): number {
+    const original = this.originalPackPrice;
+    const current = this.packPriceWithPromo;
     const count = this.product?.count || 1;
-    return (this.originalPackPrice - this.packPriceWithPromo) * count;
+    return Math.max(0, (original - current) * count);
   }
 
   get promoBadgeColor(): string {
@@ -364,4 +362,75 @@ export class ProductComponent implements OnChanges, OnInit {
     return '#ef4444';
   }
 
+  private get isHomeCity(): boolean {
+    const userSelectedCity = localStorage.getItem('pktn_userCity');
+    return userSelectedCity === 'Барнаул';
+  }
+
+  get isShowingWholesale(): boolean {
+    return !this.isHomeCity;
+  }
+
+  get retailPriceForDisplay(): number {
+    return this.isHomeCity 
+      ? (this.product?.product?.retailPrice || 0)
+      : (this.product?.product?.retailPriceDest || 0);
+  }
+
+  get wholesalePriceForDisplay(): number {
+    return this.isHomeCity
+      ? (this.product?.product?.wholesalePrice || 0)
+      : (this.product?.product?.wholesalePriceDest || 0);
+  }
+
+  get shouldShowRetailCrossed(): boolean {
+    return !this.hasActivePromo && 
+           this.isShowingWholesale && 
+           this.retailPriceForDisplay > this.wholesalePriceForDisplay;
+  }
+
+  getDisplayPrice(): number {
+    if (this.hasActivePromo) {
+      return this.packPriceWithPromo;
+    }
+    if (this.isShowingWholesale) {
+      return this.wholesalePriceForDisplay;
+    }
+    return this.retailPriceForDisplay;
+  }
+
+  get retailTotalForDisplay(): number {
+    const count = this.product?.count || 1;
+    const coefficient = this.product?.productBarCode?.coefficient || 1;
+    const retailPrice = this.isHomeCity 
+      ? (this.product?.product?.retailPrice || 0)
+      : (this.product?.product?.retailPriceDest || 0);
+    return retailPrice * coefficient * count;
+  }
+
+  get wholesaleTotalForDisplay(): number {
+    const count = this.product?.count || 1;
+    const coefficient = this.product?.productBarCode?.coefficient || 1;
+    const wholesalePrice = this.isHomeCity
+      ? (this.product?.product?.wholesalePrice || 0)
+      : (this.product?.product?.wholesalePriceDest || 0);
+    return wholesalePrice * coefficient * count;
+  }
+
+  get shouldShowRetailTotalCrossed(): boolean {
+    return !this.hasActivePromo && 
+           this.isShowingWholesale && 
+           this.retailTotalForDisplay > this.wholesaleTotalForDisplay;
+  }
+
+  getDisplayTotal(): number {
+    const count = this.product?.count || 1;
+    if (this.hasActivePromo) {
+      return this.packPriceWithPromo * count;
+    }
+    if (this.isShowingWholesale) {
+      return this.wholesaleTotalForDisplay;
+    }
+    return this.retailTotalForDisplay;
+  }
 }

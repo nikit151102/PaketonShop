@@ -82,7 +82,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.basketsStateService.baskets$
       .pipe(takeUntil(this.destroy$))
       .subscribe(baskets => {
-        console.log('baskets', baskets)
         this.basketsData = baskets || [];
         this.updateProductState();
         // Принудительно обновляем UI
@@ -801,7 +800,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       !p.isDeleted && p.isUse !== false
     ) || null;
   }
- 
+
   // Есть ли скидка?
   hasDiscount(): boolean {
     const promo = this.getActivePromo();
@@ -812,8 +811,8 @@ export class ProductComponent implements OnInit, OnDestroy {
     ) return false
 
     // Скидка есть, если viewPriceSale меньше viewPrice и положителен
-    return (this.product.viewPriceSale > 0 &&
-      this.product.viewPriceSale < this.product.viewPrice);
+    return (this.product.viewPriceSale > 0 && this.product.viewPriceSale != this.product.viewPrice);// this.product.viewPriceSale < this.product.viewPrice
+
   }
 
 
@@ -823,17 +822,28 @@ export class ProductComponent implements OnInit, OnDestroy {
     );
   }
 
+
   // Получаем цену для отображения (со скидкой или обычную)
-  getDisplayPrice(): number {
-    return this.hasDiscount()
-      ? this.product.viewPriceSale
-      : this.product.viewPrice;
+  get getDisplayPrice(): number {
+    if (this.hasDiscount()) {
+      if (this.product.viewPrice > this.product.viewPriceSale) return this.product.viewPriceSale;
+      if (this.product.viewPrice < this.product.viewPriceSale) return this.product.viewPrice;
+    }
+    return this.product.viewPrice;
   }
 
-     private get isHomeCity(): boolean {
+    get getDisplayOldPrice(): number {
+    if (this.hasDiscount()) {
+      if (this.product.viewPrice > this.product.viewPriceSale) return this.product.viewPrice;
+      if (this.product.viewPrice < this.product.viewPriceSale) return this.product.viewPriceSale;
+    }
+    return this.product.viewPrice;
+  }
+
+  private get isHomeCity(): boolean {
     const userSelectedCity = StorageUtils.getLocalStorageCache('pktn_userCity');
     // Для Заринска это вернет false, и включится логика "межгорода"
-    return userSelectedCity === 'Барнаул'; 
+    return userSelectedCity === 'Барнаул';
   }
 
   getDisplayWholesalePrice(): number {

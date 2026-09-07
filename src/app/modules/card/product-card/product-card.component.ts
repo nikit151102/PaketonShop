@@ -489,32 +489,103 @@ export class ProductCardComponent implements OnInit, OnChanges {
 
 
 
-  // 🔹 В компоненте ProductCardComponent добавляем методы:
+  // В компоненте ProductCardComponent добавляем методы:
 
-// 🔹 Получаем активную акцию (первую не удалённую)
+// Получаем активную акцию (первую не удалённую)
 getActivePromoOrder(): any | null {
   if (!this.productData?.promoOrders || !Array.isArray(this.productData.promoOrders)) {
     return null;
   }
-  
-  // 🔹 Находим первую активную акцию
-  const activePromo = this.productData.promoOrders.find((promo: any) => 
-    !promo.isDeleted && promo.isUse !== false
-  );
-  
-  return activePromo || null;
+  return this.productData.promoOrders.find((p: any) => 
+    !p.isDeleted && p.isUse !== false && p.salePercent > 0
+  ) || null;
 }
 
-// 🔹 Проверяем, есть ли скидка
+// Проверяем, есть ли скидка
 hasDiscount(): boolean {
   const promo = this.getActivePromoOrder();
   if (!promo) return false;
   
-  // 🔹 Скидка есть, если viewPriceSale меньше viewPrice
-  return this.productData.viewPriceSale < this.productData.viewPrice;
+  const basePrice = this.productData.retailPrice || this.productData.wholesalePrice || 0;
+  const discount = promo.salePercent || 0;
+  const discountedPrice = basePrice * (1 - discount);
+  
+  return discountedPrice < basePrice && discountedPrice > 0;
 }
 
-// 🔹 Расчет процента скидки (для отображения)
+// Цена для отображения (рассчитываем вручную, если нужно)
+getDisplayPrice(): number {
+  const promo = this.getActivePromoOrder();
+  const basePrice = this.productData.retailPrice || this.productData.wholesalePrice || 0;
+  
+  if (promo?.salePercent && promo.salePercent > 0) {
+    const discounted = basePrice * (1 - promo.salePercent);
+    // Возвращаем рассчитанную цену, если она валидна
+    return discounted > 0 ? discounted : basePrice;
+  }
+  
+  // Если нет акции — используем viewPriceSale или viewPrice
+  return this.productData.viewPriceSale || this.productData.viewPrice || basePrice;
+}
+
+// Процент скидки для отображения
+getDiscountPercent(): number {
+  const promo = this.getActivePromoOrder();
+  if (promo?.salePercent) {
+    return Math.round(promo.salePercent * 100);
+  }
+  
+  // Резервный расчёт через цены
+  const original = this.getOriginalPrice();
+  const current = this.getDisplayPrice();
+  if (original > 0 && current < original) {
+    return Math.round((1 - current / original) * 100);
+  }
+  
+  return 0;
+}
+
+// Цвет бейджа акции
+getPromoBadgeColor(): string {
+  const promo = this.getActivePromoOrder();
+  if (promo?.tagColor && /^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
+    return promo.tagColor;
+  }
+  return '#ef4444'; // Дефолтный красный
+}
+
+// Текст бейджа
+getPromoBadgeText(): string {
+  const promo = this.getActivePromoOrder();
+  if (!promo) return '';
+  
+  const percent = this.getDiscountPercent();
+  const tag = promo.tagAbb?.trim().toUpperCase();
+  
+  return tag ? `${tag} −${percent}%` : `−${percent}%`;
+}
+
+// Цена за единицу (с учётом скидки)
+getUnitPriceWithPromo(): number {
+  const coefficient = this.productData.productBarCode?.coefficient || 1;
+  return this.getDisplayPrice() / coefficient;
+}
+
+// Цена за упаковку (с учётом скидки)
+getPackPriceWithPromo(): number {
+  return this.getDisplayPrice();
+}
+
+// Обновляем getTotalPrice()
+getTotalPrice(): number {
+  return this.getDisplayPrice() * (this.selectedQuantity || 1);
+}
+// Старая цена (для зачёркивания)
+getOriginalPrice(): number {
+  return this.productData.retailPrice || this.productData.viewPrice || 0;
+}
+
+// Расчет процента скидки (для отображения)
 calculateDiscount(): number {
   if (!this.hasDiscount()) return 0;
   
@@ -524,9 +595,9 @@ calculateDiscount(): number {
   return Math.round((1 - sale / original) * 100);
 }
 
-// 🔹 Получаем цвет тега акции
+// Получаем цвет тега акции
 getPromoTagColor(tagColor: string | null | undefined): string {
-  // 🔹 Дефолтные цвета для известных значений
+  // Дефолтные цвета для известных значений
   const colorMap: Record<string, string> = {
     'test': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',      // фиолетовый
     'sale': 'linear-gradient(135deg, #ef4444, #dc2626)',      // красный
@@ -539,11 +610,11 @@ getPromoTagColor(tagColor: string | null | undefined): string {
     return colorMap[tagColor.toLowerCase()];
   }
   
-  // 🔹 Дефолтный градиент, если цвет не распознан
+  // Дефолтный градиент, если цвет не распознан
   return 'linear-gradient(135deg, #ef4444, #f97316)';
 }
 
-// 🔹 Расчет процента заполнения лимита
+// Расчет процента заполнения лимита
 getPromoLimitPercent(promo: any): number {
   if (!promo?.productCountSailLimit || promo.productCountSailLimit <= 0) return 0;
   
@@ -553,8 +624,5 @@ getPromoLimitPercent(promo: any): number {
   return Math.min((sold / limit) * 100, 100);
 }
 
-// 🔹 Обновляем getTotalPrice() для использования viewPriceSale
-getTotalPrice(): number {
-  return (this.productData?.viewPriceSale || 0) * this.selectedQuantity;
-}
+
 }

@@ -47,7 +47,6 @@
   }
 }
 
-// Оверлей недоступности
 .unavailable-overlay {
   position: absolute;
   inset: 0;
@@ -70,7 +69,6 @@
   }
 }
 
-// Мобильный хедер
 .item-header-mobile {
   display: none;
   align-items: center;
@@ -87,7 +85,6 @@
   }
 }
 
-// Основной flex-контейнер
 .item-main {
   display: flex;
   gap: 24px;
@@ -113,7 +110,6 @@
   }
 }
 
-// Левая колонка с изображением
 .item-media {
   flex-shrink: 0;
   width: 100px;
@@ -134,7 +130,6 @@
   
   .image-container {
     position: relative;
-    // aspect-ratio: 1;
     border-radius: 16px;
     overflow: hidden;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
@@ -162,7 +157,6 @@
   
   .item-image {
     width: 100%;
-    // height: 100%;
     object-fit: cover;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     
@@ -239,16 +233,14 @@
   }
 }
 
-// Правая колонка с контентом (flex и растягивается)
 .item-content-wrapper {
   flex: 1;
-  min-width: 0; // Для корректного обрезания текста
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-// Верхний ряд с артикулом и чекбоксом
 .content-header {
   display: flex;
   align-items: center;
@@ -296,7 +288,6 @@
   }
 }
 
-// Название товара
 .item-title {
   font-size: 15px;
   font-weight: 600;
@@ -314,7 +305,6 @@
   }
 }
 
-// Краткое описание
 .item-desc {
   font-size: 14px;
   color: var(--text-secondary);
@@ -327,7 +317,6 @@
   -webkit-box-orient: vertical;
 }
 
-// Ряд с мета-информацией
 .item-meta-row {
   display: flex;
   align-items: center;
@@ -341,7 +330,6 @@
   }
 }
 
-// Характеристики
 .item-specs {
   .spec {
     font-size: 12px;
@@ -353,7 +341,6 @@
   }
 }
 
-// Рейтинг
 .item-rating {
   display: flex;
   align-items: center;
@@ -400,59 +387,64 @@
   }
 }
 
-// Ряд с ценами и управлением (flex-row)
 .pricing-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   margin-top: 12px;
   gap: 16px;
   
   @media (max-width: 768px) {
     flex-wrap: wrap;
+    gap: 12px;
   }
   
-  @media (max-width: 480px) {
+  @media (max-width: 550px) {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
 }
 
-// Левая часть ценового ряда
 .pricing-left {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
+  flex: 1;
   
   @media (max-width: 768px) {
-    flex: 1;
-    justify-content: space-between;
+    gap: 16px;
   }
   
   @media (max-width: 480px) {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    width: 100%;
   }
 }
 
-// Правая часть ценового ряда
 .pricing-right {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
+  flex-shrink: 0;
   
   @media (max-width: 768px) {
-    flex: 1;
+    flex-direction: column;
+    align-items: flex-end;
     justify-content: flex-end;
+    gap: 12px;
   }
   
   @media (max-width: 480px) {
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
   }
 }
 
-// Контролы количества
 .quantity-wrapper {
   .quantity-control {
     display: flex;
@@ -544,31 +536,94 @@
   }
 }
 
-// Цена за единицу (десктоп)
-.unit-price-desktop {
+.unit-price-block {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  .price-per-unit {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
-  }
-  
-  .unit-old {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-decoration: line-through;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 12px;
+
+  @media (max-width: 480px) {
+    margin-left: 0;
+    margin-top: 8px;
+    width: 100%;
   }
 }
 
-// Мобильные цены
+.price-per-unit {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+
+  .price-current {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .price-old {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-weight: 400;
+  }
+
+  .price-unit {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+}
+
+.price-per-pack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  flex-wrap: wrap;
+
+  .pack-label {
+    color: var(--text-secondary);
+  }
+
+  .pack-price {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .pack-price-old {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-size: 11px;
+    margin-left: 4px;
+  }
+}
+
+.promo-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 8px;
+  vertical-align: middle;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
 .price-mobile {
   display: none;
   
   @media (max-width: 640px) {
     display: block;
+    width: 100%;
+    margin-bottom: 8px;
   }
   
   .price-block {
@@ -590,7 +645,6 @@
   }
 }
 
-// Недоступное количество
 .unavailable-qty {
   .unavailable-text {
     font-size: 13px;
@@ -602,44 +656,60 @@
   }
 }
 
-// Итоговая стоимость
 .item-total {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  min-width: 70px;
   text-align: right;
-  position: relative;
-  
-  .total-value {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-    
-    @media (max-width: 640px) {
-      font-size: 20px;
-    }
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+
+  &.has-discount .total-value {
+    color: var(--danger-color);
+    font-weight: 800;
   }
-  
+
   .total-label {
-    display: block;
     font-size: 11px;
     color: var(--text-secondary);
+    font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
+  .total-value {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   .total-old {
-    display: block;
-    font-size: 12px;
-    color: var(--text-secondary);
+    font-size: 11px;
+    color: var(--text-muted);
     text-decoration: line-through;
-    margin-top: 2px;
+    font-weight: 400;
   }
   
-  &.has-discount .total-value {
-    color: var(--danger-color);
+  @media (max-width: 480px) {
+    font-size: 12px;
+    min-width: auto;
+    text-align: right;
+    align-items: flex-end;
+    
+    .total-value {
+      font-size: 16px;
+    }
+    
+    .total-old {
+      font-size: 10px;
+    }
   }
 }
 
-// Кнопка удаления
 .remove-btn {
   background: none;
   border: none;
@@ -680,7 +750,6 @@
   }
 }
 
-// Информация об экономии
 .saving-info {
   display: flex;
   align-items: center;
@@ -703,7 +772,6 @@
   }
 }
 
-// Иконки кнопки
 .icon-btn {
   background: none;
   border: none;
@@ -739,7 +807,6 @@
   }
 }
 
-// Чекбокс
 .checkbox-wrapper {
   display: flex;
   align-items: center;
@@ -796,7 +863,6 @@
   }
 }
 
-// Сопутствующие товары
 .related-section {
   margin-top: 20px;
   padding-top: 20px;
@@ -966,7 +1032,6 @@
   }
 }
 
-// Анимации
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -1024,118 +1089,4 @@
   0% { transform: scale(1); }
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
-}
-
-
-
-// 🔹 Бейдж скидки рядом с ценой
-.promo-badge-inline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px 8px;
-  border-radius: 6px;
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  margin-right: 8px;
-  vertical-align: middle;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  animation: badgePulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-// 🔹 Блок цены
-.unit-price-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-left: 12px;
-  
-  @media (max-width: 480px) {
-    margin-left: 0;
-    margin-top: 8px;
-  }
-}
-
-.price-per-unit {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  
-  .price-current {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-  
-  .price-unit {
-    font-size: 12px;
-    color: var(--text-secondary);
-  }
-}
-
-.price-old {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
-.price-per-pack {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  
-  .pack-label {
-    color: var(--text-secondary);
-  }
-  
-  .pack-price {
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-}
-
-// 🔹 Итоговая цена со скидкой
-.item-total.has-discount {
-  .total-value {
-    color: var(--danger-color);
-    font-weight: 800;
-  }
-  
-  .total-old {
-    display: block;
-    font-size: 12px;
-    color: var(--text-muted);
-    text-decoration: line-through;
-    margin-top: 2px;
-  }
-}
-
-// 🔹 Адаптив для мобильных
-@media (max-width: 480px) {
-  .pricing-left {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .unit-price-block {
-    margin-left: 0;
-  }
-  
-  .promo-badge-inline {
-    margin-right: 0;
-    margin-bottom: 4px;
-  }
-}
-
-// 🔹 Убираем бейдж с картинки (если был)
-.item-media .discount-chip {
-  display: none; // 🔹 Скрываем, так как показываем рядом с ценой
 }
