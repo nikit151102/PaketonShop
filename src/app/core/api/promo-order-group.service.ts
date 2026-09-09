@@ -98,9 +98,14 @@ export class PromoOrderGroupService {
       `${this.baseUrl}/PromoOrderGroup/Filter`,
       {
         filters: [{
-          field: "EndDateTime",
+          field: "BeginDateTime",
           values: [currentDateFormatted],
           type: 7
+        },
+      {
+          field: "EndDateTime",
+          values: [currentDateFormatted],
+          type: 8
         }],
         sorts: [],
         page,
