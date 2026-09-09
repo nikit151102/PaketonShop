@@ -92,23 +92,23 @@ export class PromoOrderGroupService {
     pageSize = 10
   ): Observable<FilterResponse<PromoOrderGroup>> {
     const currentDate = new Date();
-    const currentDateFormatted = this.datePipe.transform(currentDate, 'yyyy-MM-ddTH:mm:ss.SSSZZZZZ');
+    const currentDateFormatted = this.datePipe.transform(currentDate, 'yyyy-MM-ddTHH:mm:ss.SSSZZZZZ');
 
     return this.http.post<FilterResponse<PromoOrderGroup>>(
       `${this.baseUrl}/PromoOrderGroup/Filter`,
       {
         filters: [
           {
-          field: "BeginDateTime",
-          values: [currentDateFormatted],
-          type: 7
-        },
-      {
-          field: "EndDateTime",
-          values: [currentDateFormatted],
-          type: 8
-        }
-      ],
+            field: "BeginDateTime",
+            values: [currentDateFormatted],
+            type: 7
+          },
+          {
+            field: "EndDateTime",
+            values: [currentDateFormatted],
+            type: 8
+          }
+        ],
         sorts: [],
         page,
         pageSize
