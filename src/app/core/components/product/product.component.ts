@@ -811,11 +811,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   get getDisplayPrice(): number {
-    if (this.hasDiscount()) {
       if (this.product.viewPrice > this.product.viewPriceSale) return this.product.viewPriceSale;
-      if (this.product.viewPrice < this.product.viewPriceSale) return this.product.viewPrice;
-    }
-    return this.product.viewPrice;
+      return this.product.viewPrice;
   }
 
   get getDisplayOldPrice(): number {

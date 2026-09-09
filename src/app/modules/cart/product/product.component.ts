@@ -129,7 +129,6 @@ export class ProductComponent implements OnChanges, OnInit {
       const basePrice = this.product.product.retailPrice || this.product.product.wholesalePrice || 0;
       this._savingAmount = Math.max(0, basePrice - this._discountPrice);
     } else {
-      this._discountPrice = this.getDisplayPrice();
       this._savingAmount = 0;
     }
 
@@ -292,7 +291,7 @@ export class ProductComponent implements OnChanges, OnInit {
     }
 
     if (product.promoOrders?.length > 0) {
-      const activePromo = product.promoOrders.find((p: any) => 
+      const activePromo = product.promoOrders.find((p: any) =>
         !p.isDeleted && p.isUse !== false && p.salePercent !== null && p.salePercent !== undefined
       );
       if (activePromo) {
@@ -307,7 +306,7 @@ export class ProductComponent implements OnChanges, OnInit {
     const product = this.product?.product;
     if (!product) return 0;
     if (product.promoOrders?.length > 0) {
-      const promo = product.promoOrders.find((p: any) => 
+      const promo = product.promoOrders.find((p: any) =>
         !p.isDeleted && p.isUse !== false && p.salePercent !== null
       );
       if (promo?.salePercent !== null && promo?.salePercent !== undefined) {
@@ -319,8 +318,8 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get unitPriceWithPromo(): number {
-    if (this.product?.priceSale && this.product?.price && 
-        this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
+    if (this.product?.priceSale && this.product?.price &&
+      this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
       const coefficient = this.product?.productBarCode?.coefficient || 1;
       return this.product.priceSale / coefficient;
     }
@@ -332,8 +331,8 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get packPriceWithPromo(): number {
-    if (this.product?.priceSale && this.product?.price && 
-        this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
+    if (this.product?.priceSale && this.product?.price &&
+      this.product.priceSale > 0 && this.product.priceSale < this.product.price) {
       return this.product.priceSale;
     }
     const coefficient = this.product?.productBarCode?.coefficient || 1;
@@ -372,7 +371,7 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get retailPriceForDisplay(): number {
-    return this.isHomeCity 
+    return this.isHomeCity
       ? (this.product?.product?.retailPrice || 0)
       : (this.product?.product?.retailPriceDest || 0);
   }
@@ -384,53 +383,49 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get shouldShowRetailCrossed(): boolean {
-    return !this.hasActivePromo && 
-           this.isShowingWholesale && 
-           this.retailPriceForDisplay > this.wholesalePriceForDisplay;
+    return !this.hasActivePromo &&
+      this.isShowingWholesale &&
+      this.retailPriceForDisplay > this.wholesalePriceForDisplay;
   }
 
-  getDisplayPrice(): number {
-    if (this.hasActivePromo) {
-      return this.packPriceWithPromo;
+  get getDisplayOldPrice(): number {
+    switch (this.product.viewPriceType) {
+      case 0: return this.product.retailPrice;
+      case 1: return this.product.retailPriceDest;
+      case 2: return this.product.wholesalePrice;
+      case 3: return this.product.wholesalePriceDest;
+
     }
-    if (this.isShowingWholesale) {
-      return this.wholesalePriceForDisplay;
+    return this.product.retailPrice
+  }
+
+
+  get getDisplayPrice(): number {
+    if (this.product.priceSale > this.product.price) return this.product.price;
+    return this.product.priceSale;
+  }
+
+  get getOldDisplayPrice(): number {
+    if (this.product.priceSale > this.product.price) return this.product.priceSale;
+    return this.product.price;
+  }
+
+
+  get getDisplayTotal(): number {
+    if (this.product.priceSale > this.product.price) return this.product.price * this.product.count;
+    return this.product.priceSale * this.product.count;
+  }
+
+  get getOldDisplayTotal(): number {
+    if (this.product.priceSale > this.product.price) return this.product.priceSale * this.product.count;
+    return this.product.price * this.product.count;
+  }
+
+  get packType() {
+    if (this.product.productBarCode.coefficient > 1) {
+      return "уп"
+    } else {
+      return "шт"
     }
-    return this.retailPriceForDisplay;
-  }
-
-  get retailTotalForDisplay(): number {
-    const count = this.product?.count || 1;
-    const coefficient = this.product?.productBarCode?.coefficient || 1;
-    const retailPrice = this.isHomeCity 
-      ? (this.product?.product?.retailPrice || 0)
-      : (this.product?.product?.retailPriceDest || 0);
-    return retailPrice * coefficient * count;
-  }
-
-  get wholesaleTotalForDisplay(): number {
-    const count = this.product?.count || 1;
-    const coefficient = this.product?.productBarCode?.coefficient || 1;
-    const wholesalePrice = this.isHomeCity
-      ? (this.product?.product?.wholesalePrice || 0)
-      : (this.product?.product?.wholesalePriceDest || 0);
-    return wholesalePrice * coefficient * count;
-  }
-
-  get shouldShowRetailTotalCrossed(): boolean {
-    return !this.hasActivePromo && 
-           this.isShowingWholesale && 
-           this.retailTotalForDisplay > this.wholesaleTotalForDisplay;
-  }
-
-  getDisplayTotal(): number {
-    const count = this.product?.count || 1;
-    if (this.hasActivePromo) {
-      return this.packPriceWithPromo * count;
-    }
-    if (this.isShowingWholesale) {
-      return this.wholesaleTotalForDisplay;
-    }
-    return this.retailTotalForDisplay;
   }
 }

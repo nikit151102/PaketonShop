@@ -97,16 +97,18 @@ export class PromoOrderGroupService {
     return this.http.post<FilterResponse<PromoOrderGroup>>(
       `${this.baseUrl}/PromoOrderGroup/Filter`,
       {
-        filters: [{
-          field: "BeginDateTime",
-          values: [currentDateFormatted],
-          type: 7
-        },
-      {
-          field: "EndDateTime",
-          values: [currentDateFormatted],
-          type: 8
-        }],
+        filters: [
+      //     {
+      //     field: "BeginDateTime",
+      //     values: [currentDateFormatted],
+      //     type: 7
+      //   },
+      // {
+      //     field: "EndDateTime",
+      //     values: [currentDateFormatted],
+      //     type: 8
+      //   }
+      ],
         sorts: [],
         page,
         pageSize

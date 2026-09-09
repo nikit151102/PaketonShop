@@ -44,10 +44,6 @@
           </svg>
         </div>
 
-        <span class="discount-chip" *ngIf="hasDiscount">
-          -{{ product.product.discountPercentage }}%
-        </span>
-
         <button class="quick-view" (click)="quickView.emit(product.product)" title="Быстрый просмотр">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -58,7 +54,6 @@
     </div>
 
     <div class="item-content-wrapper">
-
       <div class="content-header">
         <div class="header-left">
           <span class="item-sku">
@@ -137,44 +132,29 @@
           </ng-template>
 
           <div class="unit-price-block">
-            <span class="promo-badge-inline" *ngIf="hasActivePromo" [style.background]="promoBadgeColor">
-              −{{ promoPercent }}%
-            </span>
 
             <div class="price-per-unit">
               <span class="price-current">
-                {{ getDisplayPrice() | number:'1.2-2':'ru' }} ₽
+                {{ getDisplayPrice | number:'1.2-2':'ru' }} ₽
               </span>
-              <span class="price-old" *ngIf="shouldShowRetailCrossed">
-                {{ retailPriceForDisplay | number:'1.2-2':'ru' }} ₽
+              <span class="price-old" *ngIf="getOldDisplayPrice != getDisplayPrice">
+                {{ getOldDisplayPrice | number:'1.2-2':'ru' }} ₽
               </span>
-              <span class="price-unit">/ шт</span>
+              <span class="price-unit">{{packType}}</span>
             </div>
 
-            <div class="price-per-pack" *ngIf="product.productBarCode?.coefficient > 1">
-              <span class="pack-label">Упаковка ({{ product.productBarCode.coefficient }} шт):</span>
-              <span class="pack-price">
-                {{ (getDisplayPrice() * product.productBarCode.coefficient) | number:'1.2-2':'ru' }} ₽
-              </span>
-              <span class="pack-price-old" *ngIf="shouldShowRetailCrossed">
-                {{ (retailPriceForDisplay * product.productBarCode.coefficient) | number:'1.2-2':'ru' }} ₽
-              </span>
-            </div>
           </div>
         </div>
 
         <div class="pricing-right">
 
-          <div class="item-total" [class.has-discount]="hasActivePromo || shouldShowRetailTotalCrossed">
+          <div class="item-total">
             <span class="total-label">итого</span>
             <span class="total-value">
-              {{ getDisplayTotal() | number:'1.2-2':'ru' }} ₽
+              {{ getDisplayTotal | number:'1.2-2':'ru' }} ₽
             </span>
-            <span class="total-old" *ngIf="shouldShowRetailTotalCrossed">
-              {{ retailTotalForDisplay | number:'1.2-2':'ru' }} ₽
-            </span>
-            <span class="total-old" *ngIf="hasActivePromo && !shouldShowRetailTotalCrossed">
-              {{ originalPackPrice | number:'1.2-2':'ru' }} ₽
+            <span class="total-old" *ngIf="getOldDisplayTotal !=getDisplayTotal">
+              {{ getOldDisplayTotal | number:'1.2-2':'ru' }} ₽
             </span>
           </div>
 
@@ -188,13 +168,13 @@
         </div>
       </div>
 
-      <div class="saving-info" *ngIf="hasActivePromo && isAvailable">
+      <!-- <div class="saving-info" *ngIf="hasActivePromo && isAvailable">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <path
             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
         </svg>
         <span>Экономия {{ totalSaving | number:'1.0-2':'ru' }} ₽</span>
-      </div>
+      </div> -->
     </div>
   </div>
 

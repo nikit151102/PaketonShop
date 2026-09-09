@@ -269,7 +269,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   calculateDiscount(): void {
-    const total = this.getProductsTotal();
+    const total = this.getProductsTotal;
     let discountPercent = 0;
 
     for (const rule of this.discountRules.reverse()) {
@@ -290,15 +290,29 @@ export class OrderComponent implements OnInit, OnDestroy {
     return this.basketProducts.reduce((total, product) => total + product.qty, 0);
   }
 
-  getProductsTotal(): number {
-    return this.basketProducts.reduce((total, product) => total + (product.price * product.qty), 0);
+  get getProductsTotal(): number {
+    return this.basketProducts.reduce((total, product) => {
+      const price = product.priceSale < product.price
+        ? product.priceSale
+        : product.price;
+      return total + (price * product.qty);
+    }, 0);
+  }
+
+  get getOldProductsTotal(): number {
+     return this.basketProducts.reduce((total, product) => {
+      const price = product.priceSale < product.price
+        ? product.price
+        : product.priceSale;
+      return total + (price * product.qty);
+    }, 0);
   }
 
   getDeliveryCost(): number {
     if (this.deliveryCost > 0) {
       return this.deliveryCost;
     }
-    const total = this.getProductsTotal();
+    const total = this.getProductsTotal;
     this.deliveryCost = total >= 5000 ? 0 : this.deliveryCost;
     return this.deliveryCost;
   }
@@ -308,7 +322,8 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   getOrderTotal(): number {
-    return this.getProductsTotal() + this.getDeliveryCost() - this.discount;
+    return this.getProductsTotal + this.getDeliveryCost() - this.discount;
+    
   }
 
   canProceedToPayment(): boolean {
@@ -943,13 +958,7 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Проверка: есть ли активная скидка у товара
    */
   hasDiscount(product: any): boolean {
-    if (product.promoOrders?.length > 0) {
-      const activePromo = product.promoOrders.find((p: any) =>
-        !p.isDeleted && p.isUse !== false && p.salePercent > 0
-      );
-      return !!activePromo;
-    }
-
+    if (product.price != product.priceSale) return true
     return false;
   }
 
@@ -974,8 +983,7 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Цена для отображения (со скидкой или обычная)
    */
   getDisplayPrice(product: any): number {
-    // 🔹 Если есть валидная цена со скидкой — используем её
-    if (product.priceSale && product.priceSale > 0 && product.priceSale < product.price) {
+    if (product.priceSale < product.price) {
       return product.priceSale;
     }
     return product.price || 0;
@@ -985,7 +993,10 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Старая цена (для зачёркивания)
    */
   getOriginalPrice(product: any): number {
-    return product.price || 0;
+    if (product.priceSale < product.price) {
+      return product.price;
+    }
+    return product.priceSale || 0;
   }
 
   /**

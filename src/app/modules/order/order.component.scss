@@ -309,7 +309,7 @@ $radius-sm: 10px;
 .cart-item {
   display: grid;
   grid-template-columns: 24px 48px 1fr auto;
-  grid-template-areas: 
+  grid-template-areas:
     "index image content total"
     "index image meta total";
   align-items: start;
@@ -478,14 +478,21 @@ $radius-sm: 10px;
 }
 
 @keyframes badgePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @media (max-width: 480px) {
   .cart-item {
     grid-template-columns: 20px 40px 1fr;
-    grid-template-areas: 
+    grid-template-areas:
       "index image content"
       "index image prices"
       "meta meta total";
@@ -528,6 +535,7 @@ $radius-sm: 10px;
       &--current {
         font-size: 11px;
       }
+
       &--old {
         font-size: 10px;
       }
@@ -559,11 +567,11 @@ $radius-sm: 10px;
 
 @media (max-width: 360px) {
   .cart-item {
-    grid-template-areas: 
+    grid-template-areas:
       "index image content"
       "prices prices prices"
       "meta meta total";
-    
+
     &__header {
       flex-direction: column;
       align-items: flex-start;
@@ -1804,6 +1812,8 @@ $radius-sm: 10px;
   min-width: 70px;
   text-align: right;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 
   &--discount {
     color: $primary;
