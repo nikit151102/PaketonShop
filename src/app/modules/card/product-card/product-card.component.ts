@@ -221,7 +221,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) =>{}
+        error: (err) => { }
       });
   }
   // Обновляем количество из поля ввода
@@ -242,7 +242,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) => {}
+        error: (err) => { }
       });
   }
 
@@ -267,7 +267,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
           this.userApiService.getOperativeInfo();
           this.showNotification('Количество обновлено', 'success');
         },
-        error: (err) => {}
+        error: (err) => { }
       });
   }
 
@@ -305,7 +305,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
         this.showBasketPopup = false;
         this.showNotification('Товар добавлен в корзину', 'success');
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -323,7 +323,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
             this.selectedQuantity = 0;
           }
         },
-        error: (err) => {}
+        error: (err) => { }
       });
   }
 
@@ -340,7 +340,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
         this.loadUpdatedProductData();
         this.showNotification(`Корзина "${basketName}" создана`, 'success');
       },
-      error: (err) => {}
+      error: (err) => { }
     });
   }
 
@@ -451,7 +451,7 @@ export class ProductCardComponent implements OnInit, OnChanges {
             'success'
           );
         },
-        error: (error) => {}
+        error: (error) => { }
       });
   }
 
@@ -491,138 +491,156 @@ export class ProductCardComponent implements OnInit, OnChanges {
 
   // В компоненте ProductCardComponent добавляем методы:
 
-// Получаем активную акцию (первую не удалённую)
-getActivePromoOrder(): any | null {
-  if (!this.productData?.promoOrders || !Array.isArray(this.productData.promoOrders)) {
-    return null;
+  // Получаем активную акцию (первую не удалённую)
+  getActivePromoOrder(): any | null {
+    if (!this.productData?.promoOrders || !Array.isArray(this.productData.promoOrders)) {
+      return null;
+    }
+    return this.productData.promoOrders.find((p: any) =>
+      !p.isDeleted && p.isUse !== false && p.salePercent > 0
+    ) || null;
   }
-  return this.productData.promoOrders.find((p: any) => 
-    !p.isDeleted && p.isUse !== false && p.salePercent > 0
-  ) || null;
-}
 
-// Проверяем, есть ли скидка
-hasDiscount(): boolean {
-  const promo = this.getActivePromoOrder();
-  if (!promo) return false;
-  
-  const basePrice = this.productData.retailPrice || this.productData.wholesalePrice || 0;
-  const discount = promo.salePercent || 0;
-  const discountedPrice = basePrice * (1 - discount);
-  
-  return discountedPrice < basePrice && discountedPrice > 0;
-}
+  getActivePromo(): any | null {
+    if (!this.productData?.promoOrders || !Array.isArray(this.productData.promoOrders)) {
+      return null;
+    }
 
-// Цена для отображения (рассчитываем вручную, если нужно)
-getDisplayPrice(): number {
-  const promo = this.getActivePromoOrder();
-  const basePrice = this.productData.retailPrice || this.productData.wholesalePrice || 0;
-  
-  if (promo?.salePercent && promo.salePercent > 0) {
-    const discounted = basePrice * (1 - promo.salePercent);
-    // Возвращаем рассчитанную цену, если она валидна
-    return discounted > 0 ? discounted : basePrice;
+    return this.productData.promoOrders.find((p: any) =>
+      !p.isDeleted && p.isUse !== false
+    ) || null;
   }
-  
-  // Если нет акции — используем viewPriceSale или viewPrice
-  return this.productData.viewPriceSale || this.productData.viewPrice || basePrice;
-}
 
-// Процент скидки для отображения
-getDiscountPercent(): number {
-  const promo = this.getActivePromoOrder();
-  if (promo?.salePercent) {
-    return Math.round(promo.salePercent * 100);
+
+  // Проверяем, есть ли скидка
+  hasDiscount(): boolean {
+    const promo = this.getActivePromo();
+    if (!promo) return false;
+
+    if (this.getDisplayOldPrice > this.productData.viewPrice) return true
+    return false
   }
-  
-  // Резервный расчёт через цены
-  const original = this.getOriginalPrice();
-  const current = this.getDisplayPrice();
-  if (original > 0 && current < original) {
-    return Math.round((1 - current / original) * 100);
+
+  // Цена для отображения (рассчитываем вручную, если нужно)
+  get getDisplayPrice(): number {
+    if (this.hasDiscount()) {
+      if (this.productData.viewPrice > this.productData.viewPriceSale) return this.productData.viewPriceSale;
+      if (this.productData.viewPrice < this.productData.viewPriceSale) return this.productData.viewPrice;
+    }
+    return this.productData.viewPrice;
   }
-  
-  return 0;
-}
 
-// Цвет бейджа акции
-getPromoBadgeColor(): string {
-  const promo = this.getActivePromoOrder();
-  if (promo?.tagColor && /^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
-    return promo.tagColor;
+  get getDisplayOldPrice(): number {
+    switch (this.productData.viewPriceType) {
+      case 0: return this.productData.retailPrice;
+      case 1: return this.productData.retailPriceDest;
+      case 2: return this.productData.wholesalePrice;
+      case 3: return this.productData.wholesalePriceDest;
+
+    }
+    return this.productData.retailPrice
   }
-  return '#ef4444'; // Дефолтный красный
-}
 
-// Текст бейджа
-getPromoBadgeText(): string {
-  const promo = this.getActivePromoOrder();
-  if (!promo) return '';
-  
-  const percent = this.getDiscountPercent();
-  const tag = promo.tagAbb?.trim().toUpperCase();
-  
-  return tag ? `${tag} −${percent}%` : `−${percent}%`;
-}
 
-// Цена за единицу (с учётом скидки)
-getUnitPriceWithPromo(): number {
-  const coefficient = this.productData.productBarCode?.coefficient || 1;
-  return this.getDisplayPrice() / coefficient;
-}
 
-// Цена за упаковку (с учётом скидки)
-getPackPriceWithPromo(): number {
-  return this.getDisplayPrice();
-}
-
-// Обновляем getTotalPrice()
-getTotalPrice(): number {
-  return this.getDisplayPrice() * (this.selectedQuantity || 1);
-}
-// Старая цена (для зачёркивания)
-getOriginalPrice(): number {
-  return this.productData.retailPrice || this.productData.viewPrice || 0;
-}
-
-// Расчет процента скидки (для отображения)
-calculateDiscount(): number {
-  if (!this.hasDiscount()) return 0;
-  
-  const original = this.productData.viewPrice;
-  const sale = this.productData.viewPriceSale;
-  
-  return Math.round((1 - sale / original) * 100);
-}
-
-// Получаем цвет тега акции
-getPromoTagColor(tagColor: string | null | undefined): string {
-  // Дефолтные цвета для известных значений
-  const colorMap: Record<string, string> = {
-    'test': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',      // фиолетовый
-    'sale': 'linear-gradient(135deg, #ef4444, #dc2626)',      // красный
-    'new': 'linear-gradient(135deg, #10b981, #059669)',       // зелёный
-    'hit': 'linear-gradient(135deg, #f59e0b, #d97706)',       // оранжевый
-    'promo': 'linear-gradient(135deg, #3b82f6, #2563eb)',     // синий
-  };
-  
-  if (tagColor && colorMap[tagColor.toLowerCase()]) {
-    return colorMap[tagColor.toLowerCase()];
+  // Расчет процента скидки для бейджа
+  getDiscountPercent(): number {
+    if (!this.hasDiscount()) return 0;
+    return Math.round((1 - this.productData.viewPriceSale / this.productData.viewPrice) * 100);
   }
-  
-  // Дефолтный градиент, если цвет не распознан
-  return 'linear-gradient(135deg, #ef4444, #f97316)';
-}
 
-// Расчет процента заполнения лимита
-getPromoLimitPercent(promo: any): number {
-  if (!promo?.productCountSailLimit || promo.productCountSailLimit <= 0) return 0;
-  
-  const sold = promo.productCountAlreadySailed || 0;
-  const limit = promo.productCountSailLimit;
-  
-  return Math.min((sold / limit) * 100, 100);
-}
+
+  hasWholesaleDiscount(): boolean {
+    if (this.hasDiscount() || (this.productData.viewPriceType != 2 && this.productData.viewPriceType != 3)) return false;
+    return true;
+  }
+
+  getDisplayWholesalePrice() {
+    switch (this.productData.viewPriceType) {
+      case 2: return this.productData.retailPrice;
+      case 3: return this.productData.retailPriceDest;
+    }
+    return this.productData.retailPriceDest;
+  }
+
+  // Цвет бейджа акции
+  getPromoBadgeColor(): string {
+    const promo = this.getActivePromoOrder();
+    if (promo?.tagColor && /^#[0-9A-F]{6}$/i.test(promo.tagColor)) {
+      return promo.tagColor;
+    }
+    return '#ef4444'; // Дефолтный красный
+  }
+
+  // Текст бейджа
+  getPromoBadgeText(): string {
+    const promo = this.getActivePromoOrder();
+    if (!promo) return '';
+
+    const percent = this.getDiscountPercent();
+    const tag = promo.tagAbb?.trim().toUpperCase();
+
+    return tag ? `${tag} −${percent}%` : `−${percent}%`;
+  }
+
+  // Цена за единицу (с учётом скидки)
+  getUnitPriceWithPromo(): number {
+    const coefficient = this.productData.productBarCode?.coefficient || 1;
+    return this.getDisplayPrice / coefficient;
+  }
+
+  // Цена за упаковку (с учётом скидки)
+  getPackPriceWithPromo(): number {
+    return this.getDisplayPrice;
+  }
+
+  // Обновляем getTotalPrice()
+  getTotalPrice(): number {
+    return this.getDisplayPrice * (this.selectedQuantity || 1);
+  }
+  // Старая цена (для зачёркивания)
+  getOriginalPrice(): number {
+    return this.productData.retailPrice || this.productData.viewPrice || 0;
+  }
+
+  // Расчет процента скидки (для отображения)
+  calculateDiscount(): number {
+    if (!this.hasDiscount()) return 0;
+
+    const original = this.productData.viewPrice;
+    const sale = this.productData.viewPriceSale;
+
+    return Math.round((1 - sale / original) * 100);
+  }
+
+  // Получаем цвет тега акции
+  getPromoTagColor(tagColor: string | null | undefined): string {
+    // Дефолтные цвета для известных значений
+    const colorMap: Record<string, string> = {
+      'test': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',      // фиолетовый
+      'sale': 'linear-gradient(135deg, #ef4444, #dc2626)',      // красный
+      'new': 'linear-gradient(135deg, #10b981, #059669)',       // зелёный
+      'hit': 'linear-gradient(135deg, #f59e0b, #d97706)',       // оранжевый
+      'promo': 'linear-gradient(135deg, #3b82f6, #2563eb)',     // синий
+    };
+
+    if (tagColor && colorMap[tagColor.toLowerCase()]) {
+      return colorMap[tagColor.toLowerCase()];
+    }
+
+    // Дефолтный градиент, если цвет не распознан
+    return 'linear-gradient(135deg, #ef4444, #f97316)';
+  }
+
+  // Расчет процента заполнения лимита
+  getPromoLimitPercent(promo: any): number {
+    if (!promo?.productCountSailLimit || promo.productCountSailLimit <= 0) return 0;
+
+    const sold = promo.productCountAlreadySailed || 0;
+    const limit = promo.productCountSailLimit;
+
+    return Math.min((sold / limit) * 100, 100);
+  }
 
 
 }

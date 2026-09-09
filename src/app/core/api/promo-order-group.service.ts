@@ -3,12 +3,13 @@ import { Injectable } from '@angular/core';
 import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../environment';
 import { FilterResponse, PromoOrderGroup, PromoOrder } from '../interfaces/promo.interface';
+import { DatePipe } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class PromoOrderGroupService {
   private readonly baseUrl = `${environment.production}/api/Entities`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private datePipe: DatePipe) { }
 
   /**
    * Получить группы акций с вложенными товарами
@@ -77,7 +78,7 @@ export class PromoOrderGroupService {
       `${this.baseUrl}/PromoOrder/Filter`,
       {
         filters: [
-          
+
         ],
         page: 0,
         pageSize: 50
@@ -90,10 +91,17 @@ export class PromoOrderGroupService {
     page = 0,
     pageSize = 10
   ): Observable<FilterResponse<PromoOrderGroup>> {
+    const currentDate = new Date();
+    const currentDateFormatted = this.datePipe.transform(currentDate, 'yyyy-MM-ddTH:mm:ss.SSSZ');
+
     return this.http.post<FilterResponse<PromoOrderGroup>>(
       `${this.baseUrl}/PromoOrderGroup/Filter`,
       {
-        filters: [],
+        filters: [{
+          field: "EndDateTime",
+          values: [currentDateFormatted],
+          type: 7
+        }],
         sorts: [],
         page,
         pageSize

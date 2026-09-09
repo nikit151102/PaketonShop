@@ -806,24 +806,10 @@ export class ProductComponent implements OnInit, OnDestroy {
     const promo = this.getActivePromo();
     if (!promo) return false;
 
-    if (this.product.viewPriceSale >= this.product.wholesalePrice ||
-      this.product.viewPriceSale >= this.product.wholesalePriceDest
-    ) return false
-
-    // Скидка есть, если viewPriceSale меньше viewPrice и положителен
-    return (this.product.viewPriceSale > 0 && this.product.viewPriceSale != this.product.viewPrice);// this.product.viewPriceSale < this.product.viewPrice
-
+    if (this.getDisplayOldPrice > this.product.viewPrice) return true
+    return false
   }
 
-
-  hasWholesaleDiscount(): boolean {
-    return (this.product.viewPrice === this.product.wholesalePrice ||
-      this.product.viewPrice === this.product.wholesalePriceDest
-    );
-  }
-
-
-  // Получаем цену для отображения (со скидкой или обычную)
   get getDisplayPrice(): number {
     if (this.hasDiscount()) {
       if (this.product.viewPrice > this.product.viewPriceSale) return this.product.viewPriceSale;
@@ -832,24 +818,15 @@ export class ProductComponent implements OnInit, OnDestroy {
     return this.product.viewPrice;
   }
 
-    get getDisplayOldPrice(): number {
-    if (this.hasDiscount()) {
-      if (this.product.viewPrice > this.product.viewPriceSale) return this.product.viewPrice;
-      if (this.product.viewPrice < this.product.viewPriceSale) return this.product.viewPriceSale;
+  get getDisplayOldPrice(): number {
+    switch (this.product.viewPriceType) {
+      case 0: return this.product.retailPrice;
+      case 1: return this.product.retailPriceDest;
+      case 2: return this.product.wholesalePrice;
+      case 3: return this.product.wholesalePriceDest;
+
     }
-    return this.product.viewPrice;
-  }
-
-  private get isHomeCity(): boolean {
-    const userSelectedCity = StorageUtils.getLocalStorageCache('pktn_userCity');
-    // Для Заринска это вернет false, и включится логика "межгорода"
-    return userSelectedCity === 'Барнаул';
-  }
-
-  getDisplayWholesalePrice(): number {
-    return this.isHomeCity
-      ? this.product.retailPrice
-      : this.product.retailPriceDest;
+    return this.product.retailPrice
   }
 
   // Расчет процента скидки для бейджа
@@ -869,6 +846,19 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
     // Дефолтный красный градиент
     return 'linear-gradient(135deg, #ef4444, #dc2626)';
+  }
+
+  hasWholesaleDiscount(): boolean {
+    if (this.hasDiscount() || (this.product.viewPriceType != 2 && this.product.viewPriceType != 3)) return false;
+    return true;
+  }
+
+  getDisplayWholesalePrice() {
+    switch (this.product.viewPriceType) {
+      case 2: return this.product.retailPrice;
+      case 3: return this.product.retailPriceDest;
+    }
+    return this.product.retailPriceDest;
   }
 
   // Текст бейджа акции

@@ -6,7 +6,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { registerLocaleData } from '@angular/common';
+import { DatePipe, registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import localeRuExtra from '@angular/common/locales/extra/ru';
 
@@ -23,7 +23,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi()),
-
+    DatePipe,
     // Устанавливаем русскую локаль по умолчанию
     { provide: LOCALE_ID, useValue: 'ru' },
 
