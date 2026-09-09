@@ -358,57 +358,30 @@ export class ProductComponent implements OnChanges, OnInit {
     return '#ef4444';
   }
 
-  private get isHomeCity(): boolean {
-    const userSelectedCity = localStorage.getItem('pktn_userCity');
-    return userSelectedCity === 'Барнаул';
-  }
-
-  get isShowingWholesale(): boolean {
-    return !this.isHomeCity;
-  }
-
-  get retailPriceForDisplay(): number {
-    return this.isHomeCity
-      ? (this.product?.product?.retailPrice || 0)
-      : (this.product?.product?.retailPriceDest || 0);
-  }
-
-  get wholesalePriceForDisplay(): number {
-    return this.isHomeCity
-      ? (this.product?.product?.wholesalePrice || 0)
-      : (this.product?.product?.wholesalePriceDest || 0);
-  }
-
-  get shouldShowRetailCrossed(): boolean {
-    return !this.hasActivePromo &&
-      this.isShowingWholesale &&
-      this.retailPriceForDisplay > this.wholesalePriceForDisplay;
-  }
-
 
   get getDisplayPrice(): number {
-    if (this.product.product.viewPrice > this.product.product.viewPriceSale) return this.product.product.viewPriceSale;
-    return this.product.product.viewPrice;
+    if (this.product.price > this.product.priceSale) return this.product.priceSale;
+    return this.product.price;
   }
 
    getDisplayWholesalePrice() {
-    switch (this.product.product.viewPriceType) {
-      case 2: return this.product.product.retailPrice;
-      case 3: return this.product.product.retailPriceDest;
+    switch (this.product.priceType) {
+      case 2: return this.product.retailPrice;
+      case 3: return this.product.retailPriceDest;
     }
-    return this.product.product.retailPriceDest;
+    return this.product.retailPriceDest;
   }
 
 
   get getDisplayTotal(): number {
-    if (this.product.product.viewPriceSale > this.product.product.viewPrice) return this.product.product.viewPrice * this.product.count;
-    return this.product.product.viewPriceSale * this.product.count;
+    if (this.product.priceSale > this.product.price) return this.product.price * this.product.count;
+    return this.product.priceSale * this.product.count;
   }
 
   get getOldDisplayTotal(): number {
        if(this.getDisplayWholesalePrice() != this.product.retailPriceDest) return this.getDisplayWholesalePrice();
-    if (this.product.product.viewPriceSale > this.product.product.viewPrice) return this.product.product.viewPriceSale * this.product.count;
-    return this.product.product.viewPrice * this.product.count;
+    if (this.product.priceSale > this.product.price) return this.product.priceSale * this.product.count;
+    return this.product.price * this.product.count;
   }
 
   get packType() {
@@ -420,22 +393,22 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   hasDiscount(product: any): boolean {
-    if (product.product.viewPrice != product.product.viewPriceSale) return true
+    if (product.price != product.priceSale) return true
 
-    if (this.getDisplayOldPrice(product) > product.product.viewPrice) return true
+    if (this.getDisplayOldPrice(product) > product.price) return true
 
     return false;
   }
 
   getDisplayOldPrice(product: any): number {
-    switch (product.product.viewPriceType) {
-      case 0: return product.product.retailPrice;
-      case 1: return product.product.retailPriceDest;
-      case 2: return product.product.wholesalePrice;
-      case 3: return product.product.wholesalePriceDest;
+    switch (product.priceType) {
+      case 0: return product.retailPrice;
+      case 1: return product.retailPriceDest;
+      case 2: return product.wholesalePrice;
+      case 3: return product.wholesalePriceDest;
 
     }
-    return product.product.retailPrice
+    return product.retailPrice
   }
 
 }

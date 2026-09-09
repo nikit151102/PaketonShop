@@ -500,18 +500,18 @@ export class CartComponent implements OnInit, OnDestroy {
 
       // 🔹 Розничная цена за единицу (в зависимости от города)
       const retailPricePerUnit = this.isHomeCity
-        ? (product.product?.retailPrice || 0)
-        : (product.product?.retailPriceDest || 0);
+        ? (product?.retailPrice || 0)
+        : (product?.retailPriceDest || 0);
 
       // 🔹 Розничная цена за упаковку
       const retailPackPrice = retailPricePerUnit * coefficient;
       let finalPackPrice = 0
-      // 🔹 Фактическая цена за упаковку (priceSale если валидна)
-      if (product.product.viewPrice > product.product.viewPriceSale){
-        finalPackPrice = product.product.viewPriceSale;
+
+      if (product.price > product.priceSale){
+        finalPackPrice = product.priceSale;
       }
       else{
-        finalPackPrice = product.product.viewPrice
+        finalPackPrice = product.price
       }
 
       // 🔹 Проверяем акцию для бейджа

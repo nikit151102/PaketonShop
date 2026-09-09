@@ -292,18 +292,18 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   get getProductsTotal(): number {
     return this.basketProducts.reduce((total, product) => {
-      const price = product.product.viewPriceSale < product.product.viewPrice
-        ? product.product.viewPriceSale
-        : product.product.viewPrice;
+      const price = product.priceSale < product.price
+        ? product.priceSale
+        : product.price;
       return total + (price * product.qty);
     }, 0);
   }
 
   get getOldProductsTotal(): number {
      return this.basketProducts.reduce((total, product) => {
-      const price = product.product.viewPriceSale < product.product.viewPrice
-        ? product.product.viewPrice
-        : product.product.viewPriceSale;
+      const price = product.priceSale < product.price
+        ? product.price
+        : product.priceSale;
       return total + (price * product.qty);
     }, 0);
   }
@@ -958,22 +958,22 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Проверка: есть ли активная скидка у товара
    */
   hasDiscount(product: any): boolean {
-    if (product.product.viewPrice != product.product.viewPriceSale) return true
+    if (product.price != product.priceSale) return true
 
-    if (this.getDisplayOldPrice(product) > product.product.viewPrice) return true
+    if (this.getDisplayOldPrice(product) > product.price) return true
 
     return false;
   }
 
    getDisplayOldPrice(product: any): number {
-    switch (product.product.viewPriceType) {
-      case 0: return product.product.retailPrice;
-      case 1: return product.product.retailPriceDest;
-      case 2: return product.product.wholesalePrice;
-      case 3: return product.product.wholesalePriceDest;
+    switch (product.priceType) {
+      case 0: return product.retailPrice;
+      case 1: return product.retailPriceDest;
+      case 2: return product.wholesalePrice;
+      case 3: return product.wholesalePriceDest;
 
     }
-    return product.product.retailPrice
+    return product.retailPrice
   }
 
   /**
@@ -997,20 +997,20 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Цена для отображения (со скидкой или обычная)
    */
   getDisplayPrice(product: any): number {
-    if (product.product.viewPriceSale < product.product.viewPrice) {
-      return product.product.viewPriceSale;
+    if (product.priceSale < product.price) {
+      return product.priceSale;
     }
-    return product.product.viewPrice || 0;
+    return product.price || 0;
   }
 
   /**
    * Старая цена (для зачёркивания)
    */
   getOriginalPrice(product: any): number {
-    if (product.product.viewPriceSale < product.product.viewPrice) {
-      return product.product.viewPrice;
+    if (product.priceSale < product.price) {
+      return product.price;
     }
-    return product.product.viewPriceSale || 0;
+    return product.priceSale || 0;
   }
 
   /**
