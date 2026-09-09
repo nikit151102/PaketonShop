@@ -292,18 +292,18 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   get getProductsTotal(): number {
     return this.basketProducts.reduce((total, product) => {
-      const price = product.priceSale < product.price
-        ? product.priceSale
-        : product.price;
+      const price = product.product.viewPriceSale < product.product.viewPrice
+        ? product.product.viewPriceSale
+        : product.product.viewPrice;
       return total + (price * product.qty);
     }, 0);
   }
 
   get getOldProductsTotal(): number {
      return this.basketProducts.reduce((total, product) => {
-      const price = product.priceSale < product.price
-        ? product.price
-        : product.priceSale;
+      const price = product.product.viewPriceSale < product.product.viewPrice
+        ? product.product.viewPrice
+        : product.product.viewPriceSale;
       return total + (price * product.qty);
     }, 0);
   }
@@ -958,7 +958,7 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Проверка: есть ли активная скидка у товара
    */
   hasDiscount(product: any): boolean {
-    if (product.price != product.priceSale) return true
+    if (product.product.viewPrice != product.product.viewPriceSale) return true
     return false;
   }
 
@@ -983,20 +983,20 @@ export class OrderComponent implements OnInit, OnDestroy {
    * Цена для отображения (со скидкой или обычная)
    */
   getDisplayPrice(product: any): number {
-    if (product.priceSale < product.price) {
-      return product.priceSale;
+    if (product.product.viewPriceSale < product.product.viewPrice) {
+      return product.product.viewPriceSale;
     }
-    return product.price || 0;
+    return product.product.viewPrice || 0;
   }
 
   /**
    * Старая цена (для зачёркивания)
    */
   getOriginalPrice(product: any): number {
-    if (product.priceSale < product.price) {
-      return product.price;
+    if (product.product.viewPriceSale < product.product.viewPrice) {
+      return product.product.viewPrice;
     }
-    return product.priceSale || 0;
+    return product.product.viewPriceSale || 0;
   }
 
   /**

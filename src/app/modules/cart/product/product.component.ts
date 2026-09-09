@@ -389,36 +389,31 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get getDisplayOldPrice(): number {
-    switch (this.product.viewPriceType) {
-      case 0: return this.product.retailPrice;
-      case 1: return this.product.retailPriceDest;
-      case 2: return this.product.wholesalePrice;
-      case 3: return this.product.wholesalePriceDest;
+    switch (this.product.product.viewPriceType) {
+      case 0: return this.product.product.retailPrice;
+      case 1: return this.product.product.retailPriceDest;
+      case 2: return this.product.product.wholesalePrice;
+      case 3: return this.product.product.wholesalePriceDest;
 
     }
-    return this.product.retailPrice
+    return this.product.product.retailPrice
   }
 
 
-  get getDisplayPrice(): number {
-    if (this.product.priceSale > this.product.price) return this.product.price;
-    return this.product.priceSale;
-  }
-
-  get getOldDisplayPrice(): number {
-    if (this.product.priceSale > this.product.price) return this.product.priceSale;
-    return this.product.price;
+ get getDisplayPrice(): number {
+      if (this.product.product.viewPrice > this.product.product.viewPriceSale) return this.product.product.viewPriceSale;
+      return this.product.product.viewPrice;
   }
 
 
   get getDisplayTotal(): number {
-    if (this.product.priceSale > this.product.price) return this.product.price * this.product.count;
-    return this.product.priceSale * this.product.count;
+    if (this.product.product.viewPriceSale > this.product.product.viewPrice) return this.product.product.viewPrice * this.product.count;
+    return this.product.product.viewPriceSale * this.product.count;
   }
 
   get getOldDisplayTotal(): number {
-    if (this.product.priceSale > this.product.price) return this.product.priceSale * this.product.count;
-    return this.product.price * this.product.count;
+    if (this.product.product.viewPriceSale > this.product.product.viewPrice) return this.product.product.viewPriceSale * this.product.count;
+    return this.product.product.viewPrice * this.product.count;
   }
 
   get packType() {

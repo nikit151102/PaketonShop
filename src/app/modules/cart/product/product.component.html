@@ -137,8 +137,8 @@
               <span class="price-current">
                 {{ getDisplayPrice | number:'1.2-2':'ru' }} ₽
               </span>
-              <span class="price-old" *ngIf="getOldDisplayPrice != getDisplayPrice">
-                {{ getOldDisplayPrice | number:'1.2-2':'ru' }} ₽
+              <span class="price-old" *ngIf="getDisplayOldPrice != getDisplayPrice">
+                {{ getDisplayOldPrice | number:'1.2-2':'ru' }} ₽
               </span>
               <span class="price-unit">{{packType}}</span>
             </div>
