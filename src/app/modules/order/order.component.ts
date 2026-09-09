@@ -959,7 +959,21 @@ export class OrderComponent implements OnInit, OnDestroy {
    */
   hasDiscount(product: any): boolean {
     if (product.product.viewPrice != product.product.viewPriceSale) return true
+
+    if (this.getDisplayOldPrice(product) > product.product.viewPrice) return true
+
     return false;
+  }
+
+   getDisplayOldPrice(product: any): number {
+    switch (product.product.viewPriceType) {
+      case 0: return product.product.retailPrice;
+      case 1: return product.product.retailPriceDest;
+      case 2: return product.product.wholesalePrice;
+      case 3: return product.product.wholesalePriceDest;
+
+    }
+    return product.product.retailPrice
   }
 
   /**

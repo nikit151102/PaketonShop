@@ -472,72 +472,76 @@ export class CartComponent implements OnInit, OnDestroy {
     return userSelectedCity === 'Барнаул';
   }
 
-private calculateTotals(): void {
-  if (!this.activeBasket?.products) {
-    this.totalItems = 0;
-    this.subtotal = 0;
-    this.totalDiscount = 0;
-    this.total = 0;
-    this.retailTotal = 0;
-    this.totalSaving = 0;
-    this.hasActivePromo = false;
-    this.promoPercent = 0;
-    return;
+
+
+  private calculateTotals(): void {
+    if (!this.activeBasket?.products) {
+      this.totalItems = 0;
+      this.subtotal = 0;
+      this.totalDiscount = 0;
+      this.total = 0;
+      this.retailTotal = 0;
+      this.totalSaving = 0;
+      this.hasActivePromo = false;
+      this.promoPercent = 0;
+      return;
+    }
+
+    let items = 0;
+    let subtotal = 0;
+    let retailSubtotal = 0;
+    let hasPromo = false;
+    let maxPromoPercent = 0;
+
+    this.activeBasket.products.forEach((product: any) => {
+      const count = product.count || 1;
+      const coefficient = product.productBarCode?.coefficient || 1;
+      items += count;
+
+      // 🔹 Розничная цена за единицу (в зависимости от города)
+      const retailPricePerUnit = this.isHomeCity
+        ? (product.product?.retailPrice || 0)
+        : (product.product?.retailPriceDest || 0);
+
+      // 🔹 Розничная цена за упаковку
+      const retailPackPrice = retailPricePerUnit * coefficient;
+      let finalPackPrice = 0
+      // 🔹 Фактическая цена за упаковку (priceSale если валидна)
+      if (product.product.viewPrice > product.product.viewPriceSale){
+        finalPackPrice = product.product.viewPriceSale;
+      }
+      else{
+        finalPackPrice = product.product.viewPrice
+      }
+
+      // 🔹 Проверяем акцию для бейджа
+      if (product.product?.promoOrders?.length > 0) {
+        const promo = product.product.promoOrders.find((p: any) =>
+          !p.isDeleted && p.isUse !== false && p.salePercent > 0
+        );
+        if (promo?.salePercent && promo.salePercent > 0) {
+          hasPromo = true;
+          const percent = Math.min(99, Math.round(Math.abs(promo.salePercent) * 100));
+          if (percent > maxPromoPercent) maxPromoPercent = percent;
+        }
+      }
+
+      // 🔹 Считаем итоги
+      retailSubtotal += retailPackPrice * count;
+      subtotal += finalPackPrice * count;
+    });
+
+    this.totalItems = items;
+    this.subtotal = subtotal;
+    this.total = subtotal + this.deliveryCost;
+    this.retailTotal = retailSubtotal;
+    this.totalSaving = Math.max(0, retailSubtotal - subtotal);
+    this.hasActivePromo = hasPromo;
+    this.promoPercent = maxPromoPercent;
+    this.cdr?.markForCheck();
   }
 
-  let items = 0;
-  let subtotal = 0;
-  let retailSubtotal = 0;
-  let hasPromo = false;
-  let maxPromoPercent = 0;
 
-  this.activeBasket.products.forEach((product: any) => {
-    const count = product.count || 1;
-    const coefficient = product.productBarCode?.coefficient || 1;
-    items += count;
-
-    // 🔹 Розничная цена за единицу (в зависимости от города)
-    const retailPricePerUnit = this.isHomeCity
-      ? (product.product?.retailPrice || 0)
-      : (product.product?.retailPriceDest || 0);
-    
-    // 🔹 Розничная цена за упаковку
-    const retailPackPrice = retailPricePerUnit * coefficient;
-
-    // 🔹 Фактическая цена за упаковку (priceSale если валидна)
-    let finalPackPrice = product.price || 0;
-    if (product.priceSale !== null && 
-        product.priceSale > 0 && 
-        product.priceSale < finalPackPrice) {
-      finalPackPrice = product.priceSale;
-    }
-
-    // 🔹 Проверяем акцию для бейджа
-    if (product.product?.promoOrders?.length > 0) {
-      const promo = product.product.promoOrders.find((p: any) =>
-        !p.isDeleted && p.isUse !== false && p.salePercent > 0
-      );
-      if (promo?.salePercent && promo.salePercent > 0) {
-        hasPromo = true;
-        const percent = Math.min(99, Math.round(Math.abs(promo.salePercent) * 100));
-        if (percent > maxPromoPercent) maxPromoPercent = percent;
-      }
-    }
-
-    // 🔹 Считаем итоги
-    retailSubtotal += retailPackPrice * count;
-    subtotal += finalPackPrice * count;
-  });
-
-  this.totalItems = items;
-  this.subtotal = subtotal;
-  this.total = subtotal + this.deliveryCost;
-  this.retailTotal = retailSubtotal;
-  this.totalSaving = Math.max(0, retailSubtotal - subtotal);
-  this.hasActivePromo = hasPromo;
-  this.promoPercent = maxPromoPercent;
-  this.cdr?.markForCheck();
-}
 
   applyPromo(): void {
     if (!this.promoCode.trim()) return;

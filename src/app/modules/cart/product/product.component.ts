@@ -140,9 +140,6 @@ export class ProductComponent implements OnChanges, OnInit {
     return this.product?.product?.available !== false;
   }
 
-  get hasDiscount(): boolean {
-    return this._hasDiscount;
-  }
 
   get discountPrice(): number {
     return this._discountPrice;
@@ -388,21 +385,18 @@ export class ProductComponent implements OnChanges, OnInit {
       this.retailPriceForDisplay > this.wholesalePriceForDisplay;
   }
 
-  get getDisplayOldPrice(): number {
-    switch (this.product.product.viewPriceType) {
-      case 0: return this.product.product.retailPrice;
-      case 1: return this.product.product.retailPriceDest;
-      case 2: return this.product.product.wholesalePrice;
-      case 3: return this.product.product.wholesalePriceDest;
 
-    }
-    return this.product.product.retailPrice
+  get getDisplayPrice(): number {
+    if (this.product.product.viewPrice > this.product.product.viewPriceSale) return this.product.product.viewPriceSale;
+    return this.product.product.viewPrice;
   }
 
-
- get getDisplayPrice(): number {
-      if (this.product.product.viewPrice > this.product.product.viewPriceSale) return this.product.product.viewPriceSale;
-      return this.product.product.viewPrice;
+   getDisplayWholesalePrice() {
+    switch (this.product.product.viewPriceType) {
+      case 2: return this.product.product.retailPrice;
+      case 3: return this.product.product.retailPriceDest;
+    }
+    return this.product.product.retailPriceDest;
   }
 
 
@@ -412,6 +406,7 @@ export class ProductComponent implements OnChanges, OnInit {
   }
 
   get getOldDisplayTotal(): number {
+       if(this.getDisplayWholesalePrice() != this.product.retailPriceDest) return this.getDisplayWholesalePrice();
     if (this.product.product.viewPriceSale > this.product.product.viewPrice) return this.product.product.viewPriceSale * this.product.count;
     return this.product.product.viewPrice * this.product.count;
   }
@@ -423,4 +418,24 @@ export class ProductComponent implements OnChanges, OnInit {
       return "шт"
     }
   }
+
+  hasDiscount(product: any): boolean {
+    if (product.product.viewPrice != product.product.viewPriceSale) return true
+
+    if (this.getDisplayOldPrice(product) > product.product.viewPrice) return true
+
+    return false;
+  }
+
+  getDisplayOldPrice(product: any): number {
+    switch (product.product.viewPriceType) {
+      case 0: return product.product.retailPrice;
+      case 1: return product.product.retailPriceDest;
+      case 2: return product.product.wholesalePrice;
+      case 3: return product.product.wholesalePriceDest;
+
+    }
+    return product.product.retailPrice
+  }
+
 }
