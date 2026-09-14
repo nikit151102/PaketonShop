@@ -98,20 +98,20 @@ export class PromoOrderGroupService {
       `${this.baseUrl}/PromoOrderGroup/Filter`,
       {
         filters: [
-          {
-            field: "BeginDateTime",
-            values: [currentDateFormatted],
-            type: 7
-          },
-          {
-            field: "EndDateTime",
-            values: [currentDateFormatted],
-            type: 8
-          }
+          // {
+          //   field: "BeginDateTime",
+          //   values: [currentDateFormatted],
+          //   type: 7
+          // },
+          // {
+          //   field: "EndDateTime",
+          //   values: [currentDateFormatted],
+          //   type: 8
+          // }
         ],
         sorts: [],
-        page,
-        pageSize
+        page: 0,
+        pageSize: 60
       }
     );
   }

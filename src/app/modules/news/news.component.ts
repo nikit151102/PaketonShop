@@ -3,6 +3,8 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewsBannerFilterDto, NewsBannerService } from '../../core/api/news-banner.service';
 import { RouterLink } from '@angular/router';
+import { TitleComponent } from '../../core/components/title/title.component';
+import { SalesProductsComponent } from '../home/components/sales-products/sales-products.component';
 
 // Интерфейс для одного элемента новости с бэкенда (адаптирован под ваш ответ)
 interface NewsBanner {
@@ -30,7 +32,11 @@ interface NewsItem {
 @Component({
   selector: 'app-news',
   standalone: true, // Хороший тон для современных компонентов
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule,
+    RouterLink,
+    TitleComponent,
+    SalesProductsComponent
+  ],
   templateUrl: './news.component.html',
   styleUrls: ['./news.component.scss'] // Обратите внимание на styleUrls (во множественном числе)
 })
@@ -39,7 +45,7 @@ export class NewsComponent implements OnInit {
   filteredNewsItems: NewsItem[] = [];
   isLoading = true;
   error: string | null = null;
-  
+
   // Типы новостей для фильтрации
   newsTypes = [
     { value: -1, label: 'Все новости' },
@@ -50,9 +56,9 @@ export class NewsComponent implements OnInit {
   selectedType = -1;
 
   // Правильное использование Inject
-  constructor( private newsBannerService: NewsBannerService,
+  constructor(private newsBannerService: NewsBannerService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadData();

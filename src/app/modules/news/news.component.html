@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0  && selectedType != 0" class="empty-state">
       <svg class="state-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
         stroke-width="1.5">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -72,4 +72,11 @@
       <p>Загляните позже, мы обязательно что-нибудь опубликуем</p>
     </div>
   </div>
+ <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0 && selectedType == 0" >
+    <app-title [title]="'Товары по акции'"
+      [description]="'Товары улетают за минуты. Торопитесь, пока есть в наличии!'"></app-title>
+    <app-sales-products></app-sales-products>
+ </div>
+
+
 </section>
