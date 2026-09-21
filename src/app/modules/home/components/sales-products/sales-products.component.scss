@@ -115,10 +115,10 @@
 
   .group-title {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-start;
     flex: 1;
     min-width: 0;
+    flex-direction: column;
 
     .group-name {
       font-size: 16px;
@@ -130,8 +130,9 @@
     }
 
     .group-dates {
-      font-size: 13px;
-      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+      color: #686868;
       white-space: nowrap;
     }
   }

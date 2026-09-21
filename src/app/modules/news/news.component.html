@@ -30,7 +30,7 @@
       <button class="retry-btn" (click)="loadData()">Попробовать снова</button>
     </div>
 
-    <div *ngIf="!isLoading && !error" class="news-grid">
+    <div *ngIf="!isLoading && !error && selectedType != 0" class="news-grid">
       <div *ngFor="let item of filteredNewsItems; let i = index" class="news-card" [routerLink]="['/news', item.id]"
         [style.animation-delay]="i * 0.05 + 's'">
         <div class="card-image">
@@ -72,7 +72,7 @@
       <p>Загляните позже, мы обязательно что-нибудь опубликуем</p>
     </div>
   </div>
- <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0 && selectedType == 0" >
+ <div *ngIf="selectedType == 0" >
     <app-title [title]="'Товары по акции'"
       [description]="'Товары улетают за минуты. Торопитесь, пока есть в наличии!'"></app-title>
     <app-sales-products></app-sales-products>

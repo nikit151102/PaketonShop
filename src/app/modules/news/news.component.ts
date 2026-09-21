@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, Inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { NewsBannerFilterDto, NewsBannerService } from '../../core/api/news-banner.service';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TitleComponent } from '../../core/components/title/title.component';
 import { SalesProductsComponent } from '../home/components/sales-products/sales-products.component';
 
@@ -57,11 +57,24 @@ export class NewsComponent implements OnInit {
 
   // Правильное использование Inject
   constructor(private newsBannerService: NewsBannerService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    this.loadData();
+    this.route.queryParams.subscribe(params => {
+      const typeParam = params['type'];
+
+      if (typeParam !== undefined && typeParam !== null) {
+        const parsedType = parseInt(typeParam, 10);
+        if ([-1, 0, 1, 2].includes(parsedType)) {
+          this.selectedType = parsedType;
+        }
+      }
+
+      this.loadData();
+    });
   }
 
   loadData(): void {
