@@ -74,6 +74,16 @@ export const routes: Routes = [
     }
   },
     {
+    path: 'franchise-order',
+    loadComponent: () => import('./modules/franchise-order/franchise-order.component').then((m) => m.FranchiseOrderComponent),
+    data: {
+      title: 'Франшиза Пакетон.рф — Открой свой бизнес по продаже упаковки',
+      description: 'Откройте прибыльный бизнес с франшизой Пакетон.рф! Готовая бизнес-модель магазина упаковки, полная поддержка партнеров, широкий ассортимент и узнаваемый бренд. Узнайте условия открытия.',
+      keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
+    }
+  },
+  
+    {
     path: 'appeal',
     loadComponent: () => import('./modules/appeal/appeal.component').then((m) => m.AppealComponent),
     data: {

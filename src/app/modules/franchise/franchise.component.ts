@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 interface RoadmapStep {
   title: string;
@@ -41,18 +42,18 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // ─── Данные: Преимущества (Крупная) ───
   largeBenefits: BenefitItem[] = [
-    {title: 'Доход с первого месяца', desc: 'Гарантированная выручка благодаря готовой товарной матрице и маркетинговому плану.', icon: 'wallet'},
-    {title: 'Рост выручки 30–100%', desc: 'Ежемесячное увеличение оборота за счёт расширения B2B-клиентской базы.', icon: 'chart-up'},
-    {title: 'Масштабирование B2B', desc: 'Увеличьте прибыль в 2–3 раза, заключая контракты с производствами, барами и медицинскими учреждениями.', icon: 'building'},
-    {title: 'Полная автоматизация', desc: 'Готовое ПО для магазина, отчёты P&L, ведение бухгалтерии и учёт товародвижения.', icon: 'computer'}
+    { title: 'Доход с первого месяца', desc: 'Гарантированная выручка благодаря готовой товарной матрице и маркетинговому плану.', icon: 'wallet' },
+    { title: 'Рост выручки 30–100%', desc: 'Ежемесячное увеличение оборота за счёт расширения B2B-клиентской базы.', icon: 'chart-up' },
+    { title: 'Масштабирование B2B', desc: 'Увеличьте прибыль в 2–3 раза, заключая контракты с производствами, барами и медицинскими учреждениями.', icon: 'building' },
+    { title: 'Полная автоматизация', desc: 'Готовое ПО для магазина, отчёты P&L, ведение бухгалтерии и учёт товародвижения.', icon: 'computer' }
   ];
 
   // ─── Данные: Преимущества (Мини) ───
   miniBenefits: BenefitItem[] = [
-    {title: 'Поддержка на всех этапах', desc: 'Полное сопровождение от подбора помещения до первых продаж и дальнейшей работы.', icon: 'users'},
-    {title: 'Проверенная бизнес-модель', desc: 'Готовые регламенты, стандарты работы и товарная матрица для минимаркета.', icon: 'chart-up'},
-    {title: 'Обучение и сопровождение', desc: 'Передаём все необходимые знания для успешного управления вашей точкой.', icon: 'graduation'},
-    {title: 'Стабильная прибыль', desc: 'Рентабельность по прибыли 21% и быстрая окупаемость от 3 до 6 месяцев.', icon: 'wallet'}
+    { title: 'Поддержка на всех этапах', desc: 'Полное сопровождение от подбора помещения до первых продаж и дальнейшей работы.', icon: 'users' },
+    { title: 'Проверенная бизнес-модель', desc: 'Готовые регламенты, стандарты работы и товарная матрица для минимаркета.', icon: 'chart-up' },
+    { title: 'Обучение и сопровождение', desc: 'Передаём все необходимые знания для успешного управления вашей точкой.', icon: 'graduation' },
+    { title: 'Стабильная прибыль', desc: 'Рентабельность по прибыли 21% и быстрая окупаемость от 3 до 6 месяцев.', icon: 'wallet' }
   ];
 
   // ─── Данные: Финансы (Крупная) ───
@@ -174,7 +175,7 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private observer!: IntersectionObserver;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) { }
+  constructor(private el: ElementRef, private renderer: Renderer2, private router: Router,) { }
 
   ngOnInit(): void { }
 
@@ -204,9 +205,7 @@ export class FranchiseComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onSubmit(): void {
-    if (this.formName && this.formPhone) {
-      this.formSubmitted = true;
-    }
+    this.router.navigate(['/franchise-order']);
   }
 
   scrollToForm(): void {

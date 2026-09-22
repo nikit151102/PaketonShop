@@ -1,0 +1,1352 @@
+<div class="modern-business-registration">
+
+    <!-- ====================================================== -->
+    <!-- SUCCESS -->
+    <!-- ====================================================== -->
+
+    @if (success) {
+
+    <div class="success-state">
+
+        <div class="success-content">
+
+            <div class="success-visual">
+
+                <div class="success-icon-animated">
+
+                    <svg class="checkmark" viewBox="0 0 52 52">
+
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none">
+                        </circle>
+
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8">
+                        </path>
+
+                    </svg>
+
+                </div>
+
+            </div>
+
+
+            <div class="success-details">
+
+                <h2>Готово!</h2>
+
+                <p class="success-message">
+                    Заявка на франшизу успешно создана
+                </p>
+
+
+                <div class="success-info-cards">
+
+                    <div class="info-card">
+
+                        <div class="info-content">
+
+                            <div class="info-title">
+                                Статус
+                            </div>
+
+                            <div class="info-value">
+                                Заявка создана
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-card">
+
+                        <div class="info-content">
+
+                            <div class="info-title">
+                                Город
+                            </div>
+
+                            <div class="info-value">
+                                {{ franchiseForm.get('city')?.value }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-card">
+
+                        <div class="info-content">
+
+                            <div class="info-title">
+                                Компания
+                            </div>
+
+                            <div class="info-value">
+
+                                @if (hasCompany) {
+                                Компания указана
+                                } @else {
+                                Компания пока отсутствует
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="success-actions">
+
+                    <a routerLink="/dashboard" class="btn-gradient">
+
+                        <span>
+                            Перейти в кабинет
+                        </span>
+
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z">
+                            </path>
+                        </svg>
+
+                    </a>
+
+
+                    <button class="btn-outline" (click)="createAnother()">
+
+                        Создать новую заявку
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    }
+
+
+    <!-- ====================================================== -->
+    <!-- REGISTRATION -->
+    <!-- ====================================================== -->
+
+    @if (!success) {
+
+    <div class="registration-container">
+
+
+        <!-- ================================================== -->
+        <!-- HEADER -->
+        <!-- ================================================== -->
+
+        <header class="registration-header">
+
+            <div class="header-top">
+
+                <div class="logo-area">
+
+                    <h1>
+                        Заявка на
+                        <span class="gradient-text">
+                            франшизу
+                        </span>
+                    </h1>
+
+                </div>
+
+
+                <div class="user-progress">
+
+                    <div class="progress-info">
+
+                        <div class="progress-label">
+                            Прогресс
+                        </div>
+
+                        <div class="progress-percent">
+                            {{ getProgressPercentage() }}%
+                        </div>
+
+                    </div>
+
+
+                    <div class="progress-bar">
+
+                        <div class="progress-fill" [style.width.%]="getProgressPercentage()">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-main">
+
+                <div class="header-content">
+
+                    <div class="step-indicator">
+
+                        <div class="step-badge">
+
+                            <span class="step-badge-icon">
+                                📋
+                            </span>
+
+                            Шаг
+                            {{ currentStep }}
+                            из
+                            {{ totalSteps }}
+
+                        </div>
+
+
+                        <div class="header-actions">
+
+                            <button class="help-btn" (click)="toggleHelp()">
+
+                                ?
+
+                                Помощь
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="step-nav-tabs">
+
+                        @for (
+                        step of [1,2,3];
+                        track step
+                        ) {
+
+                        <button class="step-tab" [class.active]="currentStep === step"
+                            [class.completed]="getStepStatus(step) === 'completed'" (click)="goToStep(step)">
+
+                            <div class="tab-icon">
+
+                                @if (
+                                getStepStatus(step) === 'completed'
+                                ) {
+
+                                ✓
+
+                                } @else {
+
+                                {{ step }}
+
+                                }
+
+                            </div>
+
+
+                            <div class="tab-label">
+
+                                <div class="tab-title">
+                                    {{ getStepTitle(step) }}
+                                </div>
+
+                                <div class="tab-subtitle">
+                                    {{ getStepSubtitle(step) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="tab-line"></div>
+
+                        </button>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================================================== -->
+        <!-- ERROR -->
+        <!-- ================================================== -->
+
+        @if (error) {
+
+        <div class="error-toast">
+
+            <div class="toast-content">
+
+                <div class="toast-icon">
+                    !
+                </div>
+
+                <div class="toast-message">
+                    {{ error }}
+                </div>
+
+                <button class="toast-close" (click)="error = null">
+
+                    ×
+
+                </button>
+
+            </div>
+
+        </div>
+
+        }
+
+
+        <!-- ================================================== -->
+        <!-- CONTENT -->
+        <!-- ================================================== -->
+
+        <main class="registration-main">
+
+            <div class="step-container">
+
+
+                <!-- ================================================= -->
+                <!-- STEP 1 -->
+                <!-- ================================================= -->
+
+                @if (currentStep === 1) {
+
+                <div class="step-user-info">
+
+                    <div class="step-intro">
+
+                        <div class="intro-icon">
+                            👤
+                        </div>
+
+                        <div class="intro-content">
+
+                            <h2>
+                                Создание учетной записи
+                            </h2>
+
+                            <p>
+                                Заполните данные для создания личного кабинета
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form [formGroup]="userForm" class="modern-form">
+
+
+                        <!-- EMAIL / PHONE -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Контактная информация
+                                </h3>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group" [class.error]="
+                        userForm.get('email')?.invalid &&
+                        userForm.get('email')?.touched
+                      ">
+
+                                    <label class="form-label">
+
+                                        Email
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input type="email" formControlName="email" placeholder="your.email@company.com"
+                                        class="modern-input">
+
+                                </div>
+
+
+                                <div class="form-group" [class.error]="
+                        userForm.get('phoneNumber')?.invalid &&
+                        userForm.get('phoneNumber')?.touched
+                      ">
+
+                                    <label class="form-label">
+
+                                        Телефон
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input type="tel" formControlName="phoneNumber" placeholder="+7 (999) 999-99-99"
+                                        class="modern-input">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PERSONAL -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Персональные данные
+                                </h3>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+
+                                        Фамилия
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <input type="text" formControlName="lastName" placeholder="Иванов"
+                                        class="modern-input">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+
+                                        Имя
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+                                    <input type="text" formControlName="firstName" placeholder="Иван"
+                                        class="modern-input">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+                                        Отчество
+                                    </label>
+
+                                    <input type="text" formControlName="middleName" placeholder="Иванович"
+                                        class="modern-input">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+                                        Дата рождения
+                                    </label>
+
+                                    <input type="date" formControlName="birthday" class="modern-input">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        @if (!isActiveUser) {
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Защита аккаунта
+                                </h3>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+
+                                        Пароль
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <div class="password-input-wrapper">
+
+                                        <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                                            placeholder="Создайте пароль" class="modern-input">
+
+                                        <button type="button" class="password-toggle"
+                                            (click)="togglePasswordVisibility()">
+
+                                            {{ showPassword ? 'Скрыть' : 'Показать' }}
+
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="password-hints">
+
+                                        @for (
+                                        hint of passwordStrength.hints;
+                                        track hint.message
+                                        ) {
+
+                                        <div class="hint-item" [class.valid]="hint.valid">
+
+                                            {{ hint.valid ? '✓' : '•' }}
+
+                                            {{ hint.message }}
+
+                                        </div>
+
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label class="form-label">
+
+                                        Подтверждение пароля
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <div class="password-input-wrapper">
+
+                                        <input [type]="showConfirmPassword ? 'text' : 'password'"
+                                            formControlName="confirmPassword" placeholder="Повторите пароль"
+                                            class="modern-input">
+
+                                        <button type="button" class="password-toggle"
+                                            (click)="toggleConfirmPasswordVisibility()">
+
+                                            {{ showConfirmPassword ? 'Скрыть' : 'Показать' }}
+
+                                        </button>
+
+                                    </div>
+
+
+                                    @if (
+                                    userForm.get('confirmPassword')?.touched
+                                    ) {
+
+                                    <div class="password-match">
+
+                                        {{ getPasswordMatchMessage() }}
+
+                                    </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        }
+
+
+                        <!-- TERMS -->
+
+                        <div class="form-section terms">
+
+                            <div class="modern-checkbox">
+
+                                <input type="checkbox" id="agreeToTerms" formControlName="agreeToTerms"
+                                    class="checkbox-input">
+
+
+                                <label for="agreeToTerms" class="checkbox-label">
+
+                                    <div class="checkbox-box">
+                                        ✓
+                                    </div>
+
+                                    <span class="checkbox-text">
+
+                                        Я соглашаюсь с
+                                        <a routerLink="/documents/offer" class="link">
+
+                                            Условиями использования
+
+                                        </a>
+
+                                        и
+
+                                        <a routerLink="/documents/offer" class="link">
+
+                                            Политикой конфиденциальности
+
+                                        </a>
+
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                }
+
+
+                <!-- ================================================= -->
+                <!-- STEP 2 -->
+                <!-- ================================================= -->
+
+                @if (currentStep === 2) {
+
+                <div class="step-company-info">
+
+                    <div class="step-intro">
+
+                        <div class="intro-icon">
+                            🏢
+                        </div>
+
+                        <div class="intro-content">
+
+                            <h2>
+                                Есть ли у вас компания?
+                            </h2>
+
+                            <p>
+                                Укажите ИНН, если компания уже зарегистрирована
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="inn-search-container">
+
+                        <div class="inn-search-card">
+
+
+                            <div class="search-header">
+
+                                <div class="search-icon-wrapper">
+                                    🔎
+                                </div>
+
+                                <div class="search-header-content">
+
+                                    <h3>
+                                        Поиск компании по ИНН
+                                    </h3>
+
+                                    <p>
+                                        Если компания уже существует,
+                                        найдём её автоматически.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="search-input-group">
+
+                                <div class="inn-input-field">
+
+                                    <input type="text" [(ngModel)]="innSearchValue" placeholder="Введите ИНН"
+                                        class="modern-input inn-input" autocomplete="off">
+
+
+                                    @if (isSearchingByInn) {
+
+                                    <div class="search-loader">
+                                        Поиск...
+                                    </div>
+
+                                    }
+
+                                </div>
+
+
+                                <button class="btn-search" (click)="searchByInn()" [disabled]="
+                        isSearchingByInn ||
+                        !innSearchValue.trim()
+                      ">
+
+                                    @if (!isSearchingByInn) {
+
+                                    Найти компанию
+
+                                    } @else {
+
+                                    Поиск...
+
+                                    }
+
+                                </button>
+
+                            </div>
+
+
+                            @if (
+                            hasCompany === true &&
+                            innSearchResult
+                            ) {
+
+                            <div class="search-result-card">
+
+                                <div class="result-header">
+
+                                    <div class="result-badge success">
+
+                                        ✓ Компания найдена
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="result-content">
+
+                                    <h4>
+                                        {{ innSearchResult.fullName }}
+                                    </h4>
+
+
+                                    <p>
+                                        ИНН:
+                                        {{ innSearchResult.inn }}
+                                    </p>
+
+
+                                    <p>
+                                        ОГРН:
+                                        {{ innSearchResult.ogrn }}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            }
+
+
+                            @if (
+                            hasCompany === false
+                            ) {
+
+                            <div class="search-result-card">
+
+                                <div class="result-badge">
+
+                                    Компания не найдена
+
+                                </div>
+
+
+                                <p>
+
+                                    Это нормально — заявку можно
+                                    оформить без зарегистрированной компании.
+
+                                </p>
+
+                            </div>
+
+                            }
+
+
+                            <div class="company-skip-block">
+
+                                <div class="company-skip-text">
+
+                                    <strong>
+                                        Компании ещё нет?
+                                    </strong>
+
+                                    <span>
+                                        Можно сразу перейти к параметрам франшизы.
+                                    </span>
+
+                                </div>
+
+
+                                <button type="button" class="btn-outline" (click)="skipCompanyStep()">
+
+                                    У меня пока нет компании
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                }
+
+
+                <!-- ================================================= -->
+                <!-- STEP 3 -->
+                <!-- ================================================= -->
+
+                @if (currentStep === 3) {
+
+                <div class="step-franchise-info">
+
+                    <div class="step-intro">
+
+                        <div class="intro-icon">
+                            🏪
+                        </div>
+
+                        <div class="intro-content">
+
+                            <h2>
+                                Параметры франшизы
+                            </h2>
+
+                            <p>
+                                Укажите условия и город,
+                                в котором планируете открыть франшизу
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form [formGroup]="franchiseForm" class="modern-form">
+
+
+                        <!-- ========================================= -->
+                        <!-- INVESTMENT -->
+                        <!-- ========================================= -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Тип инвестиций
+                                </h3>
+
+                            </div>
+
+
+                            @if (isLoadingInvestmentTypes) {
+
+                            <div class="loading-state">
+
+                                Загрузка типов инвестиций...
+
+                            </div>
+
+                            } @else if (!investmentTypes.length) {
+
+                            <div class="error-message">
+
+                                Не удалось загрузить типы инвестиций.
+
+                            </div>
+
+                            } @else {
+
+                            <div class="form-grid">
+
+                                <div class="form-group full-width">
+
+                                    <label class="form-label">
+
+                                        Как планируете инвестировать?
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <select formControlName="investmentTypeId" class="modern-input">
+
+                                        <option value="">
+                                            Выберите вариант
+                                        </option>
+
+
+                                        @for (
+                                        type of investmentTypes;
+                                        track type.id
+                                        ) {
+
+                                        <option [value]="type.id">
+
+                                            {{ type.fullName }}
+
+                                        </option>
+
+                                        }
+
+                                    </select>
+
+
+                                    @if (
+                                    franchiseForm.get('investmentTypeId')?.touched &&
+                                    franchiseForm.get('investmentTypeId')?.invalid
+                                    ) {
+
+                                    <div class="error-message">
+
+                                        Выберите тип инвестиций
+
+                                    </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            }
+
+                        </div>
+
+
+                        <!-- ========================================= -->
+                        <!-- OFFICE -->
+                        <!-- ========================================= -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Тип помещения
+                                </h3>
+
+                            </div>
+
+
+                            @if (isLoadingOfficeTypes) {
+
+                            <div class="loading-state">
+
+                                Загрузка типов помещений...
+
+                            </div>
+
+                            } @else if (!officeTypes.length) {
+
+                            <div class="error-message">
+
+                                Не удалось загрузить типы помещений.
+
+                            </div>
+
+                            } @else {
+
+                            <div class="form-grid">
+
+                                <div class="form-group full-width">
+
+                                    <label class="form-label">
+
+                                        Какое помещение планируете использовать?
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <select formControlName="officeTypeId" class="modern-input">
+
+                                        <option value="">
+                                            Выберите вариант
+                                        </option>
+
+
+                                        @for (
+                                        type of officeTypes;
+                                        track type.id
+                                        ) {
+
+                                        <option [value]="type.id">
+
+                                            {{ type.fullName }}
+
+                                        </option>
+
+                                        }
+
+                                    </select>
+
+
+                                    @if (
+                                    franchiseForm.get('officeTypeId')?.touched &&
+                                    franchiseForm.get('officeTypeId')?.invalid
+                                    ) {
+
+                                    <div class="error-message">
+
+                                        Выберите тип помещения
+
+                                    </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            }
+
+                        </div>
+
+
+                        <!-- ========================================= -->
+                        <!-- CITY -->
+                        <!-- ========================================= -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Город открытия
+                                </h3>
+
+                            </div>
+
+
+                            <div class="form-grid">
+
+                                <div class="form-group full-width" [class.error]="
+                        franchiseForm.get('city')?.invalid &&
+                        franchiseForm.get('city')?.touched
+                      ">
+
+                                    <label class="form-label">
+
+                                        Город
+
+                                        <span class="required">
+                                            *
+                                        </span>
+
+                                    </label>
+
+
+                                    <input type="text" formControlName="city" placeholder="Например, Москва"
+                                        class="modern-input">
+
+
+                                    @if (
+                                    franchiseForm.get('city')?.touched &&
+                                    franchiseForm.get('city')?.invalid
+                                    ) {
+
+                                    <div class="error-message">
+
+                                        Укажите город
+
+                                    </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ========================================= -->
+                        <!-- COMPANY INFO -->
+                        <!-- ========================================= -->
+
+                        <div class="form-section">
+
+                            <div class="section-header">
+
+                                <h3>
+                                    Компания
+                                </h3>
+
+                            </div>
+
+
+                            @if (hasCompany) {
+
+                            <div class="company-status-card">
+
+                                <div class="status-icon">
+                                    ✓
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Компания будет указана в заявке
+                                    </strong>
+
+                                    @if (existingPartner?.fullName) {
+
+                                    <div>
+                                        {{ existingPartner.fullName }}
+                                    </div>
+
+                                    }
+
+                                    @if (existingPartner?.inn) {
+
+                                    <div>
+                                        ИНН:
+                                        {{ existingPartner.inn }}
+                                    </div>
+
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            } @else {
+
+                            <div class="company-status-card">
+
+                                <div class="status-icon">
+                                    ℹ
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        Компания пока не зарегистрирована
+                                    </strong>
+
+                                    <div>
+                                        Заявка будет создана без компании.
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            }
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                }
+
+            </div>
+
+        </main>
+
+
+        <!-- ================================================== -->
+        <!-- FOOTER -->
+        <!-- ================================================== -->
+
+        <footer class="registration-footer">
+
+            <div class="footer-left">
+
+                @if (currentStep > 1) {
+
+                <button class="btn-outline" (click)="prevStep()">
+
+                    ← Назад
+
+                </button>
+
+                }
+
+            </div>
+
+
+            <div class="footer-center">
+
+                @if (currentStep === 1) {
+
+                <div class="step-guide">
+
+                    Создайте аккаунт,
+                    чтобы подать заявку на франшизу.
+
+                </div>
+
+                }
+
+
+                @if (currentStep === 2) {
+
+                <div class="step-guide">
+
+                    Компания необязательна.
+                    Можно продолжить без неё.
+
+                </div>
+
+                }
+
+
+                @if (currentStep === 3) {
+
+                <div class="step-guide">
+
+                    Заполните параметры франшизы
+                    и отправьте заявку.
+
+                </div>
+
+                }
+
+            </div>
+
+
+            <div class="footer-right">
+
+
+                @if (currentStep < totalSteps) { <button class="btn-gradient" (click)="nextStep()" [disabled]="
+                isLoading ||
+                isRegisteringUser ||
+                isSearchingByInn
+              ">
+
+                    @if (
+                    isLoading ||
+                    isRegisteringUser ||
+                    isSearchingByInn
+                    ) {
+
+                    <span>
+                        Загрузка...
+                    </span>
+
+                    } @else {
+
+                    <span>
+                        Продолжить
+                    </span>
+
+                    <svg viewBox="0 0 24 24">
+
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z">
+                        </path>
+
+                    </svg>
+
+                    }
+
+                    </button>
+
+                    } @else {
+
+                    <button class="btn-success" (click)="nextStep()" [disabled]="
+                isSubmitting ||
+                !franchiseForm.valid ||
+                isLoadingInvestmentTypes ||
+                isLoadingOfficeTypes
+              ">
+
+                        @if (!isSubmitting) {
+
+                        <span>
+                            Отправить заявку
+                        </span>
+
+                        } @else {
+
+                        <span>
+                            Отправка...
+                        </span>
+
+                        }
+
+                    </button>
+
+                    }
+
+            </div>
+
+        </footer>
+
+    </div>
+
+    }
+
+</div>
