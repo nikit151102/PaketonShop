@@ -1,0 +1,68 @@
+<section class="news-section">
+  <div class="container">
+    <div class="news-header">
+      <div class="header-content">
+        <h1 class="news-title">Блог и статьи</h1>
+        <p class="news-subtitle">Интересные материалы, обзоры и актуальная информация для вас</p>
+      </div>
+    </div>
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Загружаем свежие новости...</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+      <svg class="state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadData()">Попробовать снова</button>
+    </div>
+
+    <div *ngIf="!isLoading && !error && selectedType != 0" class="news-grid">
+      <div *ngFor="let item of filteredNewsItems; let i = index" class="news-card" [routerLink]="['/articles', item.id]"
+        [style.animation-delay]="i * 0.05 + 's'">
+        <div class="card-image">
+          <img [src]="item.imageUrl" [alt]="item.title" loading="lazy">
+          <div class="image-overlay"></div>
+          <div class="card-date">
+            <span class="day">{{ item.date | date:'dd' }}</span>
+            <span class="month">{{ item.date | date:'MMM' }}</span>
+          </div>
+          <span class="card-badge" [class]="'badge-' + item.type" *ngIf="item.type !== undefined">
+            {{ item.type === 0 ? 'Акция' : item.type === 1 ? 'Событие' : 'Новинка' }}
+          </span>
+        </div>
+
+        <div class="card-content">
+          <h3 class="card-title">{{ item.title }}</h3>
+          <p class="card-summary">{{ item.summary }}</p>
+
+          <div class="card-footer">
+            <span class="read-more">
+              <span>Подробнее</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !error && filteredNewsItems.length === 0  && selectedType != 0" class="empty-state">
+      <svg class="state-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.5">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
+      <h3>Новостей пока нет</h3>
+      <p>Загляните позже, мы обязательно что-нибудь опубликуем</p>
+    </div>
+  </div>
+
+</section>

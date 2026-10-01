@@ -136,12 +136,11 @@ $desktop: 1280px;
 // Героическая секция с соотношением 16:10
 .hero-section {
     position: relative;
-    margin: 0 auto;
+    margin: 24px;
     border-radius: 20px;
     overflow: hidden;
-    aspect-ratio: 16 / 4;
-    max-height: 300px;
-    width: 100%;
+    aspect-ratio: 16 / 5;
+    max-height: 555px;
 
     @media (max-width: $laptop) {
         margin: 20px;
@@ -173,11 +172,11 @@ $desktop: 1280px;
     .hero-overlay {
         position: absolute;
         inset: 0;
-        // background: linear-gradient(to top,
-        //         rgba(0, 0, 0, 0.85) 0%,
-        //         rgba(0, 0, 0, 0.5) 40%,
-        //         rgba(0, 0, 0, 0.2) 70%,
-        //         rgba(0, 0, 0, 0.1) 100%);
+        background: linear-gradient(to top,
+                rgba(0, 0, 0, 0.85) 0%,
+                rgba(0, 0, 0, 0.5) 40%,
+                rgba(0, 0, 0, 0.2) 70%,
+                rgba(0, 0, 0, 0.1) 100%);
     }
 }
 
@@ -378,9 +377,9 @@ $desktop: 1280px;
     grid-template-columns: 1fr;
     gap: 24px;
 
-    // @media (min-width: $laptop) {
-    //     grid-template-columns: 2fr 1fr;
-    // }
+    @media (min-width: $laptop) {
+        grid-template-columns: 3fr 1fr;
+    }
 }
 
 .content-main {
@@ -704,11 +703,192 @@ $desktop: 1280px;
 
 // Адаптация для больших экранов
 @media (min-width: $desktop) {
-    // .container {
-    //     padding: 0 32px;
-    // }
-
     .content-main {
         padding: 32px;
     }
+}
+
+
+.sections-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.article-section {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    padding: 24px 0;
+    border-bottom: 1px solid #e5e7eb;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .section-text-content {
+        flex: 1;
+    }
+
+    .section-header {
+        font-size: 24px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 12px;
+        line-height: 1.3;
+    }
+
+    .section-subheader {
+        font-size: 18px;
+        font-weight: 500;
+        color: #6b7280;
+        margin: 0 0 16px;
+        line-height: 1.4;
+    }
+
+    .section-body {
+        font-size: 16px;
+        line-height: 1.7;
+        color: #374151;
+
+        ::ng-deep {
+            p {
+                margin-bottom: 16px;
+            }
+
+            ul,
+            ol {
+                margin: 16px 0;
+                padding-left: 24px;
+            }
+
+            li {
+                margin-bottom: 8px;
+            }
+        }
+    }
+
+    .section-images {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex-shrink: 0;
+
+        img {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+    }
+
+    // Варианты расположения (Block Types)
+    &.block-standard {
+
+        // Текст слева, изображение справа (по умолчанию flex-direction: row)
+        @media (max-width: 768px) {
+            flex-direction: column;
+
+            .section-images {
+                width: 100%;
+
+                img {
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+
+    &.block-extended {
+        // Текст справа, изображение слева
+        flex-direction: row-reverse;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+
+            .section-images {
+                width: 100%;
+
+                img {
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+
+    &.block-fullwidth {
+        // На всю ширину (для таблиц и широкого текста)
+        flex-direction: column;
+        gap: 16px;
+
+        .section-images {
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 100%;
+
+            img {
+                max-width: calc(50% - 6px);
+
+                @media (max-width: 480px) {
+                    max-width: 100%;
+                }
+            }
+        }
+    }
+}
+
+// 🔹 СТИЛИ ДЛЯ ТАБЛИЦЫ
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.article-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    background: #ffffff;
+
+    th,
+    td {
+        padding: 14px 18px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #111827;
+        white-space: nowrap;
+    }
+
+    td {
+        color: #374151;
+    }
+
+    tbody tr {
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background: #f0fdf4; // Легкий зеленый оттенок при наведении
+        }
+
+        &:last-child td {
+            border-bottom: none;
+        }
+    }
+}
+
+.table-error {
+    padding: 16px;
+    background: #fef2f2;
+    color: #991b1b;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 16px;
 }

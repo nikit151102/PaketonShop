@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Inject } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { NewsBannerFilterDto, NewsBannerService } from '../../core/api/news-banner.service';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TitleComponent } from '../../core/components/title/title.component';
-import { SalesProductsComponent } from '../home/components/sales-products/sales-products.component';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { NewsBannerService, NewsBannerFilterDto } from '../../core/api/news-banner.service';
 
 // Интерфейс для одного элемента новости с бэкенда (адаптирован под ваш ответ)
 interface NewsBanner {
@@ -30,29 +29,19 @@ interface NewsItem {
 }
 
 @Component({
-  selector: 'app-news',
-  standalone: true, // Хороший тон для современных компонентов
+  selector: 'app-articles',
   imports: [CommonModule,
     RouterLink,
-    TitleComponent,
-    SalesProductsComponent
-  ],
-  templateUrl: './news.component.html',
-  styleUrls: ['./news.component.scss'] // Обратите внимание на styleUrls (во множественном числе)
+    TitleComponent,],
+  templateUrl: './articles.component.html',
+  styleUrl: './articles.component.scss'
 })
-export class NewsComponent implements OnInit {
+export class ArticlesComponent implements OnInit {
   newsItems: NewsItem[] = [];
   filteredNewsItems: NewsItem[] = [];
   isLoading = true;
   error: string | null = null;
 
-  // Типы новостей для фильтрации
-  newsTypes = [
-    { value: -1, label: 'Все новости' },
-    { value: 0, label: 'Акции' },
-    // { value: 1, label: 'События' },
-    { value: 2, label: 'Новинки' }
-  ];
   selectedType = -1;
 
   // Правильное использование Inject
@@ -63,18 +52,7 @@ export class NewsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      const typeParam = params['type'];
-
-      if (typeParam !== undefined && typeParam !== null) {
-        const parsedType = parseInt(typeParam, 10);
-        if ([-1, 0, 1, 2].includes(parsedType)) {
-          this.selectedType = parsedType;
-        }
-      }
-
-      this.loadData();
-    });
+   this.loadData()
   }
 
   loadData(): void {
@@ -85,7 +63,7 @@ export class NewsComponent implements OnInit {
       filters: [
         {
           field: 'newsBannerType',
-          values: [0], // Получаем все типы новостей
+          values: [2], // Получаем все типы новостей
           type: 1
         }
       ],

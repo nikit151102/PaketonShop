@@ -1,0 +1,199 @@
+<div class="news-detail">
+  <div class="back-button-container">
+    <div class="container">
+      <button class="back-button" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        <span>Назад к списку</span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Загружаем статью...</p>
+  </div>
+
+  <div *ngIf="error" class="error-state">
+    <div class="container">
+      <div class="error-content">
+        <svg class="state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <h2>Что-то пошло не так</h2>
+        <p>{{ error }}</p>
+        <button class="home-btn" routerLink="/news">Вернуться к списку</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !error && news" class="news-content">
+    <!-- Hero Section (Обложка) -->
+    <div class="hero-section" *ngIf="news.imageInstanceLinks?.length">
+      <div class="hero-image" [style.background-image]="'url(' + news.imageInstanceLinks[currentImageIndex] + ')'">
+        <div class="hero-overlay"></div>
+      </div>
+
+      <div *ngIf="news.imageInstanceLinks.length > 1" class="image-navigation">
+        <button class="nav-btn prev" (click)="prevImage()" [disabled]="currentImageIndex === 0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+        <div class="image-indicators">
+          <span *ngFor="let img of news.imageInstanceLinks; let i = index" class="indicator"
+            [class.active]="i === currentImageIndex" (click)="currentImageIndex = i"></span>
+        </div>
+        <button class="nav-btn next" (click)="nextImage()"
+          [disabled]="currentImageIndex === news.imageInstanceLinks.length - 1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="white" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="hero-content-wrapper">
+        <div class="container hero-container">
+          <div class="hero-content">
+            <div class="news-meta">
+              <span class="news-type" [style.background-color]="getNewsTypeColor(news.newsBannerType)">
+                {{ getNewsTypeLabel(news.newsBannerType) }}
+              </span>
+              <span class="news-date" *ngIf="news.beginDateTime">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" />
+                  <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" />
+                  <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" />
+                </svg>
+                {{ formatDate(news.beginDateTime) }}
+              </span>
+            </div>
+            <h1 class="news-header">{{ news.header }}</h1>
+            <p class="news-subheader" *ngIf="news.subheader">{{ news.subheader }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основной контент: Рендеринг секций -->
+    <div class="container main-content">
+      <div class="content-grid">
+        <div class="content-main">
+
+          <!-- Таймер акции (если применимо) -->
+          <div *ngIf="news.newsBannerType === 0 && news.endDateTime" class="promo-timer">
+            <div class="timer-badge" [class.active]="isActive()">
+              <span class="timer-label">{{ isActive() ? 'До окончания' : 'Акция завершена' }}</span>
+              <span *ngIf="isActive()" class="timer-value">{{ getDaysLeft() }} {{ getDaysLeft() === 1 ? 'день' :
+                (getDaysLeft()! < 5 ? 'дня' : 'дней' ) }}</span>
+            </div>
+          </div>
+
+          <!-- 🔹 ДИНАМИЧЕСКИЙ РЕНДЕРИНГ СЕКЦИЙ -->
+          <div class="sections-container">
+            <ng-container *ngFor="let section of sortedSections">
+
+              <!-- 1. Текстовая секция -->
+              <div *ngIf="section.contentType === 1" class="article-section"
+                [ngClass]="getBlockClass(section.blockType)">
+                <div class="section-text-content">
+                  <h2 class="section-header" *ngIf="section.header">{{ section.header }}</h2>
+                  <h3 class="section-subheader" *ngIf="section.subheader">{{ section.subheader }}</h3>
+                  <div class="section-body" [innerHTML]="sanitizeContent(section.mainText)"></div>
+                </div>
+                <div class="section-images" *ngIf="section.imageInstanceLinks?.length">
+                  <img *ngFor="let img of section.imageInstanceLinks" [src]="img" alt="Изображение секции">
+                </div>
+              </div>
+
+              <!-- 2. Секция с таблицей -->
+              <div *ngIf="section.contentType === 2" class="article-section block-fullwidth">
+                <h2 class="section-header" *ngIf="section.header">{{ section.header }}</h2>
+                <h3 class="section-subheader" *ngIf="section.subheader">{{ section.subheader }}</h3>
+
+                <div class="table-wrapper" *ngIf="getTableData(section.mainText) as tableData">
+                  <table class="article-table">
+                    <thead>
+                      <tr>
+                        <th *ngFor="let header of tableData.headers">{{ header }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let row of tableData.rows">
+                        <td *ngFor="let cell of row.cells">{{ cell }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div *ngIf="!getTableData(section.mainText)" class="table-error">
+                  Ошибка отображения таблицы
+                </div>
+              </div>
+
+            </ng-container>
+
+            <!-- Fallback: если секций нет, показываем старый контент (для обратной совместимости) -->
+            <div *ngIf="sortedSections.length === 0 && news.content" class="article-section block-fullwidth">
+              <div class="section-body" [innerHTML]="sanitizeContent(news.content)"></div>
+            </div>
+          </div>
+
+          <!-- Ссылка -->
+          <div class="action-link" *ngIf="news.link">
+            <a [href]="news.link" target="_blank" rel="noopener noreferrer" class="external-link">
+              <span>Перейти по ссылке</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H11"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M21 3L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Сайдбар -->
+        <div class="content-sidebar">
+          <div class="info-card">
+            <h3 class="info-title">Информация</h3>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">Тип:</span>
+                <span class="info-value" [style.color]="getNewsTypeColor(news.newsBannerType)">
+                  {{ getNewsTypeLabel(news.newsBannerType) }}
+                </span>
+              </li>
+              <li>
+                <span class="info-label">Дата создания:</span>
+                <span class="info-value">{{ formatDate(news.beginDateTime) }}</span>
+              </li>
+              <li>
+                <span class="info-label">Статус:</span>
+                <span class="info-value status" [class.active]="isActive()">
+                  {{ isActive() ? 'Активно' : 'Завершено' }}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="image-thumbnails" *ngIf="news.imageInstanceLinks && news.imageInstanceLinks.length > 1">
+            <h3>Все фото</h3>
+            <div class="thumbnail-grid">
+              <div *ngFor="let img of news.imageInstanceLinks; let i = index" class="thumbnail"
+                [class.active]="i === currentImageIndex" (click)="currentImageIndex = i">
+                <img [src]="img" [alt]="news.header + ' ' + (i + 1)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

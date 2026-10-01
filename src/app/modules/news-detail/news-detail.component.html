@@ -32,10 +32,11 @@
 
   <div *ngIf="!isLoading && !error && news" class="news-content">
     <div class="hero-section">
-      <div class="hero-image" [style.background-image]="'url(' + news.imageInstanceLinks[currentImageIndex] + ')'">
-        <div class="hero-overlay"></div>
-      </div>
-      
+<div class="hero-image" 
+     *ngIf="news?.imageInstanceLinks?.length" 
+     [style.background-image]="currentImageUrl">
+  <div class="hero-overlay"></div>
+</div>
       <div *ngIf="news.imageInstanceLinks.length > 1" class="image-navigation">
         <button class="nav-btn prev" (click)="prevImage()" [disabled]="currentImageIndex === 0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -57,7 +58,7 @@
       </div>
 
       <div class="hero-content-wrapper">
-        <div class="container hero-container">
+        <!-- <div class="container hero-container">
           <div class="hero-content">
             <div class="news-meta">
               <span class="news-type" [style.background-color]="getNewsTypeColor(news.newsBannerType)">
@@ -76,14 +77,14 @@
             <h1 class="news-header">{{ news.header }}</h1>
             <p class="news-subheader" *ngIf="news.subheader">{{ news.subheader }}</p>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 
     <div class="container main-content">
       <div class="content-grid">
         <div class="content-main">
-          <div *ngIf="news.newsBannerType === 0 && news.endDateTime" class="promo-timer">
+          <!-- <div *ngIf="news.newsBannerType === 0 && news.endDateTime" class="promo-timer">
             <div class="timer-badge" [class.active]="isActive()">
               <span class="timer-label">
                 {{ isActive() ? 'До окончания' : 'Акция завершена' }}
@@ -92,10 +93,12 @@
                 {{ getDaysLeft() }} {{ getDaysLeft() === 1 ? 'день' : (getDaysLeft()! < 5 ? 'дня' : 'дней') }}
               </span>
             </div>
-          </div>
+          </div> -->
 
+          <h2 class="description-title">{{news.header}}</h2>
+          
           <div class="description" *ngIf="news.description !== news.content">
-            <h2 class="description-title">О событии</h2>
+            <!-- <h2 class="description-title">О событии</h2> -->
             <p class="description-text">{{ news.description }}</p>
           </div>
 
@@ -121,7 +124,7 @@
           </div>
         </div>
 
-        <div class="content-sidebar">
+        <!-- <div class="content-sidebar">
           <div class="info-card">
             <h3 class="info-title">Информация</h3>
             <ul class="info-list">
@@ -169,7 +172,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

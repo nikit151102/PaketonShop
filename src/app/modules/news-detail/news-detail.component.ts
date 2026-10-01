@@ -31,7 +31,7 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
   isLoading = true;
   error: string | null = null;
   currentImageIndex = 0;
-  
+
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -39,7 +39,7 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
     private router: Router,
     private newsBannerService: NewsBannerService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadNewsDetail();
@@ -65,7 +65,7 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
       })
     ).subscribe((response: any) => {
       this.isLoading = false;
-      
+
       if (response.error) {
         this.error = response.error;
         this.news = null;
@@ -91,6 +91,11 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
     return types[type] || 'Новость';
   }
 
+  get currentImageUrl(): string {
+    const url = this.news?.imageInstanceLinks?.[this.currentImageIndex];
+    return url ? `url('${url}')` : 'none';
+  }
+
   // Получить цвет для типа новости
   getNewsTypeColor(type: number): string {
     const colors: Record<number, string> = {
@@ -114,7 +119,7 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
   // Получить период действия
   getValidityPeriod(): string {
     if (!this.news) return '';
-    
+
     const start = this.formatDate(this.news.beginDateTime);
     if (this.news.endDateTime) {
       const end = this.formatDate(this.news.endDateTime);
@@ -126,7 +131,7 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
   // Проверка, активна ли новость (акция)
   isActive(): boolean {
     if (!this.news?.endDateTime) return true;
-    
+
     const now = new Date();
     const endDate = new Date(this.news.endDateTime);
     return now <= endDate;
@@ -135,12 +140,12 @@ export class NewsDetailComponent implements OnInit, OnDestroy {
   // Получить количество дней до окончания
   getDaysLeft(): number | null {
     if (!this.news?.endDateTime) return null;
-    
+
     const now = new Date();
     const endDate = new Date(this.news.endDateTime);
     const diffTime = endDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays > 0 ? diffDays : 0;
   }
 

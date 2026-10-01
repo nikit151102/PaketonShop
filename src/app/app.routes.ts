@@ -101,6 +101,24 @@ export const routes: Routes = [
       keywords: 'франшиза упаковки, франшиза Пакетон, купить франшизу магазина, бизнес на упаковке, готовая бизнес-модель, открытие магазина упаковки'
     }
   },
+      {
+    path: 'articles',
+    loadComponent: () => import('./modules/articles/articles.component').then((m) => m.ArticlesComponent),
+    data: {
+      title: 'Личный кабинет — Пакетон.рф',
+      description: 'Управление заказами, бонусный счёт, адреса доставки и настройки профиля.',
+      keywords: 'личный кабинет, заказы, бонусы'
+    }
+  },
+      {
+    path: 'articles/:id',
+    loadComponent: () => import('./modules/article-details/article-details.component').then((m) => m.ArticleDetailsComponent),
+    data: {
+      title: 'Личный кабинет — Пакетон.рф',
+      description: 'Управление заказами, бонусный счёт, адреса доставки и настройки профиля.',
+      keywords: 'личный кабинет, заказы, бонусы'
+    }
+  },
   {
     path: 'news/:id',
     loadComponent: () => import('./modules/news-detail/news-detail.component').then((m) => m.NewsDetailComponent),
