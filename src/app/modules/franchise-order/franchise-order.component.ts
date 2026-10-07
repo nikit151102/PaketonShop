@@ -18,7 +18,8 @@ import {
   of,
   switchMap,
   map,
-  finalize
+  finalize,
+  forkJoin
 } from 'rxjs';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -98,6 +99,7 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
   showHelp = false;
   showPassword = false;
   showConfirmPassword = false;
+  isStep3DataLoaded = false;
 
   private destroy$ = new Subject<void>();
 
@@ -211,7 +213,7 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
 
     private route: ActivatedRoute,
     private officeTypesService: OfficeTypesService,
-    private investmentTypesService:InvestmentTypesService
+    private investmentTypesService: InvestmentTypesService
   ) {
 
     this.userForm = this.createUserForm();
@@ -280,10 +282,6 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
       });
 
 
-    // Предварительно загружаем данные третьего шага.
-    this.loadInvestmentTypes();
-
-    this.loadOfficeTypes();
   }
 
 
@@ -645,7 +643,8 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
 
           next: response => {
 
-            if (!response?.data) {
+            if (!response?.data || response.data.email == null || !response.data.email) {
+
               return;
             }
 
@@ -680,92 +679,70 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
   // ============================================================
 
   private loadUserData(): void {
-
     this.userApiService
       .getData()
       .pipe(
         catchError(() => of(null))
       )
       .subscribe({
-
         next: response => {
-
           if (!response?.data) {
             return;
           }
 
-          this.setUserData(response.data);
+          const isUserDataValid = this.setUserData(response.data);
 
-          this.progress.step1 = true;
+          if (!isUserDataValid) {
+            return;
+          }
 
           if (!this.companyId) {
             this.currentStep = 2;
           }
         }
-
       });
   }
 
 
-  private setUserData(user: any): void {
+  private setUserData(user: any): boolean {
+    if (!user || user.email == null) {
+      this.currentStep = 1;
+      this.isActiveUser = false;
+      this.userRegistered = false;
+      return false;
+    }
 
+    this.progress.step1 = true;
     this.isActiveUser = true;
-
     this.userRegistered = true;
-
     this.registeredUserId = user.id;
-
 
     let birthdayValue = null;
 
-
     if (user.birthday) {
-
-      const date =
-        new Date(user.birthday);
-
-      const year =
-        date.getFullYear();
-
-      const month =
-        String(date.getMonth() + 1)
-          .padStart(2, '0');
-
-      const day =
-        String(date.getDate())
-          .padStart(2, '0');
-
-      birthdayValue =
-        `${year}-${month}-${day}`;
+      const date = new Date(user.birthday);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      birthdayValue = `${year}-${month}-${day}`;
     }
 
-
     this.userForm.patchValue({
-
       email: user.email,
-
       firstName: user.firstName,
-
       lastName: user.lastName,
-
       middleName: user.middleName,
-
       birthday: birthdayValue,
-
       phoneNumber: user.phoneNumber,
-
       agreeToTerms: true,
-
       password: '',
-
       confirmPassword: ''
-
     });
 
-
     this.updateUserFormValidators();
-  }
 
+    return true;
+  }
 
   // ============================================================
   // REGISTER USER
@@ -1206,116 +1183,84 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
   // ============================================================
 
   private loadUserDataAndPartner(): void {
-
     this.isLoadingPartner = true;
-
 
     this.userApiService
       .getData()
       .pipe(
-
         switchMap(userResponse => {
 
-          this.setUserData(
-            userResponse.data
-          );
+          const isUserDataValid = this.setUserData(userResponse.data);
 
-          this.progress.step1 = true;
+          if (!isUserDataValid) {
+            return of(null);
+          }
 
-          return this.partnerService
-            .getPartnerById(
-              this.companyId!
-            );
+          return this.partnerService.getPartnerById(this.companyId!);
         }),
-
         finalize(() => {
-
           this.isLoadingPartner = false;
         }),
-
         catchError(error => {
-
-          this.error =
-            'Ошибка при загрузке данных компании';
-
+          this.error = 'Ошибка при загрузке данных компании';
           return of(null);
         })
-
       )
       .subscribe({
-
         next: partnerResponse => {
-
-          if (
-            !partnerResponse?.data
-          ) {
-
-            this.error =
-              'Компания не найдена';
-
+          if (!partnerResponse?.data) {
+            this.error = 'Компания не найдена';
             return;
           }
 
-
-          this.existingPartner =
-            partnerResponse.data;
-
+          this.existingPartner = partnerResponse.data;
           this.hasCompany = true;
-
           this.showCompanyForm = true;
-
-          this.fillCompanyForm(
-            partnerResponse.data
-          );
-
+          this.fillCompanyForm(partnerResponse.data);
           this.progress.step2 = true;
-
           this.currentStep = 3;
         }
-
       });
   }
 
+  private loadStep3DataIfNeeded(): void {
+    if (this.isStep3DataLoaded) {
+      return;
+    }
 
-  // ============================================================
-  // INVESTMENT TYPES
-  // ============================================================
-
-  private loadInvestmentTypes(): void {
-
+    this.isStep3DataLoaded = true;
     this.isLoadingInvestmentTypes = true;
-
-    this.investmentTypesService.getData({
-      filters: [],
-      sorts: [],
-      page: 0,
-      pageSize: 50
-    }).subscribe((value: any) => {
-      this.isLoadingInvestmentTypes = false;
-      this.investmentTypes = value.data;
-    })
-  
-  }
-
-  // ============================================================
-  // OFFICE TYPES
-  // ============================================================
-
-  private loadOfficeTypes(): void {
-
     this.isLoadingOfficeTypes = true;
 
-    this.officeTypesService.getData({
-      filters: [],
-      sorts: [],
-      page: 0,
-      pageSize: 50
-    }).subscribe((value: any) => {
-      this.isLoadingOfficeTypes = false;
-      this.officeTypes = value.data;
+    forkJoin({
+      investments: this.investmentTypesService.getData({
+        filters: [],
+        sorts: [],
+        page: 0,
+        pageSize: 50
+      }),
+      offices: this.officeTypesService.getData({
+        filters: [],
+        sorts: [],
+        page: 0,
+        pageSize: 50
+      })
     })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (results) => {
+          this.investmentTypes = results.investments?.data || [];
+          this.officeTypes = results.offices?.data || [];
+        },
+        error: () => {
+          this.error = 'Ошибка при загрузке типов инвестиций и помещений';
+        },
+        complete: () => {
+          this.isLoadingInvestmentTypes = false;
+          this.isLoadingOfficeTypes = false;
+        }
+      });
   }
-
 
   // ============================================================
   // NEXT STEP
@@ -1630,7 +1575,7 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
           formValue.officeTypeId
       };
 
-      if(this.companyId) request.partnerInstanceId = this.companyId
+      if (this.companyId) request.partnerInstanceId = this.companyId
 
       console.log(
         'FRANCHISE ORDER REQUEST:',

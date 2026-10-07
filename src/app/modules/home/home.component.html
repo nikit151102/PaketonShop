@@ -9,10 +9,19 @@
   <app-carousel-banner></app-carousel-banner>
 
   <app-business-block></app-business-block>
+
+
   <!-- Категории -->
   <section class="section">
     <app-title [title]="'Категории'" [description]="'Выберите интересующую вас категорию'"></app-title>
     <app-category-section [categories]="categories"> </app-category-section>
+  </section>
+
+  <!-- Акции -->
+  <section id="section-sales" class="section">
+    <app-title [title]="'Товары по акции'"
+      [description]="'Товары улетают за минуты. Торопитесь, пока есть в наличии!'"></app-title>
+    <app-sales-products></app-sales-products>
   </section>
 
   <!-- Ниши -->
@@ -22,12 +31,7 @@
     <app-groups-section [showAll]="false"></app-groups-section>
   </section>
 
-  <!-- Акции -->
-  <section id="section-sales" class="section">
-    <app-title [title]="'Товары по акции'"
-      [description]="'Товары улетают за минуты. Торопитесь, пока есть в наличии!'"></app-title>
-    <app-sales-products></app-sales-products>
-  </section>
+
   <!-- Индикация загрузки -->
 
   <!-- Популярные -->
