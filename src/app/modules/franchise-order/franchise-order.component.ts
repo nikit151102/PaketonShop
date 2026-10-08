@@ -1078,6 +1078,7 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
     this.progress.step2 = true;
 
     this.currentStep = 3;
+    this.loadStep3DataIfNeeded();
 
     this.showSuccessToast(
       'Компания не найдена. Можно продолжить без компании'
@@ -1106,7 +1107,7 @@ export class FranchiseOrderComponent implements OnInit, OnDestroy {
     this.progress.step2 = true;
 
     this.currentStep = 3;
-
+    this.loadStep3DataIfNeeded();
     this.scrollToTop();
   }
 
