@@ -36,13 +36,13 @@
         <div class="card-image">
           <img [src]="item.imageUrl" [alt]="item.title" loading="lazy">
           <div class="image-overlay"></div>
-          <div class="card-date">
+          <!-- <div class="card-date">
             <span class="day">{{ item.date | date:'dd' }}</span>
             <span class="month">{{ item.date | date:'MMM' }}</span>
           </div>
           <span class="card-badge" [class]="'badge-' + item.type" *ngIf="item.type !== undefined">
             {{ item.type === 0 ? 'Акция' : item.type === 1 ? 'Событие' : 'Новинка' }}
-          </span>
+          </span> -->
         </div>
 
         <div class="card-content">

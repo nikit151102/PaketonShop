@@ -109,7 +109,7 @@ export class MobileBottomNavComponent {
       '/business',
       '/documents'
     ];
-    
+
     this.menuItems = labels.map((label, index) => ({
       label,
       icon: this.sanitizer.bypassSecurityTrustHtml(icons[index]),
@@ -157,46 +157,64 @@ export class MobileBottomNavComponent {
       localStorageEnvironment.auth.key,
     );
 
+    const isGuestToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.isGuestToken.key,
+    ) as boolean | null;
+
+
     if (!authToken) {
+      this.authService.setRedirectingToProfile(true);
       this.authService.changeVisible(true);
       return;
     }
+    const isGuest = isGuestToken === true;
 
-    this.userId$.pipe(take(1)).subscribe((userId) => {
-      if (userId) {
-        this.router.navigate(['/profile']);
-        return;
-      }
+    if (isGuest) {
+      this.authService.setRedirectingToProfile(true);
+      this.authService.changeVisible(true);
+      return;
+    } else {
+      this.userId$.pipe(take(1)).subscribe((userId) => {
+        if (userId) {
+          this.router.navigate(['/profile']);
+          return;
+        }
 
-      const userData = StorageUtils.getSessionStorage<User>(
-        sessionStorageEnvironment.user.key,
-      );
-      if (userData && userData.id) {
-        this.router.navigate(['/profile']);
-        return;
-      }
+        const userData = StorageUtils.getSessionStorage<User>(
+          sessionStorageEnvironment.user.key,
+        );
+        if (userData && userData.id) {
+          this.router.navigate(['/profile']);
+          return;
+        }
 
-      this.userApiService
-        .getData()
-        .pipe(take(1))
-        .subscribe((data: any) => {
-          if (data?.data?.id) {
-            StorageUtils.setSessionStorage(
-              sessionStorageEnvironment.user.key,
-              data.data,
-            );
-            this.router.navigate(['/profile']);
-          } else {
-            this.authService.changeVisible(true);
-          }
-        });
-    });
+        this.userApiService
+          .getData()
+          .pipe(take(1))
+          .subscribe((data: any) => {
+            if (data?.data?.id) {
+              StorageUtils.setSessionStorage(
+                sessionStorageEnvironment.user.key,
+                data.data,
+              );
+              this.router.navigate(['/profile']);
+            } else {
+              this.authService.changeVisible(true);
+            }
+          });
+      });
+    }
   }
 
   changeTab(tab: string) {
     const authToken = StorageUtils.getLocalStorageCache(
       localStorageEnvironment.auth.key,
     );
+
+    const isGuestToken = StorageUtils.getLocalStorageCache(
+      localStorageEnvironment.isGuestToken.key,
+    ) as boolean | null;
+
 
     if (tab == 'favorites') {
       if (!authToken) {
@@ -207,8 +225,10 @@ export class MobileBottomNavComponent {
         this.router.navigate(['/profile/favorites']);
       }
     }
+
     if (tab == 'cart') {
-      if (!authToken) {
+      const isGuest = isGuestToken === true;
+      if (!authToken || isGuest == true) {
         this.authService.changeVisible(true);
         return;
       } else {

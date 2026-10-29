@@ -1,4 +1,4 @@
-<div class="bottom-nav">
+c<div class="bottom-nav">
   <button class="nav-item" [routerLink]="''" [class.active]="activeTab === 'home' && !isMenuOpen"
     (click)="changeTab('home')">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,7 +35,7 @@
     </button>
   </div>
 
-  <button class="nav-item cart-item" [routerLink]="'cart'" [class.active]="activeTab === 'cart'"
+  <button class="nav-item cart-item"  [class.active]="activeTab === 'cart'"
     (click)="changeTab('cart')">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

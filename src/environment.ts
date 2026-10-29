@@ -37,7 +37,7 @@ export const localStorageEnvironment = {
     ttl: 14 * 60 * 60,
   },
 };
-
+  
 export const sessionStorageEnvironment = {
   auth: {
     key: 'pkt_',

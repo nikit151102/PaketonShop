@@ -49,6 +49,13 @@ export class ProductPlaceService {
             0
           ],
           "type": 2
+        },
+        {
+          field: "isDeleted",
+          values: [
+            1
+          ],
+          "type": 12
         }
       ],
       sorts: [],
