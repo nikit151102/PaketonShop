@@ -47,7 +47,8 @@ export class CityDeliveryComponent implements OnInit {
     'барнаул',
     'новосибирск',
     'бийск',
-    'рубцовск'
+    'рубцовск',
+    'белово'
   ];
 
   // Состояния
