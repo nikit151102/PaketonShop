@@ -22,6 +22,7 @@ import { YandexIdButtonComponent } from '../../core/components/yandex-id-button/
 import { BasketsService } from '../../core/api/baskets.service';
 import { BasketsStateService } from '../../core/services/baskets-state.service';
 import { ToastService } from '../../core/components/toast/toast.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-auth',
@@ -55,6 +56,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   };
 
   private readonly toast = inject(ToastService);
+  private cookieService = inject(CookieService);
 
   // свойства для сброса пароля
   authMode: 'login' | 'register' | 'forgot-password' = 'login';
@@ -694,6 +696,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   private handleLoginSuccess(response: any): void {
     localStorage.removeItem(localStorageEnvironment.isGuestToken.key)
     this.authService.handleLoginSuccess(response);
+    this.cookieService.set('user_token', response, 7, '/'); //Срок жизни (в днях)
     this.userApiService.getData().subscribe((data) => {
       this.userService.setUser(data.data, 'session', true);
       this.closePopUp();
@@ -759,8 +762,8 @@ export class AuthComponent implements OnInit, OnDestroy {
 
 
   /**
- * Обработчик ввода кода: авто-фокус и форматирование
- */
+  * Обработчик ввода кода: авто-фокус и форматирование
+  */
   onCodeInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     let value = input.value.replace(/\D/g, ''); // Только цифры

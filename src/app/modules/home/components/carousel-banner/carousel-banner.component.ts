@@ -88,9 +88,18 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
     this.newsBannerService.getNewsBannersByFilter(filterDto).subscribe({
       next: (response) => {
         if (response?.data?.length) {
-          this.slides = this.mapBannersToSlides(response.data);
+          const sortedData = [...response.data].sort((a, b) => {
+            if (a.sortIndex === null && b.sortIndex === null) return 0;
+            if (a.sortIndex === null) return 1;
+            if (b.sortIndex === null) return -1;
+            return a.sortIndex - b.sortIndex;
+          });
+
+          // 2. Передаем отсортированные данные в маппинг
+          this.slides = this.mapBannersToSlides(sortedData);
           this.initializeCarousel();
         } else {
+          this.slides = [];
         }
         this.isLoading = false;
       },
