@@ -70,7 +70,7 @@ export class CarouselBannerComponent implements OnInit, OnDestroy {
         },
         {
           field: 'isDeleted',
-          values: [1],
+          values: [0],
           type: 1
         }
 

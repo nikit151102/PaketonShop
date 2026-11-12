@@ -53,7 +53,7 @@ export class ProductPlaceService {
         {
           field: "isDeleted",
           values: [
-            1
+            0
           ],
           "type": 12
         }
