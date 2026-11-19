@@ -26,6 +26,7 @@ export interface ProductInstance {
 export interface productBarCodes {
   barCode: string;
   coefficient: number;
+  viewCoefficient?: number;
   id: string;
   isDeleted: boolean;
   measurementUnit: MeasurementUnit;

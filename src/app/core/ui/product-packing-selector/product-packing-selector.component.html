@@ -7,8 +7,11 @@
     <div class="packing-grid">
         @for (item of sortedProductPacking; track $index) {
         <button class="packing-btn" [class.active]="selectedBarcodeId === item.id" (click)="selectBarcode(item.id)">
-            <span class="coefficient">{{ item.coefficient }}</span>
-            @if (baseMeasurementUnit) {
+            <span class="coefficient">{{ item.viewCoefficient || item.coefficient }}</span>
+            @if(item.viewCoefficient && item.viewCoefficient > 1){
+                  <span class="unit">шт</span>
+            }
+            @else {
             <span class="unit">{{baseMeasurementUnit.shortName}}</span>
             }
         </button>
