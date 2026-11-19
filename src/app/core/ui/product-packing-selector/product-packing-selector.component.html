@@ -8,7 +8,7 @@
         @for (item of sortedProductPacking; track $index) {
         <button class="packing-btn" [class.active]="selectedBarcodeId === item.id" (click)="selectBarcode(item.id)">
             <span class="coefficient">{{ item.viewCoefficient || item.coefficient }}</span>
-            @if(item.viewCoefficient && item.viewCoefficient > 1){
+            @if(item.viewCoefficient){
                   <span class="unit">шт</span>
             }
             @else {
